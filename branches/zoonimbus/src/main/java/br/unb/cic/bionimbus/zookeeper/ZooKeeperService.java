@@ -1,19 +1,12 @@
 package br.unb.cic.bionimbus.zookeeper;
 
-import br.unb.cic.bionimbus.network.utils.NetUtils;
-import br.unb.cic.bionimbus.services.file.FileService;
 import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -33,6 +26,7 @@ public class ZooKeeperService {
 
 
     public void connect(String hosts) throws IOException, InterruptedException {
+                
         System.out.println("Conectando ao ZK...");
         zk = new ZooKeeper(hosts, SESSION_TIMEOUT, new Watcher() {
             @Override

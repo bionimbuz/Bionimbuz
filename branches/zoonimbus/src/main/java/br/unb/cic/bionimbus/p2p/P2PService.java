@@ -149,8 +149,10 @@ public class P2PService implements MessageListener, FileListener {
 			chord.add(node);
 		} else {
 			for (P2PListener listener : listeners) {
-				P2PEvent event = new P2PMessageEvent(message);
+                            if (listener != null) {
+				P2PEvent event = new P2PMessageEvent(message);                                
 				listener.onEvent(event);
+                            }
 			}
 		}
 	}

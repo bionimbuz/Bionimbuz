@@ -20,8 +20,9 @@ public class BioNimbusConfig {
 	private boolean client = false;	
 	private String serverPath = "";
     
-    private String proxyHost = "localhost";
-    private int proxyPort = 8080;
+        private String proxyHost = "localhost";
+        private int proxyPort = 8080;
+        private String zkHosts;
 
     public String getProxyHost() {
         return proxyHost;
@@ -97,6 +98,14 @@ public class BioNimbusConfig {
 	                  .add(serverPath, serverPath)
 		              .toString();
 	}
+
+    public String getZkHosts() {
+        return zkHosts;
+    }
+    
+    public void setZkHosts(String hosts) {
+        zkHosts = hosts;
+    }
 
 
 }
