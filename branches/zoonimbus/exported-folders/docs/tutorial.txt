@@ -1,0 +1,67 @@
+1. Iniciando na pasta biofoco3/bionimbus execute:
+$ mvn clean install 
+$ mvn clean package assembly:single
+$ cp target/bionimbus-1.0-SNAPSHOT-bundle.jar exported-folders
+$ cd exported-folders
+$ sh bin/client.sh (para rodar o client)
+$ sh bin/server.sh (para rodar o servidor)
+
+2. Reparem que os arquivos de configuração server.json e client.json estão dentro de exported-targets/conf
+
+3. Ficar rodando "mvn clean..." pode ser bem chato... Pro cliente não tem problema já que quase nunca será alterado. Mas no caso do servidor acaba atrapalhando. No Eclipse eu dava o play no BioNimbus e ele rodava o servidor porque eu fiz uma gambiarra que está em um dos meus branches:
+https://code.google.com/p/biofoco3/source/browse/branches/carlos-cancel-job/bionimbus/src/main/java/br/unb/cic/bionimbus/BioNimbus.java
+Reparem na linha 13:
+	public static String BASE_PATH = "/home/parallels/Devel/UnB/vc/biofoco3/bionimbus/exported-folders/";
+
+e na linha 35:
+	String configFile = System.getProperty("config.file", BASE_PATH + "conf/server.json");
+
+Essas linhas faziam com que ele buscasse o server.json do local correto e facilitava bastante meu trabalho já que para executar os testes bastava dar um Run no Eclipse e depois usar o sh bin/client.sh para abrir o cliente.
+
+4. Quando eu executo o cliente aparece um shell (bem bugado, vocês vão ver). O primeiro comando que eu usava era o "connect" para conectar no servidor. 
+[@bionimbus]$ connect
+
+Outro comando útil é o "services" que exibe a lista de comandos que podem ser executados no servidor:
+[@bionimbus]$ services
+
+A primeira vez que vocês rodarem provavelmente virá vazio. Para adicionar serviços copiem a pasta "services" para dentro de "exported-folders". 
+
+Depois que copiarem a pasta "services" para "exported-folders" vocês vão ver que ao digitar "services" no cliente vários serviços aparecerão (Pode demorar um pouco para aparecer... Enquanto o output do servidor estiver aparecendo uma mensagem do tipo "2013-04-10 00:52:28,557  WARN [pool-2-thread-5] (SchedService.java:410) - SCHED ERROR: type=INFO;msg=Plugin is loading..." esse arquivo não é carregado. Então aguardem uns 5 minutos e vejam se essa mensagem some ou não. Se não sumir falem comigo.)
+
+Dentro da pasta "services" existem vários arquivos .json com o formato parecido com o do exemplo abaixo:
+Por exemplo: 
+{
+  "id": 1023296285,
+  "name": "date",
+  "arguments": [],
+  "input": [],
+  "output": [],
+  "info": "date command",
+  "path": "/bin/date"
+}
+
+Esse arquivo é o do serviço date.json. Reparem que o que vai acontecer é a execução do script "/bin/date" no servidor. 
+
+Para executar um serviço deve-se digitar:
+start ID_SERVICO
+
+Por exemplo, para executar o comando "date" use:
+[@bionimbus]$ start 1023296285
+
+Se vocês observarem o console do servidor enquanto chamam esse serviço perceberão um output parecido com:
+
+Latency: [1.0]
+Process: [1.0]
+Global : [1.0]
+SCHEDULE MSG: 4477c8c5-9e51-414b-8643-55fe0ab9ed5f escalonado para d9fd19e9-52e2-4e4d-ab60-8d95fe5c39ce
+Qua 10 Abr 2013 01:07:37 BRT
+isPending: 0
+Job 4477c8c5-9e51-414b-8643-55fe0ab9ed5f: 5.714 segundos
+
+Isso quer dizer que o serviço foi agendado para execução, escalonado e executado! =)
+Para criar um novo serviço basta criar um arquivo .json dentro da pasta services seguindo o padrão dos outros.
+
+5. Acho que isso já é o suficiente para começar. Com um BREAKPOINT aqui e ali no código da para entender da onde veio pra onde vai etc. E qualquer coisa é só me mandarem um email.
+
+Abs,
+Carlos Augusto

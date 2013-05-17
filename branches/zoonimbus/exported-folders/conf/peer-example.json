@@ -1,0 +1,1 @@
+{"id":"2043430392832ab", "host":{"address": "localhost", "port": 9999}, "client": false, "seeds": [{"address":"localhost","port":9191},{"address":"localhost","port":9292}], "serverPath": "./"}
