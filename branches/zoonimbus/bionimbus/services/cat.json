@@ -1,1 +1,0 @@
-{"id": 123456, "name": "cat", "arguments":["%I1 %O1"], "input":["inputFile"], "output":["outputFile"], "info": "cat command", "path": "/home/hugo.saldanha/cat.sh"}
