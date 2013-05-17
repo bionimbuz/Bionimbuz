@@ -34,7 +34,7 @@ public class UsageExample {
         zkService.createPersistentZNode("/peers", null);
 
         String data = "id: " + UUID.randomUUID() + "\n" +
-                "net-address: " + NetUtils.getAddress("eth0") + "\n" +
+                "net-address: " + NetUtils.getAddress("wlan0") + "\n" +
                 "cpu-cores: " + Runtime.getRuntime().availableProcessors() + "\n" +
                 "disk-space: " + FileService.getFreeSpace("/");
 
@@ -53,7 +53,7 @@ public class UsageExample {
 
             TimeUnit.SECONDS.sleep(2);
             data = "id: " + peerID + "\n" +
-                          "net-address: " + NetUtils.getAddress("eth0") + "\n" +
+                          "net-address: " + NetUtils.getAddress("wlan0") + "\n" +
                           "cpu-cores: " + Runtime.getRuntime().availableProcessors() + "\n" +
                           "disk-space: " + FileService.getFreeSpace("/");
 
