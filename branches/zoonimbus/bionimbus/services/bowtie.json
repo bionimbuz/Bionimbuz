@@ -1,1 +1,0 @@
-{"id": 1111, "name": "bowtie", "arguments":["%I1 %I2 %O1"], "input":["inputFile"], "output":["outputFile"], "info": "bowtie alignment tool", "path": "./programs/bowtie.sh"}

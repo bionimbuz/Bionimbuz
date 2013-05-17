@@ -1,1 +1,0 @@
-{"id": 1112, "name": "sam2bed", "arguments":["%I1 %O1"], "input":["inputFile"], "output":["outputFile"], "info": "sam2bed tool", "path": "./programs/sam2bed.sh"}
