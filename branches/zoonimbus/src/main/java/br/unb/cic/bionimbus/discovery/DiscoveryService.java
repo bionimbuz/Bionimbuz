@@ -108,6 +108,11 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
                         e.printStackTrace();
                     }
                 }
+                System.out.println("tamanho do values"+map.values().size());
+                for(PluginInfo a :map.values()){
+                    System.out.println("no"+a.getHost().getAddress());
+                    System.out.println("espaço"+a.getFsSize()); 
+                }
                                 
 //                System.out.println(map.values().toString());
                                 
