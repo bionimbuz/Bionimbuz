@@ -89,16 +89,19 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
                 
                 children = zkService.getChildren(ROOT_PEER, null);
                 
+                System.out.println(children);
+                
                 for (String child : children) {
                    // if (!peerName.contains(child)){
                    try {
-                        System.out.println("peer: " + peerName);
+//                        System.out.println("peer: " + peerName);
                         String childStr = zkService.getData(ROOT_PEER + SEPARATOR + child, null);
+                        System.out.println(childStr);
                         ObjectMapper mapper = new ObjectMapper();
                         PluginInfo myInfo = mapper.readValue(childStr, PluginInfo.class); 
-                        System.out.println("id:" + myInfo.getId());
-                        System.out.println("cores:" + myInfo.getNumCores());
-                        System.out.println("disk:" + myInfo.getFsFreeSize());
+//                        System.out.println("id:" + myInfo.getId());
+//                        System.out.println("cores:" + myInfo.getNumCores());
+//                        System.out.println("disk:" + myInfo.getFsFreeSize());
                         
                         map.put(myInfo.getId(), myInfo);
                     } catch (Exception e) {
@@ -106,7 +109,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
                     }
                 }
                                 
-                System.out.println(map.values().toString());
+//                System.out.println(map.values().toString());
                                 
                 
     ////        removeStaleEntriesFromInfoMap();
