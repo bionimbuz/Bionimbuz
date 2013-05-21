@@ -1,5 +1,6 @@
 package br.unb.cic.bionimbus.zookeeper;
 
+import com.google.inject.Singleton;
 import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
@@ -14,18 +15,28 @@ import java.util.concurrent.CountDownLatch;
  * User: edward
  * To change this template use File | Settings | File Templates.
  */
+@Singleton
 public class ZooKeeperService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperService.class);
 
     private ZooKeeper zk;
     private static final int SESSION_TIMEOUT = 3000;
-    private volatile boolean connecting = true;
 
     private final CountDownLatch countDownLatch = new CountDownLatch(1);
+    
+    public enum Status {
+        NO_CONNECTED, CONNECTING, CONNECTED;
+    }
 
+    private volatile Status status = Status.NO_CONNECTED;    
+    
+    public Status getStatus() {
+        return status;
+    }
 
-    public void connect(String hosts) throws IOException, InterruptedException {
+    public synchronized void connect(String hosts) throws IOException, InterruptedException {
+        status = Status.CONNECTING;
                 
         System.out.println("Conectando ao ZK...");
         zk = new ZooKeeper(hosts, SESSION_TIMEOUT, new Watcher() {
@@ -35,6 +46,7 @@ public class ZooKeeperService {
                 // Evento que indica conexão ao ensemble
                 if (event.getState() == Event.KeeperState.SyncConnected) {
                     System.out.println("Conectado ao ZK!");
+                    status = Status.CONNECTED;
                     countDownLatch.countDown();
                 }
                 System.out.println(event);
@@ -98,7 +110,12 @@ public class ZooKeeperService {
         Stat stat = zk.setData(path, data.getBytes(), -1);
     }
 
-    public void close() throws InterruptedException {
-        zk.close();
+    public void close() throws InterruptedException {       
+        try {
+            zk.close();
+        }
+        finally {
+            status = Status.NO_CONNECTED;
+        }
     }
 }

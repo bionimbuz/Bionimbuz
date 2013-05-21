@@ -1,5 +1,6 @@
 package br.unb.cic.bionimbus.storage;
 
+import br.unb.cic.bionimbus.AbstractBioService;
 import java.io.File;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,8 +33,14 @@ import br.unb.cic.bionimbus.p2p.messages.StoreReqMessage;
 import br.unb.cic.bionimbus.p2p.messages.StoreRespMessage;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
+import br.unb.cic.bionimbus.zookeeper.ZooKeeperService;
+import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class StorageService implements Service, P2PListener, Runnable {
+public class StorageService extends AbstractBioService {
 
 	private final ScheduledExecutorService executorService = Executors
 			.newScheduledThreadPool(1, new BasicThreadFactory.Builder()
@@ -44,16 +51,29 @@ public class StorageService implements Service, P2PListener, Runnable {
 	private Map<String, PluginFile> savedFiles = new ConcurrentHashMap<String, PluginFile>();
 
 	private P2PService p2p = null;
+                
+        @Inject
+        public StorageService(final ZooKeeperService service) {
+            Preconditions.checkNotNull(service);
+            this.zkService = service;          
+        }
 
 	@Override
 	public void run() {
-		System.out.println("running StorageService...");
-		Message msg = new CloudReqMessage(p2p.getPeerNode());
-		p2p.broadcast(msg); // TODO isso e' broadcast?
+            System.out.println("Executando loop.");
+
+//                        Message msg = new CloudReqMessage(p2p.getPeerNode());
+//                        p2p.broadcast(msg); // TODO isso e' broadcast?                        
+
 	}
+        
+
 
 	@Override
 	public void start(P2PService p2p) {
+            
+                connectZK();
+
 		File file = new File("persistent-storage.json");
 		if (file.exists()) {
 			try {
@@ -69,7 +89,7 @@ public class StorageService implements Service, P2PListener, Runnable {
 		if (p2p != null)
 			p2p.addListener(this);
 
-		executorService.scheduleAtFixedRate(this, 0, 30, TimeUnit.SECONDS);
+		executorService.scheduleAtFixedRate(this, 0, 3, TimeUnit.SECONDS);
 	}
 
 	@Override

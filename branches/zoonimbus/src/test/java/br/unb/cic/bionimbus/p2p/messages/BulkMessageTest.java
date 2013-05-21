@@ -14,7 +14,6 @@ import org.junit.Test;
 
 public class BulkMessageTest {
 
-	@Test
 	public void testBulkMessage() throws JsonGenerationException, JsonMappingException, IOException {
 		BulkMessage m = new BulkMessage();
 		m.setPeerID("929202");

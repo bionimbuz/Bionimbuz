@@ -104,10 +104,10 @@ public class SchedService implements Service, P2PListener, Runnable {
 
 	@Override
 	public void run() {
-		System.out.println("running SchedService...");
-		onSchedEvent();
-		Message msg = new CloudReqMessage(p2p.getPeerNode());
-		p2p.broadcast(msg);
+//		System.out.println("running SchedService...");
+//		onSchedEvent();
+//		Message msg = new CloudReqMessage(p2p.getPeerNode());
+//		p2p.broadcast(msg);
 	}
 
 	/** PASSOS DO ESCALONADOR **/
