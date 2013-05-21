@@ -151,7 +151,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
             try {
                 Preconditions.checkNotNull(p2p);
 
-                this.connectZK();
+                this.connectZK(p2p.getConfig().getZkHosts());
                 
                 zkService.createPersistentZNode("/peers", null);
                 
