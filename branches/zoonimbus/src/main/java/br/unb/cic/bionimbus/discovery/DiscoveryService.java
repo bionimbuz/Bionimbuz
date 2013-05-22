@@ -91,9 +91,11 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
                 
                 System.out.println(children);
                 
+                map.clear();
                 for (String child : children) {
                    // if (!peerName.contains(child)){
                    try {
+                        
 //                        System.out.println("peer: " + peerName);
                         String childStr = zkService.getData(ROOT_PEER + SEPARATOR + child, null);
                         System.out.println(childStr);
