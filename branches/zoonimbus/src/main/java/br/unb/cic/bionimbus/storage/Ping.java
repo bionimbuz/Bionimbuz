@@ -4,20 +4,9 @@
  */
 package br.unb.cic.bionimbus.storage;
 
-import br.unb.cic.bionimbus.config.BioNimbusConfig;
-import br.unb.cic.bionimbus.config.BioNimbusConfigLoader;
-import br.unb.cic.bionimbus.p2p.Host;
-import br.unb.cic.bionimbus.p2p.P2PService;
-import br.unb.cic.bionimbus.p2p.PeerNode;
-import java.net.*;
 import java.io.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 /**
  *
  * @author deric
@@ -27,11 +16,11 @@ public class Ping {
    // private String pingCmd;
      // public static void main(String[] args) throws IOException{     
         
-    public static float calculo (String pingCmd) throws IOException{
+    public static long calculo (String pingCmd) throws IOException{
         
             //String pingCmd = "192.168.1.146";
             
-            float avg=0;
+            long avg = 0;
             float taxadetransferencia=0;
             float sizerequest=0;
             float temporesp=0;
@@ -44,7 +33,6 @@ public class Ping {
             BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
             Pattern pattern = Pattern.compile("(?<=time=).*.(?= )");
             Pattern patternBand = Pattern.compile("(?<=\\) ).*.(?=\\()");
-           // Pattern patternBand = Pattern.compile("(?<= ).*.(?=\\()");
 
             while ((teste = in.readLine()) != null && times <4) {
                 System.out.println("1: "+teste);
@@ -77,8 +65,7 @@ public class Ping {
                 times +=1;
         //        pingResult += teste;
             }
-            float avglatency = avg/(times-1);
-            System.out.println(" Latencia média : " +avglatency);
+            long avglatency = avg/(times-1);
            
             return avglatency;
        /* }

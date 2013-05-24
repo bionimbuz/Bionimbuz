@@ -28,12 +28,12 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 public class Upload extends AbstractBioService implements Command {
         private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
-	
+        
         public static final String NAME = "upload";
 
-	private final SimpleShell shell;
+        private final SimpleShell shell;
 
-        private float latency;
+        private long latency;
         
         private static final String ROOT_PEER = "/peers";
         private static final String SEPARATOR = "/";
@@ -42,25 +42,25 @@ public class Upload extends AbstractBioService implements Command {
         private List<String> children;
         private ConcurrentMap<String, PluginInfo> map = Maps.newConcurrentMap();
         
-	public Upload(SimpleShell shell) {
-		this.shell = shell;
-	}
+        public Upload(SimpleShell shell) {
+                this.shell = shell;
+        }
 
-	@Override
-	public String execute(String... params) throws Exception {
-		if (!shell.isConnected())
-			throw new IllegalStateException(
-					"This command should be used with an active connection!");
+        @Override
+        public String execute(String... params) throws Exception {
+                if (!shell.isConnected())
+                        throw new IllegalStateException(
+                                        "This command should be used with an active connection!");
 
-		P2PService p2p = shell.getP2P();
-		SyncCommunication comm = new SyncCommunication(p2p);
+                P2PService p2p = shell.getP2P();
+                SyncCommunication comm = new SyncCommunication(p2p);
 
-		shell.print("Uploading file...");
+                shell.print("Uploading file...");
                 
                 StoragePolicy policy = new StoragePolicy();
                 Ping ping = new Ping();
                             
-		File file = new File(params[0]);
+                File file = new File(params[0]);
                 if(file.exists()){
                     FileInfo info = new FileInfo();
                     info.setName(params[0]);
@@ -69,9 +69,9 @@ public class Upload extends AbstractBioService implements Command {
                     this.map=getPeers();
                     for(PluginInfo plugin:map.values())
                     {
-                         latency = Ping.calculo(plugin.getHost().getAddress());
+                         //latency = Ping.calculo(plugin.getHost().getAddress());
                          plugin.setLatency(latency);
-                         policy.calcBestCost(plugin);
+                         //policy.calcBestCost(plugin);
                         System.out.println("Adress:"+plugin.getHost().getAddress());
                         System.out.println("Port:"+plugin.getHost().getPort());
                     }
@@ -88,21 +88,21 @@ public class Upload extends AbstractBioService implements Command {
                     return "File " + resp.getFileInfo().getName() + " succesfully uploaded.";
                 }
                 return "File " + file.getPath() + " don't exists.";
-	}
+        }
 
-	@Override
-	public String usage() {
-		return NAME + " <filepath>";
-	}
+        @Override
+        public String usage() {
+                return NAME + " <filepath>";
+        }
 
-	@Override
-	public String getName() {
-		return NAME;
-	}
+        @Override
+        public String getName() {
+                return NAME;
+        }
 
-	@Override
-	public void setOriginalParamLine(String param) {
-	}
+        @Override
+        public void setOriginalParamLine(String param) {
+        }
 
     @Override
     public void start(P2PService p2p) {
