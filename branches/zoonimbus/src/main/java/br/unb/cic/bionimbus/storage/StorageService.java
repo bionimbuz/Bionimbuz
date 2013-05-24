@@ -14,6 +14,7 @@ import org.codehaus.jackson.type.TypeReference;
 
 import br.unb.cic.bionimbus.Service;
 import br.unb.cic.bionimbus.client.FileInfo;
+import br.unb.cic.bionimbus.discovery.DiscoveryService;
 import br.unb.cic.bionimbus.messaging.Message;
 import br.unb.cic.bionimbus.p2p.P2PEvent;
 import br.unb.cic.bionimbus.p2p.P2PEventType;
@@ -37,6 +38,8 @@ import br.unb.cic.bionimbus.zookeeper.ZooKeeperService;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -79,8 +82,10 @@ public class StorageService extends AbstractBioService {
 			try {
 				ObjectMapper mapper = new ObjectMapper();
 				Map<String, PluginFile> map = mapper.readValue(new File("persistent-storage.json"), new TypeReference<Map<String, PluginFile>>(){});
-				savedFiles = new ConcurrentHashMap<String, PluginFile>(map);
-			} catch (Exception e) {
+                                if (filesChanged(map.values()))                  
+                                   map = mapper.readValue(new File("persistent-storage.json"), new TypeReference<Map<String, PluginFile>>(){});
+                                savedFiles = new ConcurrentHashMap<String, PluginFile>(map);
+                        } catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
@@ -122,9 +127,11 @@ public class StorageService extends AbstractBioService {
 		switch (P2PMessageType.of(msg.getType())) {
 		case CLOUDRESP:
 			CloudRespMessage cloudMsg = (CloudRespMessage) msg;
-			for (PluginInfo info : cloudMsg.values()) {
+                     /*   DiscoveryService data=new DiscoveryService(zkService);
+                        ConcurrentMap<String,PluginInfo> cloudData= data.getPeers();
+			for (PluginInfo info : cloudData.values()) {
 				cloudMap.put(info.getId(), info);
-			}
+			}*/
 			break;
 		case STOREREQ:
 			StoreReqMessage storeMsg = (StoreReqMessage) msg;
@@ -162,12 +169,43 @@ public class StorageService extends AbstractBioService {
 	
 	public void sendStoreResp(FileInfo info, String taskId, PeerNode dest) {
 		for (PluginInfo plugin : cloudMap.values()) {
-			if (info.getSize() < plugin.getFsFreeSize()) {
+                    
+			/*if (info.getSize() < plugin.getFsFreeSize()) {
 				StoreRespMessage msg = new StoreRespMessage(p2p.getPeerNode(), plugin, info, taskId);
 				p2p.sendMessage(dest.getHost(), msg);
 				return;
-			}
+			}*/
 		}
 	}
-
+        
+        /**
+            * Verifica se os arquivos listados no persistent storage existem, caso não existam é gerado um novo persistent-storage.json
+        */
+        public boolean filesChanged(Collection<PluginFile> files) throws IOException
+        {
+           ObjectMapper mapper = new ObjectMapper();
+           Collection<PluginFile> savedFilesOld= files;
+           for (PluginFile archive : files){
+                System.out.println("nome:" + archive.getPath());
+                File arq = new File(archive.getPath());
+                if(arq.exists()&& checkFiles(archive, savedFilesOld))     
+                    savedFiles.put(archive.getId(), archive);       
+           }
+           if(!savedFiles.isEmpty() && !savedFiles.equals(savedFilesOld)){
+            mapper.writeValue(new File("persistent-storage.json"), savedFiles);
+            return true;
+           }
+           return false;
+           
+        }
+        
+        public boolean checkFiles(PluginFile arc,  Collection<PluginFile>old) throws IOException{
+            for(PluginFile archive_check : old){
+                    if(arc.getPath().equalsIgnoreCase(archive_check.getPath())){
+                        return true; 
+                    }
+                }
+            
+            return false;
+        }
 }

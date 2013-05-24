@@ -127,6 +127,34 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
                 Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
             }
 	}
+        
+        public ConcurrentMap<String, PluginInfo> getPeers(){
+        
+            System.out.println(peerName);
+            try {
+                
+                children = zkService.getChildren(ROOT_PEER, null);
+                
+                map.clear();
+                for (String child : children) {
+                   // if (!peerName.contains(child)){
+                   try {
+                        String childStr = zkService.getData(ROOT_PEER + SEPARATOR + child, null);
+                        System.out.println(childStr);
+                        ObjectMapper mapper = new ObjectMapper();
+                        PluginInfo myInfo = mapper.readValue(childStr, PluginInfo.class);                         
+                        map.put(myInfo.getId(), myInfo);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (KeeperException ex) {
+                Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return map;
+        }
 //
 //    private void broadcastDiscoveryMessage() {
 //        Preconditions.checkNotNull(p2p);
