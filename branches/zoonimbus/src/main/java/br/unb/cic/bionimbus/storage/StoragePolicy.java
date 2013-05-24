@@ -4,10 +4,14 @@
  */
 package br.unb.cic.bionimbus.storage;
 
+
+import br.unb.cic.bionimbus.p2p.Host;
+import br.unb.cic.bionimbus.plugin.PluginInfo;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import br.unb.cic.bionimbus.plugin.PluginInfo;
 
 
 /**
@@ -15,25 +19,34 @@ import br.unb.cic.bionimbus.plugin.PluginInfo;
  * @author deric
  */
 public class StoragePolicy {
+
+    private double peso_latency = 0.5;
+    private double peso_space = 0.2;
+    private double peso_uptime = 0.3;
     
-    private double peso_Latencia = 0.5;
-    private double peso_Freesize = 0.2;
-    private double peso_Uptime = 0.3;
+    Collection<PluginInfo> best = new ArrayList<PluginInfo>();
+    
+    private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
     
     // Método para receber as variaveis e calcular o custo de armazenamento
-    public float calcBestCost(PluginInfo plugin) {
+    public long calcBestCost(long latency) {
+    
+        long cost;
         
-        float cost;
-        float bestcost;
-       // PluginInfo plugin = new PluginInfo();
+        PluginInfo pluginInfo = null;
         
-                cost = (float) ((plugin.getFsFreeSize() * peso_Freesize) + (plugin.getUptime() * peso_Uptime) + (plugin.getLatency() * peso_Latencia));
-                plugin.setStorageCost(cost);
-            
+        //Calculando os custos de armazenamento dos peers
+        cost = (long) ((pluginInfo.getFsFreeSize() * peso_space) + (pluginInfo.getUptime() * peso_uptime) + (latency * peso_latency));
         
         return cost;
-        
+     
     }
+    /*
+    public long compare(PluginInfo a, PluginInfo b){
+            PluginInfo a1 = (PluginInfo) a;
+            PluginInfo b1 = (PluginInfo) b;
+            return a1.getLatency() < b1.getLatency() ? -1 : (a1.getLatency() > b1.getLatency() ? +1 : 0);            
+    }*/
     
     
     

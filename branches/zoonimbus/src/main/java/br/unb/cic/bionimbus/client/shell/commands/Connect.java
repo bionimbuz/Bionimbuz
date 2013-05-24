@@ -6,6 +6,8 @@ import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.config.BioNimbusConfigLoader;
 import br.unb.cic.bionimbus.p2p.P2PService;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
+import br.unb.cic.bionimbus.storage.Ping;
+import br.unb.cic.bionimbus.storage.StoragePolicy;
 import br.unb.cic.bionimbus.zookeeper.ZooKeeperService;
 import com.google.common.collect.Maps;
 import java.util.List;
@@ -17,6 +19,7 @@ public class Connect implements Command {
     public static final String NAME = "connect";
     private ZooKeeperService zkService;
     private final SimpleShell shell;
+    private long latency;
     private static final String ROOT_PEER = "/peers";
     private static final String SEPARATOR = "/";
     private List<String> children;
@@ -58,8 +61,28 @@ public class Connect implements Command {
            for(PluginInfo a :map.values()){
                     System.out.println("no"+a.getHost().getAddress());
                     System.out.println("espaço"+a.getFsSize()); 
+                    
+                    //instaciar objetos
+                    StoragePolicy policy = new StoragePolicy();
+                    Ping ping = new Ping();
+                    
+                    //calculo da latencia
+                    latency = Ping.calculo(a.getHost().getAddress());
+                    a.setLatency(latency);
+                    
+                    //calculo dos custo de armazenamento
+                    a.setStorageCost(policy.calcBestCost(latency));
+                    System.out.println("\n Ip: " +a.getHost().getAddress()+"\n Custo de armazenamento: "+a.getStorageCost());
                 }
         shell.setConnected(true);
+        
+        
+        
+        
+        
+        
+        
+        
         return "client is connected.";
     }
 
