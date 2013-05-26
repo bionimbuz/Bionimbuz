@@ -80,4 +80,8 @@ public class JettyRunner {
 //                pendingJobs.inc();
     }
 
+    public static void main(String[] args) throws Exception {
+        new JettyRunner(9191, null).start();
+    }
+
 }
