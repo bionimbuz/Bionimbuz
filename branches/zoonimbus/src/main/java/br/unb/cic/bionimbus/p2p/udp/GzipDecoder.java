@@ -12,40 +12,40 @@ import org.jboss.netty.handler.codec.frame.CorruptedFrameException;
 import org.jboss.netty.handler.codec.frame.FrameDecoder;
 
 public class GzipDecoder extends FrameDecoder {
-	
-	@Override
-	protected Object decode(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer) throws Exception {
 
-		//wait until the length prefix is available (in bytes)
-		if (buffer.readableBytes() < 4){
-			return null;
-		}
+    @Override
+    protected Object decode(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer) throws Exception {
 
-		buffer.markReaderIndex();
+        //wait until the length prefix is available (in bytes)
+        if (buffer.readableBytes() < 4) {
+            return null;
+        }
 
-		//wait until the whole data is available
-		int dataLength = buffer.readInt();
-		if (buffer.readableBytes() < dataLength){
-			buffer.resetReaderIndex();
-			return null;
-		}
+        buffer.markReaderIndex();
 
-		byte[] decoded = new byte[dataLength];
-		buffer.readBytes(decoded);
+        //wait until the whole data is available
+        int dataLength = buffer.readInt();
+        if (buffer.readableBytes() < dataLength) {
+            buffer.resetReaderIndex();
+            return null;
+        }
 
-		return deserialize(decoded);
-	}
+        byte[] decoded = new byte[dataLength];
+        buffer.readBytes(decoded);
 
-	private Object deserialize(byte[] buf) throws CorruptedFrameException, IOException {
-		
-		GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(buf));
-		
-		byte[] data = new byte[buf.length];
-		gis.read(data, 0, data.length);
-		
-		ChannelBuffer cb = ChannelBuffers.dynamicBuffer();
-		cb.writeInt(data.length);
-		cb.writeBytes(data);
-		return cb;
-	}
+        return deserialize(decoded);
+    }
+
+    private Object deserialize(byte[] buf) throws CorruptedFrameException, IOException {
+
+        GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(buf));
+
+        byte[] data = new byte[buf.length];
+        gis.read(data, 0, data.length);
+
+        ChannelBuffer cb = ChannelBuffers.dynamicBuffer();
+        cb.writeInt(data.length);
+        cb.writeBytes(data);
+        return cb;
+    }
 }

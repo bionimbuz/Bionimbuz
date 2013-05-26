@@ -3,38 +3,39 @@ package br.unb.cic.bionimbus.p2p.udp;
 
 public final class WireMessage {
 
-	private int id;
+    private int id;
 
-	private String data;
-	
-	public WireMessage() {}
-	
-	public WireMessage(int id, String data) {
-		this.id = id;
-		this.data = data;
-	}
+    private String data;
 
-	public int getId() {
+    public WireMessage() {
+    }
 
-		return id;
-	}
+    public WireMessage(int id, String data) {
+        this.id = id;
+        this.data = data;
+    }
 
-	public void setId(int id) {
+    public int getId() {
 
-		this.id = id;
-	}
+        return id;
+    }
 
-	public String getData() {
+    public void setId(int id) {
 
-		return data;
-	}
+        this.id = id;
+    }
 
-	public void setData(String data) {
+    public String getData() {
 
-		this.data = data;
-	}
+        return data;
+    }
 
-	public String toString() {
-		return id + ":" + data;
-	}
+    public void setData(String data) {
+
+        this.data = data;
+    }
+
+    public String toString() {
+        return id + ":" + data;
+    }
 }

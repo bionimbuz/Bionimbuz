@@ -14,24 +14,24 @@ import org.junit.Test;
 
 public class BulkMessageTest {
 
-	public void testBulkMessage() throws JsonGenerationException, JsonMappingException, IOException {
-		BulkMessage m = new BulkMessage();
-		m.setPeerID("929202");
-		m.setHost(new Host("localhost", 9090));
-		
-		PluginInfo p = new PluginInfo();
-		p.setId("101");
-		
-		m.setPluginList(Arrays.asList(p));
-		
-		ObjectMapper mapper = new ObjectMapper();
-		String raw = mapper.writeValueAsString(m);
-		System.out.println(raw);
-		
-		BulkMessage message = mapper.readValue(raw.getBytes(), BulkMessage.class);
-		
-		System.out.println(message.getPluginList().isEmpty());
-		
-		
-	}
+    public void testBulkMessage() throws JsonGenerationException, JsonMappingException, IOException {
+        BulkMessage m = new BulkMessage();
+        m.setPeerID("929202");
+        m.setHost(new Host("localhost", 9090));
+
+        PluginInfo p = new PluginInfo();
+        p.setId("101");
+
+        m.setPluginList(Arrays.asList(p));
+
+        ObjectMapper mapper = new ObjectMapper();
+        String raw = mapper.writeValueAsString(m);
+        System.out.println(raw);
+
+        BulkMessage message = mapper.readValue(raw.getBytes(), BulkMessage.class);
+
+        System.out.println(message.getPluginList().isEmpty());
+
+
+    }
 }

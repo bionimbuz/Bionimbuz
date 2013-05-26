@@ -16,51 +16,51 @@ import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 
 public class ProxyPlugin extends AbstractPlugin {
-	
-	private ServerSocket server;
-	private static final int PORT = 8080;
-	
-	private final ExecutorService executor = Executors.newCachedThreadPool();
-	
-	private volatile boolean ready;
 
-	public ProxyPlugin(P2PService p2p)  {
-		super(p2p);
-	}
-	
-	public void startServer() throws IOException {
-		server = new ServerSocket(PORT);
-		while (true) {
-			Socket client = server.accept();
-		}
-	}
+    private ServerSocket server;
+    private static final int PORT = 8080;
 
-	@Override
-	protected Future<PluginInfo> startGetInfo() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    private final ExecutorService executor = Executors.newCachedThreadPool();
 
-	@Override
-	protected Future<PluginFile> saveFile(String filename) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    private volatile boolean ready;
 
-	@Override
-	protected Future<PluginGetFile> getFile(Host origin, PluginFile file, String taskId, String savePath) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public ProxyPlugin(P2PService p2p) {
+        super(p2p);
+    }
 
-	@Override
-	protected Future<PluginTask> startTask(PluginTask task) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	public boolean isReady() {
-		return ready;
-	}
+    public void startServer() throws IOException {
+        server = new ServerSocket(PORT);
+        while (true) {
+            Socket client = server.accept();
+        }
+    }
+
+    @Override
+    protected Future<PluginInfo> startGetInfo() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    protected Future<PluginFile> saveFile(String filename) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    protected Future<PluginGetFile> getFile(Host origin, PluginFile file, String taskId, String savePath) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    protected Future<PluginTask> startTask(PluginTask task) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public boolean isReady() {
+        return ready;
+    }
 
 }

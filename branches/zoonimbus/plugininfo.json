@@ -1,1 +1,68 @@
-{"id":"5c5d7276-c017-4ec0-b79b-c91c25c7a755","host":{"address":"localhost","port":9999},"uptime":0,"latency":0,"timestamp":0,"numCores":8,"numNodes":1,"numOccupied":0,"fsSize":1.96046946E12,"fsFreeSize":1.95397812E12,"services":[{"id":1113,"name":"genome2interval","arguments":["%I1 %I2 %O1"],"input":["inputFile"],"output":["outputFile"],"info":"genome2interval tool","path":"./programs/genome2interval.sh"},{"id":1114,"name":"coverageBed","arguments":["%I1 %I2 %O1"],"input":["inputFile"],"output":["outputFile"],"info":"coverageBed tool","path":"./programs/coverageBed.sh"},{"id":1111,"name":"bowtie","arguments":["%I1 %I2 %O1"],"input":["inputFile"],"output":["outputFile"],"info":"bowtie alignment tool","path":"./programs/bowtie.sh"},{"id":1023296285,"name":"date","arguments":[],"input":[],"output":[],"info":"date command","path":"/bin/date"},{"id":1112,"name":"sam2bed","arguments":["%I1 %O1"],"input":["inputFile"],"output":["outputFile"],"info":"sam2bed tool","path":"./programs/sam2bed.sh"},{"id":123456,"name":"cat","arguments":["%I1 %O1"],"input":["inputFile"],"output":["outputFile"],"info":"cat command","path":"/home/hugo.saldanha/cat.sh"},{"id":1985,"name":"teste","arguments":[],"input":[],"output":[],"info":"teste para capturar tasks pendentes","path":"./programs/teste.sh"}]}
+{"id": "5c5d7276-c017-4ec0-b79b-c91c25c7a755", "host": {
+    "address": "localhost",
+    "port": 9999
+}, "uptime": 0, "latency": 0, "timestamp": 0, "numCores": 8, "numNodes": 1, "numOccupied": 0, "fsSize": 1.96046946E12, "fsFreeSize": 1.95397812E12, "services": [
+    {
+        "id": 1113,
+        "name": "genome2interval",
+        "arguments": ["%I1 %I2 %O1"],
+        "input": ["inputFile"],
+        "output": ["outputFile"],
+        "info": "genome2interval tool",
+        "path": "./programs/genome2interval.sh"
+    },
+    {
+        "id": 1114,
+        "name": "coverageBed",
+        "arguments": ["%I1 %I2 %O1"],
+        "input": ["inputFile"],
+        "output": ["outputFile"],
+        "info": "coverageBed tool",
+        "path": "./programs/coverageBed.sh"
+    },
+    {
+        "id": 1111,
+        "name": "bowtie",
+        "arguments": ["%I1 %I2 %O1"],
+        "input": ["inputFile"],
+        "output": ["outputFile"],
+        "info": "bowtie alignment tool",
+        "path": "./programs/bowtie.sh"
+    },
+    {
+        "id": 1023296285,
+        "name": "date",
+        "arguments": [],
+        "input": [],
+        "output": [],
+        "info": "date command",
+        "path": "/bin/date"
+    },
+    {
+        "id": 1112,
+        "name": "sam2bed",
+        "arguments": ["%I1 %O1"],
+        "input": ["inputFile"],
+        "output": ["outputFile"],
+        "info": "sam2bed tool",
+        "path": "./programs/sam2bed.sh"
+    },
+    {
+        "id": 123456,
+        "name": "cat",
+        "arguments": ["%I1 %O1"],
+        "input": ["inputFile"],
+        "output": ["outputFile"],
+        "info": "cat command",
+        "path": "/home/hugo.saldanha/cat.sh"
+    },
+    {
+        "id": 1985,
+        "name": "teste",
+        "arguments": [],
+        "input": [],
+        "output": [],
+        "info": "teste para capturar tasks pendentes",
+        "path": "./programs/teste.sh"
+    }
+]}

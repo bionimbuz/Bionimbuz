@@ -11,75 +11,75 @@ import br.unb.cic.bionimbus.p2p.messages.JobReqMessage;
 import br.unb.cic.bionimbus.p2p.messages.JobRespMessage;
 
 public class JobStart implements Command {
-	
-	public static final String NAME = "start";
-	
-	private final SimpleShell shell;
-	
-	public JobStart(SimpleShell shell) {
-		this.shell = shell;
-	}
 
-	@Override
-	public String execute(String... params) throws Exception {
-		if (!shell.isConnected())
-			throw new IllegalStateException(
-					"This command should be used with an active connection!");
+    public static final String NAME = "start";
 
-		P2PService p2p = shell.getP2P();
-		SyncCommunication comm = new SyncCommunication(p2p);
-		int i = 0;
+    private final SimpleShell shell;
 
-		shell.print("Starting job...");
+    public JobStart(SimpleShell shell) {
+        this.shell = shell;
+    }
 
-		JobInfo job = new JobInfo();
-		job.setId(null);
-		job.setServiceId(Long.parseLong(params[0]));
-		i++;
+    @Override
+    public String execute(String... params) throws Exception {
+        if (!shell.isConnected())
+            throw new IllegalStateException(
+                    "This command should be used with an active connection!");
 
-		while (i < params.length) {
-			if (i == 1) {
-				job.setArgs(params[i]);
-				i++;
-			} else if (params[i].equals("-i")) {
-				i++;
-				while (i < params.length && !params[i].equals("-o")) {
-					job.addInput(params[i], Long.valueOf(0));
-					i++;
-				}
-			} else if (params[i].equals("-o")) {
-				i++;
-				while (i < params.length) {
-					job.addOutput(params[i]);
-					i++;
-				}
-			}
-		}
+        P2PService p2p = shell.getP2P();
+        SyncCommunication comm = new SyncCommunication(p2p);
+        int i = 0;
 
-		ArrayList<JobInfo> jobList = new ArrayList<JobInfo>();
-		jobList.add(job);
-		comm.sendReq(new JobReqMessage(p2p.getPeerNode(), jobList), P2PMessageType.JOBRESP);
-		JobRespMessage resp = (JobRespMessage) comm.getResp();
-		
-		if (resp.getJobInfo() == null) {
-			return "Unavailable service for job.";
-		}
-		
-		return "Job " + resp.getJobInfo().getId() + " started succesfully";
-	}
+        shell.print("Starting job...");
 
-	@Override
-	public String usage() {
-		return NAME + " <serviceId> [args [-i inputs] [-o outputs]]";
-	}
+        JobInfo job = new JobInfo();
+        job.setId(null);
+        job.setServiceId(Long.parseLong(params[0]));
+        i++;
 
-	@Override
-	public String getName() {
-		return NAME;
-	}
+        while (i < params.length) {
+            if (i == 1) {
+                job.setArgs(params[i]);
+                i++;
+            } else if (params[i].equals("-i")) {
+                i++;
+                while (i < params.length && !params[i].equals("-o")) {
+                    job.addInput(params[i], Long.valueOf(0));
+                    i++;
+                }
+            } else if (params[i].equals("-o")) {
+                i++;
+                while (i < params.length) {
+                    job.addOutput(params[i]);
+                    i++;
+                }
+            }
+        }
 
-	@Override
-	public void setOriginalParamLine(String param) {
-	}
+        ArrayList<JobInfo> jobList = new ArrayList<JobInfo>();
+        jobList.add(job);
+        comm.sendReq(new JobReqMessage(p2p.getPeerNode(), jobList), P2PMessageType.JOBRESP);
+        JobRespMessage resp = (JobRespMessage) comm.getResp();
+
+        if (resp.getJobInfo() == null) {
+            return "Unavailable service for job.";
+        }
+
+        return "Job " + resp.getJobInfo().getId() + " started succesfully";
+    }
+
+    @Override
+    public String usage() {
+        return NAME + " <serviceId> [args [-i inputs] [-o outputs]]";
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
+    @Override
+    public void setOriginalParamLine(String param) {
+    }
 
 }

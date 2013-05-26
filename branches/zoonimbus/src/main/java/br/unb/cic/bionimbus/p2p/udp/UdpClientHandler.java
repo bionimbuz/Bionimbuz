@@ -8,15 +8,15 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 
 public class UdpClientHandler extends SimpleChannelHandler {
 
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-		e.getCause().printStackTrace();
-		e.getChannel().close();
-	}
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
+        e.getCause().printStackTrace();
+        e.getChannel().close();
+    }
 
-	@Override
-	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-		System.out.println("Message from server: " + e.getMessage());
-	}
+    @Override
+    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+        System.out.println("Message from server: " + e.getMessage());
+    }
 
 }

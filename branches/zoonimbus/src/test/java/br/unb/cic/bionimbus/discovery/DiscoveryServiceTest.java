@@ -30,10 +30,11 @@ public class DiscoveryServiceTest {
 
     }
 
-    @Test public void testCache() throws InterruptedException {
+    @Test
+    public void testCache() throws InterruptedException {
         Cache<Object, Object> cache = CacheBuilder.newBuilder().initialCapacity(1000).weakKeys().expireAfterWrite(2, TimeUnit.SECONDS).build();
         cache.put("10", 1);
-        
+
         TimeUnit.SECONDS.sleep(3);
 
         System.out.println("Resultado:" + cache.getIfPresent("10"));

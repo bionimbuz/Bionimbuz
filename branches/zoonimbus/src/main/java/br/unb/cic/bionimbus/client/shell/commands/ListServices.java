@@ -10,55 +10,55 @@ import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginService;
 
 public class ListServices implements Command {
-	
-	public static final String NAME = "services";
-	
-	private final SimpleShell shell;
-	
-	public ListServices(SimpleShell shell) {
-		this.shell = shell;
-	}
 
-	@Override
-	public String execute(String... params) throws Exception {
-		if (!shell.isConnected())
-			throw new IllegalStateException("This command should be used with an active connection!");
+    public static final String NAME = "services";
 
-		P2PService p2p = shell.getP2P();
-		SyncCommunication comm = new SyncCommunication(p2p);
+    private final SimpleShell shell;
 
-		shell.print("Listing services...");
+    public ListServices(SimpleShell shell) {
+        this.shell = shell;
+    }
 
-		comm.sendReq(new CloudReqMessage(p2p.getPeerNode()), P2PMessageType.CLOUDRESP);
-		CloudRespMessage cloudMsg = (CloudRespMessage) comm.getResp();
+    @Override
+    public String execute(String... params) throws Exception {
+        if (!shell.isConnected())
+            throw new IllegalStateException("This command should be used with an active connection!");
 
-		String list = "";
-		if (!cloudMsg.values().isEmpty()) {
-			for (PluginInfo info : cloudMsg.values()) {
-				for (PluginService service : info.getServices()) {
-					list += "ID: " + service.getId() + "; NAME: " + service.getName() + "\n";
-				}
-			}
-		} else {
-			list = "0 services found.\n";
-		}
-		list += "\n";
-		
-		return list;
-	}
+        P2PService p2p = shell.getP2P();
+        SyncCommunication comm = new SyncCommunication(p2p);
 
-	@Override
-	public String usage() {
-		return NAME;
-	}
+        shell.print("Listing services...");
 
-	@Override
-	public String getName() {
-		return NAME;
-	}
+        comm.sendReq(new CloudReqMessage(p2p.getPeerNode()), P2PMessageType.CLOUDRESP);
+        CloudRespMessage cloudMsg = (CloudRespMessage) comm.getResp();
 
-	@Override
-	public void setOriginalParamLine(String param) {
-	}
+        String list = "";
+        if (!cloudMsg.values().isEmpty()) {
+            for (PluginInfo info : cloudMsg.values()) {
+                for (PluginService service : info.getServices()) {
+                    list += "ID: " + service.getId() + "; NAME: " + service.getName() + "\n";
+                }
+            }
+        } else {
+            list = "0 services found.\n";
+        }
+        list += "\n";
+
+        return list;
+    }
+
+    @Override
+    public String usage() {
+        return NAME;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
+    @Override
+    public void setOriginalParamLine(String param) {
+    }
 
 }

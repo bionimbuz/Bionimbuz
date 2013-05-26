@@ -10,56 +10,56 @@ import br.unb.cic.bionimbus.plugin.PluginFile;
 
 public class ListFiles implements Command {
 
-	public static final String NAME = "files";
+    public static final String NAME = "files";
 
-	private final SimpleShell shell;
+    private final SimpleShell shell;
 
-	public ListFiles(SimpleShell shell) {
-		this.shell = shell;
-	}
+    public ListFiles(SimpleShell shell) {
+        this.shell = shell;
+    }
 
-	@Override
-	public String execute(String... params) throws Exception {
+    @Override
+    public String execute(String... params) throws Exception {
 
-		if (!shell.isConnected())
-			throw new IllegalStateException(
-					"This command should be used with an active connection!");
+        if (!shell.isConnected())
+            throw new IllegalStateException(
+                    "This command should be used with an active connection!");
 
-		P2PService p2p = shell.getP2P();
-		SyncCommunication comm = new SyncCommunication(p2p);
+        P2PService p2p = shell.getP2P();
+        SyncCommunication comm = new SyncCommunication(p2p);
 
-		shell.print("Listing files...");
+        shell.print("Listing files...");
 
-		comm.sendReq(new ListReqMessage(p2p.getPeerNode()),
-				P2PMessageType.LISTRESP);
-		ListRespMessage resp = (ListRespMessage) comm.getResp();
+        comm.sendReq(new ListReqMessage(p2p.getPeerNode()),
+                P2PMessageType.LISTRESP);
+        ListRespMessage resp = (ListRespMessage) comm.getResp();
 
-		String list = "";
-		if (!resp.values().isEmpty()) {
-			for (PluginFile file : resp.values()) {
-				list += "ID: " + file.getId() + "; NAME: " + file.getPath() + "; SIZE: " + file.getSize() + "\n";
-			}
-			list += resp.values().size() + " files found.\n";
-		} else {
-			list = "0 files found.\n";
-		}
-		list += "\n";
+        String list = "";
+        if (!resp.values().isEmpty()) {
+            for (PluginFile file : resp.values()) {
+                list += "ID: " + file.getId() + "; NAME: " + file.getPath() + "; SIZE: " + file.getSize() + "\n";
+            }
+            list += resp.values().size() + " files found.\n";
+        } else {
+            list = "0 files found.\n";
+        }
+        list += "\n";
 
-		return list;
-	}
+        return list;
+    }
 
-	@Override
-	public String usage() {
-		return NAME;
-	}
+    @Override
+    public String usage() {
+        return NAME;
+    }
 
-	@Override
-	public String getName() {
-		return NAME;
-	}
+    @Override
+    public String getName() {
+        return NAME;
+    }
 
-	@Override
-	public void setOriginalParamLine(String param) {
-	}
+    @Override
+    public void setOriginalParamLine(String param) {
+    }
 
 }

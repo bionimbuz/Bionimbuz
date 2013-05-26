@@ -6,40 +6,40 @@ import br.unb.cic.bionimbus.utils.JsonCodec;
 
 public class JobCancelRespMessage extends AbstractMessage {
 
-	private String jobId;
+    private String jobId;
 
-	public JobCancelRespMessage() {
-		super();
-	}
+    public JobCancelRespMessage() {
+        super();
+    }
 
-	public JobCancelRespMessage(PeerNode peer, String jobId) {
-		super(peer);
-		this.jobId = jobId;
-	}
+    public JobCancelRespMessage(PeerNode peer, String jobId) {
+        super(peer);
+        this.jobId = jobId;
+    }
 
-	public String getJobId() {
-		return jobId;
-	}
+    public String getJobId() {
+        return jobId;
+    }
 
-	@Override
-	public void deserialize(byte[] buffer) throws Exception {
+    @Override
+    public void deserialize(byte[] buffer) throws Exception {
 
-		BulkMessage message = decodeBasicMessage(buffer);
-		jobId = message.getJobId();
-	}
+        BulkMessage message = decodeBasicMessage(buffer);
+        jobId = message.getJobId();
+    }
 
-	@Override
-	public byte[] serialize() throws Exception {
+    @Override
+    public byte[] serialize() throws Exception {
 
-		BulkMessage message = encodeBasicMessage();
-		message.setJobId(jobId);
+        BulkMessage message = encodeBasicMessage();
+        message.setJobId(jobId);
 
-		return JsonCodec.encodeMessage(message);
-	}
+        return JsonCodec.encodeMessage(message);
+    }
 
-	@Override
-	public int getType() {
-		return P2PMessageType.JOBCANCELRESP.code();
-	}
+    @Override
+    public int getType() {
+        return P2PMessageType.JOBCANCELRESP.code();
+    }
 
 }

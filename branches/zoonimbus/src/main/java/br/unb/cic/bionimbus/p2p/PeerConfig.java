@@ -21,31 +21,31 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- @Deprecated see HostConfig
-**/
+ * @Deprecated see HostConfig
+ */
 public class PeerConfig {
-		
-	private ID peerID = null;
-	private final Set<EndPoint> endpoints = new HashSet<EndPoint>();
-	
-	public ID getPeerID() {
-		return peerID;
-	}
-	
-	public void setPeerID(ID peerID) {
-		this.peerID = peerID;
-	}
-	
-	public Collection<EndPoint> getEndPoints() {
-		return endpoints;
-	}
-	
-	public void add(EndPoint endpoint) {
-		endpoints.add(endpoint);		
-	}
 
-	public void addEndPoints(Collection<EndPoint> endpoints) {
-		this.endpoints.addAll(endpoints);		
-	}
+    private ID peerID = null;
+    private final Set<EndPoint> endpoints = new HashSet<EndPoint>();
+
+    public ID getPeerID() {
+        return peerID;
+    }
+
+    public void setPeerID(ID peerID) {
+        this.peerID = peerID;
+    }
+
+    public Collection<EndPoint> getEndPoints() {
+        return endpoints;
+    }
+
+    public void add(EndPoint endpoint) {
+        endpoints.add(endpoint);
+    }
+
+    public void addEndPoints(Collection<EndPoint> endpoints) {
+        this.endpoints.addAll(endpoints);
+    }
 
 }

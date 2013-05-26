@@ -4,9 +4,9 @@ import br.unb.cic.bionimbus.p2p.P2PService;
 
 public interface Plugin {
 
-	public void start();
-	
-	public void shutdown();
+    public void start();
 
-	public void setP2P(P2PService p2p);
+    public void shutdown();
+
+    public void setP2P(P2PService p2p);
 }

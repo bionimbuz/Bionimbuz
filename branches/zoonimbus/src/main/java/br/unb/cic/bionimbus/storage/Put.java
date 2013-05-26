@@ -2,7 +2,7 @@ package br.unb.cic.bionimbus.storage;
 
 import com.jcraft.jsch.*;
 
-public class Put{
+public class Put {
     public static void main(String args[]) {
         JSch jsch = new JSch();
         Session session = null;
@@ -19,7 +19,7 @@ public class Put{
             sftpChannel.exit();
             session.disconnect();
         } catch (JSchException e) {
-            e.printStackTrace();  
+            e.printStackTrace();
         } catch (SftpException e) {
             e.printStackTrace();
         }

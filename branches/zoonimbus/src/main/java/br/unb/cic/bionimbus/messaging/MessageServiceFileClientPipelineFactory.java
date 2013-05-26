@@ -9,42 +9,42 @@ import org.jboss.netty.handler.codec.http.HttpClientCodec;
 import org.jboss.netty.handler.stream.ChunkedWriteHandler;
 
 public class MessageServiceFileClientPipelineFactory implements
-		ChannelPipelineFactory {
+        ChannelPipelineFactory {
 
-	private final String fileName;
-	
-	private final Map<String, String> parms;
+    private final String fileName;
 
-	private final boolean isGet;
+    private final Map<String, String> parms;
 
-	private final MessageServiceClient client;
+    private final boolean isGet;
 
-	public MessageServiceFileClientPipelineFactory(String fileName) {
-		this.fileName = fileName;
-		this.parms = null;
-		this.isGet = false;
-		this.client = null;
-	}
+    private final MessageServiceClient client;
 
-	public MessageServiceFileClientPipelineFactory(String fileName,
-			Map<String, String> parms, boolean isGet,
-			MessageServiceClient client) {
-		this.fileName = fileName;
-		this.parms = parms;
-		this.isGet = isGet;
-		this.client = client;
-	}
+    public MessageServiceFileClientPipelineFactory(String fileName) {
+        this.fileName = fileName;
+        this.parms = null;
+        this.isGet = false;
+        this.client = null;
+    }
 
-	@Override
-	public ChannelPipeline getPipeline() throws Exception {
-		ChannelPipeline pipeline = Channels.pipeline();
+    public MessageServiceFileClientPipelineFactory(String fileName,
+                                                   Map<String, String> parms, boolean isGet,
+                                                   MessageServiceClient client) {
+        this.fileName = fileName;
+        this.parms = parms;
+        this.isGet = isGet;
+        this.client = client;
+    }
 
-		pipeline.addLast("codec", new HttpClientCodec());
-		pipeline.addLast("chunkedWriter", new ChunkedWriteHandler());
-		pipeline.addLast("handler", new MessageServiceFileClientHandler(
-				fileName, parms, isGet, client));
+    @Override
+    public ChannelPipeline getPipeline() throws Exception {
+        ChannelPipeline pipeline = Channels.pipeline();
 
-		return pipeline;
-	}
+        pipeline.addLast("codec", new HttpClientCodec());
+        pipeline.addLast("chunkedWriter", new ChunkedWriteHandler());
+        pipeline.addLast("handler", new MessageServiceFileClientHandler(
+                fileName, parms, isGet, client));
+
+        return pipeline;
+    }
 
 }

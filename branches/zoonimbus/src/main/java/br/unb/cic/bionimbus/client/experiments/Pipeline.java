@@ -5,11 +5,11 @@ import br.unb.cic.bionimbus.plugin.PluginFile;
 
 public interface Pipeline {
 
-	String getCurrentOutput();
-	
-	JobInfo firstJob();
+    String getCurrentOutput();
 
-	JobInfo nextJob(PluginFile pluginFile);
+    JobInfo firstJob();
 
-	String getInput();
+    JobInfo nextJob(PluginFile pluginFile);
+
+    String getInput();
 }

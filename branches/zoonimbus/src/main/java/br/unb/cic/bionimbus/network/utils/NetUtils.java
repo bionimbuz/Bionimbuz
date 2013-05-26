@@ -15,26 +15,26 @@ import java.util.Enumeration;
  */
 public class NetUtils {
 
-    private NetUtils() {}
+    private NetUtils() {
+    }
 
     /**
-     *
      * @param NIC eth0, wlan, etc.
      * @return
      * @throws java.net.SocketException
      */
     public static String getAddress(String NIC) throws SocketException {
         Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-        while (interfaces.hasMoreElements()){
+        while (interfaces.hasMoreElements()) {
             NetworkInterface current = interfaces.nextElement();
 
             if (!current.isUp() || current.isLoopback() || current.isVirtual()) continue;
             Enumeration<InetAddress> addresses = current.getInetAddresses();
-            while (addresses.hasMoreElements()){
+            while (addresses.hasMoreElements()) {
                 InetAddress current_addr = addresses.nextElement();
                 if (current_addr.isLoopbackAddress()) continue;
 
-                if (current_addr instanceof Inet4Address && current.getName().contains(NIC)){
+                if (current_addr instanceof Inet4Address && current.getName().contains(NIC)) {
 
                     String eth0Address = current_addr.getHostAddress();
                     return eth0Address;

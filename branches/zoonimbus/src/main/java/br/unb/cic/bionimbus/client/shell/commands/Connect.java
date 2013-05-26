@@ -10,8 +10,10 @@ import br.unb.cic.bionimbus.storage.Ping;
 import br.unb.cic.bionimbus.storage.StoragePolicy;
 import br.unb.cic.bionimbus.zookeeper.ZooKeeperService;
 import com.google.common.collect.Maps;
+
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
+
 import org.codehaus.jackson.map.ObjectMapper;
 
 public class Connect implements Command {
@@ -24,6 +26,7 @@ public class Connect implements Command {
     private static final String SEPARATOR = "/";
     private List<String> children;
     private ConcurrentMap<String, PluginInfo> map = Maps.newConcurrentMap();
+
     public Connect(SimpleShell shell) {
         this.shell = shell;
     }
@@ -38,7 +41,7 @@ public class Connect implements Command {
         shell.setP2P(p2p);
         zkService = new ZooKeeperService();
         zkService.connect(p2p.getConfig().getZkHosts());
-       
+
         children = zkService.getChildren(ROOT_PEER, null);
         
       /*  while(zkService.getStatus()!=zkService.getStatus().CONNECTED)
@@ -48,41 +51,35 @@ public class Connect implements Command {
         */
         String childStr;
         for (String child : children) {
-                   try {
-                        childStr = zkService.getData(ROOT_PEER + SEPARATOR + child, null);
-                        System.out.println(childStr); 
-                        ObjectMapper mapper = new ObjectMapper();
-                        PluginInfo myInfo = mapper.readValue(childStr, PluginInfo.class);                         
-                        map.put(myInfo.getId(), myInfo);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-           for(PluginInfo a :map.values()){
-                    System.out.println("no"+a.getHost().getAddress());
-                    System.out.println("espaço"+a.getFsSize()); 
-                    
-                    //instaciar objetos
-                    StoragePolicy policy = new StoragePolicy();
-                    Ping ping = new Ping();
-                    
-                    //calculo da latencia
-                    latency = Ping.calculo(a.getHost().getAddress());
-                    a.setLatency(latency);
-                    
-                    //calculo dos custo de armazenamento
-                    a.setStorageCost(policy.calcBestCost(latency));
-                    System.out.println("\n Ip: " +a.getHost().getAddress()+"\n Custo de armazenamento: "+a.getStorageCost());
-                }
+            try {
+                childStr = zkService.getData(ROOT_PEER + SEPARATOR + child, null);
+                System.out.println(childStr);
+                ObjectMapper mapper = new ObjectMapper();
+                PluginInfo myInfo = mapper.readValue(childStr, PluginInfo.class);
+                map.put(myInfo.getId(), myInfo);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        for (PluginInfo a : map.values()) {
+            System.out.println("no" + a.getHost().getAddress());
+            System.out.println("espaço" + a.getFsSize());
+
+            //instaciar objetos
+            StoragePolicy policy = new StoragePolicy();
+            Ping ping = new Ping();
+
+            //calculo da latencia
+            latency = Ping.calculo(a.getHost().getAddress());
+            a.setLatency(latency);
+
+            //calculo dos custo de armazenamento
+            a.setStorageCost(policy.calcBestCost(latency));
+            System.out.println("\n Ip: " + a.getHost().getAddress() + "\n Custo de armazenamento: " + a.getStorageCost());
+        }
         shell.setConnected(true);
-        
-        
-        
-        
-        
-        
-        
-        
+
+
         return "client is connected.";
     }
 

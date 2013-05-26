@@ -28,7 +28,7 @@ public class ProxyResource {
     public ProxyResource() {
         server = ProxyServerStub.getInstance();
     }
-    
+
     //TODO reativar este sub-projeto
 //    @GET
 //    @Produces(MediaType.APPLICATION_JSON)
@@ -50,7 +50,7 @@ public class ProxyResource {
 //        }
 //        return null;
 //    }
-    
+
     String serialize(Object obj) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(obj);

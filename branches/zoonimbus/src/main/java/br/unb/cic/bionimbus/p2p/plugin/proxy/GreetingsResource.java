@@ -14,9 +14,9 @@ public class GreetingsResource {
 
     //private static final Counter pendingJobs = Metrics.newCounter(MetricsTest.class, "hitCounter");
 
-	@GET
-	@Produces(MediaType.TEXT_PLAIN)
-	public String get() {
-		return "http proxy";
-	}
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public String get() {
+        return "http proxy";
+    }
 }

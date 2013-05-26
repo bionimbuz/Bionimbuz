@@ -43,7 +43,7 @@ public class UsageExample {
         System.out.println("Criado e registrado peer com id " + peer);
 
         List<String> list = zkService.getChildren(ROOT_PEER, new UpdatePeersZNode());
-        if (list!= null) peers.addAll(list);
+        if (list != null) peers.addAll(list);
 
         System.out.println("_----------------------------------_");
         System.out.println(peers);
@@ -53,16 +53,15 @@ public class UsageExample {
 
             TimeUnit.SECONDS.sleep(2);
             data = "id: " + peerID + "\n" +
-                          "net-address: " + NetUtils.getAddress("wlan0") + "\n" +
-                          "cpu-cores: " + Runtime.getRuntime().availableProcessors() + "\n" +
-                          "disk-space: " + FileService.getFreeSpace("/");
+                    "net-address: " + NetUtils.getAddress("wlan0") + "\n" +
+                    "cpu-cores: " + Runtime.getRuntime().availableProcessors() + "\n" +
+                    "disk-space: " + FileService.getFreeSpace("/");
 
-            for (String p: peers) {
-                if (peer.contains(p)){
+            for (String p : peers) {
+                if (peer.contains(p)) {
                     System.out.println("Alterando dados => " + p);
                     zkService.setData(ROOT_PEER + SEPARATOR + p, data);
-                }
-                else {
+                } else {
                     System.out.println("Recuperando dados => " + p);
                     String res = zkService.getData(ROOT_PEER + SEPARATOR + p, new UpdatePeerData());
                     System.out.println("___________________________");
@@ -89,7 +88,7 @@ public class UsageExample {
                 System.out.println("_----------------------------------_");
                 System.out.println("WATCHER DISPARADO: " + event);
                 List<String> list = zkService.getChildren(ROOT_PEER, this);
-                if (list!= null) peers.addAll(list);
+                if (list != null) peers.addAll(list);
                 System.out.println(peers);
                 System.out.println("_----------------------------------_");
 

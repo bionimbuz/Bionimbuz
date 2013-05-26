@@ -14,37 +14,37 @@ import br.unb.cic.bionimbus.p2p.P2PService;
 
 public class RemotePlugin extends AbstractPlugin {
 
-	private final ProxyServerStub server;
-	private final Host host;
-	private final String id;
-	private final ExecutorService executor;
+    private final ProxyServerStub server;
+    private final Host host;
+    private final String id;
+    private final ExecutorService executor;
     private final String proxyHost;
     private final int proxyPort;
 
     public RemotePlugin(final P2PService p2p, ExecutorService executor) {
 
-		super(p2p);
+        super(p2p);
 
-		host = p2p.getPeerNode().getHost();
-		id = p2p.getPeerNode().getId().toString();
+        host = p2p.getPeerNode().getHost();
+        id = p2p.getPeerNode().getId().toString();
 
         proxyHost = p2p.getConfig().getProxyHost();
         proxyPort = p2p.getConfig().getProxyPort();
 
         System.out.println(String.format("Iniciando remote proxy on %s:%s", proxyHost, proxyPort));
-		
-		this.executor = executor;
-		server = ProxyServerStub.newInstance(executor, proxyHost, proxyPort);
-		server.start();
-	}
 
-	@Override
-	protected Future<PluginInfo> startGetInfo() {
+        this.executor = executor;
+        server = ProxyServerStub.newInstance(executor, proxyHost, proxyPort);
+        server.start();
+    }
 
-		FutureTask<PluginInfo> future = new FutureTask<PluginInfo>(
-				new Callable<PluginInfo>() {
+    @Override
+    protected Future<PluginInfo> startGetInfo() {
 
-					public PluginInfo call() throws Exception {
+        FutureTask<PluginInfo> future = new FutureTask<PluginInfo>(
+                new Callable<PluginInfo>() {
+
+                    public PluginInfo call() throws Exception {
 
 //						long messageId = server.request(GET_INFO);
 //						ResponseMessage<PluginInfo> response = server.getResponse(messageId);
@@ -54,19 +54,19 @@ public class RemotePlugin extends AbstractPlugin {
 //
 //						return info;
 
-						return null;
-					}
-				});
-		executor.execute(future);
-		return future;
-	}
+                        return null;
+                    }
+                });
+        executor.execute(future);
+        return future;
+    }
 
-	@Override
-	protected Future<PluginFile> saveFile(final String filePath) {
-		FutureTask<PluginFile> future = new FutureTask<PluginFile>(
-				new Callable<PluginFile>() {
+    @Override
+    protected Future<PluginFile> saveFile(final String filePath) {
+        FutureTask<PluginFile> future = new FutureTask<PluginFile>(
+                new Callable<PluginFile>() {
 
-					public PluginFile call() throws Exception {
+                    public PluginFile call() throws Exception {
 //
 ////						Hashifier.hashContent(new File(filePath))
 //
@@ -81,21 +81,21 @@ public class RemotePlugin extends AbstractPlugin {
 //
 //						return info;
                         return null;
-					}
-				});
-		executor.execute(future);
-		return future;
-	}
+                    }
+                });
+        executor.execute(future);
+        return future;
+    }
 
-	@Override
-	protected Future<PluginGetFile> getFile(final Host origin,
-			final PluginFile pluginFile, final String taskId,
-			final String filename) {
+    @Override
+    protected Future<PluginGetFile> getFile(final Host origin,
+                                            final PluginFile pluginFile, final String taskId,
+                                            final String filename) {
 
-		FutureTask<PluginGetFile> future = new FutureTask<PluginGetFile>(
-				new Callable<PluginGetFile>() {
+        FutureTask<PluginGetFile> future = new FutureTask<PluginGetFile>(
+                new Callable<PluginGetFile>() {
 
-					public PluginGetFile call() throws Exception {
+                    public PluginGetFile call() throws Exception {
 //
 //						PluginGetFile getFile = new PluginGetFile();
 //						getFile.setPeer(origin);
@@ -111,15 +111,15 @@ public class RemotePlugin extends AbstractPlugin {
 //
 //						return info;
                         return null;
-					}
-				});
-		executor.execute(future);
-		return future;
-	}
+                    }
+                });
+        executor.execute(future);
+        return future;
+    }
 
 
-	@Override
-	protected Future<PluginTask> startTask(final PluginTask task) {
+    @Override
+    protected Future<PluginTask> startTask(final PluginTask task) {
 
         final PluginService service = getMyInfo().getService(task.getJobInfo().getServiceId());
         if (service == null) return null;
@@ -132,10 +132,10 @@ public class RemotePlugin extends AbstractPlugin {
 
 //                         server.request("RUN-TASK" + "#" + task + "#" + service + "#" + getP2P().getConfig().getServerPath());
 
-                         return null;
+                        return null;
                     }
                 });
 
         return future;
-	}
+    }
 }

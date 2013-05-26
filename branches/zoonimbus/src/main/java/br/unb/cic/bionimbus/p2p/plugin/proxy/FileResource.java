@@ -32,16 +32,16 @@ public class FileResource {
     @Produces(TEXT_PLAIN)
     public StreamingOutput downloadFile(@QueryParam("filename") final String filename) throws IOException {
 
-            return new StreamingOutput() {
-                public void write(OutputStream output) throws IOException, WebApplicationException {
-                    try {
-                        File file = new File(UPLOAD_DIR + File.separator + filename);
-                        Files.copy(file, output);
-                    } catch (Exception e) {
-                        throw new WebApplicationException(e);
-                    }
+        return new StreamingOutput() {
+            public void write(OutputStream output) throws IOException, WebApplicationException {
+                try {
+                    File file = new File(UPLOAD_DIR + File.separator + filename);
+                    Files.copy(file, output);
+                } catch (Exception e) {
+                    throw new WebApplicationException(e);
                 }
-            };
+            }
+        };
     }
 
     @POST
@@ -54,12 +54,13 @@ public class FileResource {
         Files.copy(new InputSupplier<InputStream>() {
             @Override
             public InputStream getInput() throws IOException {
-                return stream;                
+                return stream;
             }
         }, new File(outputPath));
 
         return tempname;
     }
+
     public static class Message {
 
         private int code;

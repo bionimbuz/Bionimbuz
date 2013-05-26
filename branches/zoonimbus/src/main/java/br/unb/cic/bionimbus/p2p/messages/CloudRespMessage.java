@@ -9,37 +9,37 @@ import br.unb.cic.bionimbus.utils.JsonCodec;
 
 public class CloudRespMessage extends AbstractMessage {
 
-	private Collection<PluginInfo> values;
-	
-	public CloudRespMessage() {
-		super();
-	}
+    private Collection<PluginInfo> values;
 
-	public CloudRespMessage(PeerNode peer, Collection<PluginInfo> values) {
-		super(peer);
-		this.values = values;
-	}
+    public CloudRespMessage() {
+        super();
+    }
 
-	public Collection<PluginInfo> values() {
-		return values;
-	}
+    public CloudRespMessage(PeerNode peer, Collection<PluginInfo> values) {
+        super(peer);
+        this.values = values;
+    }
 
-	@Override
-	public byte[] serialize() throws Exception {		
-		BulkMessage message = encodeBasicMessage();
-		message.setPluginList(values);				
-		return JsonCodec.encodeMessage(message);
-	}
+    public Collection<PluginInfo> values() {
+        return values;
+    }
 
-	@Override
-	public void deserialize(byte[] buffer) throws Exception {
-		BulkMessage message = decodeBasicMessage(buffer);		
-		values = message.getPluginList();
-	}
+    @Override
+    public byte[] serialize() throws Exception {
+        BulkMessage message = encodeBasicMessage();
+        message.setPluginList(values);
+        return JsonCodec.encodeMessage(message);
+    }
 
-	@Override
-	public int getType() {
-		return P2PMessageType.CLOUDRESP.code();
-	}
+    @Override
+    public void deserialize(byte[] buffer) throws Exception {
+        BulkMessage message = decodeBasicMessage(buffer);
+        values = message.getPluginList();
+    }
+
+    @Override
+    public int getType() {
+        return P2PMessageType.CLOUDRESP.code();
+    }
 
 }
