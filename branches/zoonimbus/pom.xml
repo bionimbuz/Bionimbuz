@@ -180,7 +180,8 @@
         </dependency>
 
         <!-- Jetty web server -->
-        <dependency>
+        <!-- jetty is transitively imported by Avro-IPC -->
+<!--        <dependency>
             <groupId>org.mortbay.jetty</groupId>
             <artifactId>jetty</artifactId>
             <version>${jetty.version}</version>
@@ -189,7 +190,7 @@
             <groupId>org.mortbay.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
             <version>${jetty.version}</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.sun.jersey.contribs</groupId>
             <artifactId>jersey-guice</artifactId>
