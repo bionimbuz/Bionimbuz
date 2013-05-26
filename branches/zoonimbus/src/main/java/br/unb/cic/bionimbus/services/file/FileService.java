@@ -37,6 +37,7 @@ public class FileService {
 
     /**
      * Returns the total left space in bytes
+     *
      * @param rootPath
      * @return
      */
@@ -50,20 +51,19 @@ public class FileService {
         return file.getTotalSpace();
     }
 
-    /** TODO: ALUNOS: Utilizar a biblioteca http://www.jcraft.com/jsch (comando SCP)
+    /**
+     * TODO: ALUNOS: Utilizar a biblioteca http://www.jcraft.com/jsch (comando SCP)
      * Exemplos em http://www.jcraft.com/jsch/examples
-     *
-     *
      */
 
     public void copyFrom(String originHost, File file) throws IOException {
-         Socket client = new Socket(originHost, DEFAULT_PORT);
+        Socket client = new Socket(originHost, DEFAULT_PORT);
 
-         FileStat stat = new FileStat("tmp.txt");
-         String json = new ObjectMapper().writeValueAsString(stat);
-         send(json, client);
+        FileStat stat = new FileStat("tmp.txt");
+        String json = new ObjectMapper().writeValueAsString(stat);
+        send(json, client);
 
-         client.close();
+        client.close();
     }
 
     private void send(String message, Socket socket) throws IOException {
@@ -78,10 +78,10 @@ public class FileService {
     }
 
     public void startFileTransferService() throws IOException {
-          serverSocket = new ServerSocket(DEFAULT_PORT);
-          System.out.println("Iniciando File Transfer Service...");
-          running = true;
-          while (running) {
+        serverSocket = new ServerSocket(DEFAULT_PORT);
+        System.out.println("Iniciando File Transfer Service...");
+        running = true;
+        while (running) {
             try {
                 Socket client = serverSocket.accept();
                 System.out.println("client connected");
@@ -92,17 +92,15 @@ public class FileService {
                 byte[] buf = new byte[length];
                 String str = dais.readUTF();
                 System.out.println(str);
-            }
-            catch (IOException ie) {
+            } catch (IOException ie) {
                 if (running) {
-                   running = false;
-                   ie.printStackTrace();
-                }
-                else {
+                    running = false;
+                    ie.printStackTrace();
+                } else {
                     System.out.println("Closing server");
                 }
             }
-          }
+        }
     }
 
     public void stop() throws IOException {
@@ -116,7 +114,7 @@ public class FileService {
 
         final FileService fs = new FileService();
         new Thread() {
-            public void run(){
+            public void run() {
                 try {
                     fs.startFileTransferService();
                 } catch (IOException e) {

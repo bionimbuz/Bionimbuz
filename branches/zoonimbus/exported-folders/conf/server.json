@@ -1,1 +1,4 @@
-{"id":"3943483403afc", "host":{"address": "localhost", "port": 9999}, "client": false, "serverPath": "./server"}
+{"id": "3943483403afc", "host": {
+    "address": "localhost",
+    "port": 9999
+}, "client": false, "serverPath": "./server"}

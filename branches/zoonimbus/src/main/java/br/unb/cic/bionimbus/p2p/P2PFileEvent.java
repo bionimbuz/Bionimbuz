@@ -5,34 +5,34 @@ import java.util.Map;
 
 public class P2PFileEvent implements P2PEvent {
 
-	private File file;
-	
-	private Map<String, String> parms;
+    private File file;
 
-	public P2PFileEvent(File file, Map<String, String> parms) {
-		this.file = file;
-		this.parms = parms;
-	}
+    private Map<String, String> parms;
 
-	public File getFile() {
-		return file;
-	}
+    public P2PFileEvent(File file, Map<String, String> parms) {
+        this.file = file;
+        this.parms = parms;
+    }
 
-	public void setFile(File file) {
-		this.file = file;
-	}
+    public File getFile() {
+        return file;
+    }
 
-	public Map<String, String> getParms() {
-		return parms;
-	}
+    public void setFile(File file) {
+        this.file = file;
+    }
 
-	public void setParms(Map<String, String> parms) {
-		this.parms = parms;
-	}
+    public Map<String, String> getParms() {
+        return parms;
+    }
 
-	@Override
-	public P2PEventType getType() {
-		return P2PEventType.FILE;
-	}
+    public void setParms(Map<String, String> parms) {
+        this.parms = parms;
+    }
+
+    @Override
+    public P2PEventType getType() {
+        return P2PEventType.FILE;
+    }
 
 }

@@ -7,14 +7,14 @@ import org.jboss.netty.channel.Channels;
 
 public class JsonUdpServerPipelineFactory implements ChannelPipelineFactory {
 
-	@Override
-	public ChannelPipeline getPipeline() throws Exception {
-		
-		ChannelPipeline p = Channels.pipeline();
-	
-		p.addLast("decoder", new JsonDecoder());
-		p.addLast("encoder", new JsonEncoder());
-		p.addLast("handler", new UdpServerHandler());
-		return p;
-	}
+    @Override
+    public ChannelPipeline getPipeline() throws Exception {
+
+        ChannelPipeline p = Channels.pipeline();
+
+        p.addLast("decoder", new JsonDecoder());
+        p.addLast("encoder", new JsonEncoder());
+        p.addLast("handler", new UdpServerHandler());
+        return p;
+    }
 }

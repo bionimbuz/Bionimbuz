@@ -17,44 +17,44 @@
 package br.unb.cic.bionimbus.p2p;
 
 public final class EndPoint {
-	
-	private String address;
-	private int port;
-	private Protocol protocol;
-	
-	public EndPoint() {}
-	
-	public EndPoint(String address, int port, Protocol protocol) {
-		super();
-		this.address = address;
-		this.port = port;
-		this.protocol = protocol;
-	}
-	
-	public void setAddress(String address) {
-		this.address = address;
-	}
 
-	public void setPort(int port) {
-		this.port = port;
-	}
+    private String address;
+    private int port;
+    private Protocol protocol;
 
-	public void setProtocol(Protocol protocol) {
-		this.protocol = protocol;
-	}
+    public EndPoint() {
+    }
 
-	public String getAddress() {
-		return address;
-	}
+    public EndPoint(String address, int port, Protocol protocol) {
+        super();
+        this.address = address;
+        this.port = port;
+        this.protocol = protocol;
+    }
 
-	public int getPort() {
-		return port;
-	}
+    public void setAddress(String address) {
+        this.address = address;
+    }
 
-	public Protocol getProtocol() {
-		return protocol;
-	}
-	
-	
-		
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public void setProtocol(Protocol protocol) {
+        this.protocol = protocol;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public Protocol getProtocol() {
+        return protocol;
+    }
+
+
 }

@@ -12,17 +12,23 @@ import br.unb.cic.bionimbus.p2p.Host;
 
 @Singleton
 public class BioNimbusConfig {
-	
-	private @JsonIgnore String id;
-	private @JsonIgnore String infra;
-	private @JsonIgnore Set<Host> seeds = new HashSet<Host>();
-	private Host host;
-	private boolean client = false;	
-	private String serverPath = "";
-    
-        private String proxyHost = "localhost";
-        private int proxyPort = 8080;
-        private String zkHosts;
+
+    private
+    @JsonIgnore
+    String id;
+    private
+    @JsonIgnore
+    String infra;
+    private
+    @JsonIgnore
+    Set<Host> seeds = new HashSet<Host>();
+    private Host host;
+    private boolean client = false;
+    private String serverPath = "";
+
+    private String proxyHost = "localhost";
+    private int proxyPort = 8080;
+    private String zkHosts;
 
     public String getProxyHost() {
         return proxyHost;
@@ -41,68 +47,68 @@ public class BioNimbusConfig {
     }
 
     public boolean isClient() {
-		return client;
-	}
-	
-	public void setInfra(String infra) {
-		this.infra = infra;
-	}	
-	
-	public String getInfra() {
-		return infra;
-	}
-	
-	public void setHost(Host host) {
-		this.host = host;
-	}
-	
-	public Host getHost() {
-		return host;
-	}
+        return client;
+    }
 
-	public void setClient(boolean client) {
-		this.client = client;
-	}
+    public void setInfra(String infra) {
+        this.infra = infra;
+    }
 
-	public void setSeeds(Set<Host> seeds) {
-		this.seeds = seeds;
-	}
+    public String getInfra() {
+        return infra;
+    }
 
-	public Set<Host> getSeeds() {
-		return seeds;
-	}
+    public void setHost(Host host) {
+        this.host = host;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public Host getHost() {
+        return host;
+    }
 
-	public String getId() {
-		return id;
-	}
-	
-	public String getServerPath() {
-		return serverPath;
-	}
+    public void setClient(boolean client) {
+        this.client = client;
+    }
 
-	public void setServerPath(String serverPath) {
-		this.serverPath = serverPath;
-	}
+    public void setSeeds(Set<Host> seeds) {
+        this.seeds = seeds;
+    }
 
-	@Override
-	public String toString() {
-		return Objects.toStringHelper(this)
-	                  .add("id", id)	              
-	                  .add("client", client)
-	                  .add("host", host)
-	                  .add("seeds", seeds)
-	                  .add(serverPath, serverPath)
-		              .toString();
-	}
+    public Set<Host> getSeeds() {
+        return seeds;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getServerPath() {
+        return serverPath;
+    }
+
+    public void setServerPath(String serverPath) {
+        this.serverPath = serverPath;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("id", id)
+                .add("client", client)
+                .add("host", host)
+                .add("seeds", seeds)
+                .add(serverPath, serverPath)
+                .toString();
+    }
 
     public String getZkHosts() {
         return zkHosts;
     }
-    
+
     public void setZkHosts(String hosts) {
         zkHosts = hosts;
     }

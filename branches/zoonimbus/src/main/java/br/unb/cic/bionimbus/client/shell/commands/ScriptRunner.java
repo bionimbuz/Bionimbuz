@@ -9,43 +9,43 @@ import br.unb.cic.bionimbus.client.shell.SimpleShell;
 
 public class ScriptRunner implements Command {
 
-	private static final String NAME = "script";
-	private final SimpleShell shell;
+    private static final String NAME = "script";
+    private final SimpleShell shell;
 
-	public ScriptRunner(SimpleShell shell) {
-		this.shell = shell;
-	}
+    public ScriptRunner(SimpleShell shell) {
+        this.shell = shell;
+    }
 
-	@Override
-	public String execute(String... params) throws Exception {
-		for (String script : params) {
-			if (script.endsWith(".nimbus")) {
-				shell.print(String.format("executing %s\n", script));
-				BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(script)));
-				String line = null;
-				while ((line = reader.readLine()) != null) {
-					line = line.trim();
-					if (line.length() != 0 && !line.startsWith("#")) {
-						shell.executeCommand(line, false);
-					}
-				}
-			}
-		}
-		return "";
-	}
+    @Override
+    public String execute(String... params) throws Exception {
+        for (String script : params) {
+            if (script.endsWith(".nimbus")) {
+                shell.print(String.format("executing %s\n", script));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(script)));
+                String line = null;
+                while ((line = reader.readLine()) != null) {
+                    line = line.trim();
+                    if (line.length() != 0 && !line.startsWith("#")) {
+                        shell.executeCommand(line, false);
+                    }
+                }
+            }
+        }
+        return "";
+    }
 
-	@Override
-	public String usage() {
-		return "script file.nimbus";
-	}
+    @Override
+    public String usage() {
+        return "script file.nimbus";
+    }
 
-	@Override
-	public String getName() {
-		return NAME;
-	}
+    @Override
+    public String getName() {
+        return NAME;
+    }
 
-	@Override
-	public void setOriginalParamLine(String param) {
-	}
+    @Override
+    public void setOriginalParamLine(String param) {
+    }
 
 }

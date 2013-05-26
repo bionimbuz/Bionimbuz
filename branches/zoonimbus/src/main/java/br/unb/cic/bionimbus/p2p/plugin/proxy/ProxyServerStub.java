@@ -60,7 +60,7 @@ public class ProxyServerStub {
         jetty = JettyRunner.getInstance(port, new FileHandlingServlet());
 
 /*
-		for (Command command : Command.values()) {
+        for (Command command : Command.values()) {
 			incomingQueue.put(command, new LinkedBlockingQueue<ResponseMessage>());
 		}
 */

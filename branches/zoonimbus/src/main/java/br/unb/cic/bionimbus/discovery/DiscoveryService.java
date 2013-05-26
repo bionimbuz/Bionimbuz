@@ -21,6 +21,7 @@ import com.google.common.io.Files;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -29,33 +30,34 @@ import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.apache.zookeeper.KeeperException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 @Singleton
 public class DiscoveryService extends AbstractBioService implements RemovalListener<Object, Object> {
-	
-	private static final int PERIOD_SECS = 10;
-//	private final ConcurrentMap<String, PluginInfo> infoMap;
-//    private final Cache<String, PluginInfo> infoCache;
-	private final ScheduledExecutorService schedExecService;
 
-	private P2PService p2p;
-             
+    private static final int PERIOD_SECS = 10;
+    //	private final ConcurrentMap<String, PluginInfo> infoMap;
+//    private final Cache<String, PluginInfo> infoCache;
+    private final ScheduledExecutorService schedExecService;
+
+    private P2PService p2p;
+
     private BioNimbusConfig config;
-    
+
     private static final String ROOT_PEER = "/peers";
     private static final String SEPARATOR = "/";
     private static final String PREFIX_PEER = "peer_";
     private String peerName;
-    
+
     private List<String> children;
-    
+
     private ConcurrentMap<String, PluginInfo> map = Maps.newConcurrentMap();
 
     @Inject
     public DiscoveryService(final ZooKeeperService service) {
-               
+
         Preconditions.checkNotNull(service);
         this.zkService = service;
 
@@ -67,18 +69,18 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 //                                .build();
 
         schedExecService = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder()
-                                                                    .setDaemon(true)
-                                                                    .setNameFormat("DiscoveryService-%d")
-                                                                    .build());
+                .setDaemon(true)
+                .setNameFormat("DiscoveryService-%d")
+                .build());
     }
 
-//    @Override
-	public void run() {
-            System.out.println("running DiscoveryService...");
-            
-            System.out.println(peerName);
-            try {
-                // ATUALIZANDO DADOS LOCAIS
+    //    @Override
+    public void run() {
+        System.out.println("running DiscoveryService...");
+
+        System.out.println(peerName);
+        try {
+            // ATUALIZANDO DADOS LOCAIS
 //                File infoFile = new File("plugininfo.json");
 //                String infoStr = "";
 //                if (infoFile.exists()) {
@@ -86,75 +88,75 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 //                    infoStr = Joiner.on("").join(lines);
 //                    zkService.setData(peerName, infoStr);
 //                }
-                
-                children = zkService.getChildren(ROOT_PEER, null);
-                
-                System.out.println(children);
-                
-                map.clear();
-                for (String child : children) {
-                   // if (!peerName.contains(child)){
-                   try {
-                        
+
+            children = zkService.getChildren(ROOT_PEER, null);
+
+            System.out.println(children);
+
+            map.clear();
+            for (String child : children) {
+                // if (!peerName.contains(child)){
+                try {
+
 //                        System.out.println("peer: " + peerName);
-                        String childStr = zkService.getData(ROOT_PEER + SEPARATOR + child, null);
-                        System.out.println(childStr);
-                        ObjectMapper mapper = new ObjectMapper();
-                        PluginInfo myInfo = mapper.readValue(childStr, PluginInfo.class); 
+                    String childStr = zkService.getData(ROOT_PEER + SEPARATOR + child, null);
+                    System.out.println(childStr);
+                    ObjectMapper mapper = new ObjectMapper();
+                    PluginInfo myInfo = mapper.readValue(childStr, PluginInfo.class);
 //                        System.out.println("id:" + myInfo.getId());
 //                        System.out.println("cores:" + myInfo.getNumCores());
 //                        System.out.println("disk:" + myInfo.getFsFreeSize());
-                        
-                        map.put(myInfo.getId(), myInfo);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+
+                    map.put(myInfo.getId(), myInfo);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                System.out.println("tamanho do values"+map.values().size());
-                for(PluginInfo a :map.values()){
-                    System.out.println("no"+a.getHost().getAddress());
-                    System.out.println("espaço"+a.getFsSize()); 
-                }
-                                
+            }
+            System.out.println("tamanho do values" + map.values().size());
+            for (PluginInfo a : map.values()) {
+                System.out.println("no" + a.getHost().getAddress());
+                System.out.println("espaço" + a.getFsSize());
+            }
+
 //                System.out.println(map.values().toString());
-                                
-                
-    ////        removeStaleEntriesFromInfoMap();
-    ////        removeStaleEntriesFromInfoMap();
-            } catch (KeeperException ex) {
-                Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
-            }
-	}
-        
-        public ConcurrentMap<String, PluginInfo> getPeers(){
-        
-            System.out.println(peerName);
-            try {
-                
-                children = zkService.getChildren(ROOT_PEER, null);
-                
-                map.clear();
-                for (String child : children) {
-                   // if (!peerName.contains(child)){
-                   try {
-                        String childStr = zkService.getData(ROOT_PEER + SEPARATOR + child, null);
-                        System.out.println(childStr);
-                        ObjectMapper mapper = new ObjectMapper();
-                        PluginInfo myInfo = mapper.readValue(childStr, PluginInfo.class);                         
-                        map.put(myInfo.getId(), myInfo);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            } catch (KeeperException ex) {
-                Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            return map;
+
+
+            ////        removeStaleEntriesFromInfoMap();
+            ////        removeStaleEntriesFromInfoMap();
+        } catch (KeeperException ex) {
+            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public ConcurrentMap<String, PluginInfo> getPeers() {
+
+        System.out.println(peerName);
+        try {
+
+            children = zkService.getChildren(ROOT_PEER, null);
+
+            map.clear();
+            for (String child : children) {
+                // if (!peerName.contains(child)){
+                try {
+                    String childStr = zkService.getData(ROOT_PEER + SEPARATOR + child, null);
+                    System.out.println(childStr);
+                    ObjectMapper mapper = new ObjectMapper();
+                    PluginInfo myInfo = mapper.readValue(childStr, PluginInfo.class);
+                    map.put(myInfo.getId(), myInfo);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (KeeperException ex) {
+            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return map;
+    }
 //
 //    private void broadcastDiscoveryMessage() {
 //        Preconditions.checkNotNull(p2p);
@@ -175,8 +177,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
         }
     }
 */
-    
-    public String getData() throws IOException {        
+    public String getData() throws IOException {
         return "id: " + config.getId() + "\n"
                 + "net-address: " + config.getHost().getAddress() + "\n"
                 + "net-port: " + config.getHost().getPort() + "\n"
@@ -184,37 +185,37 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
                 + "disk-space: " + FileService.getFreeSpace("/");
     }
 
-//    @Override
-	public void start(final P2PService p2p) {
-            try {
-                Preconditions.checkNotNull(p2p);
+    //    @Override
+    public void start(final P2PService p2p) {
+        try {
+            Preconditions.checkNotNull(p2p);
 
-                this.connectZK(p2p.getConfig().getZkHosts());
-                
-                zkService.createPersistentZNode("/peers", null);
-                
+            this.connectZK(p2p.getConfig().getZkHosts());
+
+            zkService.createPersistentZNode("/peers", null);
+
 //                config = p2p.getConfig();
 //                String data = getData();
-                
-                File infoFile = new File("plugininfo.json");
-                String infoStr = "";
-                if (infoFile.exists()) {
-                    List<String> lines = Files.readLines(infoFile, Charsets.UTF_8);
-                    infoStr = Joiner.on("").join(lines);
+
+            File infoFile = new File("plugininfo.json");
+            String infoStr = "";
+            if (infoFile.exists()) {
+                List<String> lines = Files.readLines(infoFile, Charsets.UTF_8);
+                infoStr = Joiner.on("").join(lines);
 //                    System.out.println(">>>>>>>>>>>>>>>>>>>>>>" + infoStr);
-                    
-                }
-               
-                peerName = zkService.createEphemeralSequentialZNode(ROOT_PEER + SEPARATOR + PREFIX_PEER, infoStr);
-                System.out.println("Criado e registrado peer com id " + peerName);
-                                
-                this.p2p = p2p;
-                p2p.addListener(this);
-                schedExecService.scheduleAtFixedRate(this, 0, PERIOD_SECS, TimeUnit.SECONDS);
-                
-            } catch (IOException ex) {
-                Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+
             }
+
+            peerName = zkService.createEphemeralSequentialZNode(ROOT_PEER + SEPARATOR + PREFIX_PEER, infoStr);
+            System.out.println("Criado e registrado peer com id " + peerName);
+
+            this.p2p = p2p;
+            p2p.addListener(this);
+            schedExecService.scheduleAtFixedRate(this, 0, PERIOD_SECS, TimeUnit.SECONDS);
+
+        } catch (IOException ex) {
+            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 //	@Override
@@ -227,10 +228,11 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
      * TODO: qual a razão de existir este método?
      */
 //	@Override
-	public void getStatus() {}
+    public void getStatus() {
+    }
 
-	@Override
-	public void onEvent(final P2PEvent event) {
+    @Override
+    public void onEvent(final P2PEvent event) {
 //		if (!event.getType().equals(P2PEventType.MESSAGE))
 //			return;
 //
@@ -261,7 +263,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 //					+ errMsg.getError());
 //			break;
 //		}
-	}
+    }
 
 //    private void sendRequestMessage(final PeerNode sender, final PeerNode receiver) {
 //        CloudRespMessage cloudMsg = new CloudRespMessage(sender, infoCache.asMap().values());

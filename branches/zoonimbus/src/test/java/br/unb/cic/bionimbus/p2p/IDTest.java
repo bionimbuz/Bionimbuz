@@ -5,9 +5,9 @@ import junit.framework.TestCase;
 
 public class IDTest extends TestCase {
 
-	public void testIdOps() {
+    public void testIdOps() {
 
-		System.out.println(new ID(19).mod(3));
-	}
+        System.out.println(new ID(19).mod(3));
+    }
 
 }

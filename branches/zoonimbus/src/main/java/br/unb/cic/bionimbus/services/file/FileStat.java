@@ -11,7 +11,8 @@ public class FileStat {
 
     private String filename;
 
-    public FileStat() {}
+    public FileStat() {
+    }
 
     public FileStat(String filename) {
         this.filename = filename;

@@ -12,34 +12,34 @@ import br.unb.cic.bionimbus.plugin.PluginTask;
 
 public class ProxyPlugin extends AbstractPlugin {
 
-	public ProxyPlugin(P2PService p2p) {
-		super(p2p);
+    public ProxyPlugin(P2PService p2p) {
+        super(p2p);
 
-	}
+    }
 
-	@Override
-	protected Future<PluginInfo> startGetInfo() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    protected Future<PluginInfo> startGetInfo() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	protected Future<PluginFile> saveFile(String filename) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    protected Future<PluginFile> saveFile(String filename) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	protected Future<PluginGetFile> getFile(Host origin, PluginFile file,
-			String taskId, String savePath) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    protected Future<PluginGetFile> getFile(Host origin, PluginFile file,
+                                            String taskId, String savePath) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	protected Future<PluginTask> startTask(PluginTask task) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    protected Future<PluginTask> startTask(PluginTask task) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

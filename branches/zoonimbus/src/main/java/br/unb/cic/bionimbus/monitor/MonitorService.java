@@ -41,142 +41,142 @@ import br.unb.cic.bionimbus.utils.Pair;
 @Singleton
 public class MonitorService implements Service, P2PListener, Runnable {
 
-	private final ScheduledExecutorService schedExecService = Executors.newScheduledThreadPool(1, new BasicThreadFactory.Builder().namingPattern("MonitorService-%d").build());
-	
-	private final Map<String, JobInfo> pendingJobs = new ConcurrentHashMap<String, JobInfo>();
-	
-	private final Map<String, Pair<JobInfo, PluginTask>> runningJobs = new ConcurrentHashMap<String, Pair<JobInfo, PluginTask>>();
+    private final ScheduledExecutorService schedExecService = Executors.newScheduledThreadPool(1, new BasicThreadFactory.Builder().namingPattern("MonitorService-%d").build());
 
-	private P2PService p2p = null;
+    private final Map<String, JobInfo> pendingJobs = new ConcurrentHashMap<String, JobInfo>();
 
-	public MonitorService(ServiceManager manager) {
-		manager.register(this);
-	}
+    private final Map<String, Pair<JobInfo, PluginTask>> runningJobs = new ConcurrentHashMap<String, Pair<JobInfo, PluginTask>>();
 
-	@Override
-	public void run() {
-		System.out.println("running MonitorService...");
-		
-		checkPendingJobs();
-		checkRunningJobs();
-	}
+    private P2PService p2p = null;
 
-	@Override
-	public void start(P2PService p2p) {
-		this.p2p = p2p;
-		if (p2p != null)
-			p2p.addListener(this);
-		schedExecService.scheduleAtFixedRate(this, 0, 2, TimeUnit.MINUTES);
-	}
+    public MonitorService(ServiceManager manager) {
+        manager.register(this);
+    }
 
-	@Override
-	public void shutdown() {
-		p2p.remove(this);
-		schedExecService.shutdownNow();
-	}
+    @Override
+    public void run() {
+        System.out.println("running MonitorService...");
 
-	@Override
-	public void getStatus() {
-		// TODO Auto-generated method stub
+        checkPendingJobs();
+        checkRunningJobs();
+    }
 
-	}
-	
-	private void checkPendingJobs() {
-		// TODO aqui temos que checar os jobs que estão aguardando o escalonamento.
-		// precisamos esperar um timeout ate' fazer nova requisicao.
-	}
-	
-	private void checkRunningJobs() {
-		PeerNode peer = p2p.getPeerNode();
-		for (String taskId : runningJobs.keySet()) {
-			sendStatusReq(peer, taskId);
-		}
-	}
+    @Override
+    public void start(P2PService p2p) {
+        this.p2p = p2p;
+        if (p2p != null)
+            p2p.addListener(this);
+        schedExecService.scheduleAtFixedRate(this, 0, 2, TimeUnit.MINUTES);
+    }
 
-	@Override
-	public void onEvent(P2PEvent event) {
-		if (!event.getType().equals(P2PEventType.MESSAGE))
-			return;
+    @Override
+    public void shutdown() {
+        p2p.remove(this);
+        schedExecService.shutdownNow();
+    }
 
-		P2PMessageEvent msgEvent = (P2PMessageEvent) event;
-		Message msg = msgEvent.getMessage();
-		if (msg == null)
-			return;
-		
-		PeerNode sender = p2p.getPeerNode();
-		PeerNode receiver = null;
-		
-		if (msg instanceof AbstractMessage) {
-			receiver = ((AbstractMessage) msg).getPeer();
-		}
+    @Override
+    public void getStatus() {
+        // TODO Auto-generated method stub
 
-		switch (P2PMessageType.of(msg.getType())) {
-		case JOBREQ:
-			JobReqMessage jobMsg = (JobReqMessage) msg;
-			sendSchedReq(sender, jobMsg.values());
-			break;
-		case SCHEDRESP:
-			SchedRespMessage schedMsg = (SchedRespMessage) msg;
-			JobInfo schedJob = pendingJobs.get(schedMsg.getJobId());
-			sendStartReq(sender, schedMsg.getPluginInfo().getHost(), schedJob);
-			break;
-		case STARTRESP:
-			StartRespMessage respMsg = (StartRespMessage) msg;
-			sendJobResp(sender, receiver, respMsg.getJobId(), respMsg.getPluginTask());
-			break;
-		case STATUSRESP:
-			StatusRespMessage status = (StatusRespMessage) msg;
-			updateJobStatus(status.getPluginTask());
-			break;
-		case END:
-			EndMessage end = (EndMessage) msg;
-			finalizeJob(end.getTask());
-			break;
-		case ERROR:
-			ErrorMessage errMsg = (ErrorMessage) msg;
-			System.out.println("SCHED ERROR: type="
-					+ errMsg.getErrorType().toString() + ";msg="
-					+ errMsg.getError());
-			break;
-		}
-	}
-	
-	private void sendSchedReq(PeerNode sender, Collection<JobInfo> jobList) {
-		for (JobInfo jobInfo : jobList) {
-			jobInfo.setId(UUID.randomUUID().toString());
-			pendingJobs.put(jobInfo.getId(), jobInfo);
-		}
-		SchedReqMessage newMsg = new SchedReqMessage(sender, jobList);
-		p2p.broadcast(newMsg);
-	}
-	
-	private void sendJobResp(PeerNode sender, PeerNode receiver, String jobId, PluginTask task) {
-		JobInfo jobInfo = pendingJobs.remove(jobId);
-		runningJobs.put(task.getId(), new Pair<JobInfo, PluginTask>(jobInfo, task));
-		JobRespMessage jobRespMsg = new JobRespMessage(sender, jobInfo);
-		p2p.broadcast(jobRespMsg); // mandar direto pro cliente
-	}
-	
-	private void sendStartReq(PeerNode sender, Host dest, JobInfo jobInfo) {
-		StartReqMessage startMsg = new StartReqMessage(sender, jobInfo);
-		p2p.sendMessage(dest, startMsg);
-	}
-	
-	private void sendStatusReq(PeerNode sender, String taskId) {
-		StatusReqMessage msg = new StatusReqMessage(sender, taskId);
-		p2p.broadcast(msg); //TODO: isto é realmente um broadcast?
-	}
-	
-	private void updateJobStatus(PluginTask task) {
-		Pair<JobInfo, PluginTask> pair = runningJobs.get(task.getId());
-		JobInfo job = pair.first;
-		runningJobs.put(task.getId(), new Pair<JobInfo, PluginTask>(job, task));
-	}
-	
-	private void finalizeJob(PluginTask task) {
-		Pair<JobInfo, PluginTask> pair = runningJobs.remove(task.getId());
-		JobInfo job = pair.first;
-		//p2p.sendMessage(new EndJobMessage(job));
-	}
+    }
+
+    private void checkPendingJobs() {
+        // TODO aqui temos que checar os jobs que estão aguardando o escalonamento.
+        // precisamos esperar um timeout ate' fazer nova requisicao.
+    }
+
+    private void checkRunningJobs() {
+        PeerNode peer = p2p.getPeerNode();
+        for (String taskId : runningJobs.keySet()) {
+            sendStatusReq(peer, taskId);
+        }
+    }
+
+    @Override
+    public void onEvent(P2PEvent event) {
+        if (!event.getType().equals(P2PEventType.MESSAGE))
+            return;
+
+        P2PMessageEvent msgEvent = (P2PMessageEvent) event;
+        Message msg = msgEvent.getMessage();
+        if (msg == null)
+            return;
+
+        PeerNode sender = p2p.getPeerNode();
+        PeerNode receiver = null;
+
+        if (msg instanceof AbstractMessage) {
+            receiver = ((AbstractMessage) msg).getPeer();
+        }
+
+        switch (P2PMessageType.of(msg.getType())) {
+            case JOBREQ:
+                JobReqMessage jobMsg = (JobReqMessage) msg;
+                sendSchedReq(sender, jobMsg.values());
+                break;
+            case SCHEDRESP:
+                SchedRespMessage schedMsg = (SchedRespMessage) msg;
+                JobInfo schedJob = pendingJobs.get(schedMsg.getJobId());
+                sendStartReq(sender, schedMsg.getPluginInfo().getHost(), schedJob);
+                break;
+            case STARTRESP:
+                StartRespMessage respMsg = (StartRespMessage) msg;
+                sendJobResp(sender, receiver, respMsg.getJobId(), respMsg.getPluginTask());
+                break;
+            case STATUSRESP:
+                StatusRespMessage status = (StatusRespMessage) msg;
+                updateJobStatus(status.getPluginTask());
+                break;
+            case END:
+                EndMessage end = (EndMessage) msg;
+                finalizeJob(end.getTask());
+                break;
+            case ERROR:
+                ErrorMessage errMsg = (ErrorMessage) msg;
+                System.out.println("SCHED ERROR: type="
+                        + errMsg.getErrorType().toString() + ";msg="
+                        + errMsg.getError());
+                break;
+        }
+    }
+
+    private void sendSchedReq(PeerNode sender, Collection<JobInfo> jobList) {
+        for (JobInfo jobInfo : jobList) {
+            jobInfo.setId(UUID.randomUUID().toString());
+            pendingJobs.put(jobInfo.getId(), jobInfo);
+        }
+        SchedReqMessage newMsg = new SchedReqMessage(sender, jobList);
+        p2p.broadcast(newMsg);
+    }
+
+    private void sendJobResp(PeerNode sender, PeerNode receiver, String jobId, PluginTask task) {
+        JobInfo jobInfo = pendingJobs.remove(jobId);
+        runningJobs.put(task.getId(), new Pair<JobInfo, PluginTask>(jobInfo, task));
+        JobRespMessage jobRespMsg = new JobRespMessage(sender, jobInfo);
+        p2p.broadcast(jobRespMsg); // mandar direto pro cliente
+    }
+
+    private void sendStartReq(PeerNode sender, Host dest, JobInfo jobInfo) {
+        StartReqMessage startMsg = new StartReqMessage(sender, jobInfo);
+        p2p.sendMessage(dest, startMsg);
+    }
+
+    private void sendStatusReq(PeerNode sender, String taskId) {
+        StatusReqMessage msg = new StatusReqMessage(sender, taskId);
+        p2p.broadcast(msg); //TODO: isto é realmente um broadcast?
+    }
+
+    private void updateJobStatus(PluginTask task) {
+        Pair<JobInfo, PluginTask> pair = runningJobs.get(task.getId());
+        JobInfo job = pair.first;
+        runningJobs.put(task.getId(), new Pair<JobInfo, PluginTask>(job, task));
+    }
+
+    private void finalizeJob(PluginTask task) {
+        Pair<JobInfo, PluginTask> pair = runningJobs.remove(task.getId());
+        JobInfo job = pair.first;
+        //p2p.sendMessage(new EndJobMessage(job));
+    }
 
 }

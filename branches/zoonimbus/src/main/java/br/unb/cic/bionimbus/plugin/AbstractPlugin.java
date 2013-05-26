@@ -51,17 +51,17 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
 
     private final ScheduledExecutorService schedExecutorService = Executors.newScheduledThreadPool(1, new BasicThreadFactory.Builder().namingPattern("bionimbus-plugin-%d").build());
 
-    private final ConcurrentMap<String, Pair<PluginTask, Integer>> pendingTasks = new ConcurrentHashMap<String, Pair<PluginTask,Integer>>();
+    private final ConcurrentMap<String, Pair<PluginTask, Integer>> pendingTasks = new ConcurrentHashMap<String, Pair<PluginTask, Integer>>();
 
     private final ConcurrentMap<String, Pair<PluginTask, Future<PluginTask>>> executingTasks = new ConcurrentHashMap<String, Pair<PluginTask, Future<PluginTask>>>();
 
-    private final ConcurrentMap<String, Pair<PluginTask, Integer>> endingTasks = new ConcurrentHashMap<String, Pair<PluginTask,Integer>>();
+    private final ConcurrentMap<String, Pair<PluginTask, Integer>> endingTasks = new ConcurrentHashMap<String, Pair<PluginTask, Integer>>();
 
     private final List<Future<PluginFile>> pendingSaves = new CopyOnWriteArrayList<Future<PluginFile>>();
 
     private final List<Future<PluginGetFile>> pendingGets = new CopyOnWriteArrayList<Future<PluginGetFile>>();
 
-    private final ConcurrentMap<String, Pair<String, Integer>> inputFiles = new ConcurrentHashMap<String, Pair<String,Integer>>();
+    private final ConcurrentMap<String, Pair<String, Integer>> inputFiles = new ConcurrentHashMap<String, Pair<String, Integer>>();
 
     private final ConcurrentMap<String, PluginFile> pluginFiles = new ConcurrentHashMap<String, PluginFile>();
 
@@ -310,7 +310,8 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
     }
 
     @Override
-    protected void recvInfoResp(Host origin, PluginInfo info) { }
+    protected void recvInfoResp(Host origin, PluginInfo info) {
+    }
 
     @Override
     protected void recvStartReq(Host origin, JobInfo job) {
@@ -323,7 +324,7 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
         task.setJobInfo(job);
         if (!job.getInputs().isEmpty()) {
             pendingTasks.put(task.getId(), new Pair<PluginTask, Integer>(task, job.getInputs().size()));
-            for (Pair<String, Long> pair: job.getInputs()) {
+            for (Pair<String, Long> pair : job.getInputs()) {
                 String fileId = pair.first;
                 p2p.broadcast(new GetReqMessage(p2p.getPeerNode(), fileId, task.getId()));
             }
@@ -338,10 +339,12 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
     }
 
     @Override
-    protected void recvStartResp(Host origin, String jobId, PluginTask task) { }
+    protected void recvStartResp(Host origin, String jobId, PluginTask task) {
+    }
 
     @Override
-    protected void recvEnd(Host origin, PluginTask task) { }
+    protected void recvEnd(Host origin, PluginTask task) {
+    }
 
     @Override
     protected void recvStatusReq(Host origin, String taskId) {
@@ -365,10 +368,12 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
     }
 
     @Override
-    protected void recvStatusResp(Host origin, PluginTask task) { }
+    protected void recvStatusResp(Host origin, PluginTask task) {
+    }
 
     @Override
-    protected void recvStoreReq(Host origin, FileInfo file, String taskId) { }
+    protected void recvStoreReq(Host origin, FileInfo file, String taskId) {
+    }
 
     @Override
     protected void recvStoreResp(Host origin, PluginInfo plugin, FileInfo file, String taskId) {
@@ -398,10 +403,12 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
     }
 
     @Override
-    protected void recvStoreAck(Host origin, PluginFile file) { }
+    protected void recvStoreAck(Host origin, PluginFile file) {
+    }
 
     @Override
-    protected void recvGetReq(Host origin, String fileId, String taskId) { }
+    protected void recvGetReq(Host origin, String fileId, String taskId) {
+    }
 
     @Override
     protected void recvGetResp(Host origin, PluginInfo plugin, PluginFile file, String taskId) {
@@ -411,37 +418,48 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
     }
 
     @Override
-    protected void recvCloudReq(Host origin) { }
+    protected void recvCloudReq(Host origin) {
+    }
 
     @Override
-    protected void recvCloudResp(Host origin, Collection<PluginInfo> plugins) {	}
+    protected void recvCloudResp(Host origin, Collection<PluginInfo> plugins) {
+    }
 
     @Override
-    protected void recvSchedReq(Host origin, Collection<JobInfo> jobList) { }
+    protected void recvSchedReq(Host origin, Collection<JobInfo> jobList) {
+    }
 
     @Override
-    protected void recvSchedResp(Host origin, String jobId, PluginInfo plugin) { }
+    protected void recvSchedResp(Host origin, String jobId, PluginInfo plugin) {
+    }
 
     @Override
-    protected void recvJobReq(Host origin, Collection<JobInfo> jobList) { }
+    protected void recvJobReq(Host origin, Collection<JobInfo> jobList) {
+    }
 
     @Override
-    protected void recvJobResp(Host origin, JobInfo job) { }
+    protected void recvJobResp(Host origin, JobInfo job) {
+    }
 
     @Override
-    protected void recvError(Host origin, String error) { }
+    protected void recvError(Host origin, String error) {
+    }
 
     @Override
-    protected void recvPingReq(Host origin, long timestamp) { }
+    protected void recvPingReq(Host origin, long timestamp) {
+    }
 
     @Override
-    protected void recvPingResp(Host origin, long timestamp) { }
+    protected void recvPingResp(Host origin, long timestamp) {
+    }
 
     @Override
-    protected void recvListReq(Host origin) { }
+    protected void recvListReq(Host origin) {
+    }
 
     @Override
-    protected void recvListResp(Host origin, Collection<PluginFile> files) { }
+    protected void recvListResp(Host origin, Collection<PluginFile> files) {
+    }
 
     @Override
     protected void recvPrepReq(Host origin, PluginFile file, String taskId) {
@@ -483,11 +501,14 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
     }
 
     @Override
-    protected void recvCancelResp(Host origin, PluginTask task) { }
+    protected void recvCancelResp(Host origin, PluginTask task) {
+    }
 
     @Override
-    protected void recvJobCancelReq(Host origin, String jobId) { }
+    protected void recvJobCancelReq(Host origin, String jobId) {
+    }
 
     @Override
-    protected void recvJobCancelResp(Host origin, String jobId) { }
+    protected void recvJobCancelResp(Host origin, String jobId) {
+    }
 }

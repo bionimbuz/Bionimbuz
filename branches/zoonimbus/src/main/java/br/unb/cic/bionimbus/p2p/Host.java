@@ -21,65 +21,66 @@ import com.google.common.collect.ComparisonChain;
 
 public final class Host implements Comparable<Host> {
 
-	private String address;
-	private int port;
-	
-	// o json decoder precisa deste construtor vazio
-	Host() {}
-	
-	public Host(String address, int port) {	
-		this.address = address.trim();
-		this.port = port;
-	}
+    private String address;
+    private int port;
 
-	public String getAddress() {
-		return address;
-	}
+    // o json decoder precisa deste construtor vazio
+    Host() {
+    }
 
-	public int getPort() {
-		return port;
-	}	
-	
-	public void setAddress(String address) {
-		this.address = address.trim();
-	}
+    public Host(String address, int port) {
+        this.address = address.trim();
+        this.port = port;
+    }
 
-	public void setPort(int port) {
-		this.port = port;
-	}
+    public String getAddress() {
+        return address;
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(address, port);
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		
-		if (!(obj instanceof Host))
-			return false;
-		
-		Host other = (Host) obj;
-		
-		return address.equals(other.address) && (port == other.port);
-	}
-	
-	@Override
-	public String toString() {
-		  return Objects.toStringHelper(this)
-	       				.add("address", address)
-	       				.add("port", port)
-	       				.toString();
-	}
+    public int getPort() {
+        return port;
+    }
 
-	@Override
-	public int compareTo(Host o) {
-		return ComparisonChain.start()
-							  .compare(address, o.address)
-							  .compare(port, o.port)
-							  .result();
-	}
+    public void setAddress(String address) {
+        this.address = address.trim();
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(address, port);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+
+        if (!(obj instanceof Host))
+            return false;
+
+        Host other = (Host) obj;
+
+        return address.equals(other.address) && (port == other.port);
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("address", address)
+                .add("port", port)
+                .toString();
+    }
+
+    @Override
+    public int compareTo(Host o) {
+        return ComparisonChain.start()
+                .compare(address, o.address)
+                .compare(port, o.port)
+                .result();
+    }
 
 }

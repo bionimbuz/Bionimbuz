@@ -35,34 +35,34 @@ import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
 public class ProxyClientStub {
 
-	private final String address;
-	private final int port;
+    private final String address;
+    private final int port;
 
-	private final ScheduledExecutorService executor;
-    
+    private final ScheduledExecutorService executor;
+
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
-	public static final int INTERVAL = 30;
-	private File file;
+    public static final int INTERVAL = 30;
+    private File file;
     private final String BASE_URL;
 
     public ProxyClientStub(String address, int port, ScheduledExecutorService executor) {
-		this.address = address;
-		this.port = port;
-		this.executor = executor;
+        this.address = address;
+        this.port = port;
+        this.executor = executor;
         BASE_URL = "http://" + address + ":" + port + "/proxy";
-	}
+    }
 
-	public void eventLoop() throws Exception {
+    public void eventLoop() throws Exception {
 
-        executor.scheduleAtFixedRate(new Runnable(){
+        executor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
                 try {
 
                     String data = doGET(BASE_URL);
                     if (data != null && data.length() > 0) {
-                    	//TODO reativar este sub-projeto de conexão
+                        //TODO reativar este sub-projeto de conexão
 //                        ObjectMapper mapper = new ObjectMapper();
 //                        List<RequestMessage> requests = mapper.readValue(data, new TypeReference<List<RequestMessage>>() { });
 //                        System.out.println(requests);
@@ -112,8 +112,8 @@ public class ProxyClientStub {
         FormDataMultiPart form = new FormDataMultiPart().field(formName, f, MediaType.MULTIPART_FORM_DATA_TYPE);
         WebResource webResource = Client.create().resource(fileURL);
         return webResource.type(MULTIPART_FORM_DATA)
-                   .accept(TEXT_PLAIN)
-                   .post(String.class, form);
+                .accept(TEXT_PLAIN)
+                .post(String.class, form);
     }
 
     public String downloadFileFromProxy(String filename) throws IOException {
@@ -129,13 +129,13 @@ public class ProxyClientStub {
 
 
     private void sleep(TimeUnit timeUnit, int amount) {
-		try {
-			timeUnit.sleep(amount);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+        try {
+            timeUnit.sleep(amount);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-	}
+    }
 
     //TODO reativar este sub-projeto
 //	private void execute(RequestMessage request) throws Exception {

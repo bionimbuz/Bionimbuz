@@ -8,43 +8,43 @@ import br.unb.cic.bionimbus.utils.JsonCodec;
 
 public class InfoRespMessage extends AbstractMessage implements Message {
 
-	private PluginInfo pluginInfo;
-	
-	public InfoRespMessage() {
-		super();
-	}
-	
-	public InfoRespMessage(PeerNode peer, PluginInfo pluginInfo) {
-		super(peer);
-		this.pluginInfo = pluginInfo;
-	}
+    private PluginInfo pluginInfo;
 
-	public PluginInfo getPluginInfo() {
-		return pluginInfo;
-	}
+    public InfoRespMessage() {
+        super();
+    }
 
-	@Override
-	public void deserialize(byte[] buffer) throws Exception {
-		
-		BulkMessage message = decodeBasicMessage(buffer);
-		
-		pluginInfo = message.getPluginInfo();
-	}
+    public InfoRespMessage(PeerNode peer, PluginInfo pluginInfo) {
+        super(peer);
+        this.pluginInfo = pluginInfo;
+    }
 
-	@Override
-	public byte[] serialize() throws Exception {
+    public PluginInfo getPluginInfo() {
+        return pluginInfo;
+    }
 
-		BulkMessage message = encodeBasicMessage();
+    @Override
+    public void deserialize(byte[] buffer) throws Exception {
 
-		message.setPluginInfo(pluginInfo);
+        BulkMessage message = decodeBasicMessage(buffer);
 
-		return JsonCodec.encodeMessage(message);
-		
-	}
+        pluginInfo = message.getPluginInfo();
+    }
 
-	@Override
-	public int getType() {
-		return P2PMessageType.INFORESP.code();
-	}
+    @Override
+    public byte[] serialize() throws Exception {
+
+        BulkMessage message = encodeBasicMessage();
+
+        message.setPluginInfo(pluginInfo);
+
+        return JsonCodec.encodeMessage(message);
+
+    }
+
+    @Override
+    public int getType() {
+        return P2PMessageType.INFORESP.code();
+    }
 
 }

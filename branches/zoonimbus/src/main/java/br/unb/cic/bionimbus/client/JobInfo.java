@@ -8,79 +8,79 @@ import br.unb.cic.bionimbus.utils.Pair;
 
 public class JobInfo {
 
-	private String id = UUID.randomUUID().toString();
+    private String id = UUID.randomUUID().toString();
 
-	private String localId;
-	
-	private long serviceId;
+    private String localId;
 
-	private String args = "";
-	
-	private List<Pair<String, Long>> inputs = new ArrayList<Pair<String,Long>>();
+    private long serviceId;
 
-	private List<String> outputs = new ArrayList<String>();
+    private String args = "";
 
-	private long timestamp;
+    private List<Pair<String, Long>> inputs = new ArrayList<Pair<String, Long>>();
 
-	public String getId() {
-		return id;
-	}
+    private List<String> outputs = new ArrayList<String>();
 
-	public void setId(String id) {
-		this.id = id;
-	}
-	
-	public String getLocalId() {
-		return this.localId;
-	}
-	
-	public void setLocalId(String id) {
-		this.localId = id;
-	}
+    private long timestamp;
 
-	public long getServiceId() {
-		return serviceId;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public void setServiceId(long serviceId) {
-		this.serviceId = serviceId;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public String getArgs() {
-		return args;
-	}
+    public String getLocalId() {
+        return this.localId;
+    }
 
-	public void setArgs(String args) {
-		this.args = args;
-	}
+    public void setLocalId(String id) {
+        this.localId = id;
+    }
 
-	public List<Pair<String, Long>> getInputs() {
-		return inputs;
-	}
+    public long getServiceId() {
+        return serviceId;
+    }
 
-	public void addInput(String id, Long size) {
-		for (Pair<String, Long> pair : inputs) {
-			if (pair.first.equals(id)) {
-				inputs.remove(pair);
-				break;
-			}
-		}
-		inputs.add(new Pair<String, Long>(id, size));
-	}
+    public void setServiceId(long serviceId) {
+        this.serviceId = serviceId;
+    }
 
-	public List<String> getOutputs() {
-		return outputs;
-	}
+    public String getArgs() {
+        return args;
+    }
 
-	public void addOutput(String name) {
-		outputs.add(name);
-	}
+    public void setArgs(String args) {
+        this.args = args;
+    }
 
-	public long getTimestamp() {
-		return timestamp;
-	}
+    public List<Pair<String, Long>> getInputs() {
+        return inputs;
+    }
 
-	public void setTimestamp(long timestamp) {
-		this.timestamp = timestamp;
-	}
+    public void addInput(String id, Long size) {
+        for (Pair<String, Long> pair : inputs) {
+            if (pair.first.equals(id)) {
+                inputs.remove(pair);
+                break;
+            }
+        }
+        inputs.add(new Pair<String, Long>(id, size));
+    }
+
+    public List<String> getOutputs() {
+        return outputs;
+    }
+
+    public void addOutput(String name) {
+        outputs.add(name);
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
 }

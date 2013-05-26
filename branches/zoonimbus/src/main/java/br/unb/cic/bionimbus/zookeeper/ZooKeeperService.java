@@ -24,20 +24,20 @@ public class ZooKeeperService {
     private static final int SESSION_TIMEOUT = 3000;
 
     private final CountDownLatch countDownLatch = new CountDownLatch(1);
-    
+
     public enum Status {
         NO_CONNECTED, CONNECTING, CONNECTED;
     }
 
-    private volatile Status status = Status.NO_CONNECTED;    
-    
+    private volatile Status status = Status.NO_CONNECTED;
+
     public Status getStatus() {
         return status;
     }
 
     public synchronized void connect(String hosts) throws IOException, InterruptedException {
         status = Status.CONNECTING;
-                
+
         System.out.println("Conectando ao ZK...");
         zk = new ZooKeeper(hosts, SESSION_TIMEOUT, new Watcher() {
             @Override
@@ -110,11 +110,10 @@ public class ZooKeeperService {
         Stat stat = zk.setData(path, data.getBytes(), -1);
     }
 
-    public void close() throws InterruptedException {       
+    public void close() throws InterruptedException {
         try {
             zk.close();
-        }
-        finally {
+        } finally {
             status = Status.NO_CONNECTED;
         }
     }

@@ -12,125 +12,123 @@ import org.slf4j.LoggerFactory;
 
 public final class ChordRing {
 
-	public static final int SHA1_BIT_SIZE = 160;
-	
-	private static final Logger LOG = LoggerFactory.getLogger(ChordRing.class);
+    public static final int SHA1_BIT_SIZE = 160;
 
-	private final int m;
+    private static final Logger LOG = LoggerFactory.getLogger(ChordRing.class);
 
-	private final PeerNode[] finger;
-	private final ID id;
-	private final PeerNode peer;
+    private final int m;
+
+    private final PeerNode[] finger;
+    private final ID id;
+    private final PeerNode peer;
 
 //	private PeerNode predecessor;
 
-	public ChordRing(PeerNode thisNode) {
-		this(thisNode, SHA1_BIT_SIZE);
-		LOG.debug(String.format("Starting chord ring for peer %s", id));
-	}
+    public ChordRing(PeerNode thisNode) {
+        this(thisNode, SHA1_BIT_SIZE);
+        LOG.debug(String.format("Starting chord ring for peer %s", id));
+    }
 
-	public ChordRing(PeerNode thisNode, int bitsize) {
-		
-		id = thisNode.getId();
-		peer = thisNode;
-		peer.start();
-		m  = bitsize;
-		finger = new PeerNode[m];
-		
-	}
+    public ChordRing(PeerNode thisNode, int bitsize) {
 
-	public synchronized PeerNode successor(ID key) {
-		ID successor = successor().getId();
-		if (key.gt(id) && key.lte(successor)){
-			return successor();
-		}
-		else {
-			PeerNode n = getClosestPrecedingNode(key);
-			return n.retrieveSuccessor(key);
-		}
-	}
+        id = thisNode.getId();
+        peer = thisNode;
+        peer.start();
+        m = bitsize;
+        finger = new PeerNode[m];
 
-	public synchronized PeerNode getClosestPrecedingNode(ID key) {
+    }
 
-		for (int i = finger.length; i >= 0; i--) {
-			if (finger[i] != null){
-				ID f = finger[i].getId();
-				if (f.gt(id) && f.lt(key)){
-					return finger[i];
-				}
-			}
-		}
-		return peer;
-	}
+    public synchronized PeerNode successor(ID key) {
+        ID successor = successor().getId();
+        if (key.gt(id) && key.lte(successor)) {
+            return successor();
+        } else {
+            PeerNode n = getClosestPrecedingNode(key);
+            return n.retrieveSuccessor(key);
+        }
+    }
 
-	public synchronized PeerNode successor() {
-		return finger[0];
-	}
+    public synchronized PeerNode getClosestPrecedingNode(ID key) {
 
-	public synchronized int size() {
-		int count = 0;
-		for (int i = 0; i < finger.length; i++){
-			if (finger[i] != null) {
-				count++;
-			}
-		}
-		return count;
-	}
+        for (int i = finger.length; i >= 0; i--) {
+            if (finger[i] != null) {
+                ID f = finger[i].getId();
+                if (f.gt(id) && f.lt(key)) {
+                    return finger[i];
+                }
+            }
+        }
+        return peer;
+    }
 
-	public synchronized void add(PeerNode peerNode) {
+    public synchronized PeerNode successor() {
+        return finger[0];
+    }
 
-		ID candidate = peerNode.getId();
+    public synchronized int size() {
+        int count = 0;
+        for (int i = 0; i < finger.length; i++) {
+            if (finger[i] != null) {
+                count++;
+            }
+        }
+        return count;
+    }
 
-		for (int i = 0; i < finger.length; i++) {
+    public synchronized void add(PeerNode peerNode) {
 
-			ID temp = id.add(ID.pow(i)).mod(m);
+        ID candidate = peerNode.getId();
 
-			if (candidate.gte(temp)){
-				if (finger[i] == null) {
-					finger[i] = peerNode;
-					peerNode.start();
-				}
-			}
-			else {
-				break;
-			}
-		}
-		
-		//System.out.println("chord ring: " + peers());
-	}
+        for (int i = 0; i < finger.length; i++) {
 
-	public synchronized void remove(PeerNode peerNode) {
-		for (int i = 0; i < finger.length; i++) {
-			if (finger[i].equals(peerNode)){
-				finger[i] = null;
-			}
-		}
-	}
+            ID temp = id.add(ID.pow(i)).mod(m);
 
-	public synchronized Collection<PeerNode> peers() {
-		final SortedSet<PeerNode> peers = new TreeSet<PeerNode>();
-		for (PeerNode p : finger) {
-			if (p != null){
-				peers.add(p);
-			}
-		}
-		return ImmutableSortedSet.copyOf(peers);
-	}
+            if (candidate.gte(temp)) {
+                if (finger[i] == null) {
+                    finger[i] = peerNode;
+                    peerNode.start();
+                }
+            } else {
+                break;
+            }
+        }
 
-	public synchronized String printRawTable() {
-		return peers().toString();
-	}
+        //System.out.println("chord ring: " + peers());
+    }
 
-	@Override
-	public synchronized String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("Table for ID " + id + ":");
-		final SortedSet<ID> ids = new TreeSet<ID>();
-		for (PeerNode p : finger){
-			if (p != null)
-				ids.add(p.getId());
-		}
-		sb.append(ids.toString());
-		return sb.toString();
-	}
+    public synchronized void remove(PeerNode peerNode) {
+        for (int i = 0; i < finger.length; i++) {
+            if (finger[i].equals(peerNode)) {
+                finger[i] = null;
+            }
+        }
+    }
+
+    public synchronized Collection<PeerNode> peers() {
+        final SortedSet<PeerNode> peers = new TreeSet<PeerNode>();
+        for (PeerNode p : finger) {
+            if (p != null) {
+                peers.add(p);
+            }
+        }
+        return ImmutableSortedSet.copyOf(peers);
+    }
+
+    public synchronized String printRawTable() {
+        return peers().toString();
+    }
+
+    @Override
+    public synchronized String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Table for ID " + id + ":");
+        final SortedSet<ID> ids = new TreeSet<ID>();
+        for (PeerNode p : finger) {
+            if (p != null)
+                ids.add(p.getId());
+        }
+        sb.append(ids.toString());
+        return sb.toString();
+    }
 }

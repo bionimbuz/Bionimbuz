@@ -10,14 +10,14 @@ import com.google.inject.multibindings.Multibinder;
 public class ServiceModule extends AbstractModule {
 
     @Override
-	protected void configure() {
+    protected void configure() {
 
         Multibinder<Service> serviceBinder = Multibinder.newSetBinder(binder(), Service.class);
-		
-		serviceBinder.addBinding().to(DiscoveryService.class);
-		serviceBinder.addBinding().to(StorageService.class);
-		serviceBinder.addBinding().to(SchedService.class);
+
+        serviceBinder.addBinding().to(DiscoveryService.class);
+        serviceBinder.addBinding().to(StorageService.class);
+        serviceBinder.addBinding().to(SchedService.class);
 //		serviceBinder.addBinding().to(MonitorService.class);		
-	}
+    }
 
 }
