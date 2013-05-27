@@ -68,8 +68,8 @@ public final class ChordRing {
 
     public synchronized int size() {
         int count = 0;
-        for (int i = 0; i < finger.length; i++) {
-            if (finger[i] != null) {
+        for (PeerNode aFinger : finger) {
+            if (aFinger != null) {
                 count++;
             }
         }

@@ -10,11 +10,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-/**
- * Created with IntelliJ IDEA.
- * User: edward
- * To change this template use File | Settings | File Templates.
- */
 @Singleton
 public class ZooKeeperService {
 
@@ -26,7 +21,7 @@ public class ZooKeeperService {
     private final CountDownLatch countDownLatch = new CountDownLatch(1);
 
     public enum Status {
-        NO_CONNECTED, CONNECTING, CONNECTED;
+        NO_CONNECTED, CONNECTING, CONNECTED
     }
 
     private volatile Status status = Status.NO_CONNECTED;

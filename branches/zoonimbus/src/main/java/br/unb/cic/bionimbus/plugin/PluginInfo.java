@@ -195,6 +195,6 @@ public class PluginInfo implements PluginOps {
 
     @Override
     public String toString() {
-        return id.toString();
+        return id;
     }
 }

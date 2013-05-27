@@ -40,7 +40,7 @@ public class Ping {
             if (times == 0) {
                 matcher = patternBand.matcher(teste);
                 while (matcher.find()) {
-                    sizerequest = Float.parseFloat(matcher.group().toString());
+                    sizerequest = Float.parseFloat(matcher.group());
                     System.out.println("tamanho da mensagem de requisição " + sizerequest);
                     found = true;
                 }
@@ -50,10 +50,10 @@ public class Ping {
             } else {
                 matcher = pattern.matcher(teste);
                 while (matcher.find()) {
-                    System.out.println("2: Tempo de resposta: " + matcher.group().toString());
-                    temporesp = Float.parseFloat(matcher.group().toString());
+                    System.out.println("2: Tempo de resposta: " + matcher.group());
+                    temporesp = Float.parseFloat(matcher.group());
                     taxadetransferencia = sizerequest / ((temporesp / 1000));
-                    avg += Float.parseFloat(matcher.group().toString());
+                    avg += Float.parseFloat(matcher.group());
                     System.out.println("Taxa de tranferência: " + taxadetransferencia + " Somatorio tempo de resposta: " + avg);
                     found = true;
                 }
