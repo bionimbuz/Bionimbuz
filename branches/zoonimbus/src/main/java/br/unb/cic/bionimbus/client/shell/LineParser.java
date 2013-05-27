@@ -8,7 +8,7 @@ import java.util.Stack;
 public class LineParser {
 
     enum State {
-        NEW, BUILDING, QUOTED;
+        NEW, BUILDING, QUOTED
     }
 
     private static final Set<Character> spaceChars = new HashSet<Character>();

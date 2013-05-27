@@ -57,7 +57,7 @@ public class PluginTask implements PluginOps {
 
     @Override
     public String toString() {
-        return id.toString() + ":" + state;
+        return id + ":" + state;
     }
 
 }
