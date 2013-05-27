@@ -1,10 +1,15 @@
 package br.unb.cic.bionimbus;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import br.unb.cic.bionimbus.p2p.P2PService;
 
+import br.unb.cic.bionimbus.storage.StorageService;
+import br.unb.cic.bionimbus.zookeeper.ZooKeeperService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -12,11 +17,21 @@ import com.google.inject.Singleton;
 public class ServiceManager {
 
     private final Set<Service> _services;
+    private final ZooKeeperService zkService;
 
     @Inject
-    public ServiceManager(Set<Service> services) {
+    public ServiceManager(final ZooKeeperService service, Set<Service> services) {
+        zkService = service;
         _services = new HashSet<Service>();
         _services.addAll(services);
+    }
+
+    public void connectZK(String hosts) throws IOException, InterruptedException {
+        System.out.println("conectando ao ZooKeeperService...");
+        if (zkService.getStatus() != ZooKeeperService.Status.CONNECTED
+                && zkService.getStatus() != ZooKeeperService.Status.CONNECTING) {
+            zkService.connect(hosts);
+        }
     }
 
     public void register(Service service) {
@@ -24,6 +39,13 @@ public class ServiceManager {
     }
 
     public void startAll(P2PService p2p) {
+        try {
+            connectZK(p2p.getConfig().getZkHosts());
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(0);
+        }
+
         for (Service service : _services) {
             service.start(p2p);
         }

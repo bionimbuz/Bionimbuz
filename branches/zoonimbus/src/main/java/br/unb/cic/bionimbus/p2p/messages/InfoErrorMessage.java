@@ -28,6 +28,7 @@ public class InfoErrorMessage extends ErrorMessage {
     @Override
     public void deserialize(byte[] buffer) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
+
         Map<String, Object> data = mapper.readValue(buffer, Map.class);
         setError((String) data.get("error"));
         this.pluginId = (String) data.get("pluginId");
