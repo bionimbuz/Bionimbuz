@@ -1,6 +1,6 @@
 package br.unb.cic.bionimbus.client.shell.commands;
 
-import br.unb.cic.bionimbus.messaging.Message;
+import br.unb.cic.bionimbus.services.messaging.Message;
 import br.unb.cic.bionimbus.p2p.P2PEvent;
 import br.unb.cic.bionimbus.p2p.P2PEventType;
 import br.unb.cic.bionimbus.p2p.P2PListener;

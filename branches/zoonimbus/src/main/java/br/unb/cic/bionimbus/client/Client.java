@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.config.BioNimbusConfigLoader;
-import br.unb.cic.bionimbus.messaging.Message;
+import br.unb.cic.bionimbus.services.messaging.Message;
 import br.unb.cic.bionimbus.p2p.P2PEvent;
 import br.unb.cic.bionimbus.p2p.P2PEventType;
 import br.unb.cic.bionimbus.p2p.P2PFileEvent;

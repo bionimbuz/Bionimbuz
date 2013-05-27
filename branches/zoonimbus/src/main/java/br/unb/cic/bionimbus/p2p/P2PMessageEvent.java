@@ -1,6 +1,6 @@
 package br.unb.cic.bionimbus.p2p;
 
-import br.unb.cic.bionimbus.messaging.Message;
+import br.unb.cic.bionimbus.services.messaging.Message;
 
 public class P2PMessageEvent implements P2PEvent {
 

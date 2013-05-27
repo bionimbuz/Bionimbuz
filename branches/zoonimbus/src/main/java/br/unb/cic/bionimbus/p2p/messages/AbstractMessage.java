@@ -1,6 +1,6 @@
 package br.unb.cic.bionimbus.p2p.messages;
 
-import br.unb.cic.bionimbus.messaging.Message;
+import br.unb.cic.bionimbus.services.messaging.Message;
 import br.unb.cic.bionimbus.p2p.IDFactory;
 import br.unb.cic.bionimbus.p2p.PeerNode;
 import br.unb.cic.bionimbus.utils.JsonCodec;

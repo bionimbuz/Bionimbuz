@@ -1,6 +1,6 @@
 package br.unb.cic.bionimbus.zookeeper;
 
-import br.unb.cic.bionimbus.network.utils.NetUtils;
+import br.unb.cic.bionimbus.utils.NetUtils;
 import br.unb.cic.bionimbus.services.file.FileService;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class UsageExample {
 
-    private static CopyOnWriteArraySet<String> peers = new CopyOnWriteArraySet<String>();
+    private static final CopyOnWriteArraySet<String> peers = new CopyOnWriteArraySet<String>();
 
     private static ZooKeeperService zkService = new ZooKeeperService();
 

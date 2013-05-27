@@ -1,17 +1,16 @@
 package br.unb.cic.bionimbus;
 
 import java.io.IOException;
-import java.lang.management.ThreadInfo;
 
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.p2p.P2PService;
 import br.unb.cic.bionimbus.plugin.Plugin;
+import br.unb.cic.bionimbus.services.ServiceManager;
+import br.unb.cic.bionimbus.services.ServiceModule;
 import com.google.inject.Injector;
 
 import static br.unb.cic.bionimbus.config.BioNimbusConfigLoader.*;
 import static br.unb.cic.bionimbus.plugin.PluginFactory.getPlugin;
-
-import br.unb.cic.bionimbus.zookeeper.ZooKeeperService;
 
 import static com.google.inject.Guice.createInjector;
 
