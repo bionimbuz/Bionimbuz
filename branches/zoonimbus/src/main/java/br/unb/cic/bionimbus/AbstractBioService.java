@@ -21,18 +21,4 @@ public abstract class AbstractBioService implements Service, P2PListener, Runnab
 
     protected ZooKeeperService zkService;
 
-    public void connectZK(String hosts) {
-        System.out.println("running StorageService...");
-        if (zkService.getStatus() != ZooKeeperService.Status.CONNECTED
-                && zkService.getStatus() != ZooKeeperService.Status.CONNECTING) {
-            try {
-                zkService.connect(hosts);
-            } catch (IOException ex) {
-                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-
 }

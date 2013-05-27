@@ -77,8 +77,6 @@ public class StorageService extends AbstractBioService {
     @Override
     public void start(P2PService p2p) {
 
-        connectZK(p2p.getConfig().getZkHosts());
-
         File file = new File("persistent-storage.json");
         if (file.exists()) {
             try {

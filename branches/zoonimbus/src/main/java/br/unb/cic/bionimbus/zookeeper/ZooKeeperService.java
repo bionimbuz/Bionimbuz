@@ -1,5 +1,6 @@
 package br.unb.cic.bionimbus.zookeeper;
 
+import com.google.common.base.Preconditions;
 import com.google.inject.Singleton;
 import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.Stat;
@@ -26,11 +27,19 @@ public class ZooKeeperService {
 
     private volatile Status status = Status.NO_CONNECTED;
 
+    public ZooKeeperService() {
+        System.out.println("Criando ZK service...");
+    }
+
     public Status getStatus() {
         return status;
     }
 
+
     public synchronized void connect(String hosts) throws IOException, InterruptedException {
+
+        Preconditions.checkNotNull(hosts, "zkHosts cannot be null");
+
         status = Status.CONNECTING;
 
         System.out.println("Conectando ao ZK...");
@@ -103,6 +112,10 @@ public class ZooKeeperService {
 
     public void setData(String path, String data) throws KeeperException, InterruptedException {
         Stat stat = zk.setData(path, data.getBytes(), -1);
+    }
+
+    public void delete(String path) throws KeeperException, InterruptedException {
+        zk.delete(path, -1);
     }
 
     public void close() throws InterruptedException {

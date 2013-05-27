@@ -18,11 +18,6 @@ public class NetUtils {
     private NetUtils() {
     }
 
-    /**
-     * @param NIC eth0, wlan, etc.
-     * @return
-     * @throws java.net.SocketException
-     */
     public static String getAddress(String NIC) throws SocketException {
         Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
         while (interfaces.hasMoreElements()) {

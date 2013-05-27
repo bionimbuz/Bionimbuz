@@ -1,6 +1,7 @@
 package br.unb.cic.bionimbus;
 
 import java.io.IOException;
+import java.lang.management.ThreadInfo;
 
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.p2p.P2PService;
@@ -16,9 +17,18 @@ import static com.google.inject.Guice.createInjector;
 
 public class BioNimbus {
 
-    private ZooKeeperService zkService;
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                System.out.println("shutdown hook");
+            }
+
+        });
+    }
 
     public BioNimbus(BioNimbusConfig config) throws IOException, InterruptedException {
+
 
         final P2PService p2p = new P2PService(config);
         p2p.start();
@@ -27,8 +37,6 @@ public class BioNimbus {
             final Plugin plugin = getPlugin(config.getInfra(), p2p);
             plugin.start();
             plugin.setP2P(p2p);
-            zkService = new ZooKeeperService();
-            zkService.connect(config.getZkHosts());
         }
 
         final Injector injector = createInjector(new ServiceModule());
@@ -40,6 +48,7 @@ public class BioNimbus {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
+
 
         final String configFile = System.getProperty("config.file", "conf/server.json");
         BioNimbusConfig config = loadHostConfig(configFile);

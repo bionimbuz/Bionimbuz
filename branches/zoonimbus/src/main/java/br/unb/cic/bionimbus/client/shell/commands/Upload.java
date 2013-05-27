@@ -68,7 +68,7 @@ public class Upload extends AbstractBioService implements Command {
             FileInfo info = new FileInfo();
             info.setName(params[0]);
             info.setSize(file.length());
-            this.connectZK(p2p.getConfig().getZkHosts());
+
             this.map = getPeers();
             for (PluginInfo plugin : map.values()) {
                 //latency = Ping.calculo(plugin.getHost().getAddress());
