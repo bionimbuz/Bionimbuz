@@ -1,7 +1,7 @@
 package br.unb.cic.bionimbus.zookeeper;
 
 import br.unb.cic.bionimbus.utils.NetUtils;
-import br.unb.cic.bionimbus.services.file.FileService;
+import br.unb.cic.bionimbus.services.storage.file.FileService;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;

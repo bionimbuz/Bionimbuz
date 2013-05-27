@@ -16,7 +16,7 @@ import java.net.URL;
  * Time: 10:39 AM
  * To change this template use File | Settings | File Templates.
  */
-public class AvroClient {
+public class AvroClient implements RpcClient {
 
     public static void nettyTransport() throws IOException {
         NettyTransceiver client = new NettyTransceiver(new InetSocketAddress(65111));

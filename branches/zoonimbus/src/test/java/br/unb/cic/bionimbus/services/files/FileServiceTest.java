@@ -1,6 +1,6 @@
 package br.unb.cic.bionimbus.services.files;
 
-import br.unb.cic.bionimbus.services.file.FileService;
+import br.unb.cic.bionimbus.services.storage.file.FileService;
 import junit.framework.TestCase;
 import org.junit.Test;
 

@@ -19,7 +19,7 @@ import java.net.InetSocketAddress;
  * Time: 10:31 AM
  * To change this template use File | Settings | File Templates.
  */
-public class AvroServer {
+public class AvroServer implements RpcServer {
 
     private static NettyServer nettyServer;
     private static Server httpServer;

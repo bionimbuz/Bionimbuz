@@ -5,7 +5,7 @@ import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.p2p.*;
 import br.unb.cic.bionimbus.p2p.messages.*;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
-import br.unb.cic.bionimbus.services.file.FileService;
+import br.unb.cic.bionimbus.services.storage.file.FileService;
 import br.unb.cic.bionimbus.zookeeper.ZooKeeperService;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;

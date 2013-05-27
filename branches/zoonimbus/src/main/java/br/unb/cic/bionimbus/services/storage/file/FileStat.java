@@ -1,4 +1,4 @@
-package br.unb.cic.bionimbus.services.file;
+package br.unb.cic.bionimbus.services.storage.file;
 
 /**
  * Created with IntelliJ IDEA.
