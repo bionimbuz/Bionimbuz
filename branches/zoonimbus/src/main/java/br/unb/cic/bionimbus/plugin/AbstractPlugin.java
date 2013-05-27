@@ -19,7 +19,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import br.unb.cic.bionimbus.client.FileInfo;
 import br.unb.cic.bionimbus.client.JobInfo;
-import br.unb.cic.bionimbus.messaging.Message;
+import br.unb.cic.bionimbus.services.messaging.Message;
 import br.unb.cic.bionimbus.p2p.Host;
 import br.unb.cic.bionimbus.p2p.P2PAbstractListener;
 import br.unb.cic.bionimbus.p2p.P2PService;

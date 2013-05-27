@@ -15,10 +15,10 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
-import br.unb.cic.bionimbus.messaging.FileListener;
-import br.unb.cic.bionimbus.messaging.Message;
-import br.unb.cic.bionimbus.messaging.MessageListener;
-import br.unb.cic.bionimbus.messaging.MessageService;
+import br.unb.cic.bionimbus.services.messaging.FileListener;
+import br.unb.cic.bionimbus.services.messaging.Message;
+import br.unb.cic.bionimbus.services.messaging.MessageListener;
+import br.unb.cic.bionimbus.services.messaging.MessageService;
 import br.unb.cic.bionimbus.p2p.messages.PingReqMessage;
 import br.unb.cic.bionimbus.p2p.messages.PingRespMessage;
 

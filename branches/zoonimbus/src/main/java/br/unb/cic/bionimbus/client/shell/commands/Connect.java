@@ -6,8 +6,8 @@ import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.config.BioNimbusConfigLoader;
 import br.unb.cic.bionimbus.p2p.P2PService;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
-import br.unb.cic.bionimbus.storage.Ping;
-import br.unb.cic.bionimbus.storage.StoragePolicy;
+import br.unb.cic.bionimbus.services.storage.Ping;
+import br.unb.cic.bionimbus.services.storage.StoragePolicy;
 import br.unb.cic.bionimbus.zookeeper.ZooKeeperService;
 import com.google.common.collect.Maps;
 

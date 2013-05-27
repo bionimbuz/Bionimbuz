@@ -1,7 +1,7 @@
 package br.unb.cic.bionimbus.p2p;
 
-import br.unb.cic.bionimbus.messaging.Message;
-import br.unb.cic.bionimbus.messaging.MessageFactory;
+import br.unb.cic.bionimbus.services.messaging.Message;
+import br.unb.cic.bionimbus.services.messaging.MessageFactory;
 import br.unb.cic.bionimbus.p2p.messages.CancelReqMessage;
 import br.unb.cic.bionimbus.p2p.messages.CancelRespMessage;
 import br.unb.cic.bionimbus.p2p.messages.CloudReqMessage;

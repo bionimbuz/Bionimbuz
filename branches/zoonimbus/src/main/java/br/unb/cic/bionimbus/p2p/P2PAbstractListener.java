@@ -6,7 +6,7 @@ import java.util.Map;
 
 import br.unb.cic.bionimbus.client.FileInfo;
 import br.unb.cic.bionimbus.client.JobInfo;
-import br.unb.cic.bionimbus.messaging.Message;
+import br.unb.cic.bionimbus.services.messaging.Message;
 import br.unb.cic.bionimbus.p2p.messages.AbstractMessage;
 import br.unb.cic.bionimbus.p2p.messages.CancelReqMessage;
 import br.unb.cic.bionimbus.p2p.messages.CancelRespMessage;

@@ -1,22 +1,21 @@
 package br.unb.cic.bionimbus.client.shell.commands;
 
-import br.unb.cic.bionimbus.AbstractBioService;
+import br.unb.cic.bionimbus.services.AbstractBioService;
 
 import java.io.File;
 
 import br.unb.cic.bionimbus.client.FileInfo;
 import br.unb.cic.bionimbus.client.shell.Command;
 import br.unb.cic.bionimbus.client.shell.SimpleShell;
-import br.unb.cic.bionimbus.discovery.DiscoveryService;
+import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import br.unb.cic.bionimbus.p2p.P2PEvent;
 import br.unb.cic.bionimbus.p2p.P2PMessageType;
 import br.unb.cic.bionimbus.p2p.P2PService;
 import br.unb.cic.bionimbus.p2p.messages.StoreReqMessage;
 import br.unb.cic.bionimbus.p2p.messages.StoreRespMessage;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
-import br.unb.cic.bionimbus.storage.Ping;
-import br.unb.cic.bionimbus.storage.StoragePolicy;
-import br.unb.cic.bionimbus.zookeeper.ZooKeeperService;
+import br.unb.cic.bionimbus.services.storage.Ping;
+import br.unb.cic.bionimbus.services.storage.StoragePolicy;
 import com.google.common.collect.Maps;
 
 import java.util.List;

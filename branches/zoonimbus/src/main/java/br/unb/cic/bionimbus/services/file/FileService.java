@@ -1,14 +1,9 @@
 package br.unb.cic.bionimbus.services.file;
 
-import br.unb.cic.bionimbus.network.utils.NetUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.*;
 import java.net.*;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Created with IntelliJ IDEA.
