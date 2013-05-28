@@ -3,6 +3,7 @@ package br.unb.cic.bionimbus.config;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 import com.google.common.base.Objects;
@@ -13,22 +14,63 @@ import br.unb.cic.bionimbus.p2p.Host;
 @Singleton
 public class BioNimbusConfig {
 
-    private
     @JsonIgnore
-    String id;
-    private
+    private String id;
+
     @JsonIgnore
-    String infra;
-    private
+    private String infra;
+
     @JsonIgnore
-    Set<Host> seeds = new HashSet<Host>();
-    private Host host;
+    private String address;
+
+    @JsonIgnore
+    private String plugin;
+
+    @JsonIgnore
+    private Set<Host> seeds = new HashSet<Host>();
+
+    @JsonIgnore
     private boolean client = false;
+
+    @JsonProperty("rpc_protocol")
+    private String rpcProtocol;
+
+    @JsonProperty("rpc_port")
+    private Integer rpcPort;
+
+    @JsonProperty("zookeeper_hosts")
+    private String zkHosts;
+
+    private Host host;
+    @JsonProperty("server-path")
     private String serverPath = "";
 
     private String proxyHost = "localhost";
     private int proxyPort = 8080;
-    private String zkHosts;
+
+    public void setRpcProtocol(String rpcProtocol) {
+        this.rpcProtocol = rpcProtocol;
+    }
+
+    public String getRpcProtocol() {
+        return rpcProtocol;
+    }
+
+    public Integer getRpcPort() {
+        return rpcPort;
+    }
+
+    public void setRpcPort(Integer rpcPort) {
+        this.rpcPort = rpcPort;
+    }
+
+    public String getZkHosts() {
+        return zkHosts;
+    }
+
+    public void setZkConnString(String zkHosts) {
+        this.zkHosts = zkHosts;
+    }
 
     public String getProxyHost() {
         return proxyHost;
@@ -46,24 +88,24 @@ public class BioNimbusConfig {
         this.proxyPort = proxyPort;
     }
 
-    public boolean isClient() {
-        return client;
+
+    public String getInfra() {
+        return infra;
     }
 
     public void setInfra(String infra) {
         this.infra = infra;
     }
 
-    public String getInfra() {
-        return infra;
-    }
-
     public void setHost(Host host) {
         this.host = host;
-    }
-
+        }
     public Host getHost() {
         return host;
+    }
+
+    public boolean isClient() {
+        return client;
     }
 
     public void setClient(boolean client) {
@@ -94,24 +136,38 @@ public class BioNimbusConfig {
         this.serverPath = serverPath;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getPlugin() {
+        return plugin;
+    }
+
+    public void setPlugin(String plugin) {
+        this.plugin = plugin;
+    }
+
+    public void setZkHosts(String zkHosts) {
+        this.zkHosts = zkHosts;
+    }
+
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
                 .add("id", id)
+                .add("rpc-protocol", rpcProtocol)
+                .add("rpc-port", rpcPort)
+                .add("zkHosts", zkHosts)
                 .add("client", client)
                 .add("host", host)
                 .add("seeds", seeds)
-                .add(serverPath, serverPath)
+                .add("server-path", serverPath)
                 .toString();
     }
-
-    public String getZkHosts() {
-        return zkHosts;
-    }
-
-    public void setZkHosts(String hosts) {
-        zkHosts = hosts;
-    }
-
 
 }

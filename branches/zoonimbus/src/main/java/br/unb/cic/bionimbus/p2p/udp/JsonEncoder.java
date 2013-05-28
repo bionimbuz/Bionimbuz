@@ -1,7 +1,6 @@
 package br.unb.cic.bionimbus.p2p.udp;
 
 import java.io.IOException;
-
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -42,6 +41,7 @@ public class JsonEncoder extends OneToOneEncoder {
 
     private String serialize(WireMessage msg) throws CorruptedFrameException {
         ObjectMapper mapper = new ObjectMapper();
+
         Throwable t;
         try {
             return mapper.writeValueAsString(msg);

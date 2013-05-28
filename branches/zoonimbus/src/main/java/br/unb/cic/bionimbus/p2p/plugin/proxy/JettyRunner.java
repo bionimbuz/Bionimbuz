@@ -2,9 +2,11 @@ package br.unb.cic.bionimbus.p2p.plugin.proxy;
 
 import javax.servlet.http.HttpServlet;
 
-import com.yammer.metrics.Metrics;
-import com.yammer.metrics.core.Counter;
-import com.yammer.metrics.reporting.AdminServlet;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.health.HealthCheck;
+import com.codahale.metrics.health.HealthCheckRegistry;
+import com.codahale.metrics.json.HealthCheckModule;
+import com.codahale.metrics.servlets.AdminServlet;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
@@ -72,9 +74,20 @@ public class JettyRunner {
         sh.setInitParameter("com.sun.jersey.config.property.packages", "br.unb.cic.bionimbus.p2p.plugin.proxy");
 
         context.addServlet(sh, "/*");
+
         if (servlet != null)
             context.addServlet(new ServletHolder(servlet), "/file");
-        context.addServlet(new ServletHolder(new AdminServlet()), "/admin/*");
+
+/*        final HealthCheckRegistry hr = new HealthCheckRegistry();
+        hr.register("a", new HealthCheck() {
+            @Override
+            protected Result check() throws Exception {
+                return Result.healthy();
+            }
+        });
+
+        // Coda Hale Metrics
+        context.addServlet(new ServletHolder(new AdminServlet()), "/admin*//*");*/
 
 //            for (int i=0; i < 10; i++)
 //                pendingJobs.inc();

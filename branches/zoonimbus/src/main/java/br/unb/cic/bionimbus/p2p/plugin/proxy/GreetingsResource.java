@@ -1,9 +1,6 @@
 package br.unb.cic.bionimbus.p2p.plugin.proxy;
 
 
-import com.yammer.metrics.Metrics;
-import com.yammer.metrics.core.Counter;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
