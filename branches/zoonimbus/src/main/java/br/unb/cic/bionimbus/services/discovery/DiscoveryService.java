@@ -44,6 +44,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
     private static final String ROOT_PEER = "/peers";
     private static final String SEPARATOR = "/";
     private static final String PREFIX_PEER = "peer_";
+    private static final String STATUS = "STATUS";
     private String peerName;
 
     private List<String> children;
@@ -98,11 +99,27 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
                     System.out.println(childStr);
                     ObjectMapper mapper = new ObjectMapper();
                     PluginInfo myInfo = mapper.readValue(childStr, PluginInfo.class);
+                    
+                    //modificar setter
+                    myInfo.setPath_zk(ROOT_PEER + SEPARATOR +child);
+                    
+                    
 //                        System.out.println("id:" + myInfo.getId());
 //                        System.out.println("cores:" + myInfo.getNumCores());
 //                        System.out.println("disk:" + myInfo.getFsFreeSize());
-
-                    map.put(myInfo.getId(), myInfo);
+                    
+                    //verifica se o peer ainda está on-line e através da existência do zNode STATUS, 
+                    //se não estiver apaga o zNode persistente
+                    if(zkService.getZNodeExist(myInfo.getPath_zk()+SEPARATOR+STATUS, false)){
+                         map.put(myInfo.getId(), myInfo);
+                    }else{
+                        zkService.delete(myInfo.getPath_zk());
+                    }
+//                    if(zkService.getZNodeExist(peerName+SEPARATOR+STATUS, false)){
+//                        map.put(myInfo.getId(), myInfo);
+//                    }else{
+//                        zkService.delete(myInfo.getPath_zk());
+//                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -198,8 +215,12 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 //                    System.out.println(">>>>>>>>>>>>>>>>>>>>>>" + infoStr);
 
             }
-
-            peerName = zkService.createEphemeralSequentialZNode(ROOT_PEER + SEPARATOR + PREFIX_PEER, infoStr);
+            //criando zNode persistente para cada novo peer
+            peerName = zkService.createPersistentSequentialZNode(ROOT_PEER + SEPARATOR + PREFIX_PEER, infoStr);
+            
+            //criando status efemera para verificar se o servidor esta rodando
+            zkService.createEphemeralZNode(peerName+SEPARATOR+STATUS, null);
+                
             System.out.println("Criado e registrado peer com id " + peerName);
 
             this.p2p = p2p;
