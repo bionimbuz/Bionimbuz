@@ -7,6 +7,8 @@ import java.util.List;
 public class PluginInfo implements PluginOps {
 
     private String id;
+    
+    private String path_zk;
 
     private Host host;
 
@@ -22,7 +24,7 @@ public class PluginInfo implements PluginOps {
 
     private Integer numOccupied;
 
-    private Long ranking = new Long(0l);
+    private Double ranking = 0d;
 
     private Float fsSize;
 
@@ -30,11 +32,11 @@ public class PluginInfo implements PluginOps {
 
     private Float fsFreeSize;
 
-    private Double MemoryTotal;
+    private Double memoryTotal;
 
-    private Double MemoryFree;
+    private Double memoryFree;
 
-    private Double FrequencyCore;
+    private Double frequencyCore;
 
     private List<PluginService> services;
 
@@ -44,6 +46,14 @@ public class PluginInfo implements PluginOps {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getPath_zk() {
+        return path_zk;
+    }
+
+    public void setPath_zk(String path_zk) {
+        this.path_zk = path_zk;
     }
 
     public Host getHost() {
@@ -142,36 +152,36 @@ public class PluginInfo implements PluginOps {
     }
 
 
-    public Long getRanking() {
+    public Double getRanking() {
         return ranking;
     }
 
-    public void setRanking(Long ranking) {
+    public void setRanking(Double ranking) {
         this.ranking = ranking;
     }
 
     public Double getFrequencyCore() {
-        return FrequencyCore;
+        return frequencyCore;
     }
 
-    public void setFrequencyCore(Double FrequencyCore) {
-        this.FrequencyCore = FrequencyCore;
+    public void setFrequencyCore(Double frequencyCore) {
+        this.frequencyCore = frequencyCore;
     }
 
     public Double getMemoryFree() {
-        return MemoryFree;
+        return memoryFree;
     }
 
-    public void setMemoryFree(Double MemoryFree) {
-        this.MemoryFree = MemoryFree;
+    public void setMemoryFree(Double memoryFree) {
+        this.memoryFree = memoryFree;
     }
 
     public Double getMemoryTotal() {
-        return MemoryTotal;
+        return memoryTotal;
     }
 
-    public void setMemoryTotal(Double MemoryTotal) {
-        this.MemoryTotal = MemoryTotal;
+    public void setMemoryTotal(Double memoryTotal) {
+        this.memoryTotal = memoryTotal;
     }
 
     @Override
