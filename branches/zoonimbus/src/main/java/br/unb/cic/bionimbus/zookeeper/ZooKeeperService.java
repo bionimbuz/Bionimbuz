@@ -83,15 +83,64 @@ public class ZooKeeperService {
         }
     }
 
+    public String createPersistentSequentialZNode(String root, String data) {
+        String peer = null;
+        if (zk != null) {
+            try {
+                Stat s = zk.exists(root, false);
+                if (s == null) {
+                    System.out.println(String.format("znode %s não existe ... criando", root));
+                    peer = zk.create(root
+                            , (data == null) ? new byte[0] : data.getBytes()
+                            , ZooDefs.Ids.OPEN_ACL_UNSAFE // sem segurança
+                            , CreateMode.PERSISTENT_SEQUENTIAL);
+                } else {
+                    System.out.println(String.format("znode %s existente", root));
+                }
+            } catch (KeeperException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return peer;
+    }
+    
+    public String createEphemeralZNode(final String path, String data) {
+        String peer = null;
+        byte[] buf = (data != null) ? data.getBytes() : new byte[0];
+        try {
+            Stat s = zk.exists(path, false);
+            if (s == null) {
+            peer = zk.create(path
+                    , buf
+                    , ZooDefs.Ids.OPEN_ACL_UNSAFE
+                    , CreateMode.EPHEMERAL);
+            } else {
+                System.out.println(String.format("znode %s existente", path));
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (KeeperException e) {
+            e.printStackTrace();
+        }
+
+        return peer;
+    }
+    
     public String createEphemeralSequentialZNode(final String path, String data) {
         String peer = null;
         byte[] buf = (data != null) ? data.getBytes() : new byte[0];
         try {
+            Stat s = zk.exists(path, false);
+            if (s == null) {
             peer = zk.create(path
                     , buf
                     , ZooDefs.Ids.OPEN_ACL_UNSAFE
                     , CreateMode.EPHEMERAL_SEQUENTIAL);
-
+            } else {
+                System.out.println(String.format("znode %s existente", path));
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (KeeperException e) {
@@ -101,6 +150,11 @@ public class ZooKeeperService {
         return peer;
     }
 
+    public Boolean getZNodeExist(String path, boolean watch) throws KeeperException, InterruptedException {
+       Stat stat = zk.exists(path, watch);
+       return (stat==null) ? Boolean.FALSE : Boolean.TRUE;
+    }
+    
     public List<String> getChildren(String path, Watcher watcher) throws KeeperException, InterruptedException {
         return zk.getChildren(path, watcher, null);
     }
