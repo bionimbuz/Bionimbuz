@@ -1,12 +1,18 @@
 package br.unb.cic.bionimbus.p2p;
 
+import br.unb.cic.bionimbus.services.AbstractBioService;
+import br.unb.cic.bionimbus.zookeeper.ZooKeeperService;
+import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
+
 public class PeerNode implements Comparable<PeerNode> {
 
     private final ID id;
     private Host host;
     private long start;
     private long latency;
-
+    
+    
     public PeerNode(ID id) {
         this.id = id;
     }
@@ -59,7 +65,9 @@ public class PeerNode implements Comparable<PeerNode> {
 
     public void start() {
         this.start = System.currentTimeMillis();
+        
     }
+
 
     /* in milisenconds */
     public long uptime() {
@@ -73,4 +81,5 @@ public class PeerNode implements Comparable<PeerNode> {
     public void setLatency(long latency) {
         this.latency = latency;
     }
-}
+
+}    

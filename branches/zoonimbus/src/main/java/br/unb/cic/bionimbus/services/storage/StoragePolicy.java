@@ -9,6 +9,9 @@ import br.unb.cic.bionimbus.plugin.PluginInfo;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,25 +29,56 @@ public class StoragePolicy {
 
     private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
 
-    // Método para receber as variaveis e calcular o custo de armazenamento
-    public long calcBestCost(long latency) {
+    /*
+     * Calcular o custo de armazenamento de uma nuvem
+     */
+    public long calcBestCost(PluginInfo pluginInfo) {
 
         long cost;
+        long uptime;
 
-        PluginInfo pluginInfo = null;
-
-        //Calculando os custos de armazenamento dos peers
-        cost = (long) ((pluginInfo.getFsFreeSize() * peso_space) + (pluginInfo.getUptime() * peso_uptime) + (latency * peso_latency));
+        /*Calculando os custos de armazenamento dos peers
+         *Custo = (Espaço livre + Uptime) * Latencia
+         */
+        uptime = pluginInfo.getUptime() / 1000;
+        cost = (long) (((pluginInfo.getFsFreeSize() * peso_space) + 
+                (uptime * peso_uptime)) * 
+                (pluginInfo.getLatency() * peso_latency));
 
         return cost;
 
     }
+
+    /**
+     * Quicksort para ordenar as melhores nuvens para armazenar os dados de acordo com o 
+     * custo de armazenamento das nuvens
+     */
+    public List<PluginInfo> SortPlugins(List<PluginInfo> plugins){  
+        
+        /*
+         * Metodo Sort para ordenar os plugins de acordo com o custo de armazenamento
+         */
+        Collections.sort(plugins,new Comparator<PluginInfo>() {
+
+            
+            @Override
+            public int compare(PluginInfo o1, PluginInfo o2) {
+                return Long.compare(o1.getStorageCost(),o2.getStorageCost());    
+            }
+        });
+
+        return plugins;
+    } 
+        
     /*
-    public long compare(PluginInfo a, PluginInfo b){
-            PluginInfo a1 = (PluginInfo) a;
-            PluginInfo b1 = (PluginInfo) b;
-            return a1.getLatency() < b1.getLatency() ? -1 : (a1.getLatency() > b1.getLatency() ? +1 : 0);            
-    }*/
+     * Método para receber a map com os plugins e converter em List, para ficar mais fácil o tratamento dos dados
+     */
+    public List<PluginInfo> SwapTypePlugin(Collection<PluginInfo> plugins){
+        List<PluginInfo> plugin = new ArrayList<PluginInfo>();
 
-
+        for (PluginInfo pluginInfo : plugins) {
+            plugin.add(pluginInfo);
+        }
+        return plugin;
+    } 
 }

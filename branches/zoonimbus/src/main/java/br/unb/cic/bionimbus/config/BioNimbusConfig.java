@@ -40,8 +40,9 @@ public class BioNimbusConfig {
 
     @JsonProperty("zookeeper_hosts")
     private String zkHosts;
-
+    
     private Host host;
+    
     @JsonProperty("server-path")
     private String serverPath = "";
 

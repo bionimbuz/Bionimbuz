@@ -17,6 +17,8 @@ import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.storage.Ping;
 import br.unb.cic.bionimbus.services.storage.StoragePolicy;
 import com.google.common.collect.Maps;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import java.util.List;
 import java.util.Map;
@@ -40,6 +42,8 @@ public class Upload extends AbstractBioService implements Command {
     private static final String ROOT_PEER = "/peers";
     private static final String SEPARATOR = "/";
     private static final String PREFIX_PEER = "peer_";
+    private long cost=0;
+    private PluginInfo bestplugin;
     private String peerName;
     private List<String> children;
     private ConcurrentMap<String, PluginInfo> map = Maps.newConcurrentMap();
@@ -58,10 +62,16 @@ public class Upload extends AbstractBioService implements Command {
         SyncCommunication comm = new SyncCommunication(p2p);
 
         shell.print("Uploading file...");
-
+        /*
+         * Instacia um objeto StoragePolicy para realizar o calculo do custo de armazenamento
+         */
         StoragePolicy policy = new StoragePolicy();
         Ping ping = new Ping();
+        long storagecost;
 
+        /*
+         * Verifica se o arquivo existe
+         */    
         File file = new File(params[0]);
         if (file.exists()) {
             FileInfo info = new FileInfo();
@@ -69,22 +79,54 @@ public class Upload extends AbstractBioService implements Command {
             info.setSize(file.length());
 
             this.map = getPeers();
+            /*
+             * Percorre todos os plugin e calcula a sua latencia
+             */
             for (PluginInfo plugin : map.values()) {
-                //latency = Ping.calculo(plugin.getHost().getAddress());
+                latency = Ping.calculo(plugin.getHost().getAddress());
                 plugin.setLatency(latency);
-                //policy.calcBestCost(plugin);
-                System.out.println("Adress:" + plugin.getHost().getAddress());
-                System.out.println("Port:" + plugin.getHost().getPort());
+                storagecost = policy.calcBestCost(plugin);
+                plugin.setStorageCost(storagecost);
             }
 
 
-            // organizar pelo melhor custo
+             String childStr;
+        for (String child : children) {
+                   try {
+                        childStr = zkService.getData(ROOT_PEER + SEPARATOR + child, null);
+                        System.out.println(childStr); 
+                        ObjectMapper mapper = new ObjectMapper();
+                        PluginInfo myInfo = mapper.readValue(childStr, PluginInfo.class);                         
+                        map.put(myInfo.getId(), myInfo);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+       
+           /* 
+            * Ordena os custos de armazenamento atraves do QuickSort
+            */
+           List pluginlist = policy.SwapTypePlugin(map.values());
+           policy.SortPlugins(pluginlist);
+           
+           for (PluginInfo plugin : map.values()) {
+                System.out.println("\n\n Plugins para armazenamento : ");
+                System.out.println("\n IP : "+plugin.getHost().getAddress()+"  StorageCost: "+plugin.getStorageCost());
+            }
+           System.out.println("\n Melhor plugin para o armazenamento: " +bestplugin.getHost().getAddress());
 
-
+           
             comm.sendReq(new StoreReqMessage(p2p.getPeerNode(), info, ""), P2PMessageType.STORERESP);
             StoreRespMessage resp = (StoreRespMessage) comm.getResp();
             PluginInfo pluginInfo = resp.getPluginInfo();
             p2p.sendFile(pluginInfo.getHost(), resp.getFileInfo().getName());
+           
+           
+           /*
+            * Envia o arquivo para o melhor plugin
+            */
+          
+                
 
             return "File " + resp.getFileInfo().getName() + " succesfully uploaded.";
         }

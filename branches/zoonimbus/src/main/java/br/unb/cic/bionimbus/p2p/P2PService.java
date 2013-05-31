@@ -21,6 +21,7 @@ import br.unb.cic.bionimbus.services.messaging.MessageListener;
 import br.unb.cic.bionimbus.services.messaging.MessageService;
 import br.unb.cic.bionimbus.p2p.messages.PingReqMessage;
 import br.unb.cic.bionimbus.p2p.messages.PingRespMessage;
+import br.unb.cic.bionimbus.plugin.PluginInfo;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;

@@ -2,8 +2,10 @@ package br.unb.cic.bionimbus.client.shell.commands;
 
 import br.unb.cic.bionimbus.client.shell.Command;
 import br.unb.cic.bionimbus.client.shell.SimpleShell;
+import br.unb.cic.bionimbus.p2p.ChordRing;
 import br.unb.cic.bionimbus.p2p.P2PMessageType;
 import br.unb.cic.bionimbus.p2p.P2PService;
+import br.unb.cic.bionimbus.p2p.PeerNode;
 import br.unb.cic.bionimbus.p2p.messages.ListReqMessage;
 import br.unb.cic.bionimbus.p2p.messages.ListRespMessage;
 import br.unb.cic.bionimbus.plugin.PluginFile;
@@ -13,7 +15,9 @@ public class ListFiles implements Command {
     public static final String NAME = "files";
 
     private final SimpleShell shell;
-
+    private final PeerNode node=null;
+    private final ChordRing chord=null;
+    
     public ListFiles(SimpleShell shell) {
         this.shell = shell;
     }
@@ -26,14 +30,21 @@ public class ListFiles implements Command {
                     "This command should be used with an active connection!");
 
         P2PService p2p = shell.getP2P();
+        
         SyncCommunication comm = new SyncCommunication(p2p);
 
         shell.print("Listing files...");
 
+        //Implementar o for para enviar para todos os arquivos
+         ListRespMessage resp = new ListRespMessage();
+        for (PeerNode node : chord.peers()) {
+                    
         comm.sendReq(new ListReqMessage(p2p.getPeerNode()),
                 P2PMessageType.LISTRESP);
-        ListRespMessage resp = (ListRespMessage) comm.getResp();
+        resp = (ListRespMessage) comm.getResp();
 
+        }
+        
         String list = "";
         if (!resp.values().isEmpty()) {
             for (PluginFile file : resp.values()) {
