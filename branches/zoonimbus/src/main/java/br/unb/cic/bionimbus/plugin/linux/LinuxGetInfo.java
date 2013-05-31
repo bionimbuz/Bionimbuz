@@ -39,7 +39,8 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
         getMemoryInfo();
         getDiskInfo();
         getServices();
-
+        pluginInfo.setUptime(getUptime());
+        
         return pluginInfo;
     }
 
@@ -96,6 +97,10 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
         }
 
         pluginInfo.setServices(list);
+    }
+    
+    private long getUptime(){
+        return System.currentTimeMillis();        
     }
 
     /**

@@ -22,6 +22,8 @@ public class Connect implements Command {
     private ZooKeeperService zkService;
     private final SimpleShell shell;
     private long latency;
+    private long cost;
+    private String bestplugin;
     private static final String ROOT_PEER = "/peers";
     private static final String SEPARATOR = "/";
     private List<String> children;
@@ -48,37 +50,9 @@ public class Connect implements Command {
             ;
         while (p2p.getPeers().isEmpty())
 			;
-        */
-        String childStr;
-        for (String child : children) {
-            try {
-                childStr = zkService.getData(ROOT_PEER + SEPARATOR + child, null);
-                System.out.println(childStr);
-                ObjectMapper mapper = new ObjectMapper();
-                PluginInfo myInfo = mapper.readValue(childStr, PluginInfo.class);
-                map.put(myInfo.getId(), myInfo);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        for (PluginInfo a : map.values()) {
-            System.out.println("no" + a.getHost().getAddress());
-            System.out.println("espaço" + a.getFsSize());
-
-            //instaciar objetos
-            StoragePolicy policy = new StoragePolicy();
-            Ping ping = new Ping();
-
-            //calculo da latencia
-            latency = Ping.calculo(a.getHost().getAddress());
-            a.setLatency(latency);
-
-            //calculo dos custo de armazenamento
-            a.setStorageCost(policy.calcBestCost(latency));
-            System.out.println("\n Ip: " + a.getHost().getAddress() + "\n Custo de armazenamento: " + a.getStorageCost());
-        }
+        */         
+    
         shell.setConnected(true);
-
 
         return "client is connected.";
     }

@@ -1,7 +1,10 @@
 package br.unb.cic.bionimbus.plugin;
 
+import br.unb.cic.bionimbus.p2p.ChordRing;
 import br.unb.cic.bionimbus.p2p.Host;
 import java.io.IOException;
+
+import br.unb.cic.bionimbus.p2p.PeerNode;
 
 import java.util.List;
 import java.util.logging.Level;
@@ -29,12 +32,16 @@ public class PluginInfo implements PluginOps {
     private Integer numNodes;
 
     private Integer numOccupied;
+    
+    private final PeerNode peerNode=null;
 
     private Double ranking = 0d;
 
     private Float fsSize;
 
     private long storagecost;
+    
+    private long rank;
 
     private Float fsFreeSize;
 
@@ -45,6 +52,8 @@ public class PluginInfo implements PluginOps {
     private Double frequencyCore;
 
     private List<PluginService> services;
+    
+    private final ChordRing chord=null;
 
     public String getId() {
         return id;
@@ -71,19 +80,21 @@ public class PluginInfo implements PluginOps {
     }
 
     public long getUptime() {
-        return uptime;
+        return System.currentTimeMillis() - uptime;
     }
 
     public void setUptime(long uptime) {
         this.uptime = uptime;
+            
     }
-
+   
     public float getLatency() {
         return latency;
     }
 
     public void setLatency(long latency) {
         this.latency = latency;
+            
     }
 
     public long getStorageCost() {
