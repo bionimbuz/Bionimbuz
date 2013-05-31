@@ -5,6 +5,7 @@ import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.p2p.*;
 import br.unb.cic.bionimbus.p2p.messages.*;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
+import br.unb.cic.bionimbus.plugin.linux.LinuxGetInfo;
 import br.unb.cic.bionimbus.services.storage.file.FileService;
 import br.unb.cic.bionimbus.zookeeper.ZooKeeperService;
 import com.google.common.base.Charsets;
@@ -21,6 +22,7 @@ import com.google.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 import java.util.concurrent.*;
 import java.util.logging.Level;
@@ -36,19 +38,14 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
     //	private final ConcurrentMap<String, PluginInfo> infoMap;
 //    private final Cache<String, PluginInfo> infoCache;
     private final ScheduledExecutorService schedExecService;
-
     private P2PService p2p;
-
     private BioNimbusConfig config;
-
     private static final String ROOT_PEER = "/peers";
     private static final String SEPARATOR = "/";
     private static final String PREFIX_PEER = "peer_";
     private static final String STATUS = "STATUS";
     private String peerName;
-
     private List<String> children;
-
     private ConcurrentMap<String, PluginInfo> map = Maps.newConcurrentMap();
 
     @Inject
@@ -96,7 +93,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 
 //                        System.out.println("peer: " + peerName);
                     String childStr = zkService.getData(ROOT_PEER + SEPARATOR + child, null);
-                    System.out.println(childStr);
+                    System.out.println("childStr:" + childStr);
                     ObjectMapper mapper = new ObjectMapper();
                     PluginInfo myInfo = mapper.readValue(childStr, PluginInfo.class);
                     
@@ -126,8 +123,9 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
             }
             System.out.println("tamanho do values" + map.values().size());
             for (PluginInfo a : map.values()) {
-                System.out.println("no" + a.getHost().getAddress());
-                System.out.println("espaço" + a.getFsSize());
+                System.out.println("no: " + a.getHost().getAddress());
+                System.out.println("espaço: " + a.getFsSize());
+                System.out.println("uptime: "+ a.getUptime());
             }
 
 //                System.out.println(map.values().toString());
@@ -179,16 +177,16 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
     /**
      * TODO: substituir por Guava Cache com expiração
      */
-/*
-    private void removeStaleEntriesFromInfoMap() {
-        long now = System.currentTimeMillis();
-        for (PluginInfo plugin : infoMap.values()) {
-            if (now - plugin.getTimestamp() > 3*PERIOD_SECS*1000) {
-                infoMap.remove(plugin.getId());
-            }
-        }
-    }
-*/
+    /*
+     private void removeStaleEntriesFromInfoMap() {
+     long now = System.currentTimeMillis();
+     for (PluginInfo plugin : infoMap.values()) {
+     if (now - plugin.getTimestamp() > 3*PERIOD_SECS*1000) {
+     infoMap.remove(plugin.getId());
+     }
+     }
+     }
+     */
     public String getData() throws IOException {
         return "id: " + config.getId() + "\n"
                 + "net-address: " + config.getHost().getAddress() + "\n"
@@ -206,15 +204,21 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 
 //                config = p2p.getConfig();
 //                String data = getData();
-
-            File infoFile = new File("plugininfo.json");
-            String infoStr = "";
-            if (infoFile.exists()) {
-                List<String> lines = Files.readLines(infoFile, Charsets.UTF_8);
-                infoStr = Joiner.on("").join(lines);
+          LinuxGetInfo getinfo=new LinuxGetInfo();
+          PluginInfo infopc= getinfo.call();
+          infopc.setId(UUID.randomUUID().toString());
+          infopc.setHost(p2p.getConfig().getHost());
+          infopc.setUptime(p2p.getPeerNode().uptime());
+          String infoStr = infopc.toString();
+            System.out.println(">>>>"+infoStr);
+//            File infoFile = new File("plugininfo.json");
+//            String infoStr = "";
+//            if (infoFile.exists()) {
+//                List<String> lines = Files.readLines(infoFile, Charsets.UTF_8);
+//                infoStr = Joiner.on("").join(lines)+"uptime: "+p2p.getPeerNode().uptime();
 //                    System.out.println(">>>>>>>>>>>>>>>>>>>>>>" + infoStr);
-
-            }
+//
+//            }
             //criando zNode persistente para cada novo peer
             peerName = zkService.createPersistentSequentialZNode(ROOT_PEER + SEPARATOR + PREFIX_PEER, infoStr);
             
@@ -229,6 +233,8 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 
         } catch (IOException ex) {
             Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -237,7 +243,6 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 //		p2p.remove(this);
 //		schedExecService.shutdownNow();
 //	}
-
     /**
      * TODO: qual a razão de existir este método?
      */
@@ -284,7 +289,6 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 //        if (receiver != null)
 //            p2p.sendMessage(receiver.getHost(), cloudMsg);
 //    }
-
     private void insertResponseIntoInfoMap(PeerNode receiver, InfoRespMessage infoMsg) {
         PluginInfo info = infoMsg.getPluginInfo();
         info.setUptime(receiver.uptime());
@@ -312,5 +316,4 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
     public void shutdown() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
 }

@@ -57,7 +57,7 @@ public class AcoSched extends SchedPolicy {
 //--->  //encontra o melhor PC e retorna o valor
 
         PluginInfo plugin = new PluginInfo();
-        plugin.setRanking(Long.MIN_VALUE);
+        plugin.setRanking(Double.MIN_VALUE);
 
         for (PluginInfo plg : listServices) {
             if (plg.getRanking() > plugin.getRanking()) {
@@ -426,7 +426,7 @@ public class AcoSched extends SchedPolicy {
         PluginInfo pluginTemp;
         int i = start, f = end;                   // Extremos  
         int x = start + (end - start) / 2; // Pivô aleatório
-        Long pivo = plugins.get(x).getRanking();                    // evita quadrático 
+        Double pivo = plugins.get(x).getRanking();                    // evita quadrático 
 
         while (i <= f) {                    // Não cruzaram 
 

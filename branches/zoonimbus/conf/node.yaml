@@ -1,0 +1,14 @@
+# http://en.wikipedia.org/wiki/YAML
+# if rpc-port can be a default number or a range (8888-9999)
+rpc_port: 9999
+# http or netty
+rpc_protocol: http
+# ZooKeeper connection string (comma separated)
+zookeeper_hosts: 192.168.1.111:2181
+# old params
+client: false
+plugin: linux
+server-path: /home/biocloud1/NetBeansProjects/zoonimbus
+address: 192.168.1.111
+id: 3943483403afb
+host: {"address": "192.168.1.111", "port":9999}
