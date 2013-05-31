@@ -58,7 +58,7 @@ public class StorageService extends AbstractBioService {
     @Override
     public void run() {
         System.out.println("Executando loop.");
-        System.out.println(" \n Hosts: " + p2p.getConfig().getHost());
+      //  System.out.println(" \n Hosts: " + p2p.getConfig().getHost());
 
 //                        Message msg = new CloudReqMessage(p2p.getPeerNode());
 //                        p2p.broadcast(msg); // TODO isso e' broadcast?                        

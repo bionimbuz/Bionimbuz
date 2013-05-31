@@ -1,8 +1,14 @@
 package br.unb.cic.bionimbus.plugin;
 
 import br.unb.cic.bionimbus.p2p.Host;
+import java.io.IOException;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 
 public class PluginInfo implements PluginOps {
 
@@ -204,7 +210,12 @@ public class PluginInfo implements PluginOps {
     }
 
     @Override
-    public String toString() {
-        return id;
+    public String toString() {  
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (Exception ex) {
+            Logger.getLogger(PluginInfo.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+        return null;
     }
 }
