@@ -52,6 +52,12 @@ public final class SimpleShell {
     private BioProto proxy;
 
     public SimpleShell() {
+        //whereami - prints the host it's connected to
+        // jobs - print the list of executing jobs
+        // file <aa> - print details about a given file
+        // disconnect
+        // nodes - print the ids and addresses of nodes (grab from zk)
+
 //        commandMap.put(PingCommand.NAME, new PingCommand(this));
         commandMap.put(ListCommands.NAME, new ListCommands(this));
         commandMap.put(Connect.NAME, new Connect(this));
