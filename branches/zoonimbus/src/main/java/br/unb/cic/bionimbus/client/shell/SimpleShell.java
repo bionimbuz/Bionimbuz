@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
+import br.unb.cic.bionimbus.avro.gen.BioProto;
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.client.shell.commands.AsyncCommand;
@@ -21,7 +22,6 @@ import br.unb.cic.bionimbus.client.shell.commands.ListServices;
 import br.unb.cic.bionimbus.client.shell.commands.Quit;
 import br.unb.cic.bionimbus.client.shell.commands.ScriptRunner;
 import br.unb.cic.bionimbus.client.shell.commands.Upload;
-import br.unb.cic.bionimbus.p2p.P2PService;
 import br.unb.cic.bionimbus.utils.Pair;
 
 /**
@@ -51,21 +51,34 @@ public final class SimpleShell {
     }
 
     private boolean connected = false;
+    private BioProto proxy;
 
     public SimpleShell() {
+//        commandMap.put(PingCommand.NAME, new PingCommand(this));
+        commandMap.put(ListCommands.NAME, new ListCommands(this));
         commandMap.put(Connect.NAME, new Connect(this));
-        commandMap.put("async", new AsyncCommand(this));
-        commandMap.put("script", new ScriptRunner(this));
         commandMap.put(ListFiles.NAME, new ListFiles(this));
-        commandMap.put(Upload.NAME, new Upload(this));
         commandMap.put(ListServices.NAME, new ListServices(this));
         commandMap.put(JobStart.NAME, new JobStart(this));
         commandMap.put(JobCancel.NAME, new JobCancel(this));
-        commandMap.put(ListCommands.NAME, new ListCommands(this));
+
+        //PingCommand
+        //GetFile
+        commandMap.put("async", new AsyncCommand(this));
+        commandMap.put("script", new ScriptRunner(this));
+        commandMap.put(Upload.NAME, new Upload(this));
     }
 
     public void registerCommand(Command command) {
         commandMap.put(command.getName(), command);
+    }
+
+    public void setRpcClient(RpcClient client) {
+        this.rpcClient = client;
+    }
+
+    public RpcClient getRpcClient() {
+        return rpcClient;
     }
 
     public static void main(String[] args) throws IOException {
@@ -148,4 +161,7 @@ public final class SimpleShell {
         return Collections.unmodifiableCollection(commandMap.values());
     }
 
+    public BioProto getProxy() throws IOException {
+        return rpcClient.getProxy();
+    }
 }

@@ -1,35 +1,14 @@
 package br.unb.cic.bionimbus.client.shell.commands;
 
+import br.unb.cic.bionimbus.avro.rpc.AvroClient;
+import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.client.shell.Command;
 import br.unb.cic.bionimbus.client.shell.SimpleShell;
-import br.unb.cic.bionimbus.config.BioNimbusConfig;
-import br.unb.cic.bionimbus.config.BioNimbusConfigLoader;
-import br.unb.cic.bionimbus.p2p.P2PService;
-import br.unb.cic.bionimbus.plugin.PluginInfo;
-import br.unb.cic.bionimbus.services.storage.Ping;
-import br.unb.cic.bionimbus.services.storage.StoragePolicy;
-import br.unb.cic.bionimbus.zookeeper.ZooKeeperService;
-import com.google.common.collect.Maps;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ConcurrentMap;
-
-import com.sun.javaws.exceptions.InvalidArgumentException;
-import org.codehaus.jackson.map.ObjectMapper;
 
 public class Connect implements Command {
 
     public static final String NAME = "connect";
-    private ZooKeeperService zkService;
     private final SimpleShell shell;
-    private long latency;
-    private long cost;
-    private String bestplugin;
-    private static final String ROOT_PEER = "/peers";
-    private static final String SEPARATOR = "/";
-    private List<String> children;
-    private ConcurrentMap<String, PluginInfo> map = Maps.newConcurrentMap();
 
     public Connect(SimpleShell shell) {
         this.shell = shell;
@@ -38,10 +17,20 @@ public class Connect implements Command {
     @Override
     public String execute(String... params) throws Exception {
 
-        if (params.length < 2) {
-            throw new InvalidArgumentException(new String[]{"usage: connect <address> <port>"});
+        if (params.length != 2) {
+            shell.setConnected(false);
+            return "Invalid arguments\nusage: connect <address> <port>";
         }
-    
+
+        String hostname = params[0];
+        int port = Integer.parseInt(params[1]);
+        RpcClient rpcClient = new AvroClient("http", hostname, port);
+
+        // test to see if hostname is reachable
+        rpcClient.getProxy().ping();
+
+        shell.setRpcClient(rpcClient);
+
         shell.setConnected(true);
 
         return "client is connected.";

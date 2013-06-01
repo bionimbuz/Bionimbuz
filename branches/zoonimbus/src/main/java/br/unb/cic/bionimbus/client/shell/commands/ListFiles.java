@@ -1,5 +1,7 @@
 package br.unb.cic.bionimbus.client.shell.commands;
 
+import br.unb.cic.bionimbus.avro.gen.BioProto;
+import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.client.shell.Command;
 import br.unb.cic.bionimbus.client.shell.SimpleShell;
 import br.unb.cic.bionimbus.p2p.ChordRing;
@@ -9,26 +11,27 @@ import br.unb.cic.bionimbus.p2p.PeerNode;
 import br.unb.cic.bionimbus.p2p.messages.ListReqMessage;
 import br.unb.cic.bionimbus.p2p.messages.ListRespMessage;
 import br.unb.cic.bionimbus.plugin.PluginFile;
+import com.google.common.base.Joiner;
 
 public class ListFiles implements Command {
 
     public static final String NAME = "files";
-
     private final SimpleShell shell;
-    private final PeerNode node=null;
-    private final ChordRing chord=null;
-    
+
     public ListFiles(SimpleShell shell) {
         this.shell = shell;
     }
 
     @Override
     public String execute(String... params) throws Exception {
-        return null;
-/*
+
         if (!shell.isConnected())
-            throw new IllegalStateException(
-                    "This command should be used with an active connection!");
+            throw new IllegalStateException("This command should be used with an active connection!");
+
+        BioProto proxy = shell.getProxy();
+        return Joiner.on("\n").join(proxy.listFiles());
+
+/*
 
         P2PService p2p = shell.getP2P();
         

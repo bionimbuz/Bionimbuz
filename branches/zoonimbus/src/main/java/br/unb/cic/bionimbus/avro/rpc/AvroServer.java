@@ -77,7 +77,7 @@ public class AvroServer implements RpcServer {
     }
 
     public static void main(String[] args) throws Exception {
-        String config = "netty";
+        String config = "http";
         new AvroServer(config, 9999).start();
     }
 }
