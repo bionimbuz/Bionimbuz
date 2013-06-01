@@ -4,27 +4,27 @@ protocol BioProto {
 
   enum NodeState { STARTING, ACTIVE, CLOSING, IDLE, ERROR, DECOMMISSIONED }
 
+/*
   record NodeInfo {
     string peerId;
     string address;
     union {NodeState, null} nodeState; // optional
   }
 
-/*
   record CancelReqMessage {
     string taskId;
-  } */
+  }
 
   record CancelRespMessage {
     NodeInfo node;
     //??? pluginTask;
   }
 
-  /*
+
   record CloudReqMessage {
     NodeInfo node;
   }
-  */
+
 
   record CloudRespMessage {
     NodeInfo node;
@@ -49,7 +49,7 @@ protocol BioProto {
     // PluginFile
   }
 
-  /** An error that may be thrown by a method */
+  // An error that may be thrown by a method
   error Error {
     int code;
     union {string, null} description;
@@ -186,6 +186,7 @@ protocol BioProto {
     string taskId;
     string message;
   }
+  */
 
   /** Sends a bid request to a bidder and receives the response */
   //BidResponse bid(BidRequest bidRequest) throws BidderError;
@@ -193,15 +194,15 @@ protocol BioProto {
   /** Sends a notification */
   //void notify(EndMessage notification) oneway;
 
-  void cancelTask(string taskId) oneway;
-
-  /** Pings a node, e.g. to measure latency */
-  boolean ping();
+  //void cancelTask(string taskId) oneway;
 
   /* PingRespMessage ping(PingReqMessage request); */
 
-  CancelRespMessage cancelTask(string taskId);
+  //CancelRespMessage cancelTask(string taskId);
 
-  CloudRespMessage cloudRequest();
+  //CloudRespMessage cloudRequest();
+
+  /** Pings a node, e.g. to measure latency */
+  boolean ping();
 
 }

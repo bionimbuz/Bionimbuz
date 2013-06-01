@@ -24,7 +24,8 @@ public class ListFiles implements Command {
 
     @Override
     public String execute(String... params) throws Exception {
-
+        return null;
+/*
         if (!shell.isConnected())
             throw new IllegalStateException(
                     "This command should be used with an active connection!");
@@ -56,7 +57,7 @@ public class ListFiles implements Command {
         }
         list += "\n";
 
-        return list;
+        return list;*/
     }
 
     @Override

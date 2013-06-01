@@ -22,7 +22,8 @@ public class JobStart implements Command {
 
     @Override
     public String execute(String... params) throws Exception {
-        if (!shell.isConnected())
+        return null;
+/*        if (!shell.isConnected())
             throw new IllegalStateException(
                     "This command should be used with an active connection!");
 
@@ -65,7 +66,7 @@ public class JobStart implements Command {
             return "Unavailable service for job.";
         }
 
-        return "Job " + resp.getJobInfo().getId() + " started succesfully";
+        return "Job " + resp.getJobInfo().getId() + " started succesfully";*/
     }
 
     @Override

@@ -21,7 +21,8 @@ public class ListServices implements Command {
 
     @Override
     public String execute(String... params) throws Exception {
-        if (!shell.isConnected())
+        return null;
+/*        if (!shell.isConnected())
             throw new IllegalStateException("This command should be used with an active connection!");
 
         P2PService p2p = shell.getP2P();
@@ -44,7 +45,7 @@ public class ListServices implements Command {
         }
         list += "\n";
 
-        return list;
+        return list;*/
     }
 
     @Override

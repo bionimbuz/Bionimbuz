@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Map;
 
+import br.unb.cic.bionimbus.avro.rpc.RpcServer;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.p2p.P2PService;
 import br.unb.cic.bionimbus.plugin.Plugin;
@@ -35,6 +36,7 @@ public class BioNimbus {
     }
 
     public BioNimbus(BioNimbusConfig config) throws IOException, InterruptedException {
+
 
 
         final P2PService p2p = new P2PService(config);
