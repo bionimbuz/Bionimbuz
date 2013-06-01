@@ -4,6 +4,11 @@ protocol BioProto {
 
   enum NodeState { STARTING, ACTIVE, CLOSING, IDLE, ERROR, DECOMMISSIONED }
 
+  record JobCancel {
+     string jobID;
+     array<string> files;
+  }
+
 /*
   record NodeInfo {
     string peerId;
@@ -204,5 +209,13 @@ protocol BioProto {
 
   /** Pings a node, e.g. to measure latency */
   boolean ping();
+
+  array<string> listFiles();
+
+  array<string> listServices();
+
+  string startJob(string jobID);
+
+  string cancelJob(string jobID);
 
 }

@@ -97,6 +97,11 @@
                             <goal>idl-protocol</goal>
                         </goals>
                         <configuration>
+                            <!--  The Java type to use for Avro strings.
+                                  May be one of CharSequence, String or Utf8.
+                                  CharSequence by default (if stringType omitted)
+                            -->
+                            <stringType>String</stringType>
                             <excludes>
                                 <exclude>**/mapred/tether/**</exclude>
                             </excludes>

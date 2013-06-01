@@ -31,13 +31,14 @@ public class AvroClient implements RpcClient {
     }
 
     private BioProto getHttpTransport() throws IOException {
-        System.out.println("Netty client built, got proxy");
+        System.out.println("HTTP client built, got proxy");
         HttpTransceiver transceiver = new HttpTransceiver(new URL("http://" + address + ":" + port));
         BioProto proxy = (BioProto) SpecificRequestor.getClient(BioProto.class, transceiver);
         return proxy;
     }
 
-    public BioProto getClient() throws IOException {
+    @Override
+    public BioProto getProxy() throws IOException {
         if ("netty".equalsIgnoreCase(transport)){
              return getNettyTransport();
         }
@@ -46,7 +47,8 @@ public class AvroClient implements RpcClient {
         }
     }
 
-    public void close() {
+    @Override
+    public void close() throws Exception {
         // only Netty protocol needs explicit close
         if ("netty".equalsIgnoreCase(transport)){
             nettyClient.close();
@@ -55,7 +57,7 @@ public class AvroClient implements RpcClient {
 
     public static void main(String[] args) throws IOException {
 
-        BioProto proxy = new AvroClient("netty", "localhost", 9999).getClient();
+        BioProto proxy = new AvroClient("http", "localhost", 9999).getProxy();
         long init = System.currentTimeMillis();
         System.out.println(proxy.ping());
         long end = System.currentTimeMillis();
