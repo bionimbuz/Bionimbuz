@@ -1,5 +1,6 @@
 package br.unb.cic.bionimbus.client.shell.commands;
 
+import br.unb.cic.bionimbus.avro.gen.BioProto;
 import br.unb.cic.bionimbus.client.shell.Command;
 import br.unb.cic.bionimbus.client.shell.SimpleShell;
 import br.unb.cic.bionimbus.p2p.P2PMessageType;
@@ -19,7 +20,14 @@ public class JobCancel implements Command {
 
     @Override
     public String execute(String... params) throws Exception {
-        return null;
+
+        if (!shell.isConnected())
+            throw new IllegalStateException("This command should be used with an active connection!");
+
+        String jobID = params[0];
+        BioProto proxy = shell.getProxy();
+        return proxy.cancelJob(jobID);
+
 /*        if (!shell.isConnected())
             throw new IllegalStateException(
                     "This command should be used with an active connection!");
