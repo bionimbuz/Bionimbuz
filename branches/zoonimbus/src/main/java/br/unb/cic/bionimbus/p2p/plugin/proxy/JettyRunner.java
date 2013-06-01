@@ -1,5 +1,7 @@
 package br.unb.cic.bionimbus.p2p.plugin.proxy;
 
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 import javax.servlet.http.HttpServlet;
 
 import com.codahale.metrics.MetricRegistry;
@@ -7,6 +9,8 @@ import com.codahale.metrics.health.HealthCheck;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.codahale.metrics.json.HealthCheckModule;
 import com.codahale.metrics.servlets.AdminServlet;
+import com.codahale.metrics.servlets.HealthCheckServlet;
+import com.codahale.metrics.servlets.MetricsServlet;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
@@ -73,6 +77,8 @@ public class JettyRunner {
         sh.setInitParameter("com.sun.jersey.config.property.resourceConfigClass", "com.sun.jersey.api.core.PackagesResourceConfig");
         sh.setInitParameter("com.sun.jersey.config.property.packages", "br.unb.cic.bionimbus.p2p.plugin.proxy");
 
+        context.addEventListener(new MetricsServletContextListener());
+
         context.addServlet(sh, "/*");
 
         if (servlet != null)
@@ -85,16 +91,33 @@ public class JettyRunner {
                 return Result.healthy();
             }
         });
+        */
 
         // Coda Hale Metrics
-        context.addServlet(new ServletHolder(new AdminServlet()), "/admin*//*");*/
+        context.addServlet(new ServletHolder(new AdminServlet()), "/admin/*");
 
 //            for (int i=0; i < 10; i++)
 //                pendingJobs.inc();
     }
 
+    public static class MetricsServletContextListener implements ServletContextListener {
+
+        private static final MetricRegistry metricRegistry = new MetricRegistry();
+        private static final HealthCheckRegistry healthCheckRegistry = new HealthCheckRegistry();
+
+        @Override
+        public void contextInitialized(ServletContextEvent servletContextEvent) {
+            servletContextEvent.getServletContext().setAttribute(HealthCheckServlet.HEALTH_CHECK_REGISTRY,healthCheckRegistry);
+            servletContextEvent.getServletContext().setAttribute(MetricsServlet.METRICS_REGISTRY, metricRegistry);
+        }
+
+        @Override
+        public void contextDestroyed(ServletContextEvent sce) {
+            // do nothing
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         new JettyRunner(9191, null).start();
     }
-
 }
