@@ -1,6 +1,7 @@
 package br.unb.cic.bionimbus.avro.rpc;
 
 import br.unb.cic.bionimbus.avro.gen.BioProto;
+import com.google.common.base.Preconditions;
 import org.apache.avro.ipc.NettyServer;
 import org.apache.avro.ipc.ResponderServlet;
 import org.apache.avro.ipc.specific.SpecificResponder;
@@ -12,32 +13,43 @@ import org.mortbay.thread.QueuedThreadPool;
 import javax.servlet.Servlet;
 import java.net.InetSocketAddress;
 
-/**
- * Created with IntelliJ IDEA.
- * User: edward
- * Date: 5/21/13
- * Time: 10:31 AM
- * To change this template use File | Settings | File Templates.
- */
 public class AvroServer implements RpcServer {
 
     private static NettyServer nettyServer;
     private static Server httpServer;
+    private final String transport;
+    private final int port;
 
-    // Netty Transport
-    public static void main(String[] args) throws Exception {
-//        System.out.println("starting rpc nettyServer");
-        nettyServer = new NettyServer(new SpecificResponder(BioProto.class, new BioProtoImpl()), new InetSocketAddress(65111));
-
-        startHTTP();
+    public AvroServer(String transport, int port) {
+        Preconditions.checkNotNull(transport);
+        this.transport = transport;
+        this.port = port;
     }
 
-    public static Server createHttpAvroServer(int port,
-                                              String name,
-                                              int maxThreads,
-                                              int maxIdleTimeMs,
-                                              SpecificResponder responder) throws BioNimbusException {
+
+    public void start() throws Exception {
+        if ("netty".equalsIgnoreCase(transport)){
+            startNettyServer(port);
+        }
+        else {
+            startHTTPServer(port);
+        }
+    }
+
+    // Netty Transport
+    private void startNettyServer(int port) throws Exception {
+        System.out.println("starting rpc nettyServer");
+        nettyServer = new NettyServer(new SpecificResponder(BioProto.class, new BioProtoImpl()), new InetSocketAddress(port));
+        nettyServer.start();
+    }
+
+    // HTTP Transport
+    private Server createHttpServer(int port,
+                                    String name,
+                                    int maxThreads,
+                                    int maxIdleTimeMs) throws BioNimbusException {
         try {
+            SpecificResponder responder = new SpecificResponder(BioProto.class, new BioProtoImpl());
             Server httpServer = new Server(port);
             QueuedThreadPool qtp = new QueuedThreadPool();
             // QueuedThreadPool is jetty's thread pool implementation;
@@ -48,22 +60,24 @@ public class AvroServer implements RpcServer {
             qtp.setMaxIdleTimeMs(maxIdleTimeMs);
             httpServer.setThreadPool(qtp);
             Servlet servlet = new ResponderServlet(responder);
-            new Context(httpServer, "/").addServlet(new ServletHolder(servlet),
-                    "/*");
+            new Context(httpServer, "/").addServlet(new ServletHolder(servlet), "/*");
             return httpServer;
         } catch (Exception e) {
             throw new BioNimbusException(e);
         }
     }
 
-    public static void startHTTP() throws Exception {
+    // HTTP Transport
+    private void startHTTPServer(int port) throws Exception {
 
-        // main:
-        SpecificResponder responder = new SpecificResponder(BioProto.class, new BioProtoImpl());
-        httpServer = createHttpAvroServer(9090, "avro-rpc", 5, 10000, responder);
+        System.out.println("starting avro http server");
+        httpServer = createHttpServer(port, "avro-rpc", 5, 10000);
         httpServer.start();
-        httpServer.join();
-
+        httpServer.join(); // block this thread waiting for http thread to finish (i.e. goes 'forevever')
     }
 
+    public static void main(String[] args) throws Exception {
+        String config = "netty";
+        new AvroServer(config, 9999).start();
+    }
 }

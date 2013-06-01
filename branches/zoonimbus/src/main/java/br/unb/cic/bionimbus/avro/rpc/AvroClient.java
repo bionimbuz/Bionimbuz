@@ -9,40 +9,58 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URL;
 
-/**
- * Created with IntelliJ IDEA.
- * User: edward
- * Date: 5/21/13
- * Time: 10:39 AM
- * To change this template use File | Settings | File Templates.
- */
 public class AvroClient implements RpcClient {
 
-    public static void nettyTransport() throws IOException {
-        NettyTransceiver client = new NettyTransceiver(new InetSocketAddress(65111));
-        // client code - attach to the server and send a message
-        BioProto proxy = (BioProto) SpecificRequestor.getClient(BioProto.class, client);
-        System.out.println("Client built, got proxy");
+    private final int port;
+    private final String address;
+    private final String transport;
+    private NettyTransceiver nettyClient;
 
-
-        client.close();
-
+    public AvroClient(String transport, String address, int port) {
+        this.port = port;
+        this.address = address;
+        this.transport = transport;
     }
 
-    public static void httpTransport() throws IOException {
-        HttpTransceiver transceiver = new HttpTransceiver(new URL("http://localhost:9090/"));
-        BioProto proxy = (BioProto) SpecificRequestor.getClient(BioProto.class, transceiver);
+    private BioProto getNettyTransport() throws IOException {
+        System.out.println("Netty client built, got proxy");
+        nettyClient = new NettyTransceiver(new InetSocketAddress(address, port));
+        // client code - attach to the server and send a message
+        BioProto proxy = (BioProto) SpecificRequestor.getClient(BioProto.class, nettyClient);
+        return proxy;
+    }
 
+    private BioProto getHttpTransport() throws IOException {
+        System.out.println("Netty client built, got proxy");
+        HttpTransceiver transceiver = new HttpTransceiver(new URL("http://" + address + ":" + port));
+        BioProto proxy = (BioProto) SpecificRequestor.getClient(BioProto.class, transceiver);
+        return proxy;
+    }
+
+    public BioProto getClient() throws IOException {
+        if ("netty".equalsIgnoreCase(transport)){
+             return getNettyTransport();
+        }
+        else {
+            return getHttpTransport();
+        }
+    }
+
+    public void close() {
+        // only Netty protocol needs explicit close
+        if ("netty".equalsIgnoreCase(transport)){
+            nettyClient.close();
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+
+        BioProto proxy = new AvroClient("netty", "localhost", 9999).getClient();
         long init = System.currentTimeMillis();
         System.out.println(proxy.ping());
         long end = System.currentTimeMillis();
 
         System.out.println("latencia: (end - init) = " + (end - init) + "ms");
-
-    }
-
-    public static void main(String[] args) throws IOException {
-        httpTransport();
         System.out.println("end");
     }
 }

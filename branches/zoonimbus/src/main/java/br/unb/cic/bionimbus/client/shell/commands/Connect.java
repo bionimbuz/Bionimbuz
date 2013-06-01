@@ -11,9 +11,11 @@ import br.unb.cic.bionimbus.services.storage.StoragePolicy;
 import br.unb.cic.bionimbus.zookeeper.ZooKeeperService;
 import com.google.common.collect.Maps;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
+import com.sun.javaws.exceptions.InvalidArgumentException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 public class Connect implements Command {
@@ -35,22 +37,10 @@ public class Connect implements Command {
 
     @Override
     public String execute(String... params) throws Exception {
-        String configFile = System.getProperty("config.file", "conf/client.json");
-        BioNimbusConfig config = BioNimbusConfigLoader.loadHostConfig(configFile);
 
-        P2PService p2p = new P2PService(config);
-        p2p.start();
-        shell.setP2P(p2p);
-        zkService = new ZooKeeperService();
-        zkService.connect(p2p.getConfig().getZkHosts());
-
-        children = zkService.getChildren(ROOT_PEER, null);
-        
-      /*  while(zkService.getStatus()!=zkService.getStatus().CONNECTED)
-            ;
-        while (p2p.getPeers().isEmpty())
-			;
-        */         
+        if (params.length < 2) {
+            throw new InvalidArgumentException(new String[]{"usage: connect <address> <port>"});
+        }
     
         shell.setConnected(true);
 

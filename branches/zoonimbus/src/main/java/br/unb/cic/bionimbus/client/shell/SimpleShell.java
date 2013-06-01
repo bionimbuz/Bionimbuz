@@ -3,13 +3,10 @@ package br.unb.cic.bionimbus.client.shell;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import br.unb.cic.bionimbus.avro.rpc.AvroClient;
+import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.client.shell.commands.AsyncCommand;
 import br.unb.cic.bionimbus.client.shell.commands.Connect;
 import br.unb.cic.bionimbus.client.shell.commands.DateTime;
@@ -36,12 +33,14 @@ import br.unb.cic.bionimbus.utils.Pair;
  */
 public final class SimpleShell {
 
-    private static final String GREETINGS = "Welcome to BioNimbus shell\nversion 1.0";
+    private static final String GREETINGS = "Welcome to BioNimbus shell\nversion 0.0.2";
     private static final String PROMPT = "[@bionimbus]$ ";
 
     private static final Map<String, Command> commandMap = new HashMap<String, Command>();
 
     public static History history = new History(10);
+
+    private RpcClient rpcClient;
 
     static {
         commandMap.put(DateTime.NAME, new DateTime());
@@ -52,7 +51,6 @@ public final class SimpleShell {
     }
 
     private boolean connected = false;
-    private P2PService p2p = null;
 
     public SimpleShell() {
         commandMap.put(Connect.NAME, new Connect(this));
@@ -84,7 +82,6 @@ public final class SimpleShell {
         System.out.println(GREETINGS);
 
         while (true) {
-
             // read
             System.out.print(PROMPT);
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -132,14 +129,6 @@ public final class SimpleShell {
         return connected;
     }
 
-    public void setP2P(P2PService p2p) {
-        this.p2p = p2p;
-    }
-
-    public P2PService getP2P() {
-        return p2p;
-    }
-
     private static Pair<String, String[]> parseLine(String line) {
 
         LineParser parser = new LineParser();
@@ -156,8 +145,7 @@ public final class SimpleShell {
     }
 
     public Collection<Command> getCommands() {
-        // TODO Auto-generated method stub
-        return new HashSet<Command>(commandMap.values());
+        return Collections.unmodifiableCollection(commandMap.values());
     }
 
 }

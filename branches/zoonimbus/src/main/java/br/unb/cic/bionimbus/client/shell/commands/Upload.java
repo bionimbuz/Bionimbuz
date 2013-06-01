@@ -54,24 +54,24 @@ public class Upload extends AbstractBioService implements Command {
 
     @Override
     public String execute(String... params) throws Exception {
-        if (!shell.isConnected())
-            throw new IllegalStateException(
-                    "This command should be used with an active connection!");
+        return null;
+/*        if (!shell.isConnected())
+            throw new IllegalStateException("This command should be used with an active connection!");
 
-        P2PService p2p = shell.getP2P();
-        SyncCommunication comm = new SyncCommunication(p2p);
+//        P2PService p2p = shell.getP2P();
+//        SyncCommunication comm = new SyncCommunication(p2p);
 
         shell.print("Uploading file...");
-        /*
+        *//*
          * Instacia um objeto StoragePolicy para realizar o calculo do custo de armazenamento
-         */
+         *//*
         StoragePolicy policy = new StoragePolicy();
         Ping ping = new Ping();
         long storagecost;
 
-        /*
+        *//*
          * Verifica se o arquivo existe
-         */    
+         *//*
         File file = new File(params[0]);
         if (file.exists()) {
             FileInfo info = new FileInfo();
@@ -79,9 +79,9 @@ public class Upload extends AbstractBioService implements Command {
             info.setSize(file.length());
 
             this.map = getPeers();
-            /*
+            *//*
              * Percorre todos os plugin e calcula a sua latencia
-             */
+             *//*
             for (PluginInfo plugin : map.values()) {
                 latency = Ping.calculo(plugin.getHost().getAddress());
                 plugin.setLatency(latency);
@@ -103,9 +103,9 @@ public class Upload extends AbstractBioService implements Command {
                     }
                 }
        
-           /* 
+           *//*
             * Ordena os custos de armazenamento atraves do QuickSort
-            */
+            *//*
            List pluginlist = policy.SwapTypePlugin(map.values());
            policy.SortPlugins(pluginlist);
            
@@ -122,15 +122,15 @@ public class Upload extends AbstractBioService implements Command {
             p2p.sendFile(pluginInfo.getHost(), resp.getFileInfo().getName());
            
            
-           /*
+           *//*
             * Envia o arquivo para o melhor plugin
-            */
+            *//*
           
                 
 
             return "File " + resp.getFileInfo().getName() + " succesfully uploaded.";
         }
-        return "File " + file.getPath() + " don't exists.";
+        return "File " + file.getPath() + " don't exists.";*/
     }
 
     @Override
