@@ -14,6 +14,10 @@ import java.util.concurrent.CountDownLatch;
 @Singleton
 public class ZooKeeperService {
 
+    /**
+     * URL: http://twitter.github.io/commons/apidocs/com/twitter/common/zookeeper/package-frame.html
+     */
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperService.class);
 
     private ZooKeeper zk;
