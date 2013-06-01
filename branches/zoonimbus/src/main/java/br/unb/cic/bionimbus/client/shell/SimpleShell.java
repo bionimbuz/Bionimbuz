@@ -6,9 +6,7 @@ import java.io.InputStreamReader;
 import java.util.*;
 
 import br.unb.cic.bionimbus.avro.gen.BioProto;
-import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
-import br.unb.cic.bionimbus.client.shell.commands.AsyncCommand;
 import br.unb.cic.bionimbus.client.shell.commands.Connect;
 import br.unb.cic.bionimbus.client.shell.commands.DateTime;
 import br.unb.cic.bionimbus.client.shell.commands.Echo;
@@ -64,7 +62,6 @@ public final class SimpleShell {
 
         //PingCommand
         //GetFile
-        commandMap.put("async", new AsyncCommand(this));
         commandMap.put("script", new ScriptRunner(this));
         commandMap.put(Upload.NAME, new Upload(this));
     }
