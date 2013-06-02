@@ -47,13 +47,17 @@ import br.unb.cic.bionimbus.p2p.messages.StatusRespMessage;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
+import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
+import br.unb.cic.bionimbus.services.ZooKeeperService;
+import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
 
 import com.google.inject.Singleton;
 
 @Singleton
-public class SchedService implements Service, P2PListener, Runnable {
+public class SchedService extends AbstractBioService implements Service, P2PListener, Runnable {
     private static final Logger LOG = LoggerFactory
             .getLogger(SchedService.class);
 
@@ -89,7 +93,16 @@ public class SchedService implements Service, P2PListener, Runnable {
 
     private int isPending = 0;
 
-    public SchedService() {
+    
+    @Inject
+    public SchedService(final ZooKeeperService service) {
+        Preconditions.checkNotNull(service);
+        this.zkService = service;
+        
+//        this.zkService = new ZooKeeperService().getZooKeeperService();
+        
+
+//    public SchedService() {
 
     }
 
@@ -169,7 +182,7 @@ public class SchedService implements Service, P2PListener, Runnable {
 
         // Caso nao exista nenhum job pendente da a chance do escalonador
         // realocar as tarefas.
-        if (getPendingJobs().size() == 0) {
+        if (getPendingJobs().isEmpty()) {
             List<PluginTask> tasksToCancel = getPolicy().relocate(
                     getRunningJobs().values());
 
@@ -185,7 +198,7 @@ public class SchedService implements Service, P2PListener, Runnable {
             }
             // Caso exista algum job pendente. Escalona-os.
         } else {
-            schedMap = getPolicy().schedule(getPendingJobs().values());
+            schedMap = getPolicy().schedule(getPendingJobs().values(), zkService);
 
             for (Map.Entry<JobInfo, PluginInfo> entry : schedMap.entrySet()) {
                 JobInfo jobInfo = entry.getKey();
