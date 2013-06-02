@@ -17,6 +17,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.base.Objects;
 import com.google.inject.Injector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static br.unb.cic.bionimbus.config.BioNimbusConfigLoader.*;
 import static br.unb.cic.bionimbus.plugin.PluginFactory.getPlugin;
@@ -24,6 +26,8 @@ import static br.unb.cic.bionimbus.plugin.PluginFactory.getPlugin;
 import static com.google.inject.Guice.createInjector;
 
 public class BioNimbus {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BioNimbus.class);
 
     static {
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -59,7 +63,7 @@ public class BioNimbus {
         final String configFile = System.getProperty("config.file", "conf/node.yaml");
         BioNimbusConfig config = loadHostConfig(configFile);
 
-        System.out.println("config = " + config);
+        LOGGER.debug("config = " + config);
 
         new BioNimbus(config);
     }

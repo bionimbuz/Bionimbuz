@@ -4,6 +4,8 @@ import br.unb.cic.bionimbus.avro.gen.BioProto;
 import org.apache.avro.ipc.HttpTransceiver;
 import org.apache.avro.ipc.NettyTransceiver;
 import org.apache.avro.ipc.specific.SpecificRequestor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -16,6 +18,8 @@ public class AvroClient implements RpcClient {
     private final String transport;
     private NettyTransceiver nettyClient;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AvroClient.class);
+
     public AvroClient(String transport, String address, int port) {
         this.port = port;
         this.address = address;
@@ -23,7 +27,7 @@ public class AvroClient implements RpcClient {
     }
 
     private BioProto getNettyTransport() throws IOException {
-        System.out.println("Netty client built, got proxy");
+        LOGGER.debug("Netty client built");
         nettyClient = new NettyTransceiver(new InetSocketAddress(address, port));
         // client code - attach to the server and send a message
         BioProto proxy = (BioProto) SpecificRequestor.getClient(BioProto.class, nettyClient);
@@ -31,7 +35,7 @@ public class AvroClient implements RpcClient {
     }
 
     private BioProto getHttpTransport() throws IOException {
-        System.out.println("HTTP client built, got proxy");
+        LOGGER.debug("HTTP client built");
         HttpTransceiver transceiver = new HttpTransceiver(new URL("http://" + address + ":" + port));
         BioProto proxy = (BioProto) SpecificRequestor.getClient(BioProto.class, transceiver);
         return proxy;
@@ -49,6 +53,7 @@ public class AvroClient implements RpcClient {
 
     @Override
     public void close() throws Exception {
+        LOGGER.debug("Closing Avro RPC client");
         // only Netty protocol needs explicit close
         if ("netty".equalsIgnoreCase(transport)){
             nettyClient.close();
