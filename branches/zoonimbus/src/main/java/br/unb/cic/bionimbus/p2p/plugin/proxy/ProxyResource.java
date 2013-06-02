@@ -25,9 +25,9 @@ public class ProxyResource {
 
     private ProxyServerStub server;
 
-    public ProxyResource() {
-        server = ProxyServerStub.getInstance();
-    }
+//    public ProxyResource() {
+//        server = ProxyServerStub.getInstance();
+//    }
 
     //TODO reativar este sub-projeto
 //    @GET
