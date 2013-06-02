@@ -37,8 +37,6 @@ public class BioNimbus {
 
     public BioNimbus(BioNimbusConfig config) throws IOException, InterruptedException {
 
-
-
         final P2PService p2p = new P2PService(config);
 //        p2p.start();
 
