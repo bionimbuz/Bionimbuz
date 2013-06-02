@@ -20,13 +20,17 @@ public class AvroServer implements RpcServer {
     private final String transport;
     private final int port;
 
+    public AvroServer() {
+        this("http", 9999);
+    }
+
     public AvroServer(String transport, int port) {
         Preconditions.checkNotNull(transport);
         this.transport = transport;
         this.port = port;
     }
 
-
+    @Override
     public void start() throws Exception {
         if ("netty".equalsIgnoreCase(transport)){
             startNettyServer(port);
@@ -73,7 +77,7 @@ public class AvroServer implements RpcServer {
         System.out.println("starting avro http server");
         httpServer = createHttpServer(port, "avro-rpc", 5, 10000);
         httpServer.start();
-        httpServer.join(); // block this thread waiting for http thread to finish (i.e. goes 'forevever')
+//        httpServer.join(); // block this thread waiting for http thread to finish (i.e. goes 'forevever')
     }
 
     public static void main(String[] args) throws Exception {

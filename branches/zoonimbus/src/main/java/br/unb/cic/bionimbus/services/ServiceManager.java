@@ -1,9 +1,12 @@
 package br.unb.cic.bionimbus.services;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import br.unb.cic.bionimbus.avro.rpc.AvroServer;
 import br.unb.cic.bionimbus.avro.rpc.RpcServer;
 import br.unb.cic.bionimbus.p2p.P2PService;
 
@@ -21,10 +24,10 @@ public class ServiceManager {
     private final RpcServer rpcServer;
 
     @Inject
-    public ServiceManager(final ZooKeeperService zkService, Set<Service> services, RpcServer rpcServer) {
+    public ServiceManager(Set<Service> services, final ZooKeeperService zkService, final RpcServer rpcServer) {
         this.zkService = zkService;
         this.rpcServer = rpcServer;
-        services.addAll(services);
+        this.services.addAll(services);
     }
 
     public void connectZK(String hosts) throws IOException, InterruptedException {
@@ -41,12 +44,12 @@ public class ServiceManager {
 
     public void startAll(P2PService p2p) {
         try {
-
+            rpcServer.start();
             connectZK(p2p.getConfig().getZkHosts());
-//            rpcServer.start();
             for (Service service : services) {
                 service.start(p2p);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(0);

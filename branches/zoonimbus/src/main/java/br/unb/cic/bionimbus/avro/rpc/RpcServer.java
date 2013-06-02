@@ -8,4 +8,5 @@ package br.unb.cic.bionimbus.avro.rpc;
  * To change this template use File | Settings | File Templates.
  */
 public interface RpcServer {
+    void start() throws Exception;
 }
