@@ -18,8 +18,8 @@ public class ServiceModule extends AbstractModule {
     protected void configure() {
 
         bind(BioProto.class).to(BioProtoImpl.class);
-
         bind(RpcServer.class).to(AvroServer.class);
+//        bind(HttpServer.class);
 
         Multibinder<Service> serviceBinder = Multibinder.newSetBinder(binder(), Service.class);
         serviceBinder.addBinding().to(DiscoveryService.class);

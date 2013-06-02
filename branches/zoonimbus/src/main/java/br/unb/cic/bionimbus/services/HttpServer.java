@@ -1,13 +1,11 @@
-package br.unb.cic.bionimbus.p2p.plugin.proxy;
+package br.unb.cic.bionimbus.services;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.http.HttpServlet;
 
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.health.HealthCheck;
 import com.codahale.metrics.health.HealthCheckRegistry;
-import com.codahale.metrics.json.HealthCheckModule;
 import com.codahale.metrics.servlets.AdminServlet;
 import com.codahale.metrics.servlets.HealthCheckServlet;
 import com.codahale.metrics.servlets.MetricsServlet;
@@ -20,22 +18,14 @@ import com.sun.jersey.spi.container.servlet.ServletContainer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class JettyRunner {
+public class HttpServer {
 
-    //    private static final Counter pendingJobs = Metrics.newCounter(MetricsTest.class, "counter");
     private Server server;
-    private static JettyRunner REF;
+    private static HttpServer REF;
     private volatile boolean running;
     private final ExecutorService service = Executors.newSingleThreadExecutor();
     private final int port;
     private final HttpServlet proxyServlet;
-
-    public static synchronized JettyRunner getInstance(int port, HttpServlet proxy) {
-        if (REF == null) {
-            REF = new JettyRunner(port, proxy);
-        }
-        return REF;
-    }
 
     public void start() throws Exception {
         if (!running) {
@@ -45,7 +35,7 @@ public class JettyRunner {
                 public void run() {
                     try {
                         server.start();
-                        server.join();
+//                        server.join();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     } catch (Exception e) {
@@ -67,7 +57,11 @@ public class JettyRunner {
         running = false;
     }
 
-    private JettyRunner(int port, HttpServlet servlet) {
+    public HttpServer() {
+        this(9191, null);
+    }
+
+    public HttpServer(int port, HttpServlet servlet) {
         this.port = port;
         this.proxyServlet = servlet;
 
@@ -118,6 +112,6 @@ public class JettyRunner {
     }
 
     public static void main(String[] args) throws Exception {
-        new JettyRunner(9191, null).start();
+        new HttpServer(9191, null).start();
     }
 }

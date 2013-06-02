@@ -17,11 +17,14 @@ public class ServiceManager {
     private final ZooKeeperService zkService;
 
     private final RpcServer rpcServer;
+    private final HttpServer httpServer;
 
     @Inject
-    public ServiceManager(Set<Service> services, final ZooKeeperService zkService, final RpcServer rpcServer) {
+    public ServiceManager(Set<Service> services, ZooKeeperService zkService, RpcServer rpcServer, HttpServer httpServer) {
         this.zkService = zkService;
         this.rpcServer = rpcServer;
+        this.httpServer = httpServer;
+
         this.services.addAll(services);
     }
 
@@ -39,7 +42,8 @@ public class ServiceManager {
 
     public void startAll(P2PService p2p) {
         try {
-            rpcServer.start();
+//            rpcServer.start();
+            httpServer.start();
             connectZK(p2p.getConfig().getZkHosts());
             for (Service service : services) {
                 service.start(p2p);

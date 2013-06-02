@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.codahale.metrics.Counter;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -38,6 +39,8 @@ import java.io.IOException;
 import java.util.Collection;
 
 public class StorageService extends AbstractBioService {
+
+//    private static final Counter pendingJobs = Metrics.newCounter(MetricsTest.class, "counter");
 
     private final ScheduledExecutorService executorService = Executors
             .newScheduledThreadPool(1, new BasicThreadFactory.Builder()

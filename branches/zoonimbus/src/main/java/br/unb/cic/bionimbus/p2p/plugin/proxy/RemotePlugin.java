@@ -14,7 +14,7 @@ import br.unb.cic.bionimbus.p2p.P2PService;
 
 public class RemotePlugin extends AbstractPlugin {
 
-    private final ProxyServerStub server;
+//    private final ProxyServerStub server;
     private final Host host;
     private final String id;
     private final ExecutorService executor;
@@ -34,8 +34,8 @@ public class RemotePlugin extends AbstractPlugin {
         System.out.println(String.format("Iniciando remote proxy on %s:%s", proxyHost, proxyPort));
 
         this.executor = executor;
-        server = ProxyServerStub.newInstance(executor, proxyHost, proxyPort);
-        server.start();
+//        server = ProxyServerStub.newInstance(executor, proxyHost, proxyPort);
+//        server.start();
     }
 
     @Override
