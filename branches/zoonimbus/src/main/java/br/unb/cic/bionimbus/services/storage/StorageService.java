@@ -49,10 +49,18 @@ public class StorageService extends AbstractBioService {
 
     private P2PService p2p = null;
 
+    private File dataFolder = new File("data-folder"); //TODO: remover hard-coded e colocar em node.yaml e injetar em StorageService
+
     @Inject
     public StorageService(final ZooKeeperService service) {
         Preconditions.checkNotNull(service);
         this.zkService = service;
+
+
+        if (!dataFolder.exists()) {
+           System.out.println("dataFolder " + dataFolder + " doesn't exists, creating...");
+           dataFolder.mkdirs();
+        }
     }
 
     @Override
@@ -200,5 +208,9 @@ public class StorageService extends AbstractBioService {
         }
 
         return false;
+    }
+
+    public File getDataFolder() {
+        return dataFolder;
     }
 }

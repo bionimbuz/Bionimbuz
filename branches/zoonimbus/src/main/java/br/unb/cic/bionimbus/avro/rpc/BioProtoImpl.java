@@ -8,6 +8,7 @@ import br.unb.cic.bionimbus.services.storage.StorageService;
 import com.google.inject.Inject;
 import org.apache.avro.AvroRemoteException;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,8 +33,8 @@ public class BioProtoImpl implements BioProto {
 
     @Override
     public List<String> listFiles() throws AvroRemoteException {
-        //TODO: call storageService
-        return asList("file1", "file2", "file3");
+        File dataFolder = storageService.getDataFolder();
+        return Arrays.asList(dataFolder.list());
     }
 
     @Override
