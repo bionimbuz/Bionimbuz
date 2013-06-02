@@ -39,7 +39,7 @@ import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.utils.Pair;
 
 @Singleton
-public class MonitorService implements Service, P2PListener, Runnable {
+public class MonitoringService implements Service, P2PListener, Runnable {
 
     private final ScheduledExecutorService schedExecService = Executors.newScheduledThreadPool(1, new BasicThreadFactory.Builder().namingPattern("MonitorService-%d").build());
 
@@ -49,7 +49,7 @@ public class MonitorService implements Service, P2PListener, Runnable {
 
     private P2PService p2p = null;
 
-    public MonitorService(ServiceManager manager) {
+    public MonitoringService(ServiceManager manager) {
         manager.register(this);
     }
 
