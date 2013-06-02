@@ -10,6 +10,7 @@ import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskState;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
+import br.unb.cic.bionimbus.services.ZooKeeperService;
 
 import java.util.*;
 
@@ -25,8 +26,14 @@ public class AcoSched extends SchedPolicy {
     private static final int BLACKLIST_LIMIT = 12;
 
 
+    
     @Override
     public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    @Override
+    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, ZooKeeperService zk) {
         HashMap jobCloud = new HashMap<JobInfo, PluginInfo>();
         JobInfo biggerJob = getBiggerJob(new ArrayList<JobInfo>(jobInfos));
         mapAcoDatas = new HashMap<String, ArrayList<Double>>();
@@ -454,6 +461,8 @@ public class AcoSched extends SchedPolicy {
 
 
     }
+
+    
 
 
 }

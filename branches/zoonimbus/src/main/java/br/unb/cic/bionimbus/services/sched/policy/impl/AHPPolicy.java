@@ -13,6 +13,7 @@ import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskState;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
+import br.unb.cic.bionimbus.services.ZooKeeperService;
 
 public class AHPPolicy extends SchedPolicy {
 
@@ -312,5 +313,10 @@ public class AHPPolicy extends SchedPolicy {
 
     public Matrix inducedMatrix(Matrix matrix, double n) {
         return matrix.arrayTimes(matrix).minus(matrix.times(n));
+    }
+
+    @Override
+    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, ZooKeeperService zk) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

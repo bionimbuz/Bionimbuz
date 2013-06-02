@@ -10,6 +10,7 @@ import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
+import br.unb.cic.bionimbus.services.ZooKeeperService;
 
 public class BasicSchedPolicy extends SchedPolicy {
 
@@ -76,5 +77,10 @@ public class BasicSchedPolicy extends SchedPolicy {
     public void jobDone(PluginTask task) {
         // TODO Auto-generated method stub
 
+    }
+
+    @Override
+    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, ZooKeeperService zk) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
