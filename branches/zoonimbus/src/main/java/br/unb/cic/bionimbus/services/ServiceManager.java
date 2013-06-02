@@ -1,17 +1,12 @@
 package br.unb.cic.bionimbus.services;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import br.unb.cic.bionimbus.avro.rpc.AvroServer;
 import br.unb.cic.bionimbus.avro.rpc.RpcServer;
 import br.unb.cic.bionimbus.p2p.P2PService;
 
-import br.unb.cic.bionimbus.services.Service;
-import br.unb.cic.bionimbus.zookeeper.ZooKeeperService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 

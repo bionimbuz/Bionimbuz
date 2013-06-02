@@ -1,4 +1,4 @@
-package br.unb.cic.bionimbus.zookeeper;
+package br.unb.cic.bionimbus.services;
 
 import com.google.common.base.Preconditions;
 import com.google.inject.Singleton;

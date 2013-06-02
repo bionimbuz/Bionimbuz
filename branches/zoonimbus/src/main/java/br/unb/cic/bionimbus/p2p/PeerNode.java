@@ -1,10 +1,5 @@
 package br.unb.cic.bionimbus.p2p;
 
-import br.unb.cic.bionimbus.services.AbstractBioService;
-import br.unb.cic.bionimbus.zookeeper.ZooKeeperService;
-import com.google.common.base.Preconditions;
-import com.google.inject.Inject;
-
 public class PeerNode implements Comparable<PeerNode> {
 
     private final ID id;
