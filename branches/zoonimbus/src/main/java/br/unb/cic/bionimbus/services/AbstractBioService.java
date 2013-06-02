@@ -6,7 +6,6 @@ package br.unb.cic.bionimbus.services;
 
 
 import br.unb.cic.bionimbus.p2p.P2PListener;
-import br.unb.cic.bionimbus.zookeeper.ZooKeeperService;
 
 /**
  * @author biocloud1

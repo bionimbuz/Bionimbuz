@@ -30,7 +30,7 @@ import br.unb.cic.bionimbus.p2p.messages.StoreAckMessage;
 import br.unb.cic.bionimbus.p2p.messages.StoreReqMessage;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
-import br.unb.cic.bionimbus.zookeeper.ZooKeeperService;
+import br.unb.cic.bionimbus.services.ZooKeeperService;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 
