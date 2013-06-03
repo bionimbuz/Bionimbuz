@@ -7,6 +7,7 @@ import java.util.Set;
 import br.unb.cic.bionimbus.avro.rpc.RpcServer;
 import br.unb.cic.bionimbus.p2p.P2PService;
 
+import com.codahale.metrics.MetricRegistry;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -18,6 +19,9 @@ public class ServiceManager {
 
     private final RpcServer rpcServer;
     private final HttpServer httpServer;
+
+    @Inject
+    private MetricRegistry metricRegistry;
 
     @Inject
     public ServiceManager(Set<Service> services, ZooKeeperService zkService, RpcServer rpcServer, HttpServer httpServer) {
@@ -42,7 +46,7 @@ public class ServiceManager {
 
     public void startAll(P2PService p2p) {
         try {
-//            rpcServer.start();
+            rpcServer.start();
             httpServer.start();
             connectZK(p2p.getConfig().getZkHosts());
             for (Service service : services) {
