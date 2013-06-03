@@ -39,7 +39,7 @@ import br.unb.cic.bionimbus.utils.Pair;
 
 public abstract class AbstractPlugin extends P2PAbstractListener implements Plugin, Runnable {
 
-    private String id = UUID.randomUUID().toString();
+    private String id;
 
     private Future<PluginInfo> futureInfo = null;
 
@@ -67,17 +67,21 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
 
     public AbstractPlugin(final P2PService p2p) {
         super(p2p);
-
-        File infoFile = new File("plugininfo.json");
-        if (infoFile.exists()) {
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                myInfo = mapper.readValue(infoFile, PluginInfo.class);
-                id = myInfo.getId();  //TODO plugininfo.json só serve para recuperar ID?
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        
+        //id provisório
+        id = p2p.getConfig().getId();
+        
+//        File infoFile = new File("plugininfo.json");
+//        if (infoFile.exists()) {
+//            try {
+//                ObjectMapper mapper = new ObjectMapper();
+//                myInfo = mapper.readValue(infoFile, PluginInfo.class);
+//                id = myInfo.getId();  //TODO plugininfo.json só serve para recuperar ID?
+////                myInfo.setId(id);  
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 
     public Map<String, Pair<String, Integer>> getInputFiles() {
@@ -92,7 +96,9 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
 
     protected abstract Future<PluginTask> startTask(PluginTask task);
 
-    private String getId() {
+//    private String getId() {
+    public String getId() {
+        
         return id;
     }
 
@@ -107,16 +113,17 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
     protected PluginInfo getMyInfo() {
         return myInfo;
     }
-
-    private void setMyInfo(PluginInfo info) {
+    //private void setMyInfo(PluginInfo info) {
+    public void setMyInfo(PluginInfo info) {
         myInfo = info;
+        myInfo.setId(getId());
 
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.writeValue(new File("plugininfo.json"), myInfo);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            ObjectMapper mapper = new ObjectMapper();
+//            mapper.writeValue(new File("plugininfo.json"), myInfo);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
     private String getErrorString() {
@@ -169,7 +176,7 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
 
         try {
             PluginInfo newInfo = futureInfo.get();
-            newInfo.setId(id);
+            newInfo.setId(getId());
             newInfo.setHost(getP2P().getPeerNode().getHost());
             setMyInfo(newInfo);
         } catch (Exception e) {

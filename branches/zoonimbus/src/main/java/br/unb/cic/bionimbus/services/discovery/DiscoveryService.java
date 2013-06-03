@@ -6,6 +6,7 @@ import br.unb.cic.bionimbus.p2p.*;
 import br.unb.cic.bionimbus.p2p.messages.*;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxGetInfo;
+import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
 import br.unb.cic.bionimbus.services.storage.file.FileService;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
 import com.google.common.base.Preconditions;
@@ -38,7 +39,6 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
     private BioNimbusConfig config;
     private static final String ROOT_PEER = "/peers";
     private static final String SEPARATOR = "/";
-    private static final String PREFIX_PEER = "peer_";
     private static final String STATUS = "STATUS";
     private String peerName;
     private List<String> children;
@@ -67,7 +67,6 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
     public void run() {
         System.out.println("running DiscoveryService...");
 
-        System.out.println(peerName);
         try {
             // ATUALIZANDO DADOS LOCAIS
 //                File infoFile = new File("plugininfo.json");
@@ -87,19 +86,12 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
                 // if (!peerName.contains(child)){
                 try {
 
-//                        System.out.println("peer: " + peerName);
                     String childStr = zkService.getData(ROOT_PEER + SEPARATOR + child, null);
+                    
                     System.out.println("childStr:" + childStr);
                     ObjectMapper mapper = new ObjectMapper();
+                    
                     PluginInfo myInfo = mapper.readValue(childStr, PluginInfo.class);
-                    
-                    //modificar setter
-                    myInfo.setPath_zk(ROOT_PEER + SEPARATOR +child);
-                    
-                    
-//                        System.out.println("id:" + myInfo.getId());
-//                        System.out.println("cores:" + myInfo.getNumCores());
-//                        System.out.println("disk:" + myInfo.getFsFreeSize());
                     
                     //verifica se o peer ainda está on-line e através da existência do zNode STATUS, 
                     //se não estiver apaga o zNode persistente
@@ -108,11 +100,6 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
                     }else{
                         zkService.delete(myInfo.getPath_zk());
                     }
-//                    if(zkService.getZNodeExist(peerName+SEPARATOR+STATUS, false)){
-//                        map.put(myInfo.getId(), myInfo);
-//                    }else{
-//                        zkService.delete(myInfo.getPath_zk());
-//                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -138,7 +125,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 
     public ConcurrentMap<String, PluginInfo> getPeers() {
 
-        System.out.println(peerName);
+        System.out.println("peerName: "+peerName);
         try {
 
             children = zkService.getChildren(ROOT_PEER, null);
@@ -147,7 +134,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
             for (String child : children) {
                 // if (!peerName.contains(child)){
                 try {
-                    String childStr = zkService.getData(ROOT_PEER + SEPARATOR + child, null);
+                    String childStr = zkService.getData(ROOT_PEER + child, null);
                     System.out.println(childStr);
                     ObjectMapper mapper = new ObjectMapper();
                     PluginInfo myInfo = mapper.readValue(childStr, PluginInfo.class);
@@ -196,17 +183,22 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
         try {
             Preconditions.checkNotNull(p2p);
 
-            zkService.createPersistentZNode("/peers", null);
-
 //                config = p2p.getConfig();
 //                String data = getData();
           LinuxGetInfo getinfo=new LinuxGetInfo();
+          LinuxPlugin linuxPlugin = new LinuxPlugin(p2p);
+          
           PluginInfo infopc= getinfo.call();
           infopc.setId(UUID.randomUUID().toString());
           infopc.setHost(p2p.getConfig().getHost());
           infopc.setUptime(p2p.getPeerNode().uptime());
-          String infoStr = infopc.toString();
-            System.out.println(">>>>"+infoStr);
+
+          //definindo myInfo após a leitura dos dados
+          linuxPlugin.setMyInfo(infopc);
+          //armazenando dados do plugin no zookeeper
+          zkService.setData(infopc.getPath_zk(), infopc.toString());
+          
+          System.out.println(">>>>"+infopc.toString());
 //            File infoFile = new File("plugininfo.json");
 //            String infoStr = "";
 //            if (infoFile.exists()) {
@@ -215,14 +207,6 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 //                    System.out.println(">>>>>>>>>>>>>>>>>>>>>>" + infoStr);
 //
 //            }
-            //criando zNode persistente para cada novo peer
-            peerName = zkService.createPersistentSequentialZNode(ROOT_PEER + SEPARATOR + PREFIX_PEER, infoStr);
-            
-            //criando status efemera para verificar se o servidor esta rodando
-            zkService.createEphemeralZNode(peerName+SEPARATOR+STATUS, null);
-                
-            System.out.println("Criado e registrado peer com id " + peerName);
-
             this.p2p = p2p;
             p2p.addListener(this);
             schedExecService.scheduleAtFixedRate(this, 0, PERIOD_SECS, TimeUnit.SECONDS);
@@ -234,15 +218,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
         }
     }
 
-//	@Override
-//	public void shutdown() {
-//		p2p.remove(this);
-//		schedExecService.shutdownNow();
-//	}
-    /**
-     * TODO: qual a razão de existir este método?
-     */
-//	@Override
+    @Override
     public void getStatus() {
     }
 

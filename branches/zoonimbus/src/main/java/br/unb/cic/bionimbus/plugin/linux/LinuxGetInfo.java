@@ -2,11 +2,7 @@ package br.unb.cic.bionimbus.plugin.linux;
 
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginService;
-
 import java.io.BufferedReader;
-
-import org.codehaus.jackson.map.ObjectMapper;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,6 +12,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
 
 public class LinuxGetInfo implements Callable<PluginInfo> {
 
@@ -41,14 +38,9 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
         getDiskInfo();
         getServices();
         getUptime();
-        getIdPlugin();
         return pluginInfo;
     }
 
-    private void getIdPlugin(){
-        this.pluginInfo.setId(UUID.randomUUID().toString()); 
-                
-    }
     
     /**
      * Obtem as informações do processador do recurso e realiza o setter dessa informações na classe pluginInfo.
