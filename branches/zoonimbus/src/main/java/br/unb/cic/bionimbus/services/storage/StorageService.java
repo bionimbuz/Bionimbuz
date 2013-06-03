@@ -58,13 +58,15 @@ public class StorageService extends AbstractBioService {
     private File dataFolder = new File("data-folder"); //TODO: remover hard-coded e colocar em node.yaml e injetar em StorageService
 
     @Inject
-    public StorageService(final ZooKeeperService service) {
-
-//        metricRegistry.counter("teste");
+    public StorageService(final ZooKeeperService service, MetricRegistry metricRegistry) {
 
         Preconditions.checkNotNull(service);
         this.zkService = service;
 
+        this.metricRegistry = metricRegistry;
+        // teste
+        Counter c = metricRegistry.counter("teste");
+        c.inc();
 
         if (!dataFolder.exists()) {
            System.out.println("dataFolder " + dataFolder + " doesn't exists, creating...");
@@ -75,6 +77,7 @@ public class StorageService extends AbstractBioService {
     @Override
     public void run() {
         System.out.println("Executando loop.");
+
       //  System.out.println(" \n Hosts: " + p2p.getConfig().getHost());
 
 //                        Message msg = new CloudReqMessage(p2p.getPeerNode());

@@ -7,6 +7,7 @@ import java.util.Set;
 import br.unb.cic.bionimbus.avro.rpc.RpcServer;
 import br.unb.cic.bionimbus.p2p.P2PService;
 
+import br.unb.cic.bionimbus.services.storage.StorageService;
 import com.codahale.metrics.MetricRegistry;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -50,6 +51,9 @@ public class ServiceManager {
             httpServer.start();
             connectZK(p2p.getConfig().getZkHosts());
             for (Service service : services) {
+                if (service instanceof StorageService) {
+                    ((StorageService) service).run();
+                }
                 service.start(p2p);
             }
 

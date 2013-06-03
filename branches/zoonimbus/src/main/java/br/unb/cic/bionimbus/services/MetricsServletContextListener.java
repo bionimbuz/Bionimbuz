@@ -4,6 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.codahale.metrics.servlets.HealthCheckServlet;
 import com.codahale.metrics.servlets.MetricsServlet;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import javax.servlet.ServletContextEvent;
@@ -12,8 +13,14 @@ import javax.servlet.ServletContextListener;
 @Singleton
 public class MetricsServletContextListener implements ServletContextListener {
 
-    private static final MetricRegistry metricRegistry = new MetricRegistry();
-    private static final HealthCheckRegistry healthCheckRegistry = new HealthCheckRegistry();
+    private final MetricRegistry metricRegistry;
+    private final HealthCheckRegistry healthCheckRegistry;
+
+    @Inject
+    public MetricsServletContextListener(MetricRegistry metricRegistry, HealthCheckRegistry healthCheckRegistry) {
+         this.metricRegistry = metricRegistry;
+         this.healthCheckRegistry = healthCheckRegistry;
+    }
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
