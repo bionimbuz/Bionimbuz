@@ -65,14 +65,14 @@ public class ZooKeeperService {
         countDownLatch.await();
     }
 
-    public void createPersistentZNode(String root, String data) {
-
+    public String createPersistentZNode(String root, String data) {
+        String peer=null;
         if (zk != null) {
             try {
                 Stat s = zk.exists(root, false);
                 if (s == null) {
                     System.out.println(String.format("znode %s não existe ... criando", root));
-                    zk.create(root
+                    peer = zk.create(root
                             , (data == null) ? new byte[0] : data.getBytes()
                             , ZooDefs.Ids.OPEN_ACL_UNSAFE // sem segurança
                             , CreateMode.PERSISTENT);
@@ -85,6 +85,7 @@ public class ZooKeeperService {
                 e.printStackTrace();
             }
         }
+        return peer;
     }
 
     public String createPersistentSequentialZNode(String root, String data) {

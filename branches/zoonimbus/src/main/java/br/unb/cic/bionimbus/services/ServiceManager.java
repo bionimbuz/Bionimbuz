@@ -19,6 +19,11 @@ public class ServiceManager {
     private final ZooKeeperService zkService;
 
     private final RpcServer rpcServer;
+    
+    private static final String ROOT_PEER = "/peers";
+    private static final String SEPARATOR = "/";
+    private static final String PREFIX_PEER = "peer_";
+    private static final String STATUS = "STATUS";
     private final HttpServer httpServer;
 
     @Inject
@@ -40,6 +45,22 @@ public class ServiceManager {
             zkService.connect(hosts);
         }
     }
+    public void createZnodeZK(String id) throws IOException, InterruptedException {
+        if (zkService.getStatus() == ZooKeeperService.Status.CONNECTED) {
+
+            zkService.createPersistentZNode("/peers", null);
+
+            //criando zNode persistente para cada novo peer
+            zkService.createPersistentZNode(ROOT_PEER + SEPARATOR + PREFIX_PEER+ id, null);
+            
+
+            //criando status efemera para verificar se o servidor esta rodando
+            zkService.createEphemeralZNode(ROOT_PEER + SEPARATOR + PREFIX_PEER+ id+SEPARATOR+STATUS, null);
+
+            System.out.println("Criado e registrado peer com path " + ROOT_PEER + SEPARATOR + PREFIX_PEER+ id);
+        
+        }
+    }
 
     public void register(Service service) {
         services.add(service);
@@ -50,6 +71,8 @@ public class ServiceManager {
             rpcServer.start();
             httpServer.start();
             connectZK(p2p.getConfig().getZkHosts());
+            createZnodeZK(p2p.getConfig().getId());
+                    
             for (Service service : services) {
                 if (service instanceof StorageService) {
                     ((StorageService) service).run();

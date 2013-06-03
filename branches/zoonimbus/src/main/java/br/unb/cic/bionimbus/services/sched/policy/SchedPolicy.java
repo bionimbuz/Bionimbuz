@@ -11,6 +11,7 @@ import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.sched.policy.impl.AHPPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
+import br.unb.cic.bionimbus.services.sched.policy.impl.AcoSched;
 
 
 public abstract class SchedPolicy {
@@ -25,12 +26,12 @@ public abstract class SchedPolicy {
     }
 
     public static SchedPolicy getInstance() {
-        SchedPolicy policy = new AHPPolicy();
+        SchedPolicy policy = new AcoSched();
         return policy;
     }
 
     public static SchedPolicy getInstance(ConcurrentHashMap<String, PluginInfo> cloudMap) {
-        SchedPolicy policy = new AHPPolicy();
+        SchedPolicy policy = new AcoSched();
         policy.setCloudMap(cloudMap);
         return policy;
     }
