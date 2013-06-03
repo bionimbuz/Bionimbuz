@@ -10,6 +10,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.codahale.metrics.Counter;
+import com.codahale.metrics.Gauge;
+import com.codahale.metrics.MetricRegistry;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -40,7 +42,8 @@ import java.util.Collection;
 
 public class StorageService extends AbstractBioService {
 
-//    private static final Counter pendingJobs = Metrics.newCounter(MetricsTest.class, "counter");
+    @Inject
+    private MetricRegistry metricRegistry;
 
     private final ScheduledExecutorService executorService = Executors
             .newScheduledThreadPool(1, new BasicThreadFactory.Builder()
@@ -56,6 +59,9 @@ public class StorageService extends AbstractBioService {
 
     @Inject
     public StorageService(final ZooKeeperService service) {
+
+//        metricRegistry.counter("teste");
+
         Preconditions.checkNotNull(service);
         this.zkService = service;
 

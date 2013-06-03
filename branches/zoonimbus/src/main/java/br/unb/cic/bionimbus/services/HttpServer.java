@@ -9,12 +9,14 @@ import com.codahale.metrics.health.HealthCheckRegistry;
 import com.codahale.metrics.servlets.AdminServlet;
 import com.codahale.metrics.servlets.HealthCheckServlet;
 import com.codahale.metrics.servlets.MetricsServlet;
+import com.google.inject.Inject;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 
+import java.util.EventListener;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -27,6 +29,8 @@ public class HttpServer {
     private final int port;
     private final HttpServlet proxyServlet;
 
+    private MetricsServletContextListener contextListener;
+
     public void start() throws Exception {
         if (!running) {
 
@@ -34,6 +38,7 @@ public class HttpServer {
                 @Override
                 public void run() {
                     try {
+                        System.out.println("starting http server on port " + port);
                         server.start();
 //                        server.join();
                     } catch (InterruptedException e) {
@@ -57,11 +62,12 @@ public class HttpServer {
         running = false;
     }
 
-    public HttpServer() {
-        this(9191, null);
+    @Inject
+    public HttpServer(MetricsServletContextListener contextListener) {
+        this(9191, null, contextListener);
     }
 
-    public HttpServer(int port, HttpServlet servlet) {
+    public HttpServer(int port, HttpServlet servlet, MetricsServletContextListener contextListener) {
         this.port = port;
         this.proxyServlet = servlet;
 
@@ -71,7 +77,7 @@ public class HttpServer {
         sh.setInitParameter("com.sun.jersey.config.property.resourceConfigClass", "com.sun.jersey.api.core.PackagesResourceConfig");
         sh.setInitParameter("com.sun.jersey.config.property.packages", "br.unb.cic.bionimbus.p2p.plugin.proxy");
 
-        context.addEventListener(new MetricsServletContextListener());
+        context.addEventListener(contextListener);
 
         context.addServlet(sh, "/*");
 
@@ -94,24 +100,7 @@ public class HttpServer {
 //                pendingJobs.inc();
     }
 
-    public static class MetricsServletContextListener implements ServletContextListener {
-
-        private static final MetricRegistry metricRegistry = new MetricRegistry();
-        private static final HealthCheckRegistry healthCheckRegistry = new HealthCheckRegistry();
-
-        @Override
-        public void contextInitialized(ServletContextEvent servletContextEvent) {
-            servletContextEvent.getServletContext().setAttribute(HealthCheckServlet.HEALTH_CHECK_REGISTRY,healthCheckRegistry);
-            servletContextEvent.getServletContext().setAttribute(MetricsServlet.METRICS_REGISTRY, metricRegistry);
-        }
-
-        @Override
-        public void contextDestroyed(ServletContextEvent sce) {
-            // do nothing
-        }
-    }
-
     public static void main(String[] args) throws Exception {
-        new HttpServer(9191, null).start();
+        new HttpServer(9191, null, null).start();
     }
 }
