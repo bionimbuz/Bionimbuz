@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
@@ -39,11 +40,16 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
         getMemoryInfo();
         getDiskInfo();
         getServices();
-        pluginInfo.setUptime(getUptime());
-        
+        getUptime();
+        getIdPlugin();
         return pluginInfo;
     }
 
+    private void getIdPlugin(){
+        this.pluginInfo.setId(UUID.randomUUID().toString()); 
+                
+    }
+    
     /**
      * Obtem as informações do processador do recurso e realiza o setter dessa informações na classe pluginInfo.
      * Número de cores, frequencia do processador(GHz) e quantidade de cores ocupados.
@@ -99,9 +105,10 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
         pluginInfo.setServices(list);
     }
     
-    private long getUptime(){
-        return System.currentTimeMillis();        
+      private void getUptime(){
+        pluginInfo.setUptime(System.currentTimeMillis());
     }
+
 
     /**
      * Retorna os valores da execução do comando informado pelo parâmetro
