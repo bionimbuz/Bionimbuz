@@ -24,7 +24,7 @@ public class ListCommands implements Command {
 
     @Override
     public String usage() {
-        return NAME;
+        return NAME +"<Host>"+"<Port>" ;
     }
 
     @Override

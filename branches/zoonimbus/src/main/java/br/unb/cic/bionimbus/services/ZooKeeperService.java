@@ -168,7 +168,7 @@ public class ZooKeeperService {
         byte[] data = zk.getData(path, watcher, null);
         return new String(data);
     }
-
+    //qual a utilização da variével stat nesse metodo?
     public void setData(String path, String data) throws KeeperException, InterruptedException {
         Stat stat = zk.setData(path, data.getBytes(), -1);
     }

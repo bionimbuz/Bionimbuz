@@ -5,6 +5,7 @@ import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.client.shell.Command;
 import br.unb.cic.bionimbus.client.shell.SimpleShell;
 
+
 public class Connect implements Command {
 
     public static final String NAME = "connect";
@@ -34,11 +35,13 @@ public class Connect implements Command {
         shell.setConnected(true);
 
         return "client is connected.";
-    }
+        }
+//     shell.setConnected(true);
+
 
     @Override
     public String usage() {
-        return NAME;
+        return NAME  + " <address> <port>";
     }
 
     @Override
@@ -49,4 +52,5 @@ public class Connect implements Command {
     @Override
     public void setOriginalParamLine(String param) {
     }
+
 }

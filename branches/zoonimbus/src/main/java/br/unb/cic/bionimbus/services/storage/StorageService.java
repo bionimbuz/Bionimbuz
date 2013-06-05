@@ -71,6 +71,21 @@ public class StorageService extends AbstractBioService {
         if (!dataFolder.exists()) {
            System.out.println("dataFolder " + dataFolder + " doesn't exists, creating...");
            dataFolder.mkdirs();
+           //verifica se existe o arquivo na pasta persistent-storage e se os arquivos nele gravado estão nas pastas
+           /*File file = new File("data-folder/persistent-storage.json");
+           if (file.exists()) {
+               try {
+                   ObjectMapper mapper = new ObjectMapper();
+                   Map<String, PluginFile> map = mapper.readValue(new File("persistent-storage.json"), new TypeReference<Map<String, PluginFile>>() {
+                   });
+                   if (filesChanged(map.values()))
+                       map = mapper.readValue(new File("persistent-storage.json"), new TypeReference<Map<String, PluginFile>>() {
+                       });
+                   savedFiles = new ConcurrentHashMap<String, PluginFile>(map);
+               } catch (Exception e) {
+                   e.printStackTrace();
+               }
+           }*/
         }
     }
 
@@ -199,7 +214,7 @@ public class StorageService extends AbstractBioService {
         ObjectMapper mapper = new ObjectMapper();
         Collection<PluginFile> savedFilesOld = files;
         for (PluginFile archive : files) {
-            System.out.println("nome:" + archive.getPath());
+        //    System.out.println("nome:" + archive.getPath());
             File arq = new File(archive.getPath());
             if (arq.exists() && checkFiles(archive, savedFilesOld))
                 savedFiles.put(archive.getId(), archive);

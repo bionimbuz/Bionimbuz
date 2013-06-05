@@ -16,28 +16,28 @@ public class BioNimbusConfig {
 
     @JsonIgnore
     private String id;
-
+    
     @JsonIgnore
     private String infra;
-
+    
     @JsonIgnore
     private String address;
-
+    
     @JsonIgnore
     private String plugin;
-
+    
     @JsonIgnore
     private Set<Host> seeds = new HashSet<Host>();
-
+    
     @JsonIgnore
     private boolean client = false;
-
+    
     @JsonProperty("rpc_protocol")
     private String rpcProtocol;
-
+    
     @JsonProperty("rpc_port")
     private Integer rpcPort;
-
+    
     @JsonProperty("zookeeper_hosts")
     private String zkHosts;
     
@@ -45,7 +45,7 @@ public class BioNimbusConfig {
     
     @JsonProperty("server-path")
     private String serverPath = "";
-
+    
     private String proxyHost = "localhost";
     private int proxyPort = 8080;
 
@@ -89,7 +89,7 @@ public class BioNimbusConfig {
         this.proxyPort = proxyPort;
     }
 
-
+    
     public String getInfra() {
         return infra;
     }
@@ -100,7 +100,7 @@ public class BioNimbusConfig {
 
     public void setHost(Host host) {
         this.host = host;
-        }
+    }
     public Host getHost() {
         return host;
     }

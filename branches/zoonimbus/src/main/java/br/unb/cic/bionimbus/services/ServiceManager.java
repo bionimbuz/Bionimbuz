@@ -45,6 +45,7 @@ public class ServiceManager {
             zkService.connect(hosts);
         }
     }
+    
     public void createZnodeZK(String id) throws IOException, InterruptedException {
         if (zkService.getStatus() == ZooKeeperService.Status.CONNECTED) {
 
@@ -74,6 +75,7 @@ public class ServiceManager {
             createZnodeZK(p2p.getConfig().getId());
                     
             for (Service service : services) {
+                //perguntar pro edward pq é separado a chamada do storage
                 if (service instanceof StorageService) {
                     ((StorageService) service).run();
                 }

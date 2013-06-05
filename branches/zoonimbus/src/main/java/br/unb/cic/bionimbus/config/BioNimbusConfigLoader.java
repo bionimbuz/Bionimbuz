@@ -16,7 +16,7 @@ public final class BioNimbusConfigLoader {
 
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         BioNimbusConfig config = mapper.readValue(new File(filename), BioNimbusConfig.class);
-
+        
         if (config.getInfra() == null) {
             config.setInfra("linux");
         }

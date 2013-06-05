@@ -218,7 +218,7 @@ public class PluginInfo implements PluginOps {
     public int hashCode() {
         return id.hashCode();
     }
-
+    //Alterado para retornar os valores que serão gravados no znode peer old: id
     @Override
     public String toString() {  
         try {
