@@ -8,12 +8,13 @@ package br.unb.cic.bionimbus.avro.gen;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public interface BioProto {
-  public static final org.apache.avro.Protocol PROTOCOL = org.apache.avro.Protocol.parse("{\"protocol\":\"BioProto\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"types\":[{\"type\":\"enum\",\"name\":\"NodeState\",\"symbols\":[\"STARTING\",\"ACTIVE\",\"CLOSING\",\"IDLE\",\"ERROR\",\"DECOMMISSIONED\"]},{\"type\":\"record\",\"name\":\"JobCancel\",\"fields\":[{\"name\":\"jobID\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"files\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}}]}],\"messages\":{\"ping\":{\"doc\":\"Pings a node, e.g. to measure latency\",\"request\":[],\"response\":\"boolean\"},\"listFiles\":{\"request\":[],\"response\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},\"listServices\":{\"request\":[],\"response\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},\"startJob\":{\"request\":[{\"name\":\"jobID\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}],\"response\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},\"cancelJob\":{\"request\":[{\"name\":\"jobID\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}],\"response\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}}}");
+  public static final org.apache.avro.Protocol PROTOCOL = org.apache.avro.Protocol.parse("{\"protocol\":\"BioProto\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"types\":[{\"type\":\"enum\",\"name\":\"NodeState\",\"symbols\":[\"STARTING\",\"ACTIVE\",\"CLOSING\",\"IDLE\",\"ERROR\",\"DECOMMISSIONED\"]},{\"type\":\"record\",\"name\":\"JobCancel\",\"fields\":[{\"name\":\"jobID\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"files\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}}]}],\"messages\":{\"ping\":{\"doc\":\"Pings a node, e.g. to measure latency\",\"request\":[],\"response\":\"boolean\"},\"listFiles\":{\"request\":[],\"response\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},\"listServices\":{\"request\":[],\"response\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},\"startJob\":{\"request\":[{\"name\":\"jobID\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}],\"response\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},\"getPeers\":{\"request\":[],\"response\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},\"cancelJob\":{\"request\":[{\"name\":\"jobID\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}],\"response\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}}}");
   /** Pings a node, e.g. to measure latency */
   boolean ping() throws org.apache.avro.AvroRemoteException;
   java.util.List<java.lang.String> listFiles() throws org.apache.avro.AvroRemoteException;
   java.util.List<java.lang.String> listServices() throws org.apache.avro.AvroRemoteException;
   java.lang.String startJob(java.lang.String jobID) throws org.apache.avro.AvroRemoteException;
+  java.util.List<java.lang.String> getPeers() throws org.apache.avro.AvroRemoteException;
   java.lang.String cancelJob(java.lang.String jobID) throws org.apache.avro.AvroRemoteException;
 
   @SuppressWarnings("all")
@@ -24,6 +25,7 @@ public interface BioProto {
     void listFiles(org.apache.avro.ipc.Callback<java.util.List<java.lang.String>> callback) throws java.io.IOException;
     void listServices(org.apache.avro.ipc.Callback<java.util.List<java.lang.String>> callback) throws java.io.IOException;
     void startJob(java.lang.String jobID, org.apache.avro.ipc.Callback<java.lang.String> callback) throws java.io.IOException;
+    void getPeers(org.apache.avro.ipc.Callback<java.util.List<java.lang.String>> callback) throws java.io.IOException;
     void cancelJob(java.lang.String jobID, org.apache.avro.ipc.Callback<java.lang.String> callback) throws java.io.IOException;
   }
 }
