@@ -15,7 +15,7 @@ import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskRunner;
-import br.unb.cic.bionimbus.zookeeper.ZooKeeperService;
+import br.unb.cic.bionimbus.services.ZooKeeperService;
 
 public class LinuxPlugin extends AbstractPlugin{
 

@@ -185,7 +185,6 @@ protocol BioProto {
     //FileInfo
     //pluginInfo
   }
-
   error TaskError {
     string pluginId;
     string taskId;
@@ -217,5 +216,13 @@ protocol BioProto {
   string startJob(string jobID);
 
   string cancelJob(string jobID);
+
+  record NodeInfo {
+    string peerId;
+    string address;
+    long latency;
+  }
+
+  array<NodeInfo> getPeers();
 
 }

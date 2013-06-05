@@ -5,6 +5,7 @@ import br.unb.cic.bionimbus.p2p.P2PEvent;
 import br.unb.cic.bionimbus.p2p.P2PService;
 import br.unb.cic.bionimbus.p2p.PeerNode;
 import br.unb.cic.bionimbus.p2p.messages.InfoRespMessage;
+import static br.unb.cic.bionimbus.plugin.PluginFactory.getPlugin;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxGetInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
@@ -28,20 +29,23 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.zookeeper.KeeperException;
+import org.omg.CORBA.Current;
 
 @Singleton
 public class DiscoveryService extends AbstractBioService implements RemovalListener<Object, Object> {
 
     private static final int PERIOD_SECS = 10;
-    //	private final ConcurrentMap<String, PluginInfo> infoMap;
+//	private final ConcurrentMap<String, PluginInfo> infoMap;
 //    private final Cache<String, PluginInfo> infoCache;
     private final ScheduledExecutorService schedExecService;
     private P2PService p2p;
-    private BioNimbusConfig config;
-    private static final String ROOT_PEER = "/peers";
+//    private BioNimbusConfig config;
+//    private static final String ROOT_PEER = "/peers";
     private static final String SEPARATOR = "/";
-    private static final String STATUS = "STATUS";
-    private String peerName;
+    private static final String STATUS = "status";
+//    private static final String FILES = "files";
+//    private static final String PREFIX_FILE = "file_";
+//    private String peerName;
     private ConcurrentMap<String, PluginInfo> map = Maps.newConcurrentMap();
 
     @Inject
@@ -83,42 +87,6 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
         }
     
     }
-    public ConcurrentMap<String, PluginInfo> getPeer() {
-//        List<String> children;
-//
-//        System.out.println("peerName: "+peerName);
-//        try {
-//
-//            children = zkService.getChildren(ROOT_PEER, null);
-//
-//            map.clear();
-//            for (String child : children) {
-//                // if (!peerName.contains(child)){
-//                try {
-//                    String childStr = zkService.getData(ROOT_PEER + child, null);
-//                    System.out.println(childStr);
-//                    ObjectMapper mapper = new ObjectMapper();
-//                    PluginInfo myInfo = mapper.readValue(childStr, PluginInfo.class);
-//                    map.put(myInfo.getId(), myInfo);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        } catch (KeeperException ex) {
-//            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        return map;
-        return null;
-    }
-//
-//    private void broadcastDiscoveryMessage() {
-//        Preconditions.checkNotNull(p2p);
-//        Message msg = new InfoReqMessage(p2p.getPeerNode());
-//        p2p.broadcast(msg);
-//    }
-
     /**
      * TODO: substituir por Guava Cache com expiração
      */
@@ -132,20 +100,19 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
      }
      }
      */
-    public String getData() throws IOException {
-        return "id: " + config.getId() + "\n"
-                + "net-address: " + config.getHost().getAddress() + "\n"
-                + "net-port: " + config.getHost().getPort() + "\n"
-                + "cpu-cores: " + Runtime.getRuntime().availableProcessors() + "\n"
-                + "disk-space: " + FileService.getFreeSpace("/");
-    }
+//    public String getData() throws IOException {
+//        return "id: " + config.getId() + "\n"
+//                + "net-address: " + config.getHost().getAddress() + "\n"
+//                + "net-port: " + config.getHost().getPort() + "\n"
+//                + "cpu-cores: " + Runtime.getRuntime().availableProcessors() + "\n"
+//                + "disk-space: " + FileService.getFreeSpace("/") + "\n"
+//                + "uptime: " + System.currentTimeMillis();
+//    }
 
     //    @Override
     public void start(final P2PService p2p) {
         try {
             Preconditions.checkNotNull(p2p);
-//                config = p2p.getConfig();
-//                String data = getData();
           LinuxGetInfo getinfo=new LinuxGetInfo();
           LinuxPlugin linuxPlugin = new LinuxPlugin(p2p);
           
@@ -162,9 +129,6 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
             this.p2p = p2p;
             p2p.addListener(this);
             schedExecService.scheduleAtFixedRate(this, 0, PERIOD_SECS, TimeUnit.SECONDS);
-            
-        } catch (IOException ex) {
-            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
             Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
         }

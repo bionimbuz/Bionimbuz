@@ -23,19 +23,14 @@ import br.unb.cic.bionimbus.client.shell.commands.Upload;
 import br.unb.cic.bionimbus.utils.Pair;
 
 /**
- * A simple shell to interface with BioNimbus.
- * Lacking features:
- * No up arrow down arrow (circular buffer)
- * No pipe | or redirection >
- * No autocomplete
+ * A simple shell to interface with BioNimbus. Lacking features: No up arrow
+ * down arrow (circular buffer) No pipe | or redirection > No autocomplete
  */
 public final class SimpleShell {
 
     private static final String GREETINGS = "Welcome to BioNimbus shell\nversion 0.0.2";
     private static final String PROMPT = "[@bionimbus]$ ";
-
     private static final Map<String, Command> commandMap = new HashMap<String, Command>();
-
     public static History history = new History(10);
 
     private RpcClient rpcClient;
@@ -47,7 +42,6 @@ public final class SimpleShell {
         commandMap.put(History.NAME, history);
         commandMap.put(Echo.NAME, new Echo());
     }
-
     private boolean connected = false;
     private BioProto proxy;
 
@@ -114,8 +108,9 @@ public final class SimpleShell {
 
     public void executeCommand(String line, boolean logAtHistory) {
 
-        if (logAtHistory)
+        if (logAtHistory) {
             history.add(line.trim());
+        }
 
         Pair<String, String[]> command = parseLine(line);
 
@@ -163,7 +158,6 @@ public final class SimpleShell {
     public Collection<Command> getCommands() {
         return Collections.unmodifiableCollection(commandMap.values());
     }
-
     public BioProto getProxy() throws IOException {
         return rpcClient.getProxy();
     }

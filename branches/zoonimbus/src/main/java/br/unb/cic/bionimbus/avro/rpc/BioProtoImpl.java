@@ -2,7 +2,9 @@ package br.unb.cic.bionimbus.avro.rpc;
 
 import br.unb.cic.bionimbus.avro.gen.BioProto;
 import br.unb.cic.bionimbus.avro.gen.JobCancel;
+import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import br.unb.cic.bionimbus.services.sched.SchedService;
@@ -70,6 +72,18 @@ public class BioProtoImpl implements BioProto {
     public String cancelJob(String jobID) throws AvroRemoteException {
         //TODO: call schedService
         return "OK";
+    }
+
+    @Override
+    public List<NodeInfo> getPeers() throws AvroRemoteException {
+        List<NodeInfo> node =new ArrayList<NodeInfo>();
+        NodeInfo nodeaux =new NodeInfo();
+        for(PluginInfo info : discoveryService.getPeers()){
+           nodeaux.setAddress(info.getHost().getAddress());
+           nodeaux.setPeerId(info.getId());
+           node.add(nodeaux);
+        }
+        return node;
     }
 
 }

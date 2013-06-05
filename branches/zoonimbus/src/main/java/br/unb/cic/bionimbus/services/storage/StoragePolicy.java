@@ -30,7 +30,7 @@ public class StoragePolicy {
     private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
 
     /*
-     * Calcular o custo de armazenamento de uma nuvem
+     * Calcular o custo de armazenamento de uma nuvem //ta passando so 1 plugin
      */
     public long calcBestCost(PluginInfo pluginInfo) {
 

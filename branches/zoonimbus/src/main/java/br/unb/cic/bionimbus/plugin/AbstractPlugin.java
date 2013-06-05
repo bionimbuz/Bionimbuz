@@ -36,6 +36,7 @@ import br.unb.cic.bionimbus.p2p.messages.StoreAckMessage;
 import br.unb.cic.bionimbus.p2p.messages.StoreReqMessage;
 import br.unb.cic.bionimbus.p2p.messages.TaskErrorMessage;
 import br.unb.cic.bionimbus.utils.Pair;
+import com.google.inject.Inject;
 
 public abstract class AbstractPlugin extends P2PAbstractListener implements Plugin, Runnable {
 
@@ -64,7 +65,8 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
     private final ConcurrentMap<String, Pair<String, Integer>> inputFiles = new ConcurrentHashMap<String, Pair<String, Integer>>();
 
     private final ConcurrentMap<String, PluginFile> pluginFiles = new ConcurrentHashMap<String, PluginFile>();
-
+    
+    @Inject
     public AbstractPlugin(final P2PService p2p) {
         super(p2p);
         

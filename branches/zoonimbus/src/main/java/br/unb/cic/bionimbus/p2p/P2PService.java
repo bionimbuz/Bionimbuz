@@ -126,7 +126,10 @@ public class P2PService implements MessageListener, FileListener {
     public void addListener(P2PListener listener) {
         listeners.add(listener);
     }
-
+    //Criei esse metodo para pegar os listeners
+    public List<P2PListener> getListener(){
+        return this.listeners;
+    }
     public void remove(P2PListener listener) {
         listeners.remove(listener);
     }
