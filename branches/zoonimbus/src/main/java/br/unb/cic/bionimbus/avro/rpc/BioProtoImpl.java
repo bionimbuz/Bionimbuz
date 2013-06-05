@@ -72,27 +72,4 @@ public class BioProtoImpl implements BioProto {
         return "OK";
     }
 
-    @Override
-    public List<String> getPeers() throws AvroRemoteException {
-        List<String> peers = null;
-        List<String> peersOnline = new ArrayList<String>();
-        final String ROOT_PEERS = "/peers";
-        final String SEPARATOR = "/";
-        final String STATUS = "/STATUS";
-
-        try {
-            peers = zkService.getChildren(ROOT_PEERS, null);
-            for(String peer : peers){
-                if(zkService.getZNodeExist(ROOT_PEERS+SEPARATOR+peer+STATUS, false)){
-                    peersOnline.add(peer);
-                }
-            }
-        } catch (KeeperException ex) {
-            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-       return peersOnline;
-    }
-
 }

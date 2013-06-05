@@ -216,8 +216,6 @@ protocol BioProto {
 
   string startJob(string jobID);
 
-  array<string> getPeers();
-
   string cancelJob(string jobID);
 
 }
