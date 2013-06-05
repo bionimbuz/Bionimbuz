@@ -168,12 +168,16 @@ public class ZooKeeperService {
         byte[] data = zk.getData(path, watcher, null);
         return new String(data);
     }
-    //qual a utilização da variével stat nesse metodo?
+    
     public void setData(String path, String data) throws KeeperException, InterruptedException {
         Stat stat = zk.setData(path, data.getBytes(), -1);
     }
 
     public void delete(String path) throws KeeperException, InterruptedException {
+        List<String> children = zk.getChildren(path, null);
+        for(String child : children){
+            delete(path+"/"+child);
+        }
         zk.delete(path, -1);
     }
 
