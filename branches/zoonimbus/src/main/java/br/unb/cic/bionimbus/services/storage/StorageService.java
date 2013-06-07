@@ -34,6 +34,7 @@ import br.unb.cic.bionimbus.p2p.messages.StoreReqMessage;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
+import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 
@@ -71,6 +72,10 @@ public class StorageService extends AbstractBioService {
         if (!dataFolder.exists()) {
            System.out.println("dataFolder " + dataFolder + " doesn't exists, creating...");
            dataFolder.mkdirs();
+           //Recuperar a lista de plugins setados com a latência
+            cloudMap=this.getPeers();
+           
+           
            //verifica se existe o arquivo na pasta persistent-storage e se os arquivos nele gravado estão nas pastas
            /*File file = new File("data-folder/persistent-storage.json");
            if (file.exists()) {

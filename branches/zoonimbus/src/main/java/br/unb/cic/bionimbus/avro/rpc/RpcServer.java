@@ -1,5 +1,8 @@
 package br.unb.cic.bionimbus.avro.rpc;
 
+import br.unb.cic.bionimbus.avro.gen.BioProto;
+import java.io.IOException;
+
 /**
  * Created with IntelliJ IDEA.
  * User: edward
@@ -9,4 +12,5 @@ package br.unb.cic.bionimbus.avro.rpc;
  */
 public interface RpcServer {
     void start() throws Exception;
+
 }

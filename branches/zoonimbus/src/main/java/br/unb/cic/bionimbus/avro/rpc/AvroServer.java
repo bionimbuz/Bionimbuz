@@ -1,8 +1,10 @@
 package br.unb.cic.bionimbus.avro.rpc;
 
+
 import br.unb.cic.bionimbus.avro.gen.BioProto;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
+import java.io.IOException;
 import org.apache.avro.ipc.NettyServer;
 import org.apache.avro.ipc.ResponderServlet;
 import org.apache.avro.ipc.specific.SpecificResponder;
@@ -92,4 +94,5 @@ public class AvroServer implements RpcServer {
         String config = "http";
         new AvroServer(config, 9999).start();
     }
+
 }

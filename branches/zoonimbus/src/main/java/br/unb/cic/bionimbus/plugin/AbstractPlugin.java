@@ -71,8 +71,8 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
         super(p2p);
         
         //id provisório
-        id = p2p.getConfig().getId();
-        
+        //id = p2p.getConfig().getId();
+        id = UUID.randomUUID().toString();
 //        File infoFile = new File("plugininfo.json");
 //        if (infoFile.exists()) {
 //            try {
