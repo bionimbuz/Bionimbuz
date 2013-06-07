@@ -94,23 +94,13 @@ public class BioProtoImpl implements BioProto {
     //Set the nodes from the clients with latency
     @Override
     public Void setNodes(List<NodeInfo> list) throws AvroRemoteException {
-        this.node=list;
-       
-        @Nullable
-        public Collection<PluginInfo> apply(@Nullable this.node) {
+        this.node=list;       
             PluginInfo plugin;
-            try {
-                  for(NodeInfo nodeSeted : this.node){
+               for(NodeInfo nodeSeted : this.node){
                     //setar o valor na map com o retorno do node
                      plugin=discoveryService.getPeers().get(nodeSeted.getAddress());
                      plugin.setLatency(nodeSeted.getLatency());
-                  }                      
-                  return discoveryService.getPeers().values();
-            } catch (IOException e) {
-                         e.printStackTrace();
-                         return null;
-            }
-        }
+                }                       
       return null;
     }
 
