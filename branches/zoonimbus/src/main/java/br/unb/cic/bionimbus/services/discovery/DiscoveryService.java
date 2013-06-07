@@ -21,6 +21,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
@@ -69,10 +70,12 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 
 //    @Override
     public void run() {    
-        List<PluginInfo> listPlugin = getPeers();
+    //    List<PluginInfo> listPlugin = getPeers();
+        Map<String, PluginInfo> listPlugin = getPeers();
         System.out.println("running DiscoveryService...");
         map.clear();
-        for (PluginInfo myInfo : listPlugin) {
+//         for (PluginInfo myInfo : listPlugin){
+        for (PluginInfo myInfo : listPlugin.values()) {
             try {
                 if(zkService.getZNodeExist(myInfo.getPath_zk()+SEPARATOR+STATUS, false)){
                         map.put(myInfo.getId(), myInfo);

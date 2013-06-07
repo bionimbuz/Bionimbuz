@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URL;
 
+
 public class AvroClient implements RpcClient {
 
     private final int port;
@@ -26,7 +27,7 @@ public class AvroClient implements RpcClient {
         this.transport = transport;
     }
 
-    private BioProto getNettyTransport() throws IOException {
+    public BioProto getNettyTransport() throws IOException {
         LOGGER.debug("Netty client built");
         nettyClient = new NettyTransceiver(new InetSocketAddress(address, port));
         // client code - attach to the server and send a message
@@ -34,7 +35,7 @@ public class AvroClient implements RpcClient {
         return proxy;
     }
 
-    private BioProto getHttpTransport() throws IOException {
+    public BioProto getHttpTransport() throws IOException {
         LOGGER.debug("HTTP client built");
         HttpTransceiver transceiver = new HttpTransceiver(new URL("http://" + address + ":" + port));
         BioProto proxy = (BioProto) SpecificRequestor.getClient(BioProto.class, transceiver);
@@ -60,6 +61,7 @@ public class AvroClient implements RpcClient {
         }
     }
 
+    
     public static void main(String[] args) throws IOException {
 
         BioProto proxy = new AvroClient("http", "localhost", 9999).getProxy();
@@ -70,4 +72,7 @@ public class AvroClient implements RpcClient {
         System.out.println("latencia: (end - init) = " + (end - init) + "ms");
         System.out.println("end");
     }
+
+  
+    
 }

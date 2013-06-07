@@ -34,18 +34,14 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 public class Upload implements Command {
 
-    private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
+//    private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
     public static final String NAME = "upload";
     private final SimpleShell shell;
-    private long latency;
-    private static final String ROOT_PEER = "/peers";
-    private static final String SEPARATOR = "/";
-    private static final String PREFIX_PEER = "peer_";
-    private long cost = 0;
-    private PluginInfo bestplugin;
+//    private long cost = 0;
+//    private PluginInfo bestplugin;
     private List<NodeInfo> pluginList;
-    private ConcurrentMap<String, PluginInfo> map = Maps.newConcurrentMap();
-    private Double MAXCAPACITY = 0.8;
+//    private ConcurrentMap<String, PluginInfo> map = Maps.newConcurrentMap();
+//    private Double MAXCAPACITY = 0.8;
 
     public Upload(SimpleShell shell) {
         this.shell = shell;
@@ -56,20 +52,26 @@ public class Upload implements Command {
         /*
          * Verifica se o arquivo existe
          */
-        shell.getRpcClient().getProxy().getPeers();
-         File file = new File(params[0]);// não seria params[1]? o path do arquivo?
+         File file = new File(params[0]);
          if (file.exists()) {
+            System.out.println("Uploading file ...");
+          //  shell.getRpcClient().getProxy().getPeers();
             FileInfo info = new FileInfo();
             info.setName(params[0]);
             info.setSize(file.length());
-            // verificar diferença com rpccliente shell.getProxy().getPeers();
-            pluginList=shell.getRpcClient().getProxy().getPeers();
-            for(NodeInfo plugin :pluginList){
+            // verificar diferença sem rpccliente shell.getProxy().getPeers();
+            for(NodeInfo plugin : shell.getRpcClient().getProxy().getPeers()){
                 plugin.setLatency(Ping.calculo(plugin.getAddress()));
             }
             
+            //Seta o os nodes na bioproto
+            shell.getRpcClient().getProxy().setNodes(pluginList);
+            
+            //Enviar os nodes para o Bionimbus
+           // shell.getRpcClient().getProxy().sendPlugins(pluginList);
+            return "File" + file.getPath() + "uploaded with success. ";
          }
-        return null;
+         return "File " + file.getPath() + " don't exists.";
         /*        if (!shell.isConnected())
          throw new IllegalStateException("This command should be used with an active connection!");
 

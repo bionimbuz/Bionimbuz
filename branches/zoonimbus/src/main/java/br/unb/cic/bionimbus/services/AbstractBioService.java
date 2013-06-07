@@ -11,6 +11,8 @@ import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.zookeeper.KeeperException;
@@ -24,20 +26,20 @@ public abstract class AbstractBioService implements Service, P2PListener, Runnab
     protected ZooKeeperService zkService;
     private static final String ROOT_PEER = "/peers";
     private static final String SEPARATOR = "/";
-    
-    public List<PluginInfo> getPeers(){
+    private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
+    //public List<PluginInfo> getPeers(){
+    public Map<String, PluginInfo> getPeers(){
         List<String> children;
         List<PluginInfo> listPlugin= new ArrayList<PluginInfo>();
 
         try {
-
             children = zkService.getChildren(ROOT_PEER, null);
-
             for (String child : children) {
                 String childStr = zkService.getData(ROOT_PEER +SEPARATOR+ child, null);
                 ObjectMapper mapper = new ObjectMapper();
                 PluginInfo myInfo = mapper.readValue(childStr, PluginInfo.class);
-                listPlugin.add(myInfo);
+//                cloudMap.put(myInfo.getId(), myInfo);
+                //listPlugin.add(myInfo);
                     
             }
         } catch (KeeperException ex) {
@@ -49,7 +51,8 @@ public abstract class AbstractBioService implements Service, P2PListener, Runnab
         }
         
         
-        return listPlugin;
+//        return listPlugin;
+        return cloudMap;
     }
     
 
