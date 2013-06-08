@@ -8,6 +8,7 @@ package br.unb.cic.bionimbus.services;
 import br.unb.cic.bionimbus.p2p.P2PListener;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
+import com.google.inject.Singleton;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 /**
  * @author biocloud1
  */
+@Singleton
 public abstract class AbstractBioService implements Service, P2PListener, Runnable {
 
     protected ZooKeeperService zkService;
