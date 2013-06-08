@@ -16,12 +16,13 @@ import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskRunner;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
+import java.io.IOException;
 
 public class LinuxPlugin extends AbstractPlugin{
 
     private final ExecutorService executorService = Executors.newCachedThreadPool(new BasicThreadFactory.Builder().namingPattern("LinuxPlugin-workers-%d").build());
 
-    public LinuxPlugin(final P2PService p2p) {
+    public LinuxPlugin(final P2PService p2p) throws IOException {
         super(p2p);
     }
 

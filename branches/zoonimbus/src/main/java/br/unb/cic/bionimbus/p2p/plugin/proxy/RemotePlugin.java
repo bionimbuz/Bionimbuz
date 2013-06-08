@@ -9,6 +9,7 @@ import br.unb.cic.bionimbus.plugin.*;
 
 import br.unb.cic.bionimbus.p2p.Host;
 import br.unb.cic.bionimbus.p2p.P2PService;
+import java.io.IOException;
 
 //import static br.unb.cic.bionimbus.p2p.plugin.proxy.Command.GET_INFO;
 
@@ -21,7 +22,7 @@ public class RemotePlugin extends AbstractPlugin {
     private final String proxyHost;
     private final int proxyPort;
 
-    public RemotePlugin(final P2PService p2p, ExecutorService executor) {
+    public RemotePlugin(final P2PService p2p, ExecutorService executor) throws IOException {
 
         super(p2p);
 

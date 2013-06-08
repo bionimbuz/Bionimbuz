@@ -35,8 +35,10 @@ import br.unb.cic.bionimbus.p2p.messages.StatusRespMessage;
 import br.unb.cic.bionimbus.p2p.messages.StoreAckMessage;
 import br.unb.cic.bionimbus.p2p.messages.StoreReqMessage;
 import br.unb.cic.bionimbus.p2p.messages.TaskErrorMessage;
+import br.unb.cic.bionimbus.utils.GetIpMac;
 import br.unb.cic.bionimbus.utils.Pair;
 import com.google.inject.Inject;
+import java.io.IOException;
 
 public abstract class AbstractPlugin extends P2PAbstractListener implements Plugin, Runnable {
 
@@ -67,12 +69,12 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
     private final ConcurrentMap<String, PluginFile> pluginFiles = new ConcurrentHashMap<String, PluginFile>();
     
     @Inject
-    public AbstractPlugin(final P2PService p2p) {
+    public AbstractPlugin(final P2PService p2p) throws IOException {
         super(p2p);
         
         //id provisório
         //id = p2p.getConfig().getId();
-        id = UUID.randomUUID().toString();
+        id = GetIpMac.getMac();
 //        File infoFile = new File("plugininfo.json");
 //        if (infoFile.exists()) {
 //            try {

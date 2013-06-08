@@ -37,10 +37,11 @@ import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import java.io.IOException;
 import java.util.Collection;
-
+@Singleton
 public class StorageService extends AbstractBioService {
 
     @Inject
@@ -50,7 +51,7 @@ public class StorageService extends AbstractBioService {
             .newScheduledThreadPool(1, new BasicThreadFactory.Builder()
                     .namingPattern("StorageService-%d").build());
 
-    private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
+    private Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
 
     private Map<String, PluginFile> savedFiles = new ConcurrentHashMap<String, PluginFile>();
 
@@ -59,7 +60,7 @@ public class StorageService extends AbstractBioService {
     private File dataFolder = new File("data-folder"); //TODO: remover hard-coded e colocar em node.yaml e injetar em StorageService
 
     @Inject
-    public StorageService(final ZooKeeperService service, MetricRegistry metricRegistry) {
+    public StorageService(final ZooKeeperService service, MetricRegistry metricRegistry,DiscoveryService disc) {
 
         Preconditions.checkNotNull(service);
         this.zkService = service;
@@ -74,7 +75,7 @@ public class StorageService extends AbstractBioService {
            dataFolder.mkdirs();
            //Recuperar a lista de plugins setados com a latência
             cloudMap=this.getPeers();
-           
+           cloudMap.isEmpty();
            
            //verifica se existe o arquivo na pasta persistent-storage e se os arquivos nele gravado estão nas pastas
            /*File file = new File("data-folder/persistent-storage.json");

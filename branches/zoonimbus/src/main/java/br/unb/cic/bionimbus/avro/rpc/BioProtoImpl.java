@@ -99,7 +99,8 @@ public class BioProtoImpl implements BioProto {
                for(NodeInfo nodeSeted : this.node){
                     //setar o valor na map com o retorno do node
                      plugin=discoveryService.getPeers().get(nodeSeted.getAddress());
-                     plugin.setLatency(nodeSeted.getLatency());
+                     if(nodeSeted.getLatency()!=null)
+                        plugin.setLatency(nodeSeted.getLatency());
                 }                       
       return null;
     }

@@ -6,11 +6,16 @@ import java.util.Set;
 
 import br.unb.cic.bionimbus.avro.rpc.RpcServer;
 import br.unb.cic.bionimbus.p2p.P2PService;
+import br.unb.cic.bionimbus.plugin.PluginInfo;
+import br.unb.cic.bionimbus.plugin.linux.LinuxGetInfo;
+import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
 
 import br.unb.cic.bionimbus.services.storage.StorageService;
+import br.unb.cic.bionimbus.utils.GetIpMac;
 import com.codahale.metrics.MetricRegistry;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import java.util.UUID;
 
 @Singleton
 public class ServiceManager {
@@ -72,8 +77,20 @@ public class ServiceManager {
             rpcServer.start();
             httpServer.start();
             connectZK(p2p.getConfig().getZkHosts());
-            createZnodeZK(p2p.getConfig().getId());
-                    
+            //Breno modifiquei aqui para criar o peer com o valor randomico comum para todos.
+            LinuxGetInfo getinfo=new LinuxGetInfo();
+            LinuxPlugin linuxPlugin = new LinuxPlugin(p2p);
+          
+            PluginInfo infopc= getinfo.call();
+            infopc.setId(GetIpMac.getMac());
+            infopc.setHost(p2p.getConfig().getHost());
+            infopc.setUptime(p2p.getPeerNode().uptime());
+            infopc.setPath_zk(ROOT_PEER+SEPARATOR+PREFIX_PEER+infopc.getId());
+            createZnodeZK(infopc.getId());
+            //definindo myInfo após a leitura dos dados
+            linuxPlugin.setMyInfo(infopc);
+            //armazenando dados do plugin no zookeeper
+            zkService.setData(infopc.getPath_zk(), infopc.toString());          
             for (Service service : services) {
                 //perguntar pro edward pq é separado a chamada do storage
                 if (service instanceof StorageService) {
