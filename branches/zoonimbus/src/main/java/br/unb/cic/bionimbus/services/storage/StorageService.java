@@ -41,6 +41,7 @@ import com.google.inject.Singleton;
 
 import java.io.IOException;
 import java.util.Collection;
+
 @Singleton
 public class StorageService extends AbstractBioService {
 
