@@ -9,10 +9,11 @@ import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginGetFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
+import java.io.IOException;
 
 public class ProxyPlugin extends AbstractPlugin {
 
-    public ProxyPlugin(P2PService p2p) {
+    public ProxyPlugin(P2PService p2p) throws IOException {
         super(p2p);
 
     }

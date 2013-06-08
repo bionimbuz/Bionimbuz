@@ -18,6 +18,7 @@ import br.unb.cic.bionimbus.plugin.PluginTaskRunner;
 import br.unb.cic.bionimbus.plugin.linux.LinuxGetFile;
 import br.unb.cic.bionimbus.plugin.linux.LinuxGetInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxSaveFile;
+import java.io.IOException;
 
 public class SGEPlugin extends AbstractPlugin {
 
@@ -25,7 +26,7 @@ public class SGEPlugin extends AbstractPlugin {
             .newCachedThreadPool(new BasicThreadFactory.Builder()
                     .namingPattern("SGEPlugin-workers-%d").build());
 
-    public SGEPlugin(P2PService p2p) {
+    public SGEPlugin(P2PService p2p) throws IOException {
         super(p2p);
     }
 

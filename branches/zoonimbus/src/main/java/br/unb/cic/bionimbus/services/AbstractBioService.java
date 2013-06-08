@@ -30,7 +30,7 @@ public abstract class AbstractBioService implements Service, P2PListener, Runnab
     //public List<PluginInfo> getPeers(){
     public Map<String, PluginInfo> getPeers(){
         List<String> children;
-        List<PluginInfo> listPlugin= new ArrayList<PluginInfo>();
+//        List<PluginInfo> listPlugin= new ArrayList<PluginInfo>();
 
         try {
             children = zkService.getChildren(ROOT_PEER, null);
@@ -38,7 +38,7 @@ public abstract class AbstractBioService implements Service, P2PListener, Runnab
                 String childStr = zkService.getData(ROOT_PEER +SEPARATOR+ child, null);
                 ObjectMapper mapper = new ObjectMapper();
                 PluginInfo myInfo = mapper.readValue(childStr, PluginInfo.class);
-//                cloudMap.put(myInfo.getId(), myInfo);
+                cloudMap.put(myInfo.getId(), myInfo);
                 //listPlugin.add(myInfo);
                     
             }

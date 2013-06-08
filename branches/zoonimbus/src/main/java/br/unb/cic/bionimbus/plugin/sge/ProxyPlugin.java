@@ -24,7 +24,7 @@ public class ProxyPlugin extends AbstractPlugin {
 
     private volatile boolean ready;
 
-    public ProxyPlugin(P2PService p2p) {
+    public ProxyPlugin(P2PService p2p) throws IOException {
         super(p2p);
     }
 
