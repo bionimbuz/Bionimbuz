@@ -85,9 +85,13 @@ public class BioProtoImpl implements BioProto {
         NodeInfo nodeaux =new NodeInfo();
         //for(PluginInfo info : discoveryService.getPeers())
         for(PluginInfo info : discoveryService.getPeers().values()){
-           nodeaux.setAddress(info.getHost().getAddress());
-           nodeaux.setPeerId(info.getId());
-           node.add(nodeaux);
+           //esta setando nulo
+           if(info!=null){
+                nodeaux.setAddress(info.getHost().getAddress());
+
+                nodeaux.setPeerId(info.getId());
+                node.add(nodeaux);
+           }
         }
         return node;
     }

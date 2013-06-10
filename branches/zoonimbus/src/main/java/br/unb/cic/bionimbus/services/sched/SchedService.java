@@ -119,9 +119,9 @@ public class SchedService extends AbstractBioService implements Service, P2PList
             schedPolicy = SchedPolicy.getInstance();
         }
         //Verificar o pq não funciona TO DO pode ser excluido?
-        schedPolicy.setCloudMap(cloudMap);
+        schedPolicy.setCloudMap((ConcurrentHashMap<String, PluginInfo>)getPeers());
         //atualiza os peers da cloud
-        schedPolicy.setCloudList(getPeers());
+        //schedPolicy.setCloudList();
         return schedPolicy;
     }
 

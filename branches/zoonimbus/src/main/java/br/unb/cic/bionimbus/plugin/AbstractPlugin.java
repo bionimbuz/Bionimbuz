@@ -73,8 +73,9 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
         super(p2p);
         
         //id provisório
-        //id = p2p.getConfig().getId();
-        id = GetIpMac.getMac();
+        id = p2p.getConfig().getId();
+       //id=GetIpMac.getMac();
+//        id = UUID.randomUUID().toString();
 //        File infoFile = new File("plugininfo.json");
 //        if (infoFile.exists()) {
 //            try {
@@ -120,7 +121,8 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
     //private void setMyInfo(PluginInfo info) {
     public void setMyInfo(PluginInfo info) {
         myInfo = info;
-        myInfo.setId(getId());
+
+        //        myInfo.setId(getId());
 
 //        try {
 //            ObjectMapper mapper = new ObjectMapper();
@@ -137,7 +139,7 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
     private void setErrorString(String errorString) {
         this.errorString = errorString;
     }
-
+    //não esta setando a p2p é isso mesmo?
     @Override
     public void setP2P(P2PService p2p) {
         // TODO Auto-generated method stub
