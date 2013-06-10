@@ -11,12 +11,17 @@ import br.unb.cic.bionimbus.plugin.PluginTaskState;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
+import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.hadoop.mapred.Mapper;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * @author gabriel
@@ -25,11 +30,12 @@ public class AcoSched extends SchedPolicy {
 
 
     private HashMap<String, ArrayList<Double>> mapAcoDatas;
+    private List<PluginInfo> listPlugin;
     private Double smallerProbability = Double.MAX_VALUE;
     private Map<PluginTask, Integer> blackList = new HashMap<PluginTask, Integer>();
     private static final int BLACKLIST_LIMIT = 12;
-    private static final String DIR_MAPACODATAS = "ACO_DATAS";
-    private static final String DIR_SIZEALLJOBS ="SIZE_JOBS";
+    private static final String DIR_SIZEALLJOBS ="/size_jobs";
+    private static final String SCHED ="/sched";
     private ZooKeeperService zk;
    
     @Override
@@ -39,6 +45,8 @@ public class AcoSched extends SchedPolicy {
         
         // escalonador irá receber um zookeeperService como parametro
         this.zk = zk;
+        
+        
         
         jobCloud.put(biggerJob, scheduleJob(biggerJob));
 
@@ -56,10 +64,10 @@ public class AcoSched extends SchedPolicy {
     private PluginInfo scheduleJob(JobInfo jobInfo) {
 
 //        List<PluginInfo> listServices = rankingServices(getBestClouds(jobInfo));
-        List<PluginInfo> listServices = getExactClouds(jobInfo);
+        listPlugin = getExactClouds(jobInfo);
         
         //realiza a chamada do método para a leitura dos dados no servidor zookeeper
-        mapAcoDatas = getMapAcoDatasZooKeeper(listServices);
+        mapAcoDatas = getMapAcoDatasZooKeeper(listPlugin);
         
         //verifica se existe mais de um plugin para rodar a tarefa, se não houver retorna o plugin existente        ***descomentar ao estar em rede com outros plugins
 //        if(listServices.size()==1){                       
@@ -67,7 +75,7 @@ public class AcoSched extends SchedPolicy {
 //        }
         
         //inicia o ACO para encontrar melhor PC dentro das nuvens escolhidas para o job
-        AlgorithmAco(listServices);
+        AlgorithmAco(listPlugin);
        
         
 //--->  //encontra o melhor PC e retorna o valor
@@ -75,18 +83,18 @@ public class AcoSched extends SchedPolicy {
         PluginInfo plugin = new PluginInfo();
         plugin.setRanking(Double.MIN_VALUE);
 
-        for (PluginInfo plg : listServices) {
+        for (PluginInfo plg : listPlugin) {
             if (plg.getRanking() > plugin.getRanking()) {
                 plugin = plg;
             }
         }
         
         //chamada para metodo que atualiza o valor do feromonio de cada plugin de acordo com o melhor escolhido
-        theBestPheromone(listServices, plugin.getRanking());
+        theBestPheromone(listPlugin, plugin.getRanking());
         //armazena as informações utilizadas e atualizadas para o escalonamento no servidor zookeeper
-        setMapAcoDatasZooKeeper(listServices);
+        setMapAcoDatasZooKeeper(listPlugin);
         //funcao para armazenar o tamanho do job que sera executado no plugin
-        upDateSizeOfJobsSchedCloud(plugin,jobInfo);
+//        upDateSizeOfJobsSchedCloud(plugin,jobInfo);
         
         return plugin;
     }
@@ -100,7 +108,7 @@ public class AcoSched extends SchedPolicy {
 
     public List getExactClouds(JobInfo jobInfo) {
         //seleciona as nuvens disponíveis para o tipo informado
-        List cloudList = filterTypeCloud(getCloudMap().values(), 2); //adiciona filtro se opção for apenas para nuvens públicas, opcao 2 para ambas
+        List cloudList = filterTypeCloud(getCloudList(), 2); //adiciona filtro se opção for apenas para nuvens públicas, opcao 2 para ambas
 
         //configurar o tipo de serviço requerido
         filterByService(jobInfo.getServiceId(), cloudList);
@@ -159,6 +167,17 @@ public class AcoSched extends SchedPolicy {
         if (blackList.containsKey(task)) {
             blackList.remove(task);
         }
+        ArrayList<Double> mapTemp = (ArrayList)getMapAcoDatasZooKeeper(listPlugin).values();
+        //define o tempo de execução do ultimo job
+        mapTemp.set(7,task.getTimeExec().doubleValue());
+        //define o tamanho do ultimo job executado
+        mapTemp.set(8,getTotalSizeOfJobsFiles(task.getJobInfo()).doubleValue());
+        //soma o tamanho total do job executado com o tamanho dos demais jobs executados no plugin
+        mapTemp.set(9, mapTemp.get(8)+mapTemp.get(9));
+        //grava novamente os dados no zookeeper
+        setDatasZookeeper("peer_"+task.getPluginExec(), SCHED, mapTemp.toString());
+        System.out.println("Job " + task.getJobInfo().getId() + ": "+task.getTimeExec() + " segundos");
+
     }
 
 
@@ -196,7 +215,7 @@ public class AcoSched extends SchedPolicy {
     public void upDateSizeOfJobsSchedCloud(PluginInfo plugin, JobInfo job){
         Double size = new Double(getDatasZookeeper(plugin, DIR_SIZEALLJOBS))+getTotalSizeOfJobsFiles(job).doubleValue();
         
-        setDatasZookeeper(plugin, DIR_SIZEALLJOBS, size.toString());
+        setDatasZookeeper(plugin.getPath_zk(), DIR_SIZEALLJOBS, size.toString());
         
     }
     
@@ -212,6 +231,9 @@ public class AcoSched extends SchedPolicy {
 
 
         for (PluginInfo pluginInfo : plugins) {
+            //remover para um lugar adequado
+            zk.createPersistentZNode(pluginInfo.getPath_zk()+SCHED, null);
+            zk.createPersistentZNode(pluginInfo.getPath_zk()+SCHED+DIR_SIZEALLJOBS, null);
             //COndição para verificar se nuvem é do tipo solicitada, privada, pública ou hibrida
 //            if(pluginInfo.getTypeCloud()==type){
             clouds.add(pluginInfo);
@@ -253,7 +275,7 @@ public class AcoSched extends SchedPolicy {
         List listNumberPlugin = new ArrayList<Integer>();
 
         //cria um número de formigas 30% menor do que o número de recursos
-        int  i = 0, nAnts = (plugins.size() - (new Double(plugins.size() * 0.3).intValue()));
+        int  i = 0, nAnts = (plugins.size() - Math.round(new Float(plugins.size() * 0.3)));
         while (nAnts > i) {
             Random selectPlugin = new Random();
             //gera um número aleatório para selecionar a nuvem
@@ -287,14 +309,14 @@ public class AcoSched extends SchedPolicy {
     private void pheromone(PluginInfo plugin){
         Double p = 0.8, pheronome=0d;
 
-        if (mapAcoDatas.containsKey(plugin.getId())) {
+        if (!mapAcoDatas.get(plugin.getId()).isEmpty()) {
             pheronome = mapAcoDatas.get(plugin.getId()).get(0);
 
             //colocar variação para quando achar a melhor solução
             pheronome = (1 - p) * pheronome + (1 / smallerProbability);
             mapAcoDatas.get(plugin.getId()).set(0, pheronome);
         }else{
-            ArrayList datas = new ArrayList<Double>(6);
+            ArrayList<Double> datas = mapAcoDatas.get(plugin.getId());
             pheronome = capacityPlugin(plugin);
             /*
             * mapeamento dos dados de cada plugin para os valores usados no ACO
@@ -303,20 +325,21 @@ public class AcoSched extends SchedPolicy {
             * array posição 2 o valor da heuristica
             * array posição 3,4,5,6 valores dos reguladores do coeficeinte de controle do feronomio(alfa), da capacidade computacional(beta) e do carregamento balanceado(gama)
             * obs:  teste dos coeficientes em alfa = 2, beta = 3, gama = 3, delta = 2 
-            * array posição 6 para o tempo medio de execução no plugin
-            * array posição 7 para o tamanho da última tarefa executada no plugin
-            * 
+            * array posição 7 para o tempo de execução da ultima iteração
+            * array posição 8 para o tamanho da última tarefa executada no plugin
+            * array posição 9 para o tamanho total das tarefas executadas no plugin
             * 
             */
             datas.add(0, pheronome);
-            datas.add(1, 0);
-            datas.add(2, 0);
-            datas.add(3, 2);
-            datas.add(4, 3);
-            datas.add(5, 3);
-            datas.add(6, 2);
-            datas.add(7, 0);
-            datas.add(8, 0);
+            datas.add(1, 0d);
+            datas.add(2, 0d);
+            datas.add(3, 2d);
+            datas.add(4, 3d);
+            datas.add(5, 3d);
+            datas.add(6, 2d);
+            datas.add(7, 0d);
+            datas.add(8, 0d);
+            datas.add(9, 0d);
             mapAcoDatas.put(plugin.getId(), datas);
         }   
     }
@@ -331,10 +354,13 @@ public class AcoSched extends SchedPolicy {
         for(PluginInfo plugin : listPlugin){
 //            getDatasZookeeper(plugin, DIR_MAPACODATAS);
             Double pheronome = mapAcoDatas.get(plugin.getId()).get(0);
-            pheronome = (1-p)*pheronome+(mapAcoDatas.get(plugin.getId()).get(0) /probability);
-            
-            mapAcoDatas.get(plugin.getId()).set(0,pheronome);
-            setDatasZookeeper(plugin, DIR_MAPACODATAS, mapAcoDatas.get(plugin.getId()).toString());
+            //Altera somente os valores dos feromonios já calculados
+            if(pheronome != null && pheronome!=0d){
+                pheronome = (1-p)*pheronome+(mapAcoDatas.get(plugin.getId()).get(0) /probability);
+
+                mapAcoDatas.get(plugin.getId()).set(0,pheronome);
+                setDatasZookeeper(plugin.getPath_zk(), SCHED, mapAcoDatas.get(plugin.getId()).toString());
+            }
         }
         
     }
@@ -372,13 +398,13 @@ public class AcoSched extends SchedPolicy {
      * @return
      */
     private Double multiplicationDatasPlugin(PluginInfo  plugin){
-        ArrayList datas = mapAcoDatas.get(plugin.getId());
+        ArrayList<Double> datas = mapAcoDatas.get(plugin.getId());
 
         //feronomio elevado a potencia alfa(valor da variavel de controle)
-        Double pheromone = getRound(Math.pow(((Double)datas.get(0)), ((Integer)datas.get(3)).doubleValue()));
-        Double capacityComputing = getRound((Double)Math.pow( capacityPlugin(plugin),((Integer)datas.get(4)).doubleValue() ) );
-        Double loadBalacing = getRound((Double)Math.pow( loadBalancingPlugin(plugin),((Integer)datas.get(5)).doubleValue()));
-        Double capacityMemory = getRound((Double)Math.pow( getRound(plugin.getMemoryFree()),((Integer)datas.get(6)).doubleValue()));
+        Double pheromone = getRound(Math.pow(datas.get(0), datas.get(3)));
+        Double capacityComputing = getRound(Math.pow( capacityPlugin(plugin),datas.get(4)) );
+        Double loadBalacing = getRound(Math.pow( loadBalancingPlugin(plugin),datas.get(5)));
+        Double capacityMemory = getRound(Math.pow( getRound(plugin.getMemoryFree()),datas.get(6)));
         //((Double)Math.pow(((Float)datas.get(2)).doubleValue(), ((Float)datas.get(5)).doubleValue() )).floatValue()
 
 //        return (new Float(formatDecimal.format(pheromone)).floatValue()* new Float(formatDecimal.format(capacityComputing)).floatValue()* new Float(formatDecimal.format(loadBalacing)).floatValue());
@@ -406,8 +432,14 @@ public class AcoSched extends SchedPolicy {
      * @return
      */
     private Double loadBalancingPlugin(PluginInfo plugin){
-
-        return  1 - (timeExpectedExecJob(plugin)-mapAcoDatas.get(plugin.getId()).get(7) / timeExpectedExecJob(plugin)+mapAcoDatas.get(plugin.getId()).get(7));
+        Double temp = timeExpectedExecJob(plugin)+timeLastAverageJob();
+        Double um = 1d;
+        if(temp != 0d && !temp.isNaN()){
+            return  um - (timeExpectedExecJob(plugin)-timeLastAverageJob()) / temp;
+            
+        }else{
+            return um;
+        }
 
 
     }
@@ -425,23 +457,44 @@ public class AcoSched extends SchedPolicy {
          *
          *
          */
-        //(total do tamanho das tarefas para serem executadas)/capacidade computacional + tamanho da tarefa executada anteriormente/ latency
-        return  new Double(getDatasZookeeper(plugin, DIR_SIZEALLJOBS)) /capacityPlugin(plugin) + mapAcoDatas.get(plugin.getId()).get(8)/plugin.getLatency();
+        //(total do tamanho das tarefas executadas na VM)/capacidade computacional + tamanho da tarefa executada anteriormente/ latency
+        return  capacityPlugin(plugin)==0d ? 0d : (mapAcoDatas.get(plugin.getId()).get(9) /capacityPlugin(plugin)) + 
+                plugin.getLatency() == 0f ? 0d : mapAcoDatas.get(plugin.getId()).get(8)/(new Float(plugin.getLatency())).doubleValue();
 
     }
 
     /**
-     * Define o tempo médio de execução da última iteração
+     * Define o tempo médio de execução da última iteração nas VMS
      *
      * @param plugin
-     * @param job
      * @return tempo
      */
-    private Double timeAverageJob(List<PluginInfo> listPlugin){
+    private Double timeLastAverageJob(){
+        Double time=0d;
+   
+        int cont=0;
+        for(PluginInfo plugin : listPlugin){
+
+            time = time+mapAcoDatas.get(plugin.getId()).get(7);
+            
+            cont++;
+        }
+        
+        
+        
+        return  time/cont;
+
+    }
+    
+    /**
+     * Define o grau de desbalanceamento das vms
+     *
+     * @param listPlugin
+     * @return DI
+     */
+    private Double degreeImbalance(){
         Double timeMax = Double.MIN_NORMAL,timeMin = Double.MAX_VALUE, time=null, timeAverage=0d;
-        
-        //metodo finalize job em shedservice calcula o tempo de execucao de um job,  verificar como armazenar esse tempo em algum lugar
-        
+   
         int cont=0;
         for(PluginInfo plugin : listPlugin){
 
@@ -481,8 +534,15 @@ public class AcoSched extends SchedPolicy {
         Iterator it=  listClouds.iterator();
         while(it.hasNext()){
             PluginInfo plugin= (PluginInfo)it.next();
-            datasString = getDatasZookeeper(plugin, DIR_MAPACODATAS);
-            map.put(plugin.getId(),getListDouble(datasString));
+            datasString = getDatasZookeeper(plugin, SCHED);
+             ObjectMapper mapper =  new ObjectMapper();
+            try {
+                ArrayList t = mapper.readValue(datasString, ArrayList.class);
+            map.put(plugin.getId(),t);
+            } catch (Exception ex) {
+                Logger.getLogger(AcoSched.class.getName()).log(Level.SEVERE, null, ex);
+            }
+//            map.put(plugin.getId(),getListDouble(datasString));
         }
     
         return map;
@@ -496,7 +556,7 @@ public class AcoSched extends SchedPolicy {
         Iterator it=  listClouds.iterator();
         while(it.hasNext()){
             PluginInfo plugin= (PluginInfo)it.next();
-            setDatasZookeeper(plugin, DIR_MAPACODATAS, mapAcoDatas.get(plugin.getId()).toString());
+            setDatasZookeeper(plugin.getPath_zk(), SCHED, mapAcoDatas.get(plugin.getId()).toString());
         }
     
     }
@@ -508,10 +568,10 @@ public class AcoSched extends SchedPolicy {
      * @return dados contidos no diretorio
      */
     private String getDatasZookeeper(PluginInfo plugin, String dir){
-        String datas = null;
+        String datas = "";
         
         try {
-            datas = zk.getData(plugin.getPath_zk()+dir, new UpdatePeerData());
+            datas = zk.getData(plugin.getPath_zk()+dir, null);
         } catch (KeeperException ex) {
             Logger.getLogger(AcoSched.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
@@ -528,9 +588,9 @@ public class AcoSched extends SchedPolicy {
      * @param dir diretório do zookeeper que contém as informações desejadas.
      * @return dados contidos no diretorio
      */
-    private void setDatasZookeeper(PluginInfo plugin, String dir, String datas){
+    private void setDatasZookeeper(String zkPath, String dir, String datas){
         try {
-            zk.setData(plugin.getPath_zk()+dir, datas);
+            zk.setData(zkPath+dir, datas);
         } catch (KeeperException ex) {
             Logger.getLogger(AcoSched.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
@@ -569,7 +629,6 @@ public class AcoSched extends SchedPolicy {
     private ArrayList<Double> getListDouble(String datas){
         ArrayList list = new ArrayList<Double>();
         int i=0,cont=0;
-        
         while(datas.length()>0){
             Double value = new Double(datas.substring(i, (datas.indexOf(",")==-1) ? datas.length() : datas.indexOf(",")));
             list.add(cont, value);
@@ -586,16 +645,6 @@ public class AcoSched extends SchedPolicy {
     }
 
     
-
-    public static class UpdatePeerData implements Watcher {
-
-        @Override
-        public void process(WatchedEvent event) {
-            System.out.println(event);
-
-        }
-    }
-   
     /**
      * Utilização do algoritmo de ordenação quicksort para ordenar as melhores nuvens para escalonar de acordo com o parâmentro @value passado para os tipos
      * Integer e Long
