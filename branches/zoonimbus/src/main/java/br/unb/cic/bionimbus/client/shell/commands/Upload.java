@@ -52,26 +52,30 @@ public class Upload implements Command {
         /*
          * Verifica se o arquivo existe
          */
-         File file = new File(params[0]);
-         if (file.exists()) {
-            System.out.println("Uploading file ...");
-          //  shell.getRpcClient().getProxy().getPeers();
-            FileInfo info = new FileInfo();
-            info.setName(params[0]);
-            info.setSize(file.length());
-            // verificar diferença sem rpccliente shell.getProxy().getPeers();
-            for(NodeInfo plugin : shell.getRpcClient().getProxy().getPeers()){
-                plugin.setLatency(Ping.calculo(plugin.getAddress()));
-            }
-            
-            //Seta o os nodes na bioproto
-            shell.getRpcClient().getProxy().setNodes(pluginList);
-            
-            //Enviar os nodes para o Bionimbus
-           // shell.getRpcClient().getProxy().sendPlugins(pluginList);
-            return "File" + file.getPath() + "uploaded with success. ";
-         }
-         return "File " + file.getPath() + " don't exists.";
+        shell.getRpcClient().getProxy().getPeers();
+        return "teste";
+//         File file = new File(params[0]);
+//         if (file.exists()) {
+//            System.out.println("Uploading file ...");
+//          //  shell.getRpcClient().getProxy().getPeers();
+//            FileInfo info = new FileInfo();
+//            info.setName(params[0]);
+//            info.setSize(file.length());
+//            // verificar diferença sem rpccliente shell.getProxy().getPeers();
+//            for(NodeInfo plugin : shell.getRpcClient().getProxy().getPeers()){
+//                plugin.setLatency(Ping.calculo(plugin.getAddress()));
+//            }
+//            
+//            //Seta o os nodes na bioproto
+//            shell.getRpcClient().getProxy().setNodes(pluginList);
+//            
+//            //Enviar os nodes para o Bionimbus
+//           // shell.getRpcClient().getProxy().sendPlugins(pluginList);
+//            return "File" + file.getPath() + "uploaded with success. ";
+//         }
+//         return "File " + file.getPath() + " don't exists.";
+         
+         
         /*        if (!shell.isConnected())
          throw new IllegalStateException("This command should be used with an active connection!");
 
