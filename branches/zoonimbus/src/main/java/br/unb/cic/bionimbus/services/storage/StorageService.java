@@ -54,12 +54,14 @@ public class StorageService extends AbstractBioService {
     private Map<String, PluginFile> savedFiles = new ConcurrentHashMap<String, PluginFile>();
     private P2PService p2p = null;
     private File dataFolder = new File("data-folder"); //TODO: remover hard-coded e colocar em node.yaml e injetar em StorageService
+    private DiscoveryService discoveryService;
 
     @Inject
     public StorageService(final ZooKeeperService service, MetricRegistry metricRegistry, DiscoveryService disc) {
 
         Preconditions.checkNotNull(service);
         this.zkService = service;
+        this.discoveryService = disc;
 
         this.metricRegistry = metricRegistry;
         // teste
@@ -70,7 +72,7 @@ public class StorageService extends AbstractBioService {
             System.out.println("dataFolder " + dataFolder + " doesn't exists, creating...");
             dataFolder.mkdirs();
             //Recuperar a lista de plugins setados com a latência
-            cloudMap = disc.getPeers();
+            cloudMap = discoveryService.getPeers();
             cloudMap.isEmpty();
 
             //verifica se existe o arquivo na pasta persistent-storage e se os arquivos nele gravado estão nas pastas
