@@ -47,6 +47,7 @@ import br.unb.cic.bionimbus.p2p.messages.StatusRespMessage;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
+import br.unb.cic.bionimbus.plugin.PluginTaskState;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
@@ -55,6 +56,10 @@ import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 
 import com.google.inject.Singleton;
+import java.io.IOException;
+import java.util.logging.Level;
+import org.apache.zookeeper.KeeperException;
+import org.codehaus.jackson.map.ObjectMapper;
 
 @Singleton
 public class SchedService extends AbstractBioService implements Service, P2PListener, Runnable {
@@ -77,7 +82,8 @@ public class SchedService extends AbstractBioService implements Service, P2PList
 
     private final Map<String, JobInfo> jobsWithNoService = new ConcurrentHashMap<String, JobInfo>();
 
-    private final Map<String, Pair<JobInfo, PluginTask>> runningJobs = new ConcurrentHashMap<String, Pair<JobInfo, PluginTask>>();
+    private final Map<String, Pair<PluginInfo, PluginTask>> runningJobs = new ConcurrentHashMap<String, Pair<PluginInfo, PluginTask>>();
+//    private final Map<String,  PluginTask> runningJobs = new ConcurrentHashMap<String, PluginTask>();
 
     private final Map<String, Pair<String, Host>> cancelingJobs = new ConcurrentHashMap<String, Pair<String, Host>>();
 
@@ -92,6 +98,13 @@ public class SchedService extends AbstractBioService implements Service, P2PList
     private int isCanceling = 0;
 
     private int isPending = 0;
+    
+    private static final String ROOT_PEER = "/peers";
+    private static final String SCHED = "/sched";
+    private static final String JOBS = "/jobs";
+    private static final String JOB = "/job_";
+    private static final String TASKS = "/tasks";
+    private static final String TASK = "/task_";
 
     
     @Inject
@@ -99,27 +112,27 @@ public class SchedService extends AbstractBioService implements Service, P2PList
         Preconditions.checkNotNull(service);
         this.zkService = service;
         
-//        this.zkService = new ZooKeeperService().getZooKeeperService();
-        
-
-//    public SchedService() {
-
     }
 
     public synchronized SchedPolicy getPolicy() {
         if (schedPolicy == null) {
             schedPolicy = SchedPolicy.getInstance();
         }
+        //Verificar o pq não funciona TO DO pode ser excluido?
         schedPolicy.setCloudMap(cloudMap);
+        //atualiza os peers da cloud
+        schedPolicy.setCloudList(getPeers());
         return schedPolicy;
     }
 
     @Override
     public void run() {
-//		System.out.println("running SchedService...");
+        System.out.println("running SchedService...");
 //		onSchedEvent();
 //		Message msg = new CloudReqMessage(p2p.getPeerNode());
 //		p2p.broadcast(msg);
+        
+        //TO DO verificar se criação de pastas pode ser aqui
     }
 
     /**
@@ -146,6 +159,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
         }
 
         // Antes de escalonar verifica o tamanho dos arquivos.
+        //TO DO porque?
         sendListReqEvent(p2p.getPeerNode());
     }
 
@@ -176,15 +190,19 @@ public class SchedService extends AbstractBioService implements Service, P2PList
         }
     }
 
-    /* Executa a rotina de escalonamento */
+    /**
+     * Executa a rotina de escalonamento.
+     * @param sender
+     * @param receiver 
+     */
     private synchronized void scheduleJobs(PeerNode sender, PeerNode receiver) {
         HashMap<JobInfo, PluginInfo> schedMap = null;
 
         // Caso nao exista nenhum job pendente da a chance do escalonador
         // realocar as tarefas.
         if (getPendingJobs().isEmpty()) {
-            List<PluginTask> tasksToCancel = getPolicy().relocate(
-                    getRunningJobs().values());
+            //o que o relocate faz?
+            List<PluginTask> tasksToCancel = getPolicy().relocate(null);
 
             // Se a lista de jobs a serem realocados for vazia define o fim do
             // escalonamento e para.
@@ -196,57 +214,97 @@ public class SchedService extends AbstractBioService implements Service, P2PList
                 // Cancela os jobs definidos pela politica de escalonamento.
                 cancelJob(sender.getHost(), task.getJobInfo().getId());
             }
-            // Caso exista algum job pendente. Escalona-os.
+        // Caso exista algum job pendente. Escalona-os.
         } else {
             schedMap = getPolicy().schedule(getPendingJobs().values(), zkService);
 
             for (Map.Entry<JobInfo, PluginInfo> entry : schedMap.entrySet()) {
                 JobInfo jobInfo = entry.getKey();
                 PluginInfo pluginInfo = entry.getValue();
-
+                PluginTask task = new PluginTask();
+                task.setJobInfo(jobInfo);
+                
                 if (pluginInfo == null) {
                     // Soh entra aqui caso o servico nao esteja disponivel.
-                    sendJobResp(sender, receiver, jobInfo.getId(), null);
+//                    sendJobResp(sender, receiver, jobInfo.getId(), null);
+                    task.setState(PluginTaskState.PENDING);
+                    //o que o relocate faz?
+                    relocateTasks.add(task);
                 } else {
                     System.out.println("SCHEDULE MSG: " + jobInfo.getId()
                             + " escalonado para " + pluginInfo.getId());
 
+                    
+                    
                     // Envia requisicao de inicio de tarefa.
                     sendStartReq(sender, pluginInfo.getHost(), jobInfo);
+                    // AJUSTAR EXECUÇÃO DE JOB          TO DO como realizar pedido de execução
+                    
+                    task.setState(PluginTaskState.WAITING);
+                    //adiciona o job na lista de execução ne servidor zookeeper
+                    zkService.createEphemeralZNode(pluginInfo.getPath_zk()+SCHED+TASKS+TASK+task.getId(), task.toString());
+                    //adicona o job escalonado no map de jobs em execução
+                    runningJobs.put(task.getJobInfo().getId(),new Pair<PluginInfo, PluginTask>(pluginInfo, task));
+                    
+                    
+
                 }
             }
         }
     }
 
-    /* Rotinas para auxiliar escalonamento */
-	/* Chamado caso seja necessario cancelar um job */
+    /**
+     * Rotinas para auxiliar escalonamento,chamado caso seja necessário cancelar um job.
+     * 
+     * @param origin
+     * @param jobId 
+     */
     private synchronized void cancelJob(Host origin, String jobId) {
         // Apenas remove dos jobs pendentes (ou seja, ainda nem foi escalonado)
         // TODO: Acho que eh impossivel entrar aqui. Pelo menos no caso do
         // escalonamento.
         if (getPendingJobs().containsKey(jobId)) {
             getPendingJobs().remove(jobId);
+            //excluir o job do zookeeper TO DO
             return;
         }
-
+        try {
+            zkService.delete(ROOT_PEER+JOBS+JOB+jobId);
+        
+        } catch (KeeperException ex) {
+            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+        }
         // Percorre todos os jobs rodando em busca do job a ser cancelado.
-        for (Pair<JobInfo, PluginTask> pair : getRunningJobs().values()) {
-            if (pair.first.getId().equals(jobId)) {
-
+       // Percorre todos os jobs rodando em busca do job a ser cancelado.
+        for (Pair<PluginInfo, PluginTask> pair : getRunningJobs().values()) {
+            if (pair.second.getJobInfo().getId().equals(jobId)) {
+                
+                try {
+                    //deleta a job da lista de jobs a serem executados no plugin
+                    // TO DO verificar se é necessário conferir se o job esta em execução 
+                    zkService.delete(pair.first.getPath_zk()+SCHED+TASKS+TASK+jobId);
+                    
+                } catch (KeeperException ex) {
+                    java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (InterruptedException ex) {
+                    java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 // Remove-o dos jobs rodando.
-                getRunningJobs().remove(pair.second.getId());
-
+                getRunningJobs().remove(pair.second.getJobInfo().getId());
+                // adiciona na lista de jobs para escalonar
+                getPendingJobs().put(pair.second.getJobInfo().getId(),pair.second.getJobInfo());
+                
                 // Lanca um evento para ser tratado pela politica de
-                // escalonamento.
+                // escalonamento.  TO DO  retirar?
                 getPolicy().cancelJobEvent(pair.second);
 
-                // Adiciona a lista de jobs em faze de cancelamento.
-                getCancelingJobs().put(pair.second.getId(),
-                        new Pair<String, Host>(jobId, origin));
-
+                // Adiciona a lista de jobs em fase de cancelamento.
+                getCancelingJobs().put(pair.second.getJobInfo().getId(),new Pair<String, Host>(jobId, origin));
                 isCanceling++;
-                // Cria e envia a requisicao de cancelamento de jobs para o
-                // plugin.
+                
+                // Cria e envia a requisicao de cancelamento de jobs para o plugin.  TO DO como realizar isso
                 CancelReqMessage msg = new CancelReqMessage(p2p.getPeerNode(),
                         pair.second.getId());
                 p2p.broadcast(msg);
@@ -255,8 +313,13 @@ public class SchedService extends AbstractBioService implements Service, P2PList
         }
     }
 
+    /**
+     * Remove a tarefa da lista de jobs cancelados.Job permanece na lista de jobs a serem escalonados.
+     * @param task 
+     */
     private synchronized void finishCancelJob(PluginTask task) {
         getCancelingJobs().remove(task.getId());
+                
         System.out.println("Task canceled " + task.getId());
         isCanceling--;
 
@@ -271,21 +334,30 @@ public class SchedService extends AbstractBioService implements Service, P2PList
     }
 
     /**
-     * ENVIO DE MENSAGENS DE REQUISICAO
+     * Realiza o início do pedido de execução de um Job no recurso escanolado.
+     * @param sender TO DO para que usar esse sender???
+     * @param dest, endereço host do plugin de destino para execução.
+     * @param jobInfo, job que será executado no plugin.
      */
-	/* Faz requisicao de inicio de execucao de tarefa. */
     private void sendStartReq(PeerNode sender, Host dest, JobInfo jobInfo) {
         isPending++;
-        StartReqMessage startMsg = new StartReqMessage(sender, jobInfo);
-        p2p.sendMessage(dest, startMsg);
+        
+        //criar chamada para método de chamada de requisição de execução do job
+        
+//        StartReqMessage startMsg = new StartReqMessage(sender, jobInfo);
+//        p2p.sendMessage(dest, startMsg);
+        
     }
 
+    //TO DO Excluir método...
     /* Faz a requisicao de listagem de arquivos e seus tamanhos */
     private void sendListReqEvent(PeerNode sender) {
         ListReqMessage listReqMsg = new ListReqMessage(sender);
         p2p.broadcast(listReqMsg);
     }
 
+    //TO DO NÃO É NECESSÁRIO ESSE MÉTODO JÁ QUE QUANDO A TAREFA FOR INICIADA A EXECUÇÃO O STATUS DO JOB SERA ALTERADO NO
+    // ZOOKEEPER E TODOS OS OUVINTES DO JOB SERÃO INFORMADOS.
     /* Envia resposta de inicio de job */
     private synchronized void sendJobResp(PeerNode sender, PeerNode receiver,
                                           String jobId, PluginTask task) {
@@ -309,8 +381,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
         } else {
             // Adiciona job na lista de jobs "rodando" (ou seja, enviados para o
             // hadoop)
-            getRunningJobs().put(task.getId(),
-                    new Pair<JobInfo, PluginTask>(jobInfo, task));
+//            getRunningJobs().put(task.getJobInfo().getId(),new Pair<JobInfo, PluginTask>(jobInfo, task));
 
             // Cria e envia a mensagem de resposta.
             JobRespMessage jobRespMsg = new JobRespMessage(sender, jobInfo);
@@ -326,6 +397,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
         }
     }
 
+    // TO DO retirar serviço P2P?
     @Override
     public void start(P2PService p2p) {
         this.p2p = p2p;
@@ -334,6 +406,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
         schedExecService.scheduleAtFixedRate(this, 0, 5, TimeUnit.SECONDS);
     }
 
+    //TO DO retirar serviço P2P?
     @Override
     public void shutdown() {
         p2p.remove(this);
@@ -346,22 +419,51 @@ public class SchedService extends AbstractBioService implements Service, P2PList
 
     }
 
+    /**
+     * Verifica se existe jobs na lista de jobs cancelados e adiciona eles a lista no servidor zookeeper dos JOBS a serem escalonados.
+     */
     private synchronized void checkPendingJobs() {
         // Adiciona os jobs cancelados a lista de escalonamento para que conclua
         // a realocacao.
+//        while (!relocateTasks.isEmpty()) {
+//            PluginTask task = relocateTasks.remove();
+//            getPendingJobs().put(task.getJobInfo().getId(), task.getJobInfo());
+//        }
+        
+        
+        //Adiciona os jobs cancelados a lista de jobs a serem escalonados no servidor zookeeper
         while (!relocateTasks.isEmpty()) {
             PluginTask task = relocateTasks.remove();
-            getPendingJobs().put(task.getJobInfo().getId(), task.getJobInfo());
+            try {
+                
+                zkService.createEphemeralZNode(ROOT_PEER+JOBS+JOB+task.getId(), task.toString());
+                
+            } catch (Exception ex) {
+                java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
+        
     }
-
+    //TO DO não há necessidade de realizar requisição de informação do job, zookeeper coordena essas informações
     private synchronized void checkRunningJobs() {
         PeerNode peer = p2p.getPeerNode();
         for (String taskId : getRunningJobs().keySet()) {
             sendStatusReq(peer, taskId);
         }
+        
+    }
+    
+    /** TO DO
+     * Escuta as mudanças de status dos jobs no zookeeper.
+     */
+    private synchronized void checkWaittingJobs() {
+       
+//        updateJobStatus(null, PluginTaskState.DONE);
+        
     }
 
+    
+    //TO DO não sei o faz esse método, faz tudo?
     @Override
     public synchronized void onEvent(P2PEvent event) {
         if (!event.getType().equals(P2PEventType.MESSAGE))
@@ -439,41 +541,69 @@ public class SchedService extends AbstractBioService implements Service, P2PList
         return null;
     }
 
+    // TO DO ESCLUIR MÉTODO ???
     private synchronized void sendStatusReq(PeerNode sender, String taskId) {
         isAcquiringStatus++;
         StatusReqMessage msg = new StatusReqMessage(sender, taskId);
         p2p.broadcast(msg); // TODO: isto é realmente um broadcast?
     }
 
+    /**
+     * Realiza as alterações do status do Job.
+     * @param task, pluginTask com o status atualizado da tarefa.
+     */
     private synchronized void updateJobStatus(PluginTask task) {
         // DEBUG
         // System.out.println("Old Task Info: ");
         // System.out.println(task.getId() + ": " +
         // runningJobs.get(task.getId()).second.getState());
-
+//      if (getRunningJobs().containsKey(task.getId())) {
+//		getRunningJobs().get(task.getId()).second.setState(task.getState());
+//	}
         if (getRunningJobs().containsKey(task.getId())) {
-            getRunningJobs().get(task.getId()).second.setState(task.getState());
+            Pair<PluginInfo, PluginTask> pair = getRunningJobs().get(task.getId());
+            pair.second.setState(task.getState());
+            try {
+                zkService.setData(pair.first.getPath_zk()+SCHED+TASKS+TASK+task.getId(), task.toString());
+                
+            } catch (KeeperException ex) {
+                java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InterruptedException ex) {
+                java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
         }
 
         isAcquiringStatus--;
-
-        // DEBUG
-        // System.out.println("New Task Info: ");
-        // System.out.println(task.getId() + ": " +
-        // runningJobs.get(task.getId()).second.getState());
     }
 
+    /**
+     * Realiza a atualização de finalização da tarefa enviando pedido de atualização do statud no zookeeper e
+     * removendo o job da lista de tarefas na fila para execução.
+     * @param task, tarefa que foi executada.
+     */
     private synchronized void finalizeJob(PluginTask task) {
-        Pair<JobInfo, PluginTask> pair = getRunningJobs().remove(task.getId());
+        Pair<PluginInfo, PluginTask> pair = getRunningJobs().get(task.getId());
 
-        JobInfo job = pair.first;
-        System.out.println("Job " + job.getId() + ": "
-                + ((float) (System.currentTimeMillis() - job.getTimestamp()) / 1000) + " segundos");
+        JobInfo job = pair.second.getJobInfo();
+        float timeExec = (((float) System.currentTimeMillis() - job.getTimestamp()) / 1000);
+
+        task.setState(PluginTaskState.DONE);
+        task.setTimeExec(timeExec);
+        task.setPluginExec(pair.first.getId());
+        
+        //atualiza o status do job no zookeeper.
+        updateJobStatus(task);
+        //retira o job da lista
+        getRunningJobs().remove(task.getId());
         getPolicy().jobDone(task);
+        
+        
+        
         // p2p.sendMessage(new EndJobMessage(job));
     }
 
-    private synchronized Map<String, Pair<JobInfo, PluginTask>> getRunningJobs() {
+    private synchronized Map<String, Pair<PluginInfo, PluginTask>> getRunningJobs() {
         return runningJobs;
     }
 
