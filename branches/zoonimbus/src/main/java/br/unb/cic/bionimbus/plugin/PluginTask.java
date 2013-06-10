@@ -3,10 +3,18 @@ package br.unb.cic.bionimbus.plugin;
 import java.util.UUID;
 
 import br.unb.cic.bionimbus.client.JobInfo;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
 
 public class PluginTask implements PluginOps {
 
     private PluginTaskState state = PluginTaskState.WAITING;
+    
+    private Float tempExec = 0f;
+    
+    private String pluginExec;
 
     private String id = UUID.randomUUID().toString();
 
@@ -36,6 +44,24 @@ public class PluginTask implements PluginOps {
         this.id = id;
     }
 
+    public Float getTimeExec() {
+        return tempExec;
+    }
+
+    public void setTimeExec(Float tempExec) {
+        this.tempExec = tempExec;
+    }
+
+    public String getPluginExec() {
+        return pluginExec;
+    }
+
+    public void setPluginExec(String pluginExec) {
+        this.pluginExec = pluginExec;
+    }
+
+    
+    
     @Override
     public boolean equals(Object object) {
         if (this == object)
@@ -55,9 +81,18 @@ public class PluginTask implements PluginOps {
         return id.hashCode();
     }
 
+//    @Override
+//    public String toString() {
+//        return id + ":" + state;
+//    }
     @Override
     public String toString() {
-        return id + ":" + state;
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (IOException ex) {
+            Logger.getLogger(JobInfo.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return null;
     }
-
 }
