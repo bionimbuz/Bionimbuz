@@ -4,6 +4,7 @@ import br.unb.cic.bionimbus.p2p.P2PService;
 import br.unb.cic.bionimbus.plugin.hadoop.HadoopPlugin;
 import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
 import br.unb.cic.bionimbus.plugin.sge.SGEPlugin;
+import java.io.IOException;
 
 public class PluginFactory {
 
@@ -12,7 +13,7 @@ public class PluginFactory {
     private PluginFactory() {
     }
 
-    public static synchronized Plugin getPlugin(final String pluginType, final P2PService p2p) {
+    public static synchronized Plugin getPlugin(final String pluginType, final P2PService p2p) throws IOException {
         if (REF == null) {
             if (pluginType.equals("hadoop"))
                 REF = new HadoopPlugin();

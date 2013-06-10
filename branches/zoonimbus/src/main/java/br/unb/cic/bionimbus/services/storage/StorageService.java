@@ -47,21 +47,16 @@ public class StorageService extends AbstractBioService {
 
     @Inject
     private MetricRegistry metricRegistry;
-
     private final ScheduledExecutorService executorService = Executors
             .newScheduledThreadPool(1, new BasicThreadFactory.Builder()
-                    .namingPattern("StorageService-%d").build());
-
+            .namingPattern("StorageService-%d").build());
     private Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
-
     private Map<String, PluginFile> savedFiles = new ConcurrentHashMap<String, PluginFile>();
-
     private P2PService p2p = null;
-
     private File dataFolder = new File("data-folder"); //TODO: remover hard-coded e colocar em node.yaml e injetar em StorageService
 
     @Inject
-    public StorageService(final ZooKeeperService service, MetricRegistry metricRegistry,DiscoveryService disc) {
+    public StorageService(final ZooKeeperService service, MetricRegistry metricRegistry, DiscoveryService disc) {
 
         Preconditions.checkNotNull(service);
         this.zkService = service;
@@ -72,41 +67,42 @@ public class StorageService extends AbstractBioService {
         c.inc();
 
         if (!dataFolder.exists()) {
-           System.out.println("dataFolder " + dataFolder + " doesn't exists, creating...");
-           dataFolder.mkdirs();
-           //Recuperar a lista de plugins setados com a latência
-            cloudMap=this.getPeers();
-           cloudMap.isEmpty();
-           
-           //verifica se existe o arquivo na pasta persistent-storage e se os arquivos nele gravado estão nas pastas
+            System.out.println("dataFolder " + dataFolder + " doesn't exists, creating...");
+            dataFolder.mkdirs();
+            //Recuperar a lista de plugins setados com a latência
+            cloudMap = disc.getPeers();
+            cloudMap.isEmpty();
+
+            //verifica se existe o arquivo na pasta persistent-storage e se os arquivos nele gravado estão nas pastas
            /*File file = new File("data-folder/persistent-storage.json");
-           if (file.exists()) {
-               try {
-                   ObjectMapper mapper = new ObjectMapper();
-                   Map<String, PluginFile> map = mapper.readValue(new File("persistent-storage.json"), new TypeReference<Map<String, PluginFile>>() {
-                   });
-                   if (filesChanged(map.values()))
-                       map = mapper.readValue(new File("persistent-storage.json"), new TypeReference<Map<String, PluginFile>>() {
-                       });
-                   savedFiles = new ConcurrentHashMap<String, PluginFile>(map);
-               } catch (Exception e) {
-                   e.printStackTrace();
-               }
-           }*/
+             if (file.exists()) {
+             try {
+             ObjectMapper mapper = new ObjectMapper();
+             Map<String, PluginFile> map = mapper.readValue(new File("persistent-storage.json"), new TypeReference<Map<String, PluginFile>>() {
+             });
+             if (filesChanged(map.values()))
+             map = mapper.readValue(new File("persistent-storage.json"), new TypeReference<Map<String, PluginFile>>() {
+             });
+             savedFiles = new ConcurrentHashMap<String, PluginFile>(map);
+             } catch (Exception e) {
+             e.printStackTrace();
+             }
+             }*/
         }
     }
 
     @Override
     public void run() {
+        System.out.println("Running StorageService...");
+        System.out.println("Cloudmap vazia?:"+cloudMap.values().isEmpty());
         System.out.println("Executando loop.");
 
-      //  System.out.println(" \n Hosts: " + p2p.getConfig().getHost());
+        //  System.out.println(" \n Hosts: " + p2p.getConfig().getHost());
 
 //                        Message msg = new CloudReqMessage(p2p.getPeerNode());
 //                        p2p.broadcast(msg); // TODO isso e' broadcast?                        
 
     }
-
 
     @Override
     public void start(P2PService p2p) {
@@ -117,9 +113,10 @@ public class StorageService extends AbstractBioService {
                 ObjectMapper mapper = new ObjectMapper();
                 Map<String, PluginFile> map = mapper.readValue(new File("persistent-storage.json"), new TypeReference<Map<String, PluginFile>>() {
                 });
-                if (filesChanged(map.values()))
+                if (filesChanged(map.values())) {
                     map = mapper.readValue(new File("persistent-storage.json"), new TypeReference<Map<String, PluginFile>>() {
                     });
+                }
                 savedFiles = new ConcurrentHashMap<String, PluginFile>(map);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -127,8 +124,9 @@ public class StorageService extends AbstractBioService {
         }
 
         this.p2p = p2p;
-        if (p2p != null)
+        if (p2p != null) {
             p2p.addListener(this);
+        }
 
         executorService.scheduleAtFixedRate(this, 0, 3, TimeUnit.SECONDS);
     }
@@ -142,18 +140,19 @@ public class StorageService extends AbstractBioService {
     @Override
     public void getStatus() {
         // TODO Auto-generated method stub
-
     }
 
     @Override
     public void onEvent(P2PEvent event) {
-        if (!event.getType().equals(P2PEventType.MESSAGE))
+        if (!event.getType().equals(P2PEventType.MESSAGE)) {
             return;
+        }
 
         P2PMessageEvent msgEvent = (P2PMessageEvent) event;
         Message msg = msgEvent.getMessage();
-        if (msg == null)
+        if (msg == null) {
             return;
+        }
 
         PeerNode receiver = null;
         if (msg instanceof AbstractMessage) {
@@ -163,11 +162,11 @@ public class StorageService extends AbstractBioService {
         switch (P2PMessageType.of(msg.getType())) {
             case CLOUDRESP:
                 CloudRespMessage cloudMsg = (CloudRespMessage) msg;
-                     /*   DiscoveryService data=new DiscoveryService(zkService);
-                        ConcurrentMap<String,PluginInfo> cloudData= data.getPeers();
-			for (PluginInfo info : cloudData.values()) {
-				cloudMap.put(info.getId(), info);
-			}*/
+                /*   DiscoveryService data=new DiscoveryService(zkService);
+                 ConcurrentMap<String,PluginInfo> cloudData= data.getPeers();
+                 for (PluginInfo info : cloudData.values()) {
+                 cloudMap.put(info.getId(), info);
+                 }*/
                 break;
             case STOREREQ:
                 StoreReqMessage storeMsg = (StoreReqMessage) msg;
@@ -205,26 +204,27 @@ public class StorageService extends AbstractBioService {
 
     public void sendStoreResp(FileInfo info, String taskId, PeerNode dest) {
         for (PluginInfo plugin : cloudMap.values()) {
-                    
-			/*if (info.getSize() < plugin.getFsFreeSize()) {
-                StoreRespMessage msg = new StoreRespMessage(p2p.getPeerNode(), plugin, info, taskId);
-				p2p.sendMessage(dest.getHost(), msg);
-				return;
-			}*/
+            /*if (info.getSize() < plugin.getFsFreeSize()) {
+             StoreRespMessage msg = new StoreRespMessage(p2p.getPeerNode(), plugin, info, taskId);
+             p2p.sendMessage(dest.getHost(), msg);
+             return;
+             }*/
         }
     }
 
     /**
-     * Verifica se os arquivos listados no persistent storage existem, caso não existam é gerado um novo persistent-storage.json
+     * Verifica se os arquivos listados no persistent storage existem, caso não
+     * existam é gerado um novo persistent-storage.json
      */
     public boolean filesChanged(Collection<PluginFile> files) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         Collection<PluginFile> savedFilesOld = files;
         for (PluginFile archive : files) {
-        //    System.out.println("nome:" + archive.getPath());
+            //    System.out.println("nome:" + archive.getPath());
             File arq = new File(archive.getPath());
-            if (arq.exists() && checkFiles(archive, savedFilesOld))
+            if (arq.exists() && checkFiles(archive, savedFilesOld)) {
                 savedFiles.put(archive.getId(), archive);
+            }
         }
         if (!savedFiles.isEmpty() && !savedFiles.equals(savedFilesOld)) {
             mapper.writeValue(new File("persistent-storage.json"), savedFiles);

@@ -16,6 +16,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.UUID;
+import org.apache.zookeeper.KeeperException;
 
 @Singleton
 public class ServiceManager {
@@ -26,8 +27,9 @@ public class ServiceManager {
     private final RpcServer rpcServer;
     
     private static final String ROOT_PEER = "/peers";
+    
     private static final String SEPARATOR = "/";
-    private static final String PREFIX_PEER = "peer_";
+    private static final String PEERS = ROOT_PEER+SEPARATOR+"peer_";
     private static final String STATUS = "STATUS";
     private final HttpServer httpServer;
 
@@ -51,19 +53,19 @@ public class ServiceManager {
         }
     }
     
-    public void createZnodeZK(String id) throws IOException, InterruptedException {
+    public void createZnodeZK(String id) throws IOException, InterruptedException, KeeperException {
         if (zkService.getStatus() == ZooKeeperService.Status.CONNECTED) {
-
-            zkService.createPersistentZNode("/peers", null);
-
-            //criando zNode persistente para cada novo peer
-            zkService.createPersistentZNode(ROOT_PEER + SEPARATOR + PREFIX_PEER+ id, null);
-            
-
-            //criando status efemera para verificar se o servidor esta rodando
-            zkService.createEphemeralZNode(ROOT_PEER + SEPARATOR + PREFIX_PEER+ id+SEPARATOR+STATUS, null);
-
-            System.out.println("Criado e registrado peer com path " + ROOT_PEER + SEPARATOR + PREFIX_PEER+ id);
+           
+            //inves de criar direto verifica se existe senão cria? Breno
+            zkService.createPersistentZNode(ROOT_PEER, null);
+                
+           //criando zNode persistente para cada novo peer
+           zkService.createPersistentZNode(PEERS+ id, null);
+          
+           //criando status efemera para verificar se o servidor esta rodando
+           zkService.createEphemeralZNode(PEERS+ id+SEPARATOR+STATUS, null);
+                   
+            //System.out.println("Criado e registrado peer com path " + PEERS+ id);
         
         }
     }
@@ -78,19 +80,21 @@ public class ServiceManager {
             httpServer.start();
             connectZK(p2p.getConfig().getZkHosts());
             //Breno modifiquei aqui para criar o peer com o valor randomico comum para todos.
-            LinuxGetInfo getinfo=new LinuxGetInfo();
-            LinuxPlugin linuxPlugin = new LinuxPlugin(p2p);
-          
-            PluginInfo infopc= getinfo.call();
-            infopc.setId(GetIpMac.getMac());
-            infopc.setHost(p2p.getConfig().getHost());
-            infopc.setUptime(p2p.getPeerNode().uptime());
-            infopc.setPath_zk(ROOT_PEER+SEPARATOR+PREFIX_PEER+infopc.getId());
-            createZnodeZK(infopc.getId());
-            //definindo myInfo após a leitura dos dados
-            linuxPlugin.setMyInfo(infopc);
-            //armazenando dados do plugin no zookeeper
-            zkService.setData(infopc.getPath_zk(), infopc.toString());          
+//            LinuxGetInfo getinfo=new LinuxGetInfo();
+//            LinuxPlugin linuxPlugin = new LinuxPlugin(p2p);
+//          
+//            PluginInfo infopc= getinfo.call();
+//            infopc.setId(p2p.getConfig().getId());
+//            infopc.setHost(p2p.getConfig().getHost());
+//            infopc.setUptime(p2p.getPeerNode().uptime());
+////            infopc.setPath_zk(ROOT_PEER+SEPARATOR+PREFIX_PEER+infopc.getId());
+//           
+//            //definindo myInfo após a leitura dos dados
+//            linuxPlugin.setMyInfo(infopc); 
+            
+            createZnodeZK(p2p.getConfig().getId());
+//            //armazenando dados do plugin no zookeeper
+//            zkService.setData(infopc.getPath_zk(), infopc.toString());          
             for (Service service : services) {
                 //perguntar pro edward pq é separado a chamada do storage
                 if (service instanceof StorageService) {

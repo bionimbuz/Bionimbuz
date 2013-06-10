@@ -121,6 +121,7 @@ public class ZooKeeperService {
                     , buf
                     , ZooDefs.Ids.OPEN_ACL_UNSAFE
                     , CreateMode.EPHEMERAL);
+                System.out.println(String.format("znode %s criado", path));
             } else {
                 System.out.println(String.format("znode %s existente", path));
             }
