@@ -81,11 +81,13 @@ public class BioProtoImpl implements BioProto {
     @Override
     public List<NodeInfo> getPeers() throws AvroRemoteException {
 
-        NodeInfo nodeaux = new NodeInfo();
+        NodeInfo nodeaux;
         //for(PluginInfo info : discoveryService.getPeers())
         synchronized (LOCK) {
+            nodes.clear();
         for(PluginInfo info : discoveryService.getPeers().values()){
-           //esta setando nulo
+           nodeaux= new NodeInfo();
+            //esta setando nulo
            if(info!=null){
                 String address = info.getHost().getAddress();
                 nodeaux.setAddress(address);

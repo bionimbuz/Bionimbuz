@@ -68,7 +68,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
                 .build());
     }
 
-//    @Override
+    @Override
     public void run() {    
     //    List<PluginInfo> listPlugin = getPeers();
         System.out.println("running DiscoveryService...");

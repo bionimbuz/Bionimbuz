@@ -52,7 +52,7 @@ public class Upload implements Command {
         /*
          * Verifica se o arquivo existe
          */
-        shell.getRpcClient().getProxy().getPeers();
+        pluginList = shell.getRpcClient().getProxy().getPeers();
         return "teste";
 //         File file = new File(params[0]);
 //         if (file.exists()) {
