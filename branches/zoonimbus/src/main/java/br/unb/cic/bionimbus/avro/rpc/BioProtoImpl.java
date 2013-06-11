@@ -106,11 +106,10 @@ public class BioProtoImpl implements BioProto {
             for (NodeInfo node : list) {
               this.nodes.put(node.getAddress(), node);
             }
-        
-            PluginInfo plugin;
+
                for(NodeInfo nodeSeted : this.nodes.values()){
                     //setar o valor na map com o retorno do node
-                     plugin=discoveryService.getPeers().get(nodeSeted.getAddress());
+                     PluginInfo plugin = discoveryService.getPeers().get(nodeSeted.getPeerId());
                      if(nodeSeted.getLatency()!=null)
                         plugin.setLatency(nodeSeted.getLatency());
                 }            
@@ -142,4 +141,16 @@ public class BioProtoImpl implements BioProto {
 //        
 //        return null;  
 //   }
+
+    @Override
+    public List<NodeInfo> callStorage() throws AvroRemoteException {
+        List<NodeInfo> bestnode = storageService.bestNode();
+        return null;
+    }
+
+    /*@Override
+    public NodeInfo callStorage() throws AvroRemoteException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }*/
+
 }

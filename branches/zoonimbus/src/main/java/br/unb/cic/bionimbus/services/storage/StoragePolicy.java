@@ -32,7 +32,7 @@ public class StoragePolicy {
     /*
      * Calcular o custo de armazenamento de uma nuvem //ta passando so 1 plugin
      */
-    public long calcBestCost(PluginInfo pluginInfo) {
+    public void calcBestCost(Collection<PluginInfo> pluginList) {
 
         long cost;
         long uptime;
@@ -40,12 +40,16 @@ public class StoragePolicy {
         /*Calculando os custos de armazenamento dos peers
          *Custo = (Espaço livre + Uptime) * Latencia
          */
-        uptime = pluginInfo.getUptime() / 1000;
-        cost = (long) (((pluginInfo.getFsFreeSize() * peso_space) + 
+        
+        for(PluginInfo plugin : pluginList){
+             uptime = plugin.getUptime() / 1000;
+             cost = (long) (((plugin.getFsFreeSize() * peso_space) + 
                 (uptime * peso_uptime)) * 
-                (pluginInfo.getLatency() * peso_latency));
-
-        return cost;
+                (plugin.getLatency() * peso_latency));
+             plugin.setStorageCost(cost);
+             System.out.println("\n Ip: "+plugin.getHost().getAddress()+"  Custo de armazenamento: "+plugin.getStorageCost());
+        }
+       
 
     }
 

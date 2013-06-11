@@ -231,4 +231,7 @@ protocol BioProto {
 
   //Enviar plugins
   // void sendPlugins(array<NodeInfo> plugins);
+
+  //Chamar Storage Service
+    array<NodeInfo> callStorage();
 }
