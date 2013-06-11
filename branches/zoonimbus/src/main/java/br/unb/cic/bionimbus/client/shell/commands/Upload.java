@@ -20,6 +20,7 @@ import br.unb.cic.bionimbus.services.storage.StoragePolicy;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 import java.util.List;
 import java.util.Map;
@@ -53,6 +54,13 @@ public class Upload implements Command {
          * Verifica se o arquivo existe
          */
         pluginList = shell.getRpcClient().getProxy().getPeers();
+        for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
+            NodeInfo plugin = it.next();
+            plugin.setLatency(Ping.calculo(plugin.getAddress()));
+        }
+        //Seta o os nodes na bioproto
+        shell.getRpcClient().getProxy().setNodes(pluginList);
+        shell.getRpcClient().getProxy().callStorage();
         return "teste";
 //         File file = new File(params[0]);
 //         if (file.exists()) {

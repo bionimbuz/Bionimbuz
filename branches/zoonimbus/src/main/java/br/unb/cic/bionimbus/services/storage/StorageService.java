@@ -1,5 +1,6 @@
 package br.unb.cic.bionimbus.services.storage;
 
+import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 
 import java.io.File;
@@ -41,6 +42,7 @@ import com.google.inject.Singleton;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 
 @Singleton
 public class StorageService extends AbstractBioService {
@@ -248,5 +250,13 @@ public class StorageService extends AbstractBioService {
 
     public File getDataFolder() {
         return dataFolder;
+    }
+    
+    public List<NodeInfo> bestNode(){
+        
+        StoragePolicy policy = new StoragePolicy();
+        policy.calcBestCost(cloudMap.values());
+
+        return null;
     }
 }
