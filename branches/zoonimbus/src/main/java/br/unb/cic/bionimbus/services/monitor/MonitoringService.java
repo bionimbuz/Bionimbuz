@@ -41,6 +41,7 @@ import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.sched.SchedUpdatePeerData;
 import com.google.inject.Inject;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import org.apache.zookeeper.KeeperException;
@@ -232,10 +233,9 @@ public class MonitoringService extends AbstractBioService implements Service, P2
     }
 
     private void checkRunningJobs() throws KeeperException,InterruptedException, IOException{
-        List<PluginInfo> plgs;
+        List<PluginInfo> plgs = new ArrayList<PluginInfo> (getPeers().values());
         List<String> listTasks;
         
-        plgs = (List)getPeers().values();
 
         for (PluginInfo plugin : plgs) {
             

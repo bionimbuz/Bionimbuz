@@ -106,7 +106,7 @@ public class AcoSched extends SchedPolicy {
 
     public List getExactClouds(JobInfo jobInfo) {
         //seleciona as nuvens disponíveis para o tipo informado
-        List cloudList = filterTypeCloud(getCloudList(), 2); //adiciona filtro se opção for apenas para nuvens públicas, opcao 2 para ambas
+        List cloudList = filterTypeCloud(getCloudMap().values(), 2); //adiciona filtro se opção for apenas para nuvens públicas, opcao 2 para ambas
 
         //configurar o tipo de serviço requerido
         filterByService(jobInfo.getServiceId(), cloudList);

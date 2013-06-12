@@ -122,8 +122,6 @@ public class SchedService extends AbstractBioService implements Service, P2PList
         }
         //Verificar o pq não funciona TO DO pode ser excluido?
         schedPolicy.setCloudMap((ConcurrentHashMap<String, PluginInfo>)getPeers());
-        //atualiza os peers da cloud
-        //schedPolicy.setCloudList();
         return schedPolicy;
     }
 
@@ -407,8 +405,9 @@ public class SchedService extends AbstractBioService implements Service, P2PList
     public void start(P2PService p2p) {
         //atualiza os peers da cloud
         // TO DO retirar getpolicy?c
-        getPolicy();
-        for(PluginInfo pluginInfo :schedPolicy.getCloudList()){
+    getPolicy();
+    List<PluginInfo> listPlugin = new ArrayList<PluginInfo>(getPeers().values());
+    for(PluginInfo pluginInfo : listPlugin){
             zkService.createPersistentZNode(JOBS, null);
             zkService.createPersistentZNode(pluginInfo.getPath_zk()+SCHED, null);
             zkService.createPersistentZNode(pluginInfo.getPath_zk()+SCHED+TASKS, null);
