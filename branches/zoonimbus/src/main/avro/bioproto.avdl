@@ -223,8 +223,14 @@ protocol BioProto {
     long latency;
   }
 
+  record FileInfo{
+    string fileId;
+    long size;
+    string path;    
+  }
+
   //Get peers from server
-  array<NodeInfo> getPeers();
+  array<NodeInfo> getPeersNode();
 
   //Set node with latency from client
    void setNodes(array<NodeInfo> list);  

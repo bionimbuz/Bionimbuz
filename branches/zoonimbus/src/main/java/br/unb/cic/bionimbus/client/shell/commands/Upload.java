@@ -24,6 +24,7 @@ import java.util.Iterator;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
@@ -53,23 +54,26 @@ public class Upload implements Command {
         /*
          * Verifica se o arquivo existe
          */
-        pluginList = shell.getRpcClient().getProxy().getPeers();
+        pluginList = shell.getRpcClient().getProxy().getPeersNode();
         for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
             NodeInfo plugin = it.next();
             plugin.setLatency(Ping.calculo(plugin.getAddress()));
         }
         //Seta o os nodes na bioproto
         shell.getRpcClient().getProxy().setNodes(pluginList);
-        shell.getRpcClient().getProxy().callStorage();
+      //  shell.getRpcClient().getProxy().callStorage();
+        
+         File file = new File(params[0]);
+         if (file.exists()) {
+            System.out.println("Uploading file ...");
+            FileInfo info = new FileInfo();
+            info.setId(UUID.randomUUID().toString());
+            info.setName(params[0]);
+            info.setSize(file.length());
+         }
         return "teste";
-//         File file = new File(params[0]);
-//         if (file.exists()) {
-//            System.out.println("Uploading file ...");
-//          //  shell.getRpcClient().getProxy().getPeers();
-//            FileInfo info = new FileInfo();
-//            info.setName(params[0]);
-//            info.setSize(file.length());
-//            // verificar diferença sem rpccliente shell.getProxy().getPeers();
+//  shell.getRpcClient().getProxy().getPeers();
+// verificar diferença sem rpccliente shell.getProxy().getPeers();
 //            for(NodeInfo plugin : shell.getRpcClient().getProxy().getPeers()){
 //                plugin.setLatency(Ping.calculo(plugin.getAddress()));
 //            }
