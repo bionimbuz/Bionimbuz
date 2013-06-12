@@ -30,7 +30,7 @@ public class ServiceModule extends AbstractModule {
         serviceBinder.addBinding().to(DiscoveryService.class);
         serviceBinder.addBinding().to(StorageService.class);
         serviceBinder.addBinding().to(SchedService.class);
-//		serviceBinder.addBinding().to(MonitoringService.class);
+        serviceBinder.addBinding().to(MonitoringService.class);
     }
 
 }

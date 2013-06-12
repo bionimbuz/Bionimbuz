@@ -23,13 +23,13 @@ public class UpdatePeerData implements Watcher  {
     }
 
     
-    
+    /**
+     * Recebe as notificações de evento do zookeeper.
+     * @param event evento que identifica a mudança realizada no zookeeper
+     */
     @Override
     public void process(WatchedEvent event){
         //Tratar eventos quando ocorrerem,
-        //como retornar para a classe que realizou a instância do Wath?
-        
-        
         
         //Realiza a solicitação para um novo observer
         try {
