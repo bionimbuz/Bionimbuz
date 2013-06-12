@@ -54,6 +54,7 @@ public class Upload implements Command {
         /*
          * Verifica se o arquivo existe
          */
+        System.out.println("\n Calculando Latencia.....");
         pluginList = shell.getRpcClient().getProxy().getPeersNode();
         for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
             NodeInfo plugin = it.next();
@@ -61,7 +62,7 @@ public class Upload implements Command {
         }
         //Seta o os nodes na bioproto
         shell.getRpcClient().getProxy().setNodes(pluginList);
-      //  shell.getRpcClient().getProxy().callStorage();
+        shell.getRpcClient().getProxy().callStorage();
         
          File file = new File(params[0]);
          if (file.exists()) {

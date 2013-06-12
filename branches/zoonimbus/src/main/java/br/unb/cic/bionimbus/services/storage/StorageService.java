@@ -70,13 +70,14 @@ public class StorageService extends AbstractBioService {
         // teste
         Counter c = metricRegistry.counter("teste");
         c.inc();
-
+        
+        
         if (!dataFolder.exists()) {
             System.out.println("dataFolder " + dataFolder + " doesn't exists, creating...");
             dataFolder.mkdirs();
             //Recuperar a lista de plugins setados com a latência
-            cloudMap = discoveryService.getPeers();
-            cloudMap.isEmpty();
+           // cloudMap = discoveryService.getPeers();
+ //           cloudMap.isEmpty();
 
             //verifica se existe o arquivo na pasta persistent-storage e se os arquivos nele gravado estão nas pastas
            /*File file = new File("data-folder/persistent-storage.json");
@@ -98,8 +99,9 @@ public class StorageService extends AbstractBioService {
 
     @Override
     public void run() {
+        
         System.out.println("Running StorageService...");
-        System.out.println("Cloudmap vazia?:"+cloudMap.values().isEmpty());
+       // System.out.println("Cloudmap vazia?:"+cloudMap.values().isEmpty());
         System.out.println("Executando loop.");
 
         //  System.out.println(" \n Hosts: " + p2p.getConfig().getHost());
@@ -253,12 +255,13 @@ public class StorageService extends AbstractBioService {
         return dataFolder;
     }
     
-    public List<NodeInfo> bestNode(){
+    public String bestNode(){
         
+        cloudMap = discoveryService.getPeers();
         StoragePolicy policy = new StoragePolicy();
         policy.calcBestCost(cloudMap.values());
 
-        return null;
+        return "custo calculado";
     }
 
     @Override

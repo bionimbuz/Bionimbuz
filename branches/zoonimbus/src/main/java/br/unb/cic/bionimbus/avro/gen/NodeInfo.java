@@ -7,11 +7,11 @@ package br.unb.cic.bionimbus.avro.gen;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"NodeInfo\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"fields\":[{\"name\":\"peerId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"address\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"latency\",\"type\":\"long\"}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"NodeInfo\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"fields\":[{\"name\":\"peerId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"address\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"latency\",\"type\":\"double\"}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public java.lang.String peerId;
   @Deprecated public java.lang.String address;
-  @Deprecated public long latency;
+  @Deprecated public double latency;
 
   /**
    * Default constructor.
@@ -21,7 +21,7 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
   /**
    * All-args constructor.
    */
-  public NodeInfo(java.lang.String peerId, java.lang.String address, java.lang.Long latency) {
+  public NodeInfo(java.lang.String peerId, java.lang.String address, java.lang.Double latency) {
     this.peerId = peerId;
     this.address = address;
     this.latency = latency;
@@ -43,7 +43,7 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
     switch (field$) {
     case 0: peerId = (java.lang.String)value$; break;
     case 1: address = (java.lang.String)value$; break;
-    case 2: latency = (java.lang.Long)value$; break;
+    case 2: latency = (java.lang.Double)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -81,7 +81,7 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
   /**
    * Gets the value of the 'latency' field.
    */
-  public java.lang.Long getLatency() {
+  public java.lang.Double getLatency() {
     return latency;
   }
 
@@ -89,7 +89,7 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
    * Sets the value of the 'latency' field.
    * @param value the value to set.
    */
-  public void setLatency(java.lang.Long value) {
+  public void setLatency(java.lang.Double value) {
     this.latency = value;
   }
 
@@ -116,7 +116,7 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
 
     private java.lang.String peerId;
     private java.lang.String address;
-    private long latency;
+    private double latency;
 
     /** Creates a new Builder */
     private Builder() {
@@ -196,12 +196,12 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
     }
 
     /** Gets the value of the 'latency' field */
-    public java.lang.Long getLatency() {
+    public java.lang.Double getLatency() {
       return latency;
     }
     
     /** Sets the value of the 'latency' field */
-    public br.unb.cic.bionimbus.avro.gen.NodeInfo.Builder setLatency(long value) {
+    public br.unb.cic.bionimbus.avro.gen.NodeInfo.Builder setLatency(double value) {
       validate(fields()[2], value);
       this.latency = value;
       fieldSetFlags()[2] = true;
@@ -225,7 +225,7 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
         NodeInfo record = new NodeInfo();
         record.peerId = fieldSetFlags()[0] ? this.peerId : (java.lang.String) defaultValue(fields()[0]);
         record.address = fieldSetFlags()[1] ? this.address : (java.lang.String) defaultValue(fields()[1]);
-        record.latency = fieldSetFlags()[2] ? this.latency : (java.lang.Long) defaultValue(fields()[2]);
+        record.latency = fieldSetFlags()[2] ? this.latency : (java.lang.Double) defaultValue(fields()[2]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

@@ -27,15 +27,15 @@ public class StoragePolicy {
 
     Collection<PluginInfo> best = new ArrayList<PluginInfo>();
 
-    private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
-
-    /*
+    /**
      * Calcular o custo de armazenamento de uma nuvem //ta passando so 1 plugin
+     * @param pluginList 
      */
+    
     public void calcBestCost(Collection<PluginInfo> pluginList) {
 
-        long cost;
-        long uptime;
+        double cost;
+        double uptime;
 
         /*Calculando os custos de armazenamento dos peers
          *Custo = (Espaço livre + Uptime) * Latencia
@@ -67,7 +67,7 @@ public class StoragePolicy {
             
             @Override
             public int compare(PluginInfo o1, PluginInfo o2) {
-                return Long.compare(o1.getStorageCost(),o2.getStorageCost());    
+                return Double.compare(o1.getStorageCost(),o2.getStorageCost());    
             }
         });
 

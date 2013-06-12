@@ -117,10 +117,10 @@ public class AHPPolicy extends SchedPolicy {
         return sum;
     }
 
-    public static float comparePluginInfo(PluginInfo a, PluginInfo b,
+    public static double comparePluginInfo(PluginInfo a, PluginInfo b,
                                           String attribute) {
-        float valueA = 0.0f;
-        float valueB = 0.0f;
+        double valueA = 0.0f;
+        double valueB = 0.0f;
 
         if (attribute.equals("latency")) {
             // Tem que ser inverso ja que no caso de latency quanto menor
