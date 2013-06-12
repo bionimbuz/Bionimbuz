@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.WatchedEvent;
 import org.omg.CORBA.Current;
 
 @Singleton
@@ -72,7 +73,6 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
     public void run() {    
     //    List<PluginInfo> listPlugin = getPeers();
         System.out.println("running DiscoveryService...");
-        
         Map<String, PluginInfo> listPlugin = getPeers();
         if(!listPlugin.isEmpty()){
             map.clear();
@@ -145,6 +145,16 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
     public void getStatus() {
     }
 
+    /**
+     * Trata os watchers enviados da implementação da classe Watcher que recebe uma notificação do zookeeper
+     * @param eventType evento recebido do zookeeper
+     */
+    @Override
+    public void event(WatchedEvent eventType) {
+        
+    }
+
+    
     @Override
     public void onEvent(final P2PEvent event) {
 //		if (!event.getType().equals(P2PEventType.MESSAGE))

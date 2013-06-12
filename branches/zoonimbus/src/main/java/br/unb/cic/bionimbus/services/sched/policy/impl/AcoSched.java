@@ -9,18 +9,14 @@ import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskState;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
+import br.unb.cic.bionimbus.services.sched.SchedUpdatePeerData;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
-import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.hadoop.mapred.Mapper;
 import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 /**
@@ -68,11 +64,13 @@ public class AcoSched extends SchedPolicy {
         
         //realiza a chamada do método para a leitura dos dados no servidor zookeeper
         mapAcoDatas = getMapAcoDatasZooKeeper(listPlugin);
-        
+
         //verifica se existe mais de um plugin para rodar a tarefa, se não houver retorna o plugin existente        ***descomentar ao estar em rede com outros plugins
 //        if(listServices.size()==1){                       
 //            return listServices.iterator().next();
 //        }
+        if(listPlugin.isEmpty())
+            return null;
         
         //inicia o ACO para encontrar melhor PC dentro das nuvens escolhidas para o job
         AlgorithmAco(listPlugin);
@@ -253,7 +251,8 @@ public class AcoSched extends SchedPolicy {
         ArrayList<PluginInfo> plugins = new ArrayList<PluginInfo>();
 
         for (PluginInfo pluginInfo : plgs) {
-            if (pluginInfo.getService(serviceId) != null)
+            //TO DO descobrir se o serviço existe
+//            if (pluginInfo.getService(serviceId) != null)
                 plugins.add(pluginInfo);
         }
         plgs.retainAll(plugins);
@@ -309,14 +308,14 @@ public class AcoSched extends SchedPolicy {
     private void pheromone(PluginInfo plugin){
         Double p = 0.8, pheronome=0d;
 
-        if (!mapAcoDatas.get(plugin.getId()).isEmpty()) {
+        if (mapAcoDatas.get(plugin.getId())!=null && !mapAcoDatas.get(plugin.getId()).isEmpty()) {
             pheronome = mapAcoDatas.get(plugin.getId()).get(0);
 
             //colocar variação para quando achar a melhor solução
             pheronome = (1 - p) * pheronome + (1 / smallerProbability);
             mapAcoDatas.get(plugin.getId()).set(0, pheronome);
         }else{
-            ArrayList<Double> datas = mapAcoDatas.get(plugin.getId());
+            ArrayList<Double> datas = new ArrayList<Double>();
             pheronome = capacityPlugin(plugin);
             /*
             * mapeamento dos dados de cada plugin para os valores usados no ACO
@@ -537,12 +536,16 @@ public class AcoSched extends SchedPolicy {
             datasString = getDatasZookeeper(plugin, SCHED);
              ObjectMapper mapper =  new ObjectMapper();
             try {
-                ArrayList t = mapper.readValue(datasString, ArrayList.class);
-            map.put(plugin.getId(),t);
+                if(datasString !=null && !datasString.isEmpty()){
+                    ArrayList array = mapper.readValue(datasString, ArrayList.class);
+                    map.put(plugin.getId(),array);
+                }else{
+                    map.put(plugin.getId(),null);
+                }
+                
             } catch (Exception ex) {
                 Logger.getLogger(AcoSched.class.getName()).log(Level.SEVERE, null, ex);
             }
-//            map.put(plugin.getId(),getListDouble(datasString));
         }
     
         return map;
@@ -557,6 +560,7 @@ public class AcoSched extends SchedPolicy {
         while(it.hasNext()){
             PluginInfo plugin= (PluginInfo)it.next();
             setDatasZookeeper(plugin.getPath_zk(), SCHED, mapAcoDatas.get(plugin.getId()).toString());
+//                       setDatasZookeeper(plugin.getPath_zk(), SCHED, "");
         }
     
     }
@@ -569,7 +573,7 @@ public class AcoSched extends SchedPolicy {
      */
     private String getDatasZookeeper(PluginInfo plugin, String dir){
         String datas = "";
-        
+        Watcher teste =  new SchedUpdatePeerData(zk, null);
         try {
             datas = zk.getData(plugin.getPath_zk()+dir, null);
         } catch (KeeperException ex) {

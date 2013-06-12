@@ -43,6 +43,7 @@ import com.google.inject.Singleton;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import org.apache.zookeeper.WatchedEvent;
 
 @Singleton
 public class StorageService extends AbstractBioService {
@@ -258,5 +259,10 @@ public class StorageService extends AbstractBioService {
         policy.calcBestCost(cloudMap.values());
 
         return null;
+    }
+
+    @Override
+    public void event(WatchedEvent eventType) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
