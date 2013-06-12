@@ -22,6 +22,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.zookeeper.KeeperException;
+import org.codehaus.jackson.map.ObjectMapper;
 
 public class BioProtoImpl implements BioProto {
 
@@ -107,9 +111,19 @@ public class BioProtoImpl implements BioProto {
 
                for(NodeInfo nodeSeted : this.nodes.values()){
                     //setar o valor na map com o retorno do node
-                     PluginInfo plugin = discoveryService.getPeers().get(nodeSeted.getPeerId());
-                     if(nodeSeted.getLatency()!=null)
-                        plugin.setLatency(nodeSeted.getLatency());
+                   PluginInfo plugin = this.discoveryService.getPeers().get(nodeSeted.getPeerId());
+                    
+                   if(nodeSeted.getLatency()!=null)
+                       plugin.setLatency(nodeSeted.getLatency());
+               try {
+                   zkService.setData(plugin.getPath_zk(), plugin.toString());
+               } catch (KeeperException ex) {
+                   Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+               } catch (InterruptedException ex) {
+                   Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+               }
+                        
+                    
                 }            
         
       return null;
@@ -142,7 +156,8 @@ public class BioProtoImpl implements BioProto {
 
     @Override
     public List<NodeInfo> callStorage() throws AvroRemoteException {
-        List<NodeInfo> bestnode = storageService.bestNode();
+        
+        String bestnode = storageService.bestNode();
         return null;
     }
 

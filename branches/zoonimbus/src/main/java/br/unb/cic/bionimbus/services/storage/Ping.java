@@ -16,11 +16,11 @@ public class Ping {
     // private String pingCmd;
     // public static void main(String[] args) throws IOException{
 
-    public static long calculo(String pingCmd) throws IOException {
+    public static double calculo(String pingCmd) throws IOException {
 
         //String pingCmd = "192.168.1.146";
 
-        long avg = 0;
+        double avg = 0;
         float taxadetransferencia = 0;
         float sizerequest = 0;
         float temporesp = 0;
@@ -64,7 +64,7 @@ public class Ping {
             times += 1;
             //        pingResult += teste;
         }
-        long avglatency = avg / (times - 1);
+        double avglatency = avg / (times - 1);
 
         return avglatency;
        /* }
