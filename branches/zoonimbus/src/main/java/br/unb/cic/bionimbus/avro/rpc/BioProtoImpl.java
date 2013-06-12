@@ -30,7 +30,7 @@ public class BioProtoImpl implements BioProto {
     private final SchedService schedService;
     private final ZooKeeperService zkService;
     
-    private static final Object LOCK = new Object();
+//    private static final Object LOCK = new Object();
     
     private Map<String, NodeInfo> nodes = new HashMap<String, NodeInfo>();
 
@@ -79,12 +79,11 @@ public class BioProtoImpl implements BioProto {
     }
 
     @Override
-    public List<NodeInfo> getPeers() throws AvroRemoteException {
+    public synchronized List<NodeInfo> getPeersNode() throws AvroRemoteException {
 
         NodeInfo nodeaux;
         //for(PluginInfo info : discoveryService.getPeers())
-        synchronized (LOCK) {
-            nodes.clear();
+        nodes.clear();
         for(PluginInfo info : discoveryService.getPeers().values()){
            nodeaux= new NodeInfo();
             //esta setando nulo
@@ -96,14 +95,13 @@ public class BioProtoImpl implements BioProto {
                 nodes.put(address, nodeaux);
            }
         }
-        }
+        
         return new ArrayList<NodeInfo>(nodes.values());
     }
     //Set the nodes from the clients with latency
     @Override
-    public Void setNodes(List<NodeInfo> list) throws AvroRemoteException {
-        synchronized (LOCK) {
-            for (NodeInfo node : list) {
+    public synchronized Void setNodes(List<NodeInfo> list) throws AvroRemoteException {
+           for (NodeInfo node : list) {
               this.nodes.put(node.getAddress(), node);
             }
 
@@ -113,7 +111,7 @@ public class BioProtoImpl implements BioProto {
                      if(nodeSeted.getLatency()!=null)
                         plugin.setLatency(nodeSeted.getLatency());
                 }            
-        }
+        
       return null;
     }
 
