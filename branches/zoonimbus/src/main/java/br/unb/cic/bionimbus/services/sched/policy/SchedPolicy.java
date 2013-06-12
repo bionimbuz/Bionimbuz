@@ -15,7 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class SchedPolicy {
     private ConcurrentHashMap<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
-    private List<PluginInfo> cloudList = new ArrayList<PluginInfo>();
 
     public void setCloudMap(ConcurrentHashMap<String, PluginInfo> cloudMap) {
         this.cloudMap = cloudMap;
@@ -23,14 +22,6 @@ public abstract class SchedPolicy {
     
     protected ConcurrentHashMap<String, PluginInfo> getCloudMap() {
         return this.cloudMap;
-    }
-    
-    public void setCloudList(List<PluginInfo> cloudList) {
-        this.cloudList = cloudList;
-    }
-
-    public List<PluginInfo> getCloudList() {
-        return cloudList;
     }
 
     public static SchedPolicy getInstance() {
