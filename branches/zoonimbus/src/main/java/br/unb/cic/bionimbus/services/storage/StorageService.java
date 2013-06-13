@@ -42,6 +42,7 @@ import com.google.inject.Singleton;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 
 @Singleton
@@ -78,21 +79,7 @@ public class StorageService extends AbstractBioService {
            // cloudMap = discoveryService.getPeers();
  //           cloudMap.isEmpty();
 
-            //verifica se existe o arquivo na pasta persistent-storage e se os arquivos nele gravado estão nas pastas
-           /*File file = new File("data-folder/persistent-storage.json");
-             if (file.exists()) {
-             try {
-             ObjectMapper mapper = new ObjectMapper();
-             Map<String, PluginFile> map = mapper.readValue(new File("persistent-storage.json"), new TypeReference<Map<String, PluginFile>>() {
-             });
-             if (filesChanged(map.values()))
-             map = mapper.readValue(new File("persistent-storage.json"), new TypeReference<Map<String, PluginFile>>() {
-             });
-             savedFiles = new ConcurrentHashMap<String, PluginFile>(map);
-             } catch (Exception e) {
-             e.printStackTrace();
-             }
-             }*/
+
         }
     }
 
@@ -218,10 +205,15 @@ public class StorageService extends AbstractBioService {
         }
     }
 
-    /**
+    /**  
      * Verifica se os arquivos listados no persistent storage existem, caso não
      * existam é gerado um novo persistent-storage.json
+     *
+     * @param files
+     * @return
+     * @throws IOException 
      */
+     
     public boolean filesChanged(Collection<PluginFile> files) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         Collection<PluginFile> savedFilesOld = files;
@@ -233,7 +225,7 @@ public class StorageService extends AbstractBioService {
             }
         }
         if (!savedFiles.isEmpty() && !savedFiles.equals(savedFilesOld)) {
-            mapper.writeValue(new File("persistent-storage.json"), savedFiles);
+            mapper.writeValue(new File("data-folder/persistent-storage.json"), savedFiles);
             return true;
         }
         return false;
@@ -254,6 +246,20 @@ public class StorageService extends AbstractBioService {
         return dataFolder;
     }
     
+
+    public void storeFileRec(PluginFile fileC){
+        PluginFile file=fileC;
+        file.setPath("data-folder/"+file.getName());
+        savedFiles.put(file.getId(),file);
+        try {
+                    ObjectMapper mapper = new ObjectMapper();
+                    mapper.writeValue(new File("data-folder/persistent-storage.json"), savedFiles);
+        } catch (Exception e) {
+                    e.printStackTrace();
+        }
+    }
+    
+
     public List<NodeInfo> bestNode(){
         
         List<NodeInfo> plugin;
@@ -263,7 +269,36 @@ public class StorageService extends AbstractBioService {
 
         return plugin;
     }
-
+    
+    public void fileUploaded(PluginFile fileuploaded) throws KeeperException, InterruptedException{
+        if (zkService.getZNodeExist("/pending_save/file_"+fileuploaded.getId(), false))
+        {    
+           File fileServer =new File(fileuploaded.getPath());
+           if(fileServer.exists()){
+               storeFileRec(fileuploaded);
+               //verifica se existe o arquivo persistent-storage na pasta data-folder e se os arquivos nele gravado estão na mesma
+               File persitent = new File("data-folder/persistent-storage.json");
+               if (persitent.exists()) {
+                      try {
+                          ObjectMapper mapper = new ObjectMapper();
+                          Map<String, PluginFile> map = mapper.readValue(new File("data-folder/persistent-storage.json"), 
+                                                                         new TypeReference<Map<String, PluginFile>>() {});
+                          if (filesChanged(map.values()))
+                              map = mapper.readValue(new File("data-folder/persistent-storage.json"), 
+                                                     new TypeReference<Map<String, PluginFile>>() {});
+                          savedFiles = new ConcurrentHashMap<String, PluginFile>(map);
+                      } catch (Exception e) {
+                          e.printStackTrace();
+                      }
+                   }
+                   zkService.delete("/pending_save/file_"+fileuploaded.getId());
+           }else
+               System.out.println("Arquivo não encontrado!");
+        }
+        else
+            System.out.println("Arquivo não encontrado nas pendências !");
+        
+    }
     @Override
     public void event(WatchedEvent eventType) {
         throw new UnsupportedOperationException("Not supported yet.");

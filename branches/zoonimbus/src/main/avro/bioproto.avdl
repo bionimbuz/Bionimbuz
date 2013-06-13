@@ -226,8 +226,11 @@ protocol BioProto {
   record FileInfo{
     string fileId;
     long size;
-    string path;    
+    string name;    
   }
+
+   //Set information file that will be uploaded
+   void setFileInfo(FileInfo file);
 
   //Get peers from server
   array<NodeInfo> getPeersNode();
@@ -238,6 +241,8 @@ protocol BioProto {
   //Enviar plugins
   // void sendPlugins(array<NodeInfo> plugins);
 
+  //Mensagem de arquivo enviado com sucesso do cliente pro servidor
+    void fileSent(FileInfo fileSucess,string dest);
   //Chamar Storage Service
     array<NodeInfo> callStorage();
 }

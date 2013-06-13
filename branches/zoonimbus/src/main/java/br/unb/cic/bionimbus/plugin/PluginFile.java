@@ -1,12 +1,17 @@
 package br.unb.cic.bionimbus.plugin;
 
-import java.util.UUID;
+/**
+ * Classe que recebe os dados do arquivo enviado pelo cliente
+ * @author breno-linux
+ */
 
 public class PluginFile {
 
-    private String id = UUID.randomUUID().toString();
+    private String id;
 
     private String path;
+    
+    private String name;
 
     private long size;
 
@@ -55,16 +60,30 @@ public class PluginFile {
 
         PluginFile other = (PluginFile) object;
 
-        return this.id.equals(other.id);
+        return this.getId().equals(other.getId());
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return getId().hashCode();
     }
 
     @Override
     public String toString() {
-        return id + ":" + path;
+        return getId() + ":" + path;
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 }

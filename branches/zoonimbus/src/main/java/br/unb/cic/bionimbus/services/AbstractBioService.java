@@ -30,6 +30,11 @@ public abstract class AbstractBioService implements Service, P2PListener, Runnab
     private static final String SEPARATOR = "/";
     private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
     //public List<PluginInfo> getPeers(){
+    
+    /**
+     * Método que resgata os peers do zookeeper, que retorna um mapa com os valores dos plugins;
+     * @return 
+     */
     public Map<String, PluginInfo> getPeers(){
         List<String> children;
 //        List<PluginInfo> listPlugin= new ArrayList<PluginInfo>();

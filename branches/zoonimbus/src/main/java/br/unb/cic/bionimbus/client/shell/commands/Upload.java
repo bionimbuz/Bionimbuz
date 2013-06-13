@@ -1,10 +1,13 @@
 package br.unb.cic.bionimbus.client.shell.commands;
 
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
+import br.unb.cic.bionimbus.avro.gen.FileInfo;
+
+
 
 import java.io.File;
 
-import br.unb.cic.bionimbus.client.FileInfo;
+//import br.unb.cic.bionimbus.client.FileInfo;
 import br.unb.cic.bionimbus.client.shell.Command;
 import br.unb.cic.bionimbus.client.shell.SimpleShell;
 import br.unb.cic.bionimbus.services.storage.Ping;
@@ -36,26 +39,39 @@ public class Upload implements Command {
          */
         System.out.println("\n Calculando Latencia.....");
         pluginList = shell.getRpcClient().getProxy().getPeersNode();
+        
         for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
             NodeInfo plugin = it.next();
             plugin.setLatency(Ping.calculo(plugin.getAddress()));
         }
+        
         //Seta o os nodes na bioproto
         shell.getRpcClient().getProxy().setNodes(pluginList);
         nodes = shell.getRpcClient().getProxy().callStorage();
-        
+
+    
+        String dest="3943483403afc";
         System.out.println("\n\n TESTE");
         for(NodeInfo node : nodes){
             System.out.println("\nMelhor no: "+node.getPeerId());
+            //Se a conexão retornou com sucesso;
+            if(true)
+                dest=node.getPeerId();
         }
+
          File file = new File(params[0]);
          if (file.exists()) {
             System.out.println("Uploading file ...");
             FileInfo info = new FileInfo();
-            info.setId(UUID.randomUUID().toString());
-            info.setName(params[0]);
+            String path =params[0];
+            info.setFileId(UUID.randomUUID().toString());
+            info.setName(path.substring(1+path.lastIndexOf("/")).trim());
             info.setSize(file.length());
+            shell.getRpcClient().getProxy().fileSent(info,dest);
          }
+         //apos o envio do arquivo tudo com sucesso
+         
+         
         return "teste";
 //  shell.getRpcClient().getProxy().getPeers();
 // verificar diferença sem rpccliente shell.getProxy().getPeers();
