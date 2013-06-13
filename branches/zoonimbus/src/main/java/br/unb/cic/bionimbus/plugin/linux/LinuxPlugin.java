@@ -25,6 +25,10 @@ public class LinuxPlugin extends AbstractPlugin{
     public LinuxPlugin(final P2PService p2p) throws IOException {
         super(p2p);
     }
+    
+    public LinuxPlugin() throws IOException{
+        this(null);
+    }
 
     @Override
     protected Future<PluginInfo> startGetInfo() {

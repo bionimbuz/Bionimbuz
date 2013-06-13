@@ -11,7 +11,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.codahale.metrics.Counter;
-import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -257,9 +256,10 @@ public class StorageService extends AbstractBioService {
     
     public String bestNode(){
         
+        List<PluginInfo> plugin;
         cloudMap = discoveryService.getPeers();
         StoragePolicy policy = new StoragePolicy();
-        policy.calcBestCost(cloudMap.values());
+        plugin = policy.calcBestCost(cloudMap.values());
 
         return "custo calculado";
     }
