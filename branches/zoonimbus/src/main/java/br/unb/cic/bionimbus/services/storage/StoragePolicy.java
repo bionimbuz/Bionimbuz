@@ -32,24 +32,29 @@ public class StoragePolicy {
      * @param pluginList 
      */
     
-    public void calcBestCost(Collection<PluginInfo> pluginList) {
+    public List<PluginInfo> calcBestCost(Collection<PluginInfo> pluginList) {
 
         double cost;
         double uptime;
-
+        double freesize;
+        
         /*Calculando os custos de armazenamento dos peers
          *Custo = (Espaço livre + Uptime) * Latencia
          */
         
         for(PluginInfo plugin : pluginList){
              uptime = plugin.getUptime() / 1000;
-             cost = (long) (((plugin.getFsFreeSize() * peso_space) + 
+             freesize = (plugin.getFsFreeSize() / 1024 / 1024 / 1024);
+             cost = (long) (((freesize * peso_space) + 
                 (uptime * peso_uptime)) * 
                 (plugin.getLatency() * peso_latency));
              plugin.setStorageCost(cost);
              System.out.println("\n Ip: "+plugin.getHost().getAddress()+"  Custo de armazenamento: "+plugin.getStorageCost());
         }
-       
+        List<PluginInfo> plugin = SwapTypePlugin(pluginList);
+        sortPlugins(plugin);
+        
+        return plugin;
 
     }
 
@@ -57,7 +62,7 @@ public class StoragePolicy {
      * Quicksort para ordenar as melhores nuvens para armazenar os dados de acordo com o 
      * custo de armazenamento das nuvens
      */
-    public List<PluginInfo> SortPlugins(List<PluginInfo> plugins){  
+    public List<PluginInfo> sortPlugins(List<PluginInfo> plugins) {  
         
         /*
          * Metodo Sort para ordenar os plugins de acordo com o custo de armazenamento
@@ -70,7 +75,9 @@ public class StoragePolicy {
                 return Double.compare(o1.getStorageCost(),o2.getStorageCost());    
             }
         });
-
+        for(PluginInfo plugin : plugins){
+            System.out.println("ID: "+plugin.getId()+"\n Custo de armazenamento: "+plugin.getStorageCost());
+        }
         return plugins;
     } 
         
@@ -85,4 +92,9 @@ public class StoragePolicy {
         }
         return plugin;
     } 
+    
+    public void sendFile(){
+        
+        
+    }
 }
