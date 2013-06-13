@@ -45,9 +45,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 //    private static final String ROOT_PEER = "/peers";
     private static final String SEPARATOR = "/";
     private static final String STATUS = "STATUS";
-//    private static final String FILES = "files";
-//    private static final String PREFIX_FILE = "file_";
-//    private String peerName;
+
     private ConcurrentMap<String, PluginInfo> map = Maps.newConcurrentMap();
 
     @Inject
@@ -79,13 +77,11 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
     //         for (PluginInfo myInfo : listPlugin){
             for (PluginInfo myInfo : listPlugin.values()) {
                 try {
-                    //não está pegando o STATUS, zkService está nulo tchatcha
-                   
-                    if(zkService.getZNodeExist(myInfo.getPath_zk()+SEPARATOR+STATUS, false)){
-                            map.put(myInfo.getId(), myInfo);
-                    }else{
-                        zkService.delete(myInfo.getPath_zk());
-                    }
+                        if(zkService.getZNodeExist(myInfo.getPath_zk()+SEPARATOR+STATUS, false)){
+                                map.put(myInfo.getId(), myInfo);
+                        }else{
+                            zkService.delete(myInfo.getPath_zk());
+                        }
                 } catch (KeeperException ex) {
                     Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (InterruptedException ex) {

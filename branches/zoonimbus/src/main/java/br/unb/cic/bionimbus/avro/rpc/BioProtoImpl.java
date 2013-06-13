@@ -1,9 +1,12 @@
 package br.unb.cic.bionimbus.avro.rpc;
 
 import br.unb.cic.bionimbus.avro.gen.BioProto;
+import br.unb.cic.bionimbus.avro.gen.FileInfo;
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
+import br.unb.cic.bionimbus.services.ServiceManager;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import br.unb.cic.bionimbus.services.sched.SchedService;
@@ -33,7 +36,7 @@ public class BioProtoImpl implements BioProto {
     private final StorageService storageService;
     private final SchedService schedService;
     private final ZooKeeperService zkService;
-    
+  //  private FileInfo file;
 //    private static final Object LOCK = new Object();
     
     private Map<String, NodeInfo> nodes = new HashMap<String, NodeInfo>();
@@ -161,5 +164,44 @@ public class BioProtoImpl implements BioProto {
         List<NodeInfo> bestnodes = storageService.bestNode();
         return bestnodes;
     } 
+    /**
+     * Método que cria o znode do arquivo no diretório /pending_save/file_"id_do arquivo" com as informações de arquivos que clientes querem enviar;
+     * @param file
+     * @return
+     * @throws AvroRemoteException 
+     */
+    @Override
+    public Void setFileInfo(FileInfo file) throws AvroRemoteException {
+        PluginFile filePlugin= new PluginFile();
+        filePlugin.setId(file.getFileId());
+        //*Alterar depois caminho para o zookeeperservice
+        filePlugin.setPath("/pending_save/file_"+filePlugin.getId());
+        filePlugin.setSize(file.getSize());
+        zkService.createPersistentZNode("/pending_save/file_"+filePlugin.getId(), filePlugin.toString());
+       return null;
+    }
+//    public FileInfo getFileInfo(){
+//        return this.file;
+//    }
+
+    @Override
+    public synchronized Void fileSent(FileInfo fileSucess, String dest) throws AvroRemoteException {
+        PluginFile file= new PluginFile();
+        file.setId(fileSucess.getFileId());
+        file.setSize(fileSucess.getSize());
+        file.setName(fileSucess.getName());
+        file.setPluginId(dest);
+        file.setPath("/data-storage/"+file.getName());
+        
+        try {
+            storageService.fileUploaded(file);
+        } catch (KeeperException ex) {
+            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return null;
+    }
 
 }

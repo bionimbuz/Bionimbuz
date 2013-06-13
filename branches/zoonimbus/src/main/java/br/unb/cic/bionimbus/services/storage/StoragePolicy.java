@@ -27,7 +27,7 @@ import org.apache.zookeeper.KeeperException;
 /**
  * @author deric
  */
-public class StoragePolicy implements BioProto {
+public class StoragePolicy{
 
     private double peso_latency = 0.5;
     private double peso_space = 0.2;
@@ -126,45 +126,4 @@ public class StoragePolicy implements BioProto {
         
         
     }
-
-    @Override
-    public boolean ping() throws AvroRemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public List<String> listFiles() throws AvroRemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public List<String> listServices() throws AvroRemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public String startJob(String jobID) throws AvroRemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public String cancelJob(String jobID) throws AvroRemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public List<NodeInfo> getPeersNode() throws AvroRemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Void setNodes(List<NodeInfo> list) throws AvroRemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public List<NodeInfo> callStorage() throws AvroRemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
 }

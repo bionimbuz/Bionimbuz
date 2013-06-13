@@ -1,9 +1,14 @@
 package br.unb.cic.bionimbus.client;
 
-public class FileInfo {
-    private String id;
-    private String name;
+import java.util.UUID;
 
+/**
+ * Classe que gera as informações do arquivo na parte cliente;
+ * @author breno-linux
+ */
+public class FileInfo {
+    private String id= UUID.randomUUID().toString();
+    private String name;
     private long size;
 
     public String getName() {
@@ -35,5 +40,4 @@ public class FileInfo {
     public void setId(String id) {
         this.id = id;
     }
-
 }
