@@ -1,38 +1,17 @@
 package br.unb.cic.bionimbus.client.shell.commands;
 
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
-import br.unb.cic.bionimbus.services.AbstractBioService;
 
 import java.io.File;
 
 import br.unb.cic.bionimbus.client.FileInfo;
 import br.unb.cic.bionimbus.client.shell.Command;
 import br.unb.cic.bionimbus.client.shell.SimpleShell;
-import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
-import br.unb.cic.bionimbus.p2p.P2PEvent;
-import br.unb.cic.bionimbus.p2p.P2PMessageType;
-import br.unb.cic.bionimbus.p2p.P2PService;
-import br.unb.cic.bionimbus.p2p.messages.StoreReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.StoreRespMessage;
-import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.storage.Ping;
-import br.unb.cic.bionimbus.services.storage.StoragePolicy;
-import com.google.common.collect.Maps;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.sound.midi.Soundbank;
-
-import org.apache.zookeeper.KeeperException;
-import org.codehaus.jackson.map.ObjectMapper;
 
 public class Upload implements Command {
 
@@ -42,6 +21,7 @@ public class Upload implements Command {
 //    private long cost = 0;
 //    private PluginInfo bestplugin;
     private List<NodeInfo> pluginList;
+    private List<NodeInfo> nodes;
 //    private ConcurrentMap<String, PluginInfo> map = Maps.newConcurrentMap();
 //    private Double MAXCAPACITY = 0.8;
 
@@ -62,8 +42,12 @@ public class Upload implements Command {
         }
         //Seta o os nodes na bioproto
         shell.getRpcClient().getProxy().setNodes(pluginList);
-        shell.getRpcClient().getProxy().callStorage();
+        nodes = shell.getRpcClient().getProxy().callStorage();
         
+        System.out.println("\n\n TESTE");
+        for(NodeInfo node : nodes){
+            System.out.println("\nMelhor no: "+node.getPeerId());
+        }
          File file = new File(params[0]);
          if (file.exists()) {
             System.out.println("Uploading file ...");

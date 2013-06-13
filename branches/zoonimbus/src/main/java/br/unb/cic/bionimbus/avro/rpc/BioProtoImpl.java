@@ -98,6 +98,7 @@ public class BioProtoImpl implements BioProto {
                 nodeaux.setPeerId(info.getId());                
                 nodes.put(address, nodeaux);
            }
+          
         }
         
         return new ArrayList<NodeInfo>(nodes.values());
@@ -157,13 +158,8 @@ public class BioProtoImpl implements BioProto {
     @Override
     public List<NodeInfo> callStorage() throws AvroRemoteException {
         
-        String bestnode = storageService.bestNode();
-        return null;
-    }
-
-    /*@Override
-    public NodeInfo callStorage() throws AvroRemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }*/
+        List<NodeInfo> bestnodes = storageService.bestNode();
+        return bestnodes;
+    } 
 
 }
