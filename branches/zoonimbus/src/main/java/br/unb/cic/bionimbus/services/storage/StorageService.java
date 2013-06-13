@@ -254,14 +254,14 @@ public class StorageService extends AbstractBioService {
         return dataFolder;
     }
     
-    public String bestNode(){
+    public List<NodeInfo> bestNode(){
         
-        List<PluginInfo> plugin;
+        List<NodeInfo> plugin;
         cloudMap = discoveryService.getPeers();
         StoragePolicy policy = new StoragePolicy();
-        plugin = policy.calcBestCost(cloudMap.values());
+        plugin = policy.calcBestCost(zkService,cloudMap.values());
 
-        return "custo calculado";
+        return plugin;
     }
 
     @Override
