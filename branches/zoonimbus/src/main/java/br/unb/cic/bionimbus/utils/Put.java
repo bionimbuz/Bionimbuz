@@ -30,28 +30,21 @@ public class Put {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
         
-        public boolean startSession() throws JSchException{
-            session = jsch.getSession(USER, host.getAddress(), PORT); 
+        public boolean startSession() throws JSchException, SftpException{
+            System.out.println("\n Uploading file.....");
+            session = jsch.getSession(USER, address, PORT); 
             session.setConfig("StrictHostKeyChecking", "no");
             session.setPassword(PASSW);
-            if(session.isConnected())
-                return true;
-            return false;
-        }
-        public boolean startChannel() throws JSchException{
+            session.connect();
+            
             this.channel = session.openChannel("sftp");
             channel.connect();
-            if(channel.isConnected())
-                return true;
-            return false;
-        }
-        
-        public boolean transferData() throws SftpException{
             ChannelSftp sftpChannel = (ChannelSftp) channel; 
             sftpChannel.put(path, path.substring(1+path.lastIndexOf("/")).trim());
+            
             sftpChannel.exit();
             session.disconnect();
-            
+            System.out.println(" Uploaded Complete !!");
             return true;
         }
 }
