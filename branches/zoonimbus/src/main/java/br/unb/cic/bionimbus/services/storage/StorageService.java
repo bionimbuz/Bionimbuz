@@ -100,17 +100,20 @@ public class StorageService extends AbstractBioService {
     @Override
     public void start(P2PService p2p) {
 
-        File file = new File("persistent-storage.json");
+        File file = new File("data-folder/persistent-storage.json");
         if (file.exists()) {
             try {
                 ObjectMapper mapper = new ObjectMapper();
-                Map<String, PluginFile> map = mapper.readValue(new File("persistent-storage.json"), new TypeReference<Map<String, PluginFile>>() {
+                Map<String, PluginFile> map = mapper.readValue(new File("data-folder/persistent-storage.json"), new TypeReference<Map<String, PluginFile>>() {
                 });
                 if (filesChanged(map.values())) {
-                    map = mapper.readValue(new File("persistent-storage.json"), new TypeReference<Map<String, PluginFile>>() {
+                    map = mapper.readValue(new File("data-folder/persistent-storage.json"), new TypeReference<Map<String, PluginFile>>() {
                     });
                 }
                 savedFiles = new ConcurrentHashMap<String, PluginFile>(map);
+                for(PluginFile filePlugin: savedFiles.values()){
+                    zkService.createEphemeralZNode("/peers/peer_"+filePlugin.getPluginId()+"/files/file_"+filePlugin.getId(), filePlugin.toString());  
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -249,7 +252,7 @@ public class StorageService extends AbstractBioService {
 
     public void storeFileRec(PluginFile fileC){
         PluginFile file=fileC;
-        file.setPath("data-folder/"+file.getName());
+        //file.setPath("data-folder/"+file.getName());
         savedFiles.put(file.getId(),file);
         try {
                     ObjectMapper mapper = new ObjectMapper();
@@ -276,22 +279,8 @@ public class StorageService extends AbstractBioService {
            File fileServer =new File(fileuploaded.getPath());
            if(fileServer.exists()){
                storeFileRec(fileuploaded);
-               //verifica se existe o arquivo persistent-storage na pasta data-folder e se os arquivos nele gravado estão na mesma
-               File persitent = new File("data-folder/persistent-storage.json");
-               if (persitent.exists()) {
-                      try {
-                          ObjectMapper mapper = new ObjectMapper();
-                          Map<String, PluginFile> map = mapper.readValue(new File("data-folder/persistent-storage.json"), 
-                                                                         new TypeReference<Map<String, PluginFile>>() {});
-                          if (filesChanged(map.values()))
-                              map = mapper.readValue(new File("data-folder/persistent-storage.json"), 
-                                                     new TypeReference<Map<String, PluginFile>>() {});
-                          savedFiles = new ConcurrentHashMap<String, PluginFile>(map);
-                      } catch (Exception e) {
-                          e.printStackTrace();
-                      }
-                   }
-                   zkService.delete("/pending_save/file_"+fileuploaded.getId());
+               zkService.createEphemeralZNode("/peers/peer_"+fileuploaded.getPluginId()+"/files/file_"+fileuploaded.getId(), fileuploaded.toString());            
+               zkService.delete("/pending_save/file_"+fileuploaded.getId());
            }else
                System.out.println("Arquivo não encontrado!");
         }
