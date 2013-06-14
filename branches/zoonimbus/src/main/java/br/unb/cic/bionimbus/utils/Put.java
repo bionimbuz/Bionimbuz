@@ -19,6 +19,7 @@ public class Put {
         private int PORT=22;
         private  Channel channel;
         private String path;
+        private String dest = "/home/zoonimbus/NetBeansProjects/zoonimbus/data-folder";
         
         public  Put(String address, String path)
         {
@@ -31,20 +32,31 @@ public class Put {
     }
         
         public boolean startSession() throws JSchException, SftpException{
-            System.out.println("\n Uploading file.....");
+            try{
+
             session = jsch.getSession(USER, address, PORT); 
             session.setConfig("StrictHostKeyChecking", "no");
             session.setPassword(PASSW);
             session.connect();
+            }
+            catch(JSchException e){
+                return false;
+            }
             
+            try{
             this.channel = session.openChannel("sftp");
             channel.connect();
             ChannelSftp sftpChannel = (ChannelSftp) channel; 
-            sftpChannel.put(path, path.substring(1+path.lastIndexOf("/")).trim());
-            
+            System.out.println("\n Uploading file.....\n\n\n");
+            //sftpChannel.put(path, path.substring(1+path.lastIndexOf("/")).trim());
+            sftpChannel.put(path,dest);
             sftpChannel.exit();
             session.disconnect();
-            System.out.println(" Uploaded Complete !!");
+            }
+            catch(JSchException a){
+                return false;
+            }
             return true;
+            
         }
 }
