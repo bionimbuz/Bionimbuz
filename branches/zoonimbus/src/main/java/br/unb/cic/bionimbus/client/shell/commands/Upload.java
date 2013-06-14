@@ -43,9 +43,10 @@ public class Upload implements Command {
          if (file.exists()) {
             String dest = null;
             FileInfo info = new FileInfo();
-            String path =params[0];
+            String path =file.getPath();
+            
             info.setFileId(UUID.randomUUID().toString());
-            info.setName(path.substring(1+path.lastIndexOf("/")).trim());
+            info.setName(file.getName());
             info.setSize(file.length());
             System.out.println("\n Calculando Latencia.....");
                 pluginList = shell.getRpcClient().getProxy().getPeersNode();
@@ -63,18 +64,12 @@ public class Upload implements Command {
             
             Put conexao = new Put(node.getAddress(),path);
             
-            if(conexao.startChannel()){
-                if(conexao.startSession()){
-                    System.out.println("\n Uploading file.....");
-                    if(conexao.transferData()){
-                         System.out.println(" Uploaded Complete !!");
-                         dest = node.getPeerId();
-                    } 
-                }
+            if(conexao.startSession()){
+                  dest = node.getPeerId();
             }
             //Se a conexão retornou com sucesso;
                        
-            shell.getRpcClient().getProxy().fileSent(info,dest);
+       //     shell.getRpcClient().getProxy().fileSent(info,dest);
          }
          //apos o envio do arquivo tudo com sucesso
          
