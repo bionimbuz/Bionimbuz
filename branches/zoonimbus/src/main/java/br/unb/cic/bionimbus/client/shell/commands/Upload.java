@@ -66,6 +66,7 @@ public class Upload implements Command {
             
             if(conexao.startSession()){
                   dest = node.getPeerId();
+                  return "Upload complete!!!!!";
             }
             //Se a conexão retornou com sucesso;
                        
