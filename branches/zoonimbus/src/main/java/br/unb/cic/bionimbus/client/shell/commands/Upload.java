@@ -11,6 +11,7 @@ import java.io.File;
 import br.unb.cic.bionimbus.client.shell.Command;
 import br.unb.cic.bionimbus.client.shell.SimpleShell;
 import br.unb.cic.bionimbus.services.storage.Ping;
+import br.unb.cic.bionimbus.utils.Put;
 import java.util.Iterator;
 
 import java.util.List;
@@ -36,43 +37,50 @@ public class Upload implements Command {
     public String execute(String... params) throws Exception {
         /*
          * Verifica se o arquivo existe
-         */
-        System.out.println("\n Calculando Latencia.....");
-        pluginList = shell.getRpcClient().getProxy().getPeersNode();
+         */        
         
-        for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
-            NodeInfo plugin = it.next();
-            plugin.setLatency(Ping.calculo(plugin.getAddress()));
-        }
-        
-        //Seta o os nodes na bioproto
-        shell.getRpcClient().getProxy().setNodes(pluginList);
-        nodes = shell.getRpcClient().getProxy().callStorage();
-
-    
-        String dest="3943483403afc";
-        System.out.println("\n\n TESTE");
-        for(NodeInfo node : nodes){
-            System.out.println("\nMelhor no: "+node.getPeerId());
-            //Se a conexão retornou com sucesso;
-            if(true)
-                dest=node.getPeerId();
-        }
-
          File file = new File(params[0]);
          if (file.exists()) {
-            System.out.println("Uploading file ...");
+            String dest = null;
             FileInfo info = new FileInfo();
             String path =params[0];
             info.setFileId(UUID.randomUUID().toString());
             info.setName(path.substring(1+path.lastIndexOf("/")).trim());
             info.setSize(file.length());
+            System.out.println("\n Calculando Latencia.....");
+                pluginList = shell.getRpcClient().getProxy().getPeersNode();
+        
+            for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
+                NodeInfo plugin = it.next();
+             plugin.setLatency(Ping.calculo(plugin.getAddress()));
+            }
+        
+        //Seta o os nodes na bioproto
+            shell.getRpcClient().getProxy().setNodes(pluginList);
+            nodes = shell.getRpcClient().getProxy().callStorage(); 
+            
+            for(NodeInfo node : nodes){
+            
+            Put conexao = new Put(node.getAddress(),path);
+            
+            if(conexao.startChannel()){
+                if(conexao.startSession()){
+                    System.out.println("\n Uploading file.....");
+                    if(conexao.transferData()){
+                         System.out.println(" Uploaded Complete !!");
+                         dest = node.getPeerId();
+                    } 
+                }
+            }
+            //Se a conexão retornou com sucesso;
+                       
             shell.getRpcClient().getProxy().fileSent(info,dest);
          }
          //apos o envio do arquivo tudo com sucesso
          
+         }
          
-        return "teste";
+        return "teste feito";
 //  shell.getRpcClient().getProxy().getPeers();
 // verificar diferença sem rpccliente shell.getProxy().getPeers();
 //            for(NodeInfo plugin : shell.getRpcClient().getProxy().getPeers()){

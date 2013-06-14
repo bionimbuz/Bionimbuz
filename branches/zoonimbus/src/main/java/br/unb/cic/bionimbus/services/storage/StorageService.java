@@ -38,6 +38,12 @@ import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpException;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -292,4 +298,6 @@ public class StorageService extends AbstractBioService {
     public void event(WatchedEvent eventType) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+    
+    
 }

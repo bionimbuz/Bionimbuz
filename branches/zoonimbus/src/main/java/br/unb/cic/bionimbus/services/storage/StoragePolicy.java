@@ -69,6 +69,10 @@ public class StoragePolicy{
              
         }
         List<PluginInfo> plugin = SwapTypePlugin(pluginList);
+        System.out.println("\n Antes do ordenamento");
+        for(PluginInfo plug : plugin){
+            System.out.println("ID: "+plug.getId()+"\n Custo de armazenamento: "+plug.getStorageCost());
+        }
         sortPlugins(plugin);
         
         for(PluginInfo plug : plugin){
@@ -97,12 +101,14 @@ public class StoragePolicy{
 
          
           
+            @Override
             public int compare(Object o1, Object o2) {
                 PluginInfo p1 = (PluginInfo) o1;
                 PluginInfo p2 = (PluginInfo) o2;
                 return p1.getStorageCost() < p2.getStorageCost()? -1 : (p1.getStorageCost() > p2.getStorageCost() ? +1 : 0);    
             }
         });
+        System.out.println("\n DEPOIS DO ORDENAMENTO");
         for(PluginInfo plugin : plugins){
             System.out.println("ID: "+plugin.getId()+"\n Custo de armazenamento: "+plugin.getStorageCost());
         }
