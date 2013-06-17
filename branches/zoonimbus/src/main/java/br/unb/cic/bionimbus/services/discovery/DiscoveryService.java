@@ -1,17 +1,15 @@
 package br.unb.cic.bionimbus.services.discovery;
 
-import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.p2p.P2PEvent;
 import br.unb.cic.bionimbus.p2p.P2PService;
 import br.unb.cic.bionimbus.p2p.PeerNode;
 import br.unb.cic.bionimbus.p2p.messages.InfoRespMessage;
-import static br.unb.cic.bionimbus.plugin.PluginFactory.getPlugin;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxGetInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
 import br.unb.cic.bionimbus.services.AbstractBioService;
+import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
-import br.unb.cic.bionimbus.services.storage.file.FileService;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
@@ -19,10 +17,7 @@ import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import java.io.IOException;
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -31,7 +26,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
-import org.omg.CORBA.Current;
 
 @Singleton
 public class DiscoveryService extends AbstractBioService implements RemovalListener<Object, Object> {
@@ -45,7 +39,10 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 //    private static final String ROOT_PEER = "/peers";
     private static final String SEPARATOR = "/";
     private static final String STATUS = "STATUS";
-
+    private static final String STATUSWAITING = "STATUSWAITING";
+//    private static final String FILES = "files";
+//    private static final String PREFIX_FILE = "file_";
+//    private String peerName;
     private ConcurrentMap<String, PluginInfo> map = Maps.newConcurrentMap();
 
     @Inject
@@ -69,27 +66,30 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 
     @Override
     public void run() {    
-    //    List<PluginInfo> listPlugin = getPeers();
         System.out.println("running DiscoveryService...");
-        Map<String, PluginInfo> listPlugin = getPeers();
-        if(!listPlugin.isEmpty()){
-            map.clear();
-    //         for (PluginInfo myInfo : listPlugin){
-            for (PluginInfo myInfo : listPlugin.values()) {
-                try {
-                        if(zkService.getZNodeExist(myInfo.getPath_zk()+SEPARATOR+STATUS, false)){
-                                map.put(myInfo.getId(), myInfo);
-                        }else{
-                            zkService.delete(myInfo.getPath_zk());
-                        }
-                } catch (KeeperException ex) {
-                    Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-    }
+//        Map<String, PluginInfo> listPlugin = getPeers();
+//        if(!listPlugin.isEmpty()){
+//            for (PluginInfo myInfo : listPlugin.values()) {
+//                try {
+//                    
+//                    //Apaga znode peer_X apenas quando estiver pronto para ser excluido
+//                   
+//                    if(zkService.getZNodeExist(myInfo.getPath_zk()+SEPARATOR+STATUS, false)){ 
+//                        map.put(myInfo.getId(), myInfo);
+//                    }else if(zkService.getZNodeExist(myInfo.getPath_zk()+SEPARATOR+STATUS+WAITING, false)){
+//                                map.remove(myInfo.getId());
+//                                
+//                            }else{
+//                                zkService.delete(myInfo.getPath_zk());
+//                            }
+//                } catch (KeeperException ex) {
+//                    Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+//                } catch (InterruptedException ex) {
+//                    Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//            }
+//        }
+
     /**
      * TODO: substituir por Guava Cache com expiração
      */
@@ -100,9 +100,8 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
      if (now - plugin.getTimestamp() > 3*PERIOD_SECS*1000) {
      infoMap.remove(plugin.getId());
      }
-     }
-     }
      */
+     }
 //    public String getData() throws IOException {
 //        return "id: " + config.getId() + "\n"
 //                + "net-address: " + config.getHost().getAddress() + "\n"
@@ -128,6 +127,23 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
           linuxPlugin.setMyInfo(infopc);
          //armazenando dados do plugin no zookeeper
           zkService.setData(infopc.getPath_zk(), infopc.toString());
+
+          Map<String, PluginInfo> mapPlugin = getPeers();
+          //executa a verificação inicial para ver se os peers estão on-line, adiciona um watcher para avisar quando o peer ficar off-line
+          for (PluginInfo myInfo : mapPlugin.values()) {
+                try {
+                   
+                    if(zkService.getZNodeExist(myInfo.getPath_zk()+SEPARATOR+STATUS, false)){
+                        //adicionando wacth
+                        zkService.getData(myInfo.getPath_zk()+SEPARATOR+STATUS, new UpdatePeerData(zkService,this));
+                    }
+
+                } catch (KeeperException ex) {
+                    Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
           
             this.p2p = p2p;
             p2p.addListener(this);
@@ -141,6 +157,11 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
     public void getStatus() {
     }
 
+    private void deletePeer(String peerPath) throws InterruptedException,KeeperException{
+        if(!zkService.getZNodeExist(peerPath+SEPARATOR+STATUS, false) && !zkService.getZNodeExist(peerPath+SEPARATOR+STATUSWAITING, false)){
+            zkService.delete(peerPath);
+        }
+    }
     /**
      * Trata os watchers enviados da implementação da classe Watcher que recebe uma notificação do zookeeper
      * @param eventType evento recebido do zookeeper
@@ -148,7 +169,33 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
     @Override
     public void event(WatchedEvent eventType) {
         
-    }
+        String path = eventType.getPath();
+        try { 
+            switch(eventType.getType()){
+
+                case NodeCreated:
+                    System.out.print(path + "= NodeCreated");
+                    break;
+                case NodeChildrenChanged:
+                        System.out.print(path + "= NodeChildrenChanged");
+                    break;
+                case NodeDeleted:
+                    String peerPath =  path.subSequence(0, path.indexOf("STATUS")-1).toString();
+                    if(path.contains(STATUSWAITING)){
+                        deletePeer(peerPath);
+
+                    }else if(path.contains(STATUS)){
+                            zkService.createPersistentZNode(peerPath+SEPARATOR+STATUSWAITING, null);
+                            zkService.getData(peerPath+SEPARATOR+STATUSWAITING, new UpdatePeerData(zkService, this));
+                    }
+                    break;
+            }
+        } catch (KeeperException ex) {
+            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+         }
 
     
     @Override
@@ -170,6 +217,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 //
 //		switch (P2PMessageType.of(msg.getType())) {
 //		case INFORESP:
+//        96456967  EDSON
 //			InfoRespMessage infoMsg = (InfoRespMessage) msg;
 //            insertResponseIntoInfoMap(receiver, infoMsg);
 //			break;

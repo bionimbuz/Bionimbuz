@@ -10,7 +10,6 @@ import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import com.google.inject.Singleton;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,9 +26,10 @@ public abstract class AbstractBioService implements Service, P2PListener, Runnab
 
     protected ZooKeeperService zkService;
     private static final String ROOT_PEER = "/peers";
+    private static final String STATUS = "STATUS";
     private static final String SEPARATOR = "/";
     private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
-    //public List<PluginInfo> getPeers(){
+    
     
     /**
      * Método que resgata os peers do zookeeper, que retorna um mapa com os valores dos plugins;
@@ -37,17 +37,16 @@ public abstract class AbstractBioService implements Service, P2PListener, Runnab
      */
     public Map<String, PluginInfo> getPeers(){
         List<String> children;
-//        List<PluginInfo> listPlugin= new ArrayList<PluginInfo>();
-
+        cloudMap.clear();
         try {
             children = zkService.getChildren(ROOT_PEER, null);
             for (String child : children) {
-                String childStr = zkService.getData(ROOT_PEER +SEPARATOR+ child, null);
                 ObjectMapper mapper = new ObjectMapper();
                 PluginInfo myInfo = mapper.readValue(zkService.getData(ROOT_PEER +SEPARATOR+ child, null), PluginInfo.class);
-                cloudMap.put(myInfo.getId(), myInfo);
-                //listPlugin.add(myInfo);
                     
+                if(zkService.getZNodeExist(myInfo.getPath_zk()+SEPARATOR+STATUS, false)){ 
+                    cloudMap.put(myInfo.getId(), myInfo);
+                }
             }
         } catch (KeeperException ex) {
             Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
@@ -57,10 +56,7 @@ public abstract class AbstractBioService implements Service, P2PListener, Runnab
             Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        
-//        return listPlugin;
         return cloudMap;
     }
-    
 
 }
