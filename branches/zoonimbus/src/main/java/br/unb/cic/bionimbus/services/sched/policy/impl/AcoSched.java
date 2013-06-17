@@ -229,9 +229,6 @@ public class AcoSched extends SchedPolicy {
 
 
         for (PluginInfo pluginInfo : plugins) {
-            //remover para um lugar adequado
-            zk.createPersistentZNode(pluginInfo.getPath_zk()+SCHED, null);
-            zk.createPersistentZNode(pluginInfo.getPath_zk()+SCHED+DIR_SIZEALLJOBS, null);
             //COndição para verificar se nuvem é do tipo solicitada, privada, pública ou hibrida
 //            if(pluginInfo.getTypeCloud()==type){
             clouds.add(pluginInfo);

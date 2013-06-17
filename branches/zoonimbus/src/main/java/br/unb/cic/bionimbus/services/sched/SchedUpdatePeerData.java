@@ -4,7 +4,6 @@
  */
 package br.unb.cic.bionimbus.services.sched;
 
-import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.Service;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
 import java.util.logging.Level;
@@ -12,7 +11,6 @@ import java.util.logging.Logger;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
-import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *

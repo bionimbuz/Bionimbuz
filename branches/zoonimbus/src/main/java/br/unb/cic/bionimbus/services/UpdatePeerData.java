@@ -17,9 +17,11 @@ import org.apache.zookeeper.Watcher;
 public class UpdatePeerData implements Watcher  {
 
     private ZooKeeperService zkService;
+    private Service service;
     
-    public UpdatePeerData(ZooKeeperService zkService) {
+    public UpdatePeerData(ZooKeeperService zkService, Service service) {
         this.zkService = zkService;
+        this.service = service;
     }
 
     
@@ -29,12 +31,21 @@ public class UpdatePeerData implements Watcher  {
      */
     @Override
     public void process(WatchedEvent event){
-        //Tratar eventos quando ocorrerem,
+        //chamada para alertar servico que adicionou o watcher, tratar evento na service
+        service.event(event);
         
         //Realiza a solicitação para um novo observer
         try {
-            System.out.println(event);
-            zkService.getData(event.getPath(), this);
+            switch(event.getType()){
+            
+                case NodeChildrenChanged:
+                    zkService.getData(event.getPath(), this);
+                break;
+                case NodeDataChanged:
+                    zkService.getData(event.getPath(), this);
+                break;
+            
+            }
         } catch (KeeperException ex) {
             Logger.getLogger(UpdatePeerData.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
