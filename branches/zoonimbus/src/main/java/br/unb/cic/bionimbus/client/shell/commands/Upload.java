@@ -27,7 +27,7 @@ public class Upload implements Command {
     private List<NodeInfo> pluginList;
     private List<NodeInfo> nodes;
 //    private ConcurrentMap<String, PluginInfo> map = Maps.newConcurrentMap();
-//    private Double MAXCAPACITY = 0.8;
+    private Double MAXCAPACITY = 0.9;
 
     public Upload(SimpleShell shell) {
         this.shell = shell;
@@ -45,15 +45,16 @@ public class Upload implements Command {
             FileInfo info = new FileInfo();
             String path =file.getPath();
             
-            info.setFileId(UUID.randomUUID().toString());
+            info.setFileId(file.getName());
             info.setName(file.getName());
             info.setSize(file.length());
             System.out.println("\n Calculando Latencia.....");
-                pluginList = shell.getRpcClient().getProxy().getPeersNode();
-        
+            pluginList = shell.getRpcClient().getProxy().getPeersNode();
+            shell.getRpcClient().getProxy().setFileInfo(info);
             for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
                 NodeInfo plugin = it.next();
-             plugin.setLatency(Ping.calculo(plugin.getAddress()));
+                if ((long)(it.next().getFreesize()*MAXCAPACITY)>info.getSize())
+                    plugin.setLatency(Ping.calculo(plugin.getAddress()));
             }
         
         //Seta o os nodes na bioproto
@@ -70,7 +71,7 @@ public class Upload implements Command {
             }
             //Se a conexão retornou com sucesso;
                        
-       //     shell.getRpcClient().getProxy().fileSent(info,dest);
+           shell.getRpcClient().getProxy().fileSent(info,dest);
          }
          //apos o envio do arquivo tudo com sucesso
          

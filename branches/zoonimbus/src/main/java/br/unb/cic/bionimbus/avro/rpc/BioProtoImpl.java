@@ -98,7 +98,8 @@ public class BioProtoImpl implements BioProto {
                 String address = info.getHost().getAddress();
                 nodeaux.setAddress(address);
 
-                nodeaux.setPeerId(info.getId());                
+                nodeaux.setPeerId(info.getId());
+                nodeaux.setFreesize(info.getFsFreeSize());
                 nodes.put(address, nodeaux);
            }
           
@@ -174,7 +175,9 @@ public class BioProtoImpl implements BioProto {
     public Void setFileInfo(FileInfo file) throws AvroRemoteException {
         PluginFile filePlugin= new PluginFile();
         filePlugin.setId(file.getFileId());
+        filePlugin.setName(file.getName());
         //*Alterar depois caminho para o zookeeperservice
+        //verificar se a pasta pending_save existe
         filePlugin.setPath("/pending_save/file_"+filePlugin.getId());
         filePlugin.setSize(file.getSize());
         zkService.createPersistentZNode("/pending_save/file_"+filePlugin.getId(), filePlugin.toString());

@@ -1,5 +1,9 @@
 package br.unb.cic.bionimbus.plugin;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
+
 /**
  * Classe que recebe os dados do arquivo enviado pelo cliente
  * @author breno-linux
@@ -70,7 +74,12 @@ public class PluginFile {
 
     @Override
     public String toString() {
-        return getId() + ":" + path;
+         try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (Exception ex) {
+            Logger.getLogger(PluginInfo.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+         return null;
     }
 
     /**

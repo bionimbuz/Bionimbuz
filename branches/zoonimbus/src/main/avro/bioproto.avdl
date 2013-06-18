@@ -220,6 +220,7 @@ protocol BioProto {
   record NodeInfo {
     string peerId;
     string address;
+    float freesize;
     double latency; 
   }
 

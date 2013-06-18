@@ -18,7 +18,7 @@ public class PluginInfo implements PluginOps {
 
     private long uptime;
 
-    private double latency;
+    private Double latency = null;
 
     private long timestamp;
 
@@ -87,11 +87,11 @@ public class PluginInfo implements PluginOps {
             
     }
    
-    public double getLatency() {
+    public Double getLatency() {
         return latency;
     }
 
-    public void setLatency(double latency) {
+    public void setLatency(Double latency) {
         this.latency = latency;
             
     }
