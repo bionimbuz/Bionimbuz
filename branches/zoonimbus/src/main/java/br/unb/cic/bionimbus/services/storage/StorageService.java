@@ -260,6 +260,7 @@ public class StorageService extends AbstractBioService {
         PluginFile file=fileC;
         //file.setPath("data-folder/"+file.getName());
         savedFiles.put(file.getId(),file);
+        zkService.createPersistentZNode("/peers/peer_"+file.getPluginId()+"/files/files_"+file.getId(), file.toString());
         try {
                     ObjectMapper mapper = new ObjectMapper();
                     mapper.writeValue(new File("data-folder/persistent-storage.json"), savedFiles);
@@ -285,7 +286,7 @@ public class StorageService extends AbstractBioService {
            File fileServer =new File(fileuploaded.getPath());
            if(fileServer.exists()){
                storeFileRec(fileuploaded);
-               zkService.createEphemeralZNode("/peers/peer_"+fileuploaded.getPluginId()+"/files/file_"+fileuploaded.getId(), fileuploaded.toString());            
+              // zkService.createEphemeralZNode("/peers/peer_"+fileuploaded.getPluginId()+"/files/file_"+fileuploaded.getId(), fileuploaded.toString());            
                zkService.delete("/pending_save/file_"+fileuploaded.getId());
            }else
                System.out.println("Arquivo não encontrado!");

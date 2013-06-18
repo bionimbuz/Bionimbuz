@@ -180,7 +180,7 @@ public class BioProtoImpl implements BioProto {
         //verificar se a pasta pending_save existe
         filePlugin.setPath("/pending_save/file_"+filePlugin.getId());
         filePlugin.setSize(file.getSize());
-        zkService.createPersistentZNode("/pending_save/file_"+filePlugin.getId(), filePlugin.toString());
+        zkService.createPersistentZNode(filePlugin.getPath(), filePlugin.toString());
        return null;
     }
 //    public FileInfo getFileInfo(){
