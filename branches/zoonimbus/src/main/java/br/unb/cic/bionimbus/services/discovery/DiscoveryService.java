@@ -241,7 +241,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
     private void insertResponseIntoInfoMap(PeerNode receiver, InfoRespMessage infoMsg) {
         PluginInfo info = infoMsg.getPluginInfo();
         info.setUptime(receiver.uptime());
-        info.setLatency(receiver.getLatency());
+        info.setLatency(Double.longBitsToDouble(receiver.getLatency()));
         info.setTimestamp(System.currentTimeMillis());
 //        infoCache.put(info.getId(), info);
     }

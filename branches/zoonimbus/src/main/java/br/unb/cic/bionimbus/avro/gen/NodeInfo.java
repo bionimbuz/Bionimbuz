@@ -7,10 +7,11 @@ package br.unb.cic.bionimbus.avro.gen;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"NodeInfo\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"fields\":[{\"name\":\"peerId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"address\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"latency\",\"type\":\"double\"}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"NodeInfo\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"fields\":[{\"name\":\"peerId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"address\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"freesize\",\"type\":\"float\"},{\"name\":\"latency\",\"type\":\"double\"}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public java.lang.String peerId;
   @Deprecated public java.lang.String address;
+  @Deprecated public float freesize;
   @Deprecated public double latency;
 
   /**
@@ -21,9 +22,10 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
   /**
    * All-args constructor.
    */
-  public NodeInfo(java.lang.String peerId, java.lang.String address, java.lang.Double latency) {
+  public NodeInfo(java.lang.String peerId, java.lang.String address, java.lang.Float freesize, java.lang.Double latency) {
     this.peerId = peerId;
     this.address = address;
+    this.freesize = freesize;
     this.latency = latency;
   }
 
@@ -33,7 +35,8 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
     switch (field$) {
     case 0: return peerId;
     case 1: return address;
-    case 2: return latency;
+    case 2: return freesize;
+    case 3: return latency;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -43,7 +46,8 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
     switch (field$) {
     case 0: peerId = (java.lang.String)value$; break;
     case 1: address = (java.lang.String)value$; break;
-    case 2: latency = (java.lang.Double)value$; break;
+    case 2: freesize = (java.lang.Float)value$; break;
+    case 3: latency = (java.lang.Double)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -76,6 +80,21 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
    */
   public void setAddress(java.lang.String value) {
     this.address = value;
+  }
+
+  /**
+   * Gets the value of the 'freesize' field.
+   */
+  public java.lang.Float getFreesize() {
+    return freesize;
+  }
+
+  /**
+   * Sets the value of the 'freesize' field.
+   * @param value the value to set.
+   */
+  public void setFreesize(java.lang.Float value) {
+    this.freesize = value;
   }
 
   /**
@@ -116,6 +135,7 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
 
     private java.lang.String peerId;
     private java.lang.String address;
+    private float freesize;
     private double latency;
 
     /** Creates a new Builder */
@@ -139,9 +159,13 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
         this.address = data().deepCopy(fields()[1].schema(), other.address);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.latency)) {
-        this.latency = data().deepCopy(fields()[2].schema(), other.latency);
+      if (isValidValue(fields()[2], other.freesize)) {
+        this.freesize = data().deepCopy(fields()[2].schema(), other.freesize);
         fieldSetFlags()[2] = true;
+      }
+      if (isValidValue(fields()[3], other.latency)) {
+        this.latency = data().deepCopy(fields()[3].schema(), other.latency);
+        fieldSetFlags()[3] = true;
       }
     }
 
@@ -195,6 +219,30 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
       return this;
     }
 
+    /** Gets the value of the 'freesize' field */
+    public java.lang.Float getFreesize() {
+      return freesize;
+    }
+    
+    /** Sets the value of the 'freesize' field */
+    public br.unb.cic.bionimbus.avro.gen.NodeInfo.Builder setFreesize(float value) {
+      validate(fields()[2], value);
+      this.freesize = value;
+      fieldSetFlags()[2] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'freesize' field has been set */
+    public boolean hasFreesize() {
+      return fieldSetFlags()[2];
+    }
+    
+    /** Clears the value of the 'freesize' field */
+    public br.unb.cic.bionimbus.avro.gen.NodeInfo.Builder clearFreesize() {
+      fieldSetFlags()[2] = false;
+      return this;
+    }
+
     /** Gets the value of the 'latency' field */
     public java.lang.Double getLatency() {
       return latency;
@@ -202,20 +250,20 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
     
     /** Sets the value of the 'latency' field */
     public br.unb.cic.bionimbus.avro.gen.NodeInfo.Builder setLatency(double value) {
-      validate(fields()[2], value);
+      validate(fields()[3], value);
       this.latency = value;
-      fieldSetFlags()[2] = true;
+      fieldSetFlags()[3] = true;
       return this; 
     }
     
     /** Checks whether the 'latency' field has been set */
     public boolean hasLatency() {
-      return fieldSetFlags()[2];
+      return fieldSetFlags()[3];
     }
     
     /** Clears the value of the 'latency' field */
     public br.unb.cic.bionimbus.avro.gen.NodeInfo.Builder clearLatency() {
-      fieldSetFlags()[2] = false;
+      fieldSetFlags()[3] = false;
       return this;
     }
 
@@ -225,7 +273,8 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
         NodeInfo record = new NodeInfo();
         record.peerId = fieldSetFlags()[0] ? this.peerId : (java.lang.String) defaultValue(fields()[0]);
         record.address = fieldSetFlags()[1] ? this.address : (java.lang.String) defaultValue(fields()[1]);
-        record.latency = fieldSetFlags()[2] ? this.latency : (java.lang.Double) defaultValue(fields()[2]);
+        record.freesize = fieldSetFlags()[2] ? this.freesize : (java.lang.Float) defaultValue(fields()[2]);
+        record.latency = fieldSetFlags()[3] ? this.latency : (java.lang.Double) defaultValue(fields()[3]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);
