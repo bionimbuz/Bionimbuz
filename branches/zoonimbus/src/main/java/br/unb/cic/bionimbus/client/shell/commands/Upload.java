@@ -25,7 +25,8 @@ public class Upload implements Command {
 //    private long cost = 0;
 //    private PluginInfo bestplugin;
     private List<NodeInfo> pluginList;
-    private List<NodeInfo> nodes;
+    private List<NodeInfo> fullnodes;
+    private List<NodeInfo> nodesdisp;
 //    private ConcurrentMap<String, PluginInfo> map = Maps.newConcurrentMap();
     private Double MAXCAPACITY = 0.9;
 
@@ -55,25 +56,22 @@ public class Upload implements Command {
                 NodeInfo plugin = it.next();
                 if ((long)(it.next().getFreesize()*MAXCAPACITY)>info.getSize())
                     plugin.setLatency(Ping.calculo(plugin.getAddress()));
+                    nodesdisp.add(plugin);
             }
         
         //Seta o os nodes na bioproto
-            shell.getRpcClient().getProxy().setNodes(pluginList);
-            nodes = shell.getRpcClient().getProxy().callStorage(); 
+            shell.getRpcClient().getProxy().setNodes(nodesdisp);
+            nodesdisp = shell.getRpcClient().getProxy().callStorage(); 
             
-            for(NodeInfo node : nodes){
-            
-            Put conexao = new Put(node.getAddress(),path);
-            
-            if(conexao.startSession()){
-                  dest = node.getPeerId();
-                  return "Upload complete!!!!!";
-            }
-            //Se a conexão retornou com sucesso;
-                       
-           shell.getRpcClient().getProxy().fileSent(info,dest);
-         }
-         //apos o envio do arquivo tudo com sucesso
+            for (Iterator<NodeInfo> it = nodesdisp.iterator(); it.hasNext();) {
+                 NodeInfo node = it.next();
+                 Put conexao = new Put(node.getAddress(),path);
+                 if(conexao.startSession()){
+                       dest = node.getPeerId();
+                       return "Upload complete!!!!!";
+                 }
+                 shell.getRpcClient().getProxy().fileSent(info,dest);
+             }
          
          }
          
