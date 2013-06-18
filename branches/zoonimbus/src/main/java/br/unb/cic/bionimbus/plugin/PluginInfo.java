@@ -18,7 +18,7 @@ public class PluginInfo implements PluginOps {
 
     private long uptime;
 
-    private Double latency = null;
+    private Double latency;
 
     private long timestamp;
 
@@ -34,7 +34,7 @@ public class PluginInfo implements PluginOps {
 
     private Float fsSize;
 
-    private double storagecost;
+    private Double storagecost;
     
     private long rank;
 
@@ -100,7 +100,7 @@ public class PluginInfo implements PluginOps {
         return storagecost;
     }
 
-    public void setStorageCost(double storagecost) {
+    public void setStorageCost(Double storagecost) {
         this.storagecost = storagecost;
     }
 

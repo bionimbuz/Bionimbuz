@@ -12,6 +12,7 @@ import br.unb.cic.bionimbus.client.shell.Command;
 import br.unb.cic.bionimbus.client.shell.SimpleShell;
 import br.unb.cic.bionimbus.services.storage.Ping;
 import br.unb.cic.bionimbus.utils.Put;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import java.util.List;
@@ -26,7 +27,7 @@ public class Upload implements Command {
 //    private PluginInfo bestplugin;
     private List<NodeInfo> pluginList;
     private List<NodeInfo> fullnodes;
-    private List<NodeInfo> nodesdisp;
+    private List<NodeInfo> nodesdisp = new ArrayList<NodeInfo>();
 //    private ConcurrentMap<String, PluginInfo> map = Maps.newConcurrentMap();
     private Double MAXCAPACITY = 0.9;
 
@@ -54,7 +55,7 @@ public class Upload implements Command {
             shell.getRpcClient().getProxy().setFileInfo(info);
             for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
                 NodeInfo plugin = it.next();
-                if ((long)(it.next().getFreesize()*MAXCAPACITY)>info.getSize())
+                if ((long)(plugin.getFreesize()*MAXCAPACITY)>info.getSize())
                     plugin.setLatency(Ping.calculo(plugin.getAddress()));
                     nodesdisp.add(plugin);
             }
