@@ -43,7 +43,7 @@ public class StoragePolicy{
     
     public List<NodeInfo> calcBestCost(ZooKeeperService zkService,Collection<PluginInfo> pluginList) {
 
-        double cost;
+        Double cost;
         double uptime;
         double freesize;
         
@@ -55,7 +55,7 @@ public class StoragePolicy{
         for(PluginInfo plugin : pluginList){
              uptime = plugin.getUptime() / 1000;
              freesize = (plugin.getFsFreeSize() / 1024 / 1024 / 1024);
-             cost = (long) (((freesize * peso_space) + 
+             cost = (((freesize * peso_space) + 
                 (uptime * peso_uptime)) * 
                 (plugin.getLatency() * peso_latency));
              plugin.setStorageCost(cost);             
