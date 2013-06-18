@@ -181,10 +181,11 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
                     break;
                 case NodeDeleted:
                     String peerPath =  path.subSequence(0, path.indexOf("STATUS")-1).toString();
+                    
                     if(path.contains(STATUSWAITING)){
                         deletePeer(peerPath);
 
-                    }else if(path.contains(STATUS)){
+                    }else if(path.contains(STATUS) && !zkService.getZNodeExist(peerPath+STATUSWAITING, false)){
                             zkService.createPersistentZNode(peerPath+SEPARATOR+STATUSWAITING, null);
                             zkService.getData(peerPath+SEPARATOR+STATUSWAITING, new UpdatePeerData(zkService, this));
                     }
