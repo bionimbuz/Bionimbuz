@@ -189,13 +189,12 @@ public class BioProtoImpl implements BioProto {
 
     @Override
     public synchronized Void fileSent(FileInfo fileSucess, String dest) throws AvroRemoteException {
-        PluginFile file= new PluginFile();
+        PluginFile file = new PluginFile();
         file.setId(fileSucess.getFileId());
         file.setSize(fileSucess.getSize());
         file.setName(fileSucess.getName());
         file.setPluginId(dest);
-        file.setPath("/data-storage/"+file.getName());
-        
+        file.setPath("/home/zoonimbus/NetBeansProjects/zoonimbus/data-folder/"+file.getName());
         try {
             storageService.fileUploaded(file);
         } catch (KeeperException ex) {
