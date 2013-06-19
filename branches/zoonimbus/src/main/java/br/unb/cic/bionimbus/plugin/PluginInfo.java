@@ -34,7 +34,7 @@ public class PluginInfo implements PluginOps {
 
     private Float fsSize;
 
-    private Double storagecost;
+    private double storagecost;
     
     private long rank;
 
@@ -100,7 +100,7 @@ public class PluginInfo implements PluginOps {
         return storagecost;
     }
 
-    public void setStorageCost(Double storagecost) {
+    public void setStorageCost(double storagecost) {
         this.storagecost = storagecost;
     }
 

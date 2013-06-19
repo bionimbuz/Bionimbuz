@@ -69,9 +69,10 @@ public class Upload implements Command {
                  Put conexao = new Put(node.getAddress(),path);
                  if(conexao.startSession()){
                        dest = node.getPeerId();
+                       shell.getRpcClient().getProxy().fileSent(info,dest);
                        return "Upload complete!!!!!";
                  }
-                 shell.getRpcClient().getProxy().fileSent(info,dest);
+                 
              }
          
          }
