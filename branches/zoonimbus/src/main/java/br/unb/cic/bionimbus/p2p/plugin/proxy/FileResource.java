@@ -27,6 +27,8 @@ public class FileResource {
 
     public static final String UPLOAD_DIR = "/home/edward/tmp/";
 
+    //http://localhost:9191/uplodad?filename=foo.txt
+    
     @GET
     @Consumes(TEXT_PLAIN)
     @Produces(TEXT_PLAIN)

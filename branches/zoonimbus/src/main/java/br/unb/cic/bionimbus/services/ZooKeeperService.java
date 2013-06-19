@@ -24,15 +24,47 @@ public class ZooKeeperService {
     private static final int SESSION_TIMEOUT = 3000;
 
     private final CountDownLatch countDownLatch = new CountDownLatch(1);
-
+    
     public enum Status {
         NO_CONNECTED, CONNECTING, CONNECTED
     }
-
+    
+    public enum Path {
+        
+        ROOT("/"), PREFIX_PEERS("/peers_"), PEER("/peer"), FILES("/files");
+        
+        private final String value;
+        
+        private Path(String value) {
+            this.value = value;
+        }
+        
+        public String getFullPath() {
+            switch (this) {
+                case ROOT: return "" + this;
+                case PEER:  return "" + PREFIX_PEERS + PEER;
+                // 
+            }
+            return "";
+        }
+        
+        public String getCodigo() {
+            return value;
+        }
+        
+        @Override 
+        public String toString() {
+            return value;
+        }
+        
+    }
+           
     private volatile Status status = Status.NO_CONNECTED;
 
     public ZooKeeperService() {
         System.out.println("Criando ZK service...");
+        
+        
     }
 
     public Status getStatus() {
