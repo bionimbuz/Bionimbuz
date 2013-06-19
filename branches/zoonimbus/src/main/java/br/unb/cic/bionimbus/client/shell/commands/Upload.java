@@ -55,9 +55,10 @@ public class Upload implements Command {
             shell.getRpcClient().getProxy().setFileInfo(info);
             for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
                 NodeInfo plugin = it.next();
-                if ((long)(plugin.getFreesize()*MAXCAPACITY)>info.getSize())
+                if ((long)(plugin.getFreesize()*MAXCAPACITY)>info.getSize()){
                     plugin.setLatency(Ping.calculo(plugin.getAddress()));
                     nodesdisp.add(plugin);
+                }    
             }
         
         //Seta o os nodes na bioproto
