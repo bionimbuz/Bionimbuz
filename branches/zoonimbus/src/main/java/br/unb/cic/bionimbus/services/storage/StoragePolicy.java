@@ -43,7 +43,7 @@ public class StoragePolicy{
     
     public List<NodeInfo> calcBestCost(ZooKeeperService zkService,Collection<PluginInfo> pluginList) {
 
-        Double cost;
+        double cost;
         double uptime;
         double freesize;
         

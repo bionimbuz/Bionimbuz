@@ -260,7 +260,7 @@ public class StorageService extends AbstractBioService {
         PluginFile file=fileC;
         //file.setPath("data-folder/"+file.getName());
         savedFiles.put(file.getId(),file);
-        zkService.createPersistentZNode("/peers/peer_"+file.getPluginId()+"/files/files_"+file.getId(), file.toString());
+        zkService.createPersistentZNode("/peers/peer_"+file.getPluginId()+"/files/file_"+file.getId(), file.toString());
         try {
                     ObjectMapper mapper = new ObjectMapper();
                     mapper.writeValue(new File("data-folder/persistent-storage.json"), savedFiles);

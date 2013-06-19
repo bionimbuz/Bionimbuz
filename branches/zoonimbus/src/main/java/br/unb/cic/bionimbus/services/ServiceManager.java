@@ -67,6 +67,9 @@ public class ServiceManager {
            //criando status efemera para verificar se o servidor esta rodando
            zkService.createEphemeralZNode(PEERS+ id+SEPARATOR+STATUS, null);
            
+           //criando files persistentes para armazenar os files
+           zkService.createPersistentZNode(PEERS+ id+SEPARATOR+"files", null);
+           
            //criando pending save 
            zkService.createPersistentZNode(PENDING_SAVE, null);
         
