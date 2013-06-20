@@ -14,7 +14,7 @@ import br.unb.cic.bionimbus.p2p.Host;
 @Singleton
 public class BioNimbusConfig {
 
-    @JsonIgnore
+//    @JsonIgnore
     private String id;
     
     @JsonIgnore
@@ -160,7 +160,7 @@ public class BioNimbusConfig {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                .add("id", id)
+//                .add("id", id)
                 .add("rpc-protocol", rpcProtocol)
                 .add("rpc-port", rpcPort)
                 .add("zkHosts", zkHosts)

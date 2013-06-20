@@ -16,6 +16,7 @@ import static br.unb.cic.bionimbus.config.BioNimbusConfigLoader.*;
 import static br.unb.cic.bionimbus.plugin.PluginFactory.getPlugin;
 
 import static com.google.inject.Guice.createInjector;
+import java.util.UUID;
 
 public class BioNimbus {
 
@@ -33,6 +34,7 @@ public class BioNimbus {
 
     public BioNimbus(BioNimbusConfig config) throws IOException, InterruptedException {
 
+        config.setId(UUID.randomUUID().toString());
         final P2PService p2p = new P2PService(config);
 //        p2p.start();
 
