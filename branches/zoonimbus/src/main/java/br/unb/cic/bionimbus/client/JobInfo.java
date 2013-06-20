@@ -1,15 +1,12 @@
 package br.unb.cic.bionimbus.client;
 
+import br.unb.cic.bionimbus.utils.Pair;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import br.unb.cic.bionimbus.utils.Pair;
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 public class JobInfo {

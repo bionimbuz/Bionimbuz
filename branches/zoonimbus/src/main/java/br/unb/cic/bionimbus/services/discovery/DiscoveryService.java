@@ -114,36 +114,19 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
     //    @Override
     public void start(final P2PService p2p) {
         try {
-          Preconditions.checkNotNull(p2p);
-          LinuxGetInfo getinfo=new LinuxGetInfo();
-          LinuxPlugin linuxPlugin = new LinuxPlugin(p2p);
-          
-          PluginInfo infopc= getinfo.call();
-          infopc.setId(p2p.getConfig().getId());
-          infopc.setHost(p2p.getConfig().getHost());
-          infopc.setUptime(p2p.getPeerNode().uptime());
+            Preconditions.checkNotNull(p2p);
+            LinuxGetInfo getinfo=new LinuxGetInfo();
+            LinuxPlugin linuxPlugin = new LinuxPlugin(p2p);
 
-         //definindo myInfo após a leitura dos dados
-          linuxPlugin.setMyInfo(infopc);
-         //armazenando dados do plugin no zookeeper
-          zkService.setData(infopc.getPath_zk(), infopc.toString());
+            PluginInfo infopc= getinfo.call();
+            infopc.setId(p2p.getConfig().getId());
+            infopc.setHost(p2p.getConfig().getHost());
+            infopc.setUptime(p2p.getPeerNode().uptime());
 
-          Map<String, PluginInfo> mapPlugin = getPeers();
-          //executa a verificação inicial para ver se os peers estão on-line, adiciona um watcher para avisar quando o peer ficar off-line
-          for (PluginInfo myInfo : mapPlugin.values()) {
-                try {
-                   
-                    if(zkService.getZNodeExist(myInfo.getPath_zk()+SEPARATOR+STATUS, false)){
-                        //adicionando wacth
-                        zkService.getData(myInfo.getPath_zk()+SEPARATOR+STATUS, new UpdatePeerData(zkService,this));
-                    }
-
-                } catch (KeeperException ex) {
-                    Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
+            //definindo myInfo após a leitura dos dados
+            linuxPlugin.setMyInfo(infopc);
+            //armazenando dados do plugin no zookeeper
+            zkService.setData(infopc.getPath_zk(), infopc.toString());
           
             this.p2p = p2p;
             p2p.addListener(this);
@@ -157,11 +140,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
     public void getStatus() {
     }
 
-    private void deletePeer(String peerPath) throws InterruptedException,KeeperException{
-        if(!zkService.getZNodeExist(peerPath+SEPARATOR+STATUS, false) && !zkService.getZNodeExist(peerPath+SEPARATOR+STATUSWAITING, false)){
-            zkService.delete(peerPath);
-        }
-    }
+    
     /**
      * Trata os watchers enviados da implementação da classe Watcher que recebe uma notificação do zookeeper
      * @param eventType evento recebido do zookeeper
@@ -169,33 +148,6 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
     @Override
     public void event(WatchedEvent eventType) {
         
-        String path = eventType.getPath();
-        try { 
-            switch(eventType.getType()){
-
-                case NodeCreated:
-                    System.out.print(path + "= NodeCreated");
-                    break;
-                case NodeChildrenChanged:
-                        System.out.print(path + "= NodeChildrenChanged");
-                    break;
-                case NodeDeleted:
-                    String peerPath =  path.subSequence(0, path.indexOf("STATUS")-1).toString();
-                    
-                    if(path.contains(STATUSWAITING)){
-                        deletePeer(peerPath);
-
-                    }else if(path.contains(STATUS) && !zkService.getZNodeExist(peerPath+STATUSWAITING, false)){
-                            zkService.createPersistentZNode(peerPath+SEPARATOR+STATUSWAITING, null);
-                            zkService.getData(peerPath+SEPARATOR+STATUSWAITING, new UpdatePeerData(zkService, this));
-                    }
-                    break;
-            }
-        } catch (KeeperException ex) {
-            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
-        }
          }
 
     

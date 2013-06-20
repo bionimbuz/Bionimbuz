@@ -1,27 +1,20 @@
 package br.unb.cic.bionimbus.services;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-
 import br.unb.cic.bionimbus.avro.rpc.RpcServer;
 import br.unb.cic.bionimbus.p2p.P2PService;
-import br.unb.cic.bionimbus.plugin.PluginInfo;
-import br.unb.cic.bionimbus.plugin.linux.LinuxGetInfo;
-import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
-
 import br.unb.cic.bionimbus.services.storage.StorageService;
-import br.unb.cic.bionimbus.utils.GetIpMac;
 import com.codahale.metrics.MetricRegistry;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import java.util.UUID;
+import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import org.apache.zookeeper.KeeperException;
 
 @Singleton
 public class ServiceManager {
 
-    private final Set<Service> services = new HashSet<Service>();
+    private final Set<Service> services = new LinkedHashSet<Service> ();
     private final ZooKeeperService zkService;
 
     private final RpcServer rpcServer;
