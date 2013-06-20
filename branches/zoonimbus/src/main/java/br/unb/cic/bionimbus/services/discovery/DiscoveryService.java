@@ -122,6 +122,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
             infopc.setId(p2p.getConfig().getId());
             infopc.setHost(p2p.getConfig().getHost());
             infopc.setUptime(p2p.getPeerNode().uptime());
+            infopc.setPrivateCloud(p2p.getConfig().getPrivateCloud());
 
             //definindo myInfo após a leitura dos dados
             linuxPlugin.setMyInfo(infopc);

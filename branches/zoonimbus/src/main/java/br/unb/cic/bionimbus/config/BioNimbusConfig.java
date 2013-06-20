@@ -1,15 +1,12 @@
 package br.unb.cic.bionimbus.config;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import br.unb.cic.bionimbus.p2p.Host;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.codehaus.jackson.annotate.JsonIgnore;
-
 import com.google.common.base.Objects;
 import com.google.inject.Singleton;
-
-import br.unb.cic.bionimbus.p2p.Host;
+import java.util.HashSet;
+import java.util.Set;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Singleton
 public class BioNimbusConfig {
@@ -25,6 +22,9 @@ public class BioNimbusConfig {
     
     @JsonIgnore
     private String plugin;
+    
+    @JsonIgnore
+    private int privateCloud;
     
     @JsonIgnore
     private Set<Host> seeds = new HashSet<Host>();
@@ -157,6 +157,16 @@ public class BioNimbusConfig {
         this.zkHosts = zkHosts;
     }
 
+    public int getPrivateCloud() {
+        return privateCloud;
+    }
+
+    public void setPrivateCloud(int privateCloud) {
+        this.privateCloud = privateCloud;
+    }
+
+    
+    
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
