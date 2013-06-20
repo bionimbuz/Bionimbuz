@@ -25,6 +25,7 @@ public class Upload implements Command {
     private final SimpleShell shell;
 //    private long cost = 0;
 //    private PluginInfo bestplugin;
+    private int replication = 2; //Variavel para designar o número de cópias para outros nodes Bionimbus
     private List<NodeInfo> pluginList;
     private List<NodeInfo> fullnodes;
     private List<NodeInfo> nodesdisp = new ArrayList<NodeInfo>();
@@ -40,7 +41,7 @@ public class Upload implements Command {
         /*
          * Verifica se o arquivo existe
          */        
-        
+         int i=0;
          File file = new File(params[0]);
          if (file.exists()) {
             String dest = null;
@@ -71,14 +72,16 @@ public class Upload implements Command {
                  if(conexao.startSession()){
                        dest = node.getPeerId();
                        shell.getRpcClient().getProxy().fileSent(info,dest);
-                       return "Upload complete!!!!!";
+                       System.out.println("\n Upload Completed!!");
+                       shell.getRpcClient().getProxy().transferFile(nodesdisp,node,info,path,replication);
+                       return null;
                  }
                  
              }
          
          }
          
-        return "teste feito";
+        return null;
 //  shell.getRpcClient().getProxy().getPeers();
 // verificar diferença sem rpccliente shell.getProxy().getPeers();
 //            for(NodeInfo plugin : shell.getRpcClient().getProxy().getPeers()){

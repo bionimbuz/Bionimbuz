@@ -11,7 +11,10 @@ import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import br.unb.cic.bionimbus.services.sched.SchedService;
 import br.unb.cic.bionimbus.services.storage.StorageService;
+import br.unb.cic.bionimbus.utils.Put;
 import com.google.inject.Inject;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.SftpException;
 import org.apache.avro.AvroRemoteException;
 
 import java.io.File;
@@ -22,6 +25,7 @@ import java.util.List;
 import static java.util.Arrays.*;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -203,6 +207,48 @@ public class BioProtoImpl implements BioProto {
             Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
         
+        return null;
+    }
+    
+    /**
+     *
+     * @param pluginList //Lista com os plugins disponiveis para armazenamento
+     * @param nodedest // Node de destino onde foi armazenado o primeiro arquivo
+     * @param path // Caminho do arquivo
+     * @return
+     * @throws JSchException
+     * @throws SftpException
+     */
+    
+    @Override
+        public synchronized Void transferFile(List<NodeInfo> plugins,NodeInfo nodedest,FileInfo file, String path, int copies) throws AvroRemoteException{
+        
+        String dest = null;
+        int aux=1;
+        
+        for (Iterator<NodeInfo> it = plugins.iterator(); it.hasNext();) {
+                 NodeInfo node = it.next();
+                 if(node.getAddress().equals(nodedest.getAddress())){
+                     System.out.println("\n Mesmo endereço, indo para o próximo.");
+                 } else {
+                    Put conexao = new Put(node.getAddress(),path);
+                    try {
+                        if(conexao.startSession()){
+                            dest = node.getPeerId();
+                            fileSent(file,dest);
+                            aux++;
+                            if(aux == copies){
+                                System.out.println("\n Replication Completed !!");
+                                return null;
+                            }
+                        }
+                    } catch (SftpException ex) {
+                    Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (JSchException ex) {
+                         Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+        }
         return null;
     }
 
