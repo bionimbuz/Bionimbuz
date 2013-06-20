@@ -76,7 +76,6 @@ public class Upload implements Command {
                        shell.getRpcClient().getProxy().transferFile(nodesdisp,node,info,path,replication);
                        return null;
                  }
-                 
              }
          
          }
