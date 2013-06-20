@@ -238,15 +238,15 @@ public class AcoSched extends SchedPolicy {
      * 2 - hibrida
      */
     public List<PluginInfo> filterTypeCloud(Collection<PluginInfo> plugins, int type) {
+        if(type==2)
+            return new ArrayList<PluginInfo>(plugins);
+        
         List<PluginInfo> clouds = new ArrayList<PluginInfo>();
-        //*   descobrir como identificar se uma nuvem é privada ou pública
-
-
         for (PluginInfo pluginInfo : plugins) {
-            //COndição para verificar se nuvem é do tipo solicitada, privada, pública ou hibrida
-//            if(pluginInfo.getTypeCloud()==type){
-            clouds.add(pluginInfo);
-//            }
+            //COndição para verificar se nuvem é do tipo solicitada, privada(1), pública(0) ou hibrida(2),
+            if(pluginInfo.getPrivateCloud()==type){
+                clouds.add(pluginInfo);
+            }
         }
         return clouds;
 

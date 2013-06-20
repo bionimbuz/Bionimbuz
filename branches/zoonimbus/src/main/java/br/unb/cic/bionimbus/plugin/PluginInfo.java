@@ -1,6 +1,5 @@
 package br.unb.cic.bionimbus.plugin;
 
-import br.unb.cic.bionimbus.p2p.ChordRing;
 import br.unb.cic.bionimbus.p2p.Host;
 import br.unb.cic.bionimbus.p2p.PeerNode;
 import java.util.List;
@@ -14,11 +13,13 @@ public class PluginInfo implements PluginOps {
     
     private String path_zk;
     
+    private int privateCloud;
+    
     private Host host;
 
     private long uptime;
 
-    private Double latency;
+    private Double latency = 0d;
 
     private long timestamp;
 
@@ -28,16 +29,12 @@ public class PluginInfo implements PluginOps {
 
     private Integer numOccupied;
     
-    private final PeerNode peerNode=null;
-
     private Double ranking = 0d;
 
     private Float fsSize;
 
     private double storagecost;
     
-    private long rank;
-
     private Float fsFreeSize;
 
     private Double memoryTotal;
@@ -48,7 +45,6 @@ public class PluginInfo implements PluginOps {
 
     private List<PluginService> services;
     
-    private final ChordRing chord=null;
 
     public String getId() {
         return id;
@@ -214,6 +210,16 @@ public class PluginInfo implements PluginOps {
         return this.id.equals(other.id);
     }
 
+    public int getPrivateCloud() {
+        return privateCloud;
+    }
+
+    public void setPrivateCloud(int privateCloud) {
+        this.privateCloud = privateCloud;
+    }
+
+    
+    
     @Override
     public int hashCode() {
         return id.hashCode();
@@ -228,5 +234,4 @@ public class PluginInfo implements PluginOps {
         } 
         return null;
     }
-
 }
