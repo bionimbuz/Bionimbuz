@@ -297,7 +297,7 @@ public class StorageService extends AbstractBioService {
                storeFileRec(fileuploaded);
               // zkService.createEphemeralZNode("/peers/peer_"+fileuploaded.getPluginId()+"/files/file_"+fileuploaded.getId(), fileuploaded.toString());            
                zkService.delete("/pending_save/file_"+fileuploaded.getId());
-               zkService.getChildren("/pending_save/file_"+fileuploaded.getId(), new UpdatePeerData(zkService,this));
+//               zkService.getChildren("/pending_save/file_"+fileuploaded.getId(), new UpdatePeerData(zkService,this));
            }else
                System.out.println("Arquivo não encontrado!");
         }
