@@ -6,7 +6,6 @@ import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.sched.policy.impl.AcoSched;
 import br.unb.cic.bionimbus.utils.Pair;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
