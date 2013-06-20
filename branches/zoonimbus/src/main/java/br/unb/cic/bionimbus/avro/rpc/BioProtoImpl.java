@@ -221,34 +221,9 @@ public class BioProtoImpl implements BioProto {
      */
     
     @Override
-        public synchronized Void transferFile(List<NodeInfo> plugins,NodeInfo nodedest,FileInfo file, String path, int copies) throws AvroRemoteException{
+    public synchronized Void transferFile(List<NodeInfo> plugins,NodeInfo nodedest,FileInfo file, String path, int copies) throws AvroRemoteException{
         
-        String dest = null;
-        int aux=1;
-        
-        for (Iterator<NodeInfo> it = plugins.iterator(); it.hasNext();) {
-                 NodeInfo node = it.next();
-                 if(node.getAddress().equals(nodedest.getAddress())){
-                     System.out.println("\n Mesmo endereço, indo para o próximo.");
-                 } else {
-                    Put conexao = new Put(node.getAddress(),path);
-                    try {
-                        if(conexao.startSession()){
-                            dest = node.getPeerId();
-                            fileSent(file,dest);
-                            aux++;
-                            if(aux == copies){
-                                System.out.println("\n Replication Completed !!");
-                                return null;
-                            }
-                        }
-                    } catch (SftpException ex) {
-                    Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (JSchException ex) {
-                         Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-        }
+        storageService.transferFiles(plugins, nodedest, file, path, copies);
         return null;
     }
 

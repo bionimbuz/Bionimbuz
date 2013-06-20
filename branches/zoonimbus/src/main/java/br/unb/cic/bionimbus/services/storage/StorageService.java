@@ -1,6 +1,7 @@
 package br.unb.cic.bionimbus.services.storage;
 
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
+import br.unb.cic.bionimbus.avro.rpc.BioProtoImpl;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 
 import java.io.File;
@@ -33,8 +34,10 @@ import br.unb.cic.bionimbus.p2p.messages.StoreAckMessage;
 import br.unb.cic.bionimbus.p2p.messages.StoreReqMessage;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
+import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
+import br.unb.cic.bionimbus.utils.Put;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -48,7 +51,10 @@ import com.twitter.common.zookeeper.ZooKeeperUtils;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 
@@ -146,63 +152,65 @@ public class StorageService extends AbstractBioService {
     }
 
     @Override
-    public void onEvent(P2PEvent event) {
-        if (!event.getType().equals(P2PEventType.MESSAGE)) {
-            return;
-        }
-
-        P2PMessageEvent msgEvent = (P2PMessageEvent) event;
-        Message msg = msgEvent.getMessage();
-        if (msg == null) {
-            return;
-        }
-
-        PeerNode receiver = null;
-        if (msg instanceof AbstractMessage) {
-            receiver = ((AbstractMessage) msg).getPeer();
-        }
-
-        switch (P2PMessageType.of(msg.getType())) {
-            case CLOUDRESP:
-                CloudRespMessage cloudMsg = (CloudRespMessage) msg;
-                /*   DiscoveryService data=new DiscoveryService(zkService);
-                 ConcurrentMap<String,PluginInfo> cloudData= data.getPeers();
-                 for (PluginInfo info : cloudData.values()) {
-                 cloudMap.put(info.getId(), info);
-                 }*/
-                break;
-            case STOREREQ:
-                StoreReqMessage storeMsg = (StoreReqMessage) msg;
-                sendStoreResp(storeMsg.getFileInfo(), storeMsg.getTaskId(), receiver);
-                break;
-            case STOREACK:
-                StoreAckMessage ackMsg = (StoreAckMessage) msg;
-                savedFiles.put(ackMsg.getPluginFile().getId(), ackMsg.getPluginFile());
-                try {
-                    ObjectMapper mapper = new ObjectMapper();
-                    mapper.writeValue(new File("persistent-storage.json"), savedFiles);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                break;
-            case LISTREQ:
-                p2p.sendMessage(receiver.getHost(), new ListRespMessage(p2p.getPeerNode(), savedFiles.values()));
-                break;
-            case GETREQ:
-                GetReqMessage getMsg = (GetReqMessage) msg;
-                PluginFile file = savedFiles.get(getMsg.getFileId());
-                // TODO Tem que verificar se o Id do file existe, ou melhor, caso o file seja null deve
-                // exibir uma mensagem de erro avisando que o id do arquivo informado não existe
-                for (PluginInfo plugin : cloudMap.values()) {
-                    if (plugin.getId().equals(file.getPluginId())) {
-                        p2p.sendMessage(receiver.getHost(), new GetRespMessage(p2p.getPeerNode(), plugin, file, getMsg.getTaskId()));
-                        return;
-                    }
-                }
-
-                //TODO mensagem de erro?
-                break;
-        }
+        public void onEvent(P2PEvent event) {
+//        
+//        
+//        if (!event.getType().equals(P2PEventType.MESSAGE)) {
+//            return;
+//        }
+//
+//        P2PMessageEvent msgEvent = (P2PMessageEvent) event;
+//        Message msg = msgEvent.getMessage();
+//        if (msg == null) {
+//            return;
+//        }
+//
+//        PeerNode receiver = null;
+//        if (msg instanceof AbstractMessage) {
+//            receiver = ((AbstractMessage) msg).getPeer();
+//        }
+//
+//        switch (P2PMessageType.of(msg.getType())) {
+//            case CLOUDRESP:
+//                CloudRespMessage cloudMsg = (CloudRespMessage) msg;
+//                /*   DiscoveryService data=new DiscoveryService(zkService);
+//                 ConcurrentMap<String,PluginInfo> cloudData= data.getPeers();
+//                 for (PluginInfo info : cloudData.values()) {
+//                 cloudMap.put(info.getId(), info);
+//                 }*/
+//                break;
+//            case STOREREQ:
+//                StoreReqMessage storeMsg = (StoreReqMessage) msg;
+//                sendStoreResp(storeMsg.getFileInfo(), storeMsg.getTaskId(), receiver);
+//                break;
+//            case STOREACK:
+//                StoreAckMessage ackMsg = (StoreAckMessage) msg;
+//                savedFiles.put(ackMsg.getPluginFile().getId(), ackMsg.getPluginFile());
+//                try {
+//                    ObjectMapper mapper = new ObjectMapper();
+//                    mapper.writeValue(new File("persistent-storage.json"), savedFiles);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                break;
+//            case LISTREQ:
+//                p2p.sendMessage(receiver.getHost(), new ListRespMessage(p2p.getPeerNode(), savedFiles.values()));
+//                break;
+//            case GETREQ:
+//                GetReqMessage getMsg = (GetReqMessage) msg;
+//                PluginFile file = savedFiles.get(getMsg.getFileId());
+//                // TODO Tem que verificar se o Id do file existe, ou melhor, caso o file seja null deve
+//                // exibir uma mensagem de erro avisando que o id do arquivo informado não existe
+//                for (PluginInfo plugin : cloudMap.values()) {
+//                    if (plugin.getId().equals(file.getPluginId())) {
+//                        p2p.sendMessage(receiver.getHost(), new GetRespMessage(p2p.getPeerNode(), plugin, file, getMsg.getTaskId()));
+//                        return;
+//                    }
+//                }
+//
+//                //TODO mensagem de erro?
+//                break;
+//        }
     }
 
     public void sendStoreResp(FileInfo info, String taskId, PeerNode dest) {
@@ -289,6 +297,7 @@ public class StorageService extends AbstractBioService {
                storeFileRec(fileuploaded);
               // zkService.createEphemeralZNode("/peers/peer_"+fileuploaded.getPluginId()+"/files/file_"+fileuploaded.getId(), fileuploaded.toString());            
                zkService.delete("/pending_save/file_"+fileuploaded.getId());
+               zkService.getChildren("/pending_save/file_"+fileuploaded.getId(), new UpdatePeerData(zkService,this));
            }else
                System.out.println("Arquivo não encontrado!");
         }
@@ -296,10 +305,41 @@ public class StorageService extends AbstractBioService {
             System.out.println("Arquivo não encontrado nas pendências !");
         
     }
+    
+    public void transferFiles(List<NodeInfo> plugins,NodeInfo nodedest,br.unb.cic.bionimbus.avro.gen.FileInfo file, String path, int copies){
+        
+        String dest = null;
+        int aux=1;
+        
+        for (Iterator<NodeInfo> it = plugins.iterator(); it.hasNext();) {
+                 NodeInfo node = it.next();
+                  
+                    Put conexao = new Put(node.getAddress(),path);
+                    
+                    try {
+                        if(conexao.startSession()){
+                            dest = node.getPeerId();
+                            aux++;
+                            if(aux == copies){
+                                System.out.println("\n Replication Completed !!");
+                                break;
+                            }
+                        }
+                    } catch (SftpException ex) {
+                    Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (JSchException ex) {
+                         Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                
+        }
+        
+    }
+
     @Override
     public void event(WatchedEvent eventType) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    
     
     
 }

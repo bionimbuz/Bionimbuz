@@ -91,7 +91,6 @@ public final class SimpleShell {
     private void readEvalPrintLoop() throws IOException {
 
         System.out.println(GREETINGS);
-
         while (true) {
             // read
             System.out.print(PROMPT);
