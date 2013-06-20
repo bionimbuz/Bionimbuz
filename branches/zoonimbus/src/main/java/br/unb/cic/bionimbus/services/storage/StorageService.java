@@ -321,7 +321,7 @@ public class StorageService extends AbstractBioService {
                             dest = node.getPeerId();
                             aux++;
                             if(aux == copies){
-                                System.out.println("\n Replication Completed !!");
+                                System.out.println("\n Replication Completed !! No de destino : "+node.getAddress());
                                 break;
                             }
                         }
