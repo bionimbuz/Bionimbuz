@@ -242,6 +242,9 @@ protocol BioProto {
   //Enviar plugins
   // void sendPlugins(array<NodeInfo> plugins);
 
+  //Transferencia de arquivos entre os nodes bionimbus
+    void transferFile(array<NodeInfo> plugins,NodeInfo nodedest, FileInfo file,string path, int copies);  
+
   //Mensagem de arquivo enviado com sucesso do cliente pro servidor
     void fileSent(FileInfo fileSucess,string dest);
   //Chamar Storage Service
