@@ -7,9 +7,9 @@ import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.Service;
+import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.sched.SchedUpdatePeerData;
-import br.unb.cic.bionimbus.services.sched.policy.impl.AcoSched;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.io.IOException;
@@ -40,7 +40,6 @@ public class MonitoringService extends AbstractBioService implements Service, P2
     private static final String STATUS = "/STATUS";
     private static final String STATUSWAITING = "/STATUSWAITING";
     private static final String SEPARATOR = "/";
-    private static final String SCHED = "/sched";
     private static final String JOBS = "/jobs";
     private static final String PREFIX_JOB = "/job_";
     private static final String PREFIX_TASK = "/task_";
@@ -52,17 +51,17 @@ public class MonitoringService extends AbstractBioService implements Service, P2
     }
 
     
-    @Override
+//    @Override
     public void run() {
         System.out.println("running MonitorService...");
-
+        checkPeersStatus();
         
     }
 
     @Override
     public void start(P2PService p2p) {
         try {
-            checkRunningJobs();
+            checkPeers();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -86,187 +85,89 @@ public class MonitoringService extends AbstractBioService implements Service, P2
     
     @Override
     public void event(WatchedEvent eventType) {
-        System.out.print(eventType.getType().toString());
-        switch(eventType.getType()){
-        
-            case NodeChildrenChanged:
-                
-                /*
-                 * Criar variável para diferenciar tarefa realizada de tarefa para executar
-                 */
-                
-            String datas;
-            
-            try {
-                //verifica qual foi o job colocado para ser executado 
-                PluginTask pluginTask = checkWattingJobs(eventType.getPath());
-                
-                //como retornar para executar ? TO DO
-                
-            } catch (KeeperException ex) {
-                java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InterruptedException ex) {
-                java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (Exception ex) {
-                java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        String path = eventType.getPath();
+        try { 
+            switch(eventType.getType()){
 
-                break;
-            case NodeDataChanged:
-                try {
-                    ObjectMapper mapper = new ObjectMapper();
-                    datas = zkService.getData(eventType.getPath(), null);
-                    PluginTask task = mapper.readValue(datas, PluginTask.class);
-
-                    switch(task.getState()){
-                        case RUNNING:
-
-                            break;
-                        case DONE:
-                            
-                            waitingTask.remove(task.getJobInfo().getId());
-                            zkService.delete(eventType.getPath());
-                            
-                            break;
-                        case PENDING:
-
-                            break;
-                        case CANCELLED:
-                            
-
-                            break;
+                case NodeCreated:
+                    System.out.print(path + "= NodeCreated");
+                    break;
+                case NodeChildrenChanged:
+                        System.out.print(path + "= NodeChildrenChanged");
+                    break;
+                case NodeDeleted:
+                    String peerPath =  path.subSequence(0, path.indexOf("STATUS")-1).toString();
+                    
+                    if(path.contains(STATUSWAITING)){
+                        deletePeer(peerPath);
 
                     }
-
-                } catch (KeeperException ex) {
-                    java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (InterruptedException ex) {
-                    java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (Exception ex) {
-                    java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
-                } 
-
-                break;
-                
-            
-            case NodeDeleted:
-                //Trata o evento de quando o zNode status for apagado, ou seja, quando um peer estiver off-line, deve recuperar os jobs
-                //que haviam sido escalonados para esse peer
-                if(eventType.getPath().contains(STATUS)){
-                    relocateTasks(eventType.getPath().subSequence(0, eventType.getPath().indexOf("STATUS")-1).toString());
-                }
-                //Trata o evento de quando o zNode referente a tarefa em execução for apagado, a tarefa já foi executada 
-                if(eventType.getPath().contains(SCHED+TASKS+PREFIX_TASK)){
-                    finishedTask(eventType.getPath());
-                }
                     
-                
-            break;
-        }
-    }
-    
-    /**
-     * Realiza a recuperação das tarefas que estavam em execução do peer que ficou off-line, colocando-as para 
-     * serem reescalonadas. Ao final exclui o zNode STATUSWAITING para que o peer possa ser excluído do servidor zookeeper
-     * @param peerPath 
-     */
-    private void relocateTasks(String peerPath){
-        
-        try {
-            List<String> tasksChildren = zkService.getChildren(peerPath+SCHED+TASKS, null);
-
-            for (String taskChild : tasksChildren) {
-                ObjectMapper mapper = new ObjectMapper();
-                PluginTask pluginTask = mapper.readValue(zkService.getData(peerPath+SCHED+TASKS+SEPARATOR+taskChild, null), PluginTask.class);
-                zkService.createPersistentZNode(JOBS+PREFIX_JOB+pluginTask.getJobInfo().getId(), pluginTask.getJobInfo().toString());
+                    break;
             }
-            
-                
-        
-            zkService.delete(peerPath+STATUSWAITING);
         } catch (KeeperException ex) {
             Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
             Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
+        }
+    }
+    
+    private void deletePeer(String peerPath) throws InterruptedException,KeeperException{
+        if(!zkService.getZNodeExist(peerPath+STATUS, false) && zkService.getZNodeExist(peerPath+STATUSWAITING, false)){
+            zkService.delete(peerPath);
+        }
+    }
+    /**
+     * Realiza a verificação dos peers existentes identificando se existe algum peer aguardando recuperação,
+     * se o peer estiver off-line e a recuperação já estiver sido feito, realiza a limpeza do peer.
+     * Realizada apenas quando o módulo inicia.
+     */
+    private void checkPeersStatus(){
+        try {
+            List<String> listPeers = zkService.getChildren(ROOT_PEER, null);
+            for (String peerPath : listPeers) {
+
+                if(zkService.getZNodeExist(ROOT_PEER+SEPARATOR+peerPath+STATUSWAITING, false)){
+                    //TO DO descomentar linha abaixo caso o storage estiver fazendo a recuperação do peer 
+//                    if(zkService.getData(ROOT_PEER+SEPARATOR+peerPath+STATUSWAITING, null).contains("ES")){
+                    if(zkService.getData(ROOT_PEER+SEPARATOR+peerPath+STATUSWAITING, null).contains("E")){
+                    deletePeer(ROOT_PEER+SEPARATOR+peerPath); 
+                    }
+                }
+            }   
+        } catch (KeeperException ex) {
+            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
             Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
     /**
-     * Verifica no zookeeper qual foi a nova tarefa colocada para execução, adiciona um watcher na tarefa e adiciona a tarefa na 
-     * lista de tarefas que estão aguardando execução.
-     * @param path caminho do local que foi criado a tarefa no zookeeper.
-     * @return a pluginTask da tarefas adicionada para execução
-     * @throws KeeperException
-     * @throws InterruptedException
-     * @throws IOException 
+     * Incia o processo de recuperação dos peers caso ainda não tenho sido iniciado e adiciona um watcher nos peer on-lines.
      */
-    private PluginTask checkWattingJobs(String path) throws KeeperException,InterruptedException,IOException{
-        ObjectMapper mapper = new ObjectMapper();
-        PluginTask pluginTask =null;
-        List<String> tasksChildren = zkService.getChildren(path, null);
+    private void checkPeers(){
+        try {
         
-        for (String taskChild : tasksChildren) {
-            String datasTask = zkService.getData(path+SEPARATOR+taskChild, null);
-            
-            PluginTask task = mapper.readValue(datasTask, PluginTask.class);
-            
-            //verifica se a tarefa já estava na lista para não adicionar mais de um watcher
-            if(!waitingTask.containsKey(task.getJobInfo().getId())){
-                // adiciona um watcher na task que foi escanolada
-                zkService.getData(path+SEPARATOR+taskChild, new SchedUpdatePeerData(zkService, this));
-                waitingTask.put(task.getJobInfo().getId(), task);
-                pluginTask = task;
+            //executa a verificação inicial para ver se os peers estão on-line, adiciona um watcher para avisar quando o peer ficar off-line
+            List<String> listPeers = zkService.getChildren(ROOT_PEER, null);
+            for (String peerPath : listPeers) {
+                    if(zkService.getZNodeExist(ROOT_PEER+SEPARATOR+peerPath+STATUS, false)){
+                        //adicionando wacth
+                        zkService.getData(ROOT_PEER+SEPARATOR+peerPath+STATUS, new UpdatePeerData(zkService,this));
+                    }
+                    //verifica se algum plugin havia ficado off e não foi realizado sua recuperação
+                    if(!zkService.getZNodeExist(ROOT_PEER+SEPARATOR+peerPath+STATUS, false) 
+                            && !zkService.getZNodeExist(ROOT_PEER+SEPARATOR+peerPath+STATUSWAITING, false)){
+                        zkService.createPersistentZNode(ROOT_PEER+SEPARATOR+peerPath+STATUSWAITING, "");
+                        zkService.getData(ROOT_PEER+SEPARATOR+peerPath+STATUSWAITING, new UpdatePeerData(zkService,this));
+                    }
             }
+        } catch (KeeperException ex) {
+            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return pluginTask;
-    }
-
-    /**
-     * Verifica quais são as tarefas que já estão escanolada e adiciona um watcher em cada conjunto de tarefas dos plugins e nas
-     * tarefas caso existam.
-     * @throws KeeperException
-     * @throws InterruptedException
-     * @throws IOException 
-     */
-    private void checkRunningJobs() throws KeeperException,InterruptedException, IOException{
-        List<PluginInfo> plgs = new ArrayList<PluginInfo> (getPeers().values());
-        List<String> listTasks;
-        
-        
-        for (PluginInfo plugin : plgs) {
-            //adiconando watch para cada peer
-            //adiconando watch para cada o znode que contém as tarefas escanoladas
-            listTasks = zkService.getChildren(plugin.getPath_zk()+SCHED+TASKS, new SchedUpdatePeerData(zkService,this));
-            
-            for (String task : listTasks) {
-                ObjectMapper mapper = new ObjectMapper();
-                PluginTask pluginTask = mapper.readValue(zkService.getData(plugin.getPath_zk()+SCHED+TASKS+SEPARATOR+task, new SchedUpdatePeerData(zkService,this)), PluginTask.class);
-                
-                waitingTask.put(pluginTask.getJobInfo().getId(), pluginTask);
-                
-            }
-            //adiciona um watcher na zNode Status do peer
-            zkService.getChildren(plugin.getPath_zk()+STATUS, new SchedUpdatePeerData(zkService,this));
 
         }
-        
-    }
-    
-    /**
-     * Realiza a chamada dos métodos para a finalização da execução do job.
-     * @param pathTask endereço do znode, task executada.
-     */
-    private void finishedTask(String pathTask){
-        String idPluginTask    = pathTask.substring(pathTask.indexOf("task_"), pathTask.length());
-        PluginTask pluginTaskFinish = waitingTask.remove(idPluginTask);
-        
-        
-        //realiza a atualização do tamanho total de tarefas executadas no plugin
-        new AcoSched().upDateSizeOfJobsSchedCloud(getPeers().get(pluginTaskFinish.getPluginExec()), pluginTaskFinish.getJobInfo());
-    
-    }
     
     
     
