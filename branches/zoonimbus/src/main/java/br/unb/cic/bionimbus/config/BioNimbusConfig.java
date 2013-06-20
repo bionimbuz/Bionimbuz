@@ -23,14 +23,15 @@ public class BioNimbusConfig {
     @JsonIgnore
     private String plugin;
     
-    @JsonIgnore
-    private int privateCloud;
     
     @JsonIgnore
     private Set<Host> seeds = new HashSet<Host>();
     
     @JsonIgnore
     private boolean client = false;
+  
+    @JsonProperty("private_cloud")
+    private int privateCloud;
     
     @JsonProperty("rpc_protocol")
     private String rpcProtocol;
@@ -177,6 +178,7 @@ public class BioNimbusConfig {
                 .add("client", client)
                 .add("host", host)
                 .add("seeds", seeds)
+                .add("private_cloud", privateCloud)
                 .add("server-path", serverPath)
                 .toString();
     }
