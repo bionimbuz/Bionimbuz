@@ -6,6 +6,7 @@ package br.unb.cic.bionimbus.services;
 
 
 import br.unb.cic.bionimbus.p2p.P2PListener;
+import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import com.google.inject.Singleton;
@@ -25,10 +26,12 @@ import org.codehaus.jackson.map.ObjectMapper;
 public abstract class AbstractBioService implements Service, P2PListener, Runnable {
 
     protected ZooKeeperService zkService;
+    private static final String FILES = "/files";
     private static final String ROOT_PEER = "/peers";
     private static final String STATUS = "STATUS";
     private static final String SEPARATOR = "/";
     private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
+    private Map<String, PluginFile> savedFiles = new ConcurrentHashMap<String, PluginFile>();
     
     
     /**
@@ -58,6 +61,30 @@ public abstract class AbstractBioService implements Service, P2PListener, Runnab
         }
         
         return cloudMap;
+    }
+    public Map<String, PluginFile> getFiles(){
+        List<String> children;
+        List<String> childrenF;
+        savedFiles.clear();
+        try {
+            children = zkService.getChildren(ROOT_PEER, null);
+            for (String child : children) {
+                ObjectMapper mapper = new ObjectMapper();
+                PluginFile files = mapper.readValue(zkService.getData(ROOT_PEER +SEPARATOR+ child+FILES, null), PluginFile.class);
+                    
+                if(zkService.getZNodeExist(files.getPath(), false)){ 
+                    savedFiles.put(files.getId(), files);
+                }
+            }
+        } catch (KeeperException ex) {
+            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return savedFiles;
     }
 
 }

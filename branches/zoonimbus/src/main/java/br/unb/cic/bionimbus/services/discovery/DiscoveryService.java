@@ -111,7 +111,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 //                + "uptime: " + System.currentTimeMillis();
 //    }
 
-    //    @Override
+//    @Override
     public void start(final P2PService p2p) {
         try {
             Preconditions.checkNotNull(p2p);
