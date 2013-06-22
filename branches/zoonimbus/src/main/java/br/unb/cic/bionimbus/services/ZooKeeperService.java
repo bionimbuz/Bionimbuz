@@ -25,13 +25,24 @@ public class ZooKeeperService {
 
     private final CountDownLatch countDownLatch = new CountDownLatch(1);
     
+    private volatile Status status = Status.NO_CONNECTED;
+    
+    private volatile Path path = Path.ROOT;
+    
     public enum Status {
         NO_CONNECTED, CONNECTING, CONNECTED
     }
     
+    
+    /**
+     * Classe interna do ZookeeperService que possui, o método construtor Path(String value), 
+     * método getFullPath(String pluginid,String fileid,String taskid), que retorna o caminho completo do znode   
+     */
     public enum Path {
         
-        ROOT("/"), PREFIX_PEERS("/peers_"), PEER("/peer"), FILES("/files");
+        ROOT("/"), PREFIX_PEER("/peer_"), PEERS("/peers"), FILES("/files"),PENDING_SAVE("/pending_save"),PREFIX_PENDING_FILE("pending_file_"),
+        JOBS("/jobs"),PREFIX_FILE("/file_"),STATUS("/STATUS"),STATUSWAITING("/STATUSWAITING"),SCHED("/sched"),
+        SIZE_JOBS("/size_jobs"),TASKS("/tasks"), PREFIX_TASK("/task_");
         
         private final String value;
         
@@ -39,15 +50,34 @@ public class ZooKeeperService {
             this.value = value;
         }
         
-        public String getFullPath() {
+        /**
+         * 
+         * @param pluginid Os Enums, PREFIX_PEER, STATUS, STATUSWAITING, SCHED, SIZE_JOBS, TASKS, PREFIX_TASK, FILES, PREFIX_FILE utilizam como parametro
+         * @param fileid OS enums, PREFIX_PENDING_FILE, PREFIX_FILE, utilizam o id dos file
+         * @param taskid Os enums, PREFIX_TASK, utilizam
+         * @return 
+         */
+        public String getFullPath(String pluginid,String fileid,String taskid) {
             switch (this) {
                 case ROOT: return "" + this;
-                case PEER:  return "" + PREFIX_PEERS + PEER;
-                // 
+                    
+                    case PENDING_SAVE: return "" +PENDING_SAVE;
+                        case PREFIX_PENDING_FILE: return ""+PENDING_SAVE+PREFIX_PENDING_FILE+fileid;
+                    case JOBS: return ""+JOBS;   
+                    case PEERS:  return "" + PEERS;
+                        case PREFIX_PEER: return ""+PEERS+PREFIX_PEER+pluginid;
+                            case STATUS: return ""+PEERS+PREFIX_PEER+pluginid+STATUS;
+                            case STATUSWAITING: return ""+PEERS+PREFIX_PEER+pluginid+STATUSWAITING;
+                            case SCHED: return ""+PEERS+PREFIX_PEER+pluginid+SCHED;
+                                case SIZE_JOBS: return ""+PEERS+PREFIX_PEER+pluginid+SCHED+SIZE_JOBS;
+                                case TASKS: return ""+PEERS+PREFIX_PEER+pluginid+SCHED+TASKS;  
+                                    case PREFIX_TASK: return ""+PEERS+PREFIX_PEER+pluginid+SCHED+TASKS+PREFIX_TASK+taskid;
+                            case FILES: return ""+PEERS+PREFIX_PEER+pluginid+FILES;
+                                case PREFIX_FILE: return ""+PEERS+PREFIX_PEER+pluginid+FILES+PREFIX_FILE+fileid;
             }
             return "";
         }
-        
+      
         public String getCodigo() {
             return value;
         }
@@ -57,14 +87,14 @@ public class ZooKeeperService {
             return value;
         }
         
-    }
-           
-    private volatile Status status = Status.NO_CONNECTED;
-
+    }   
+    
     public ZooKeeperService() {
-        System.out.println("Criando ZK service...");
-        
-        
+        System.out.println("Criando ZK service...");  
+    }
+    
+    public Path getPath(){       
+        return path;
     }
 
     public Status getStatus() {
@@ -96,7 +126,12 @@ public class ZooKeeperService {
         // Espera pelo evento de conexão
         countDownLatch.await();
     }
-
+    /**
+     * Cria um znode persistent
+     * @param root Path do znode
+     * @param data Dado a ser gravado no znode
+     * @return 
+     */
     public String createPersistentZNode(String root, String data) {
         String peer=null;
         if (zk != null) {
@@ -119,7 +154,13 @@ public class ZooKeeperService {
         }
         return peer;
     }
-
+    
+    /**
+     * 
+     * @param root
+     * @param data
+     * @return 
+     */
     public String createPersistentSequentialZNode(String root, String data) {
         String peer = null;
         if (zk != null) {
@@ -142,7 +183,12 @@ public class ZooKeeperService {
         }
         return peer;
     }
-    
+    /**
+     * 
+     * @param path
+     * @param data
+     * @return 
+     */
     public String createEphemeralZNode(final String path, String data) {
         String peer = null;
         byte[] buf = (data != null) ? data.getBytes() : new byte[0];
@@ -165,7 +211,12 @@ public class ZooKeeperService {
 
         return peer;
     }
-    
+    /**
+     * 
+     * @param path
+     * @param data
+     * @return 
+     */
     public String createEphemeralSequentialZNode(final String path, String data) {
         String peer = null;
         byte[] buf = (data != null) ? data.getBytes() : new byte[0];
@@ -187,25 +238,61 @@ public class ZooKeeperService {
 
         return peer;
     }
-
+    
+    /**
+     * 
+     * @param path
+     * @param watch
+     * @return
+     * @throws KeeperException
+     * @throws InterruptedException 
+     */
     public Boolean getZNodeExist(String path, boolean watch) throws KeeperException, InterruptedException {
        Stat stat = zk.exists(path, watch);
        return (stat==null) ? Boolean.FALSE : Boolean.TRUE;
     }
     
+    /**
+     * 
+     * @param path
+     * @param watcher
+     * @return
+     * @throws KeeperException
+     * @throws InterruptedException 
+     */
     public List<String> getChildren(String path, Watcher watcher) throws KeeperException, InterruptedException {
         return zk.getChildren(path, watcher, null);
     }
-
+    
+    /**
+     * 
+     * @param path
+     * @param watcher
+     * @return
+     * @throws KeeperException
+     * @throws InterruptedException 
+     */
     public String getData(String path, Watcher watcher) throws KeeperException, InterruptedException {
         byte[] data = zk.getData(path, watcher, null);
         return new String(data);
     }
     
+    /**
+     * 
+     * @param path
+     * @param data
+     * @throws KeeperException
+     * @throws InterruptedException 
+     */
     public void setData(String path, String data) throws KeeperException, InterruptedException {
         Stat stat = zk.setData(path, data.getBytes(), -1);
     }
-
+    /**
+     * 
+     * @param path
+     * @throws KeeperException
+     * @throws InterruptedException 
+     */
     public void delete(String path) throws KeeperException, InterruptedException {
         List<String> children = zk.getChildren(path, null);
         for(String child : children){
@@ -213,7 +300,11 @@ public class ZooKeeperService {
         }
         zk.delete(path, -1);
     }
-
+    
+    /**
+     * Método que fecha a conexão com o zookeeper 
+     * @throws InterruptedException 
+     */
     public void close() throws InterruptedException {
         try {
             zk.close();

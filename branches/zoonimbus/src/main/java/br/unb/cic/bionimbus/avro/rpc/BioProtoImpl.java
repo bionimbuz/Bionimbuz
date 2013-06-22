@@ -111,7 +111,9 @@ public class BioProtoImpl implements BioProto {
         
         return new ArrayList<NodeInfo>(nodes.values());
     }
-    //Set the nodes from the clients with latency
+    /**
+     *Set the nodes from the clients with latency 
+     */
     @Override
     public synchronized Void setNodes(List<NodeInfo> list) throws AvroRemoteException {
            for (NodeInfo node : list) {
@@ -154,21 +156,23 @@ public class BioProtoImpl implements BioProto {
 //                }
 //
 //            }
-//        });
-        
-        // **************************************************
-        // Passa PluginList para StorageService aqui
-        // **************************************************
+//        });      
 //        
 //        return null;  
 //   }
 
+    /**
+     * Passa PluginList para StorageService aqui
+     * @return
+     * @throws AvroRemoteException 
+     */
     @Override
     public List<NodeInfo> callStorage() throws AvroRemoteException {
         
         List<NodeInfo> bestnodes = storageService.bestNode();
         return bestnodes;
     } 
+    
     /**
      * Método que cria o znode do arquivo no diretório /pending_save/file_"id_do arquivo" com as informações de arquivos que clientes querem enviar;
      * @param file
