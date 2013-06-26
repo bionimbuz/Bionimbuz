@@ -9,6 +9,7 @@ import br.unb.cic.bionimbus.avro.gen.BioProto;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.client.shell.commands.Connect;
 import br.unb.cic.bionimbus.client.shell.commands.DateTime;
+import br.unb.cic.bionimbus.client.shell.commands.Download;
 import br.unb.cic.bionimbus.client.shell.commands.Echo;
 import br.unb.cic.bionimbus.client.shell.commands.Help;
 import br.unb.cic.bionimbus.client.shell.commands.History;
@@ -60,11 +61,11 @@ public final class SimpleShell {
         commandMap.put(JobStart.NAME, new JobStart(this));
         
         commandMap.put(JobCancel.NAME, new JobCancel(this));
-
         //PingCommand
         //GetFile
         commandMap.put("script", new ScriptRunner(this));
         commandMap.put(Upload.NAME, new Upload(this));
+        commandMap.put(Download.NAME, new Download(this));
     }
 
     public void registerCommand(Command command) {
