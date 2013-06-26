@@ -270,9 +270,14 @@ public class StorageService extends AbstractBioService {
 
     public Map<String,List<String>> getFiles(){
         Map<String,List<String>> mapFiles = new HashMap<String, List<String>>();
+        List<String> listFiles ;
         try {
             for(PluginInfo plugin : getPeers().values()){
-                mapFiles.put(plugin.getHost().getAddress(),zkService.getChildren(plugin.getPath_zk()+zkService.getPath().FILES.toString(), new UpdatePeerData(zkService, this)));
+                listFiles = new ArrayList<String>();
+                for(String file : zkService.getChildren(plugin.getPath_zk()+zkService.getPath().FILES.toString(), new UpdatePeerData(zkService, this))){
+                    listFiles.add(file.substring(5,file.length()));
+                }
+                mapFiles.put(plugin.getHost().getAddress(),listFiles);
             }
         } catch (KeeperException ex) {
             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
