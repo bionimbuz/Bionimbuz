@@ -57,15 +57,6 @@ public class BioProtoImpl implements BioProto {
         return listFile;
     }
     
-        public String listFilesIp() throws AvroRemoteException {
-        List<String> listFile = new ArrayList<String>();
-        for(Collection<String> collection : storageService.getFiles().values()){
-            
-        }
-        
-        return null;
-    }
-
     @Override
     public List<String> listServices() throws AvroRemoteException {
         Collection<PluginInfo> list = this.discoveryService.getPeers().values();
