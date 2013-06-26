@@ -14,6 +14,7 @@ import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginGetFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
+import br.unb.cic.bionimbus.services.ZooKeeperService;
 
 public class ProxyPlugin extends AbstractPlugin {
 
@@ -54,7 +55,7 @@ public class ProxyPlugin extends AbstractPlugin {
     }
 
     @Override
-    protected Future<PluginTask> startTask(PluginTask task) {
+    public Future<PluginTask> startTask(PluginTask task, ZooKeeperService zk) {
         // TODO Auto-generated method stub
         return null;
     }
