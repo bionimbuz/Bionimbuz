@@ -266,7 +266,7 @@ public class BioProtoImpl implements BioProto {
             
         destino = storageService.getFilesIP(file);
         
-        return null;
+        return destino;
     }
 
 }
