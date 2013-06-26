@@ -18,6 +18,7 @@ import br.unb.cic.bionimbus.plugin.PluginTaskRunner;
 import br.unb.cic.bionimbus.plugin.linux.LinuxGetFile;
 import br.unb.cic.bionimbus.plugin.linux.LinuxGetInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxSaveFile;
+import br.unb.cic.bionimbus.services.ZooKeeperService;
 import java.io.IOException;
 
 public class SGEPlugin extends AbstractPlugin {
@@ -46,12 +47,12 @@ public class SGEPlugin extends AbstractPlugin {
     }
 
     @Override
-    protected Future<PluginTask> startTask(PluginTask task) {
+    public Future<PluginTask> startTask(PluginTask task, ZooKeeperService zk) {
         PluginService service = getMyInfo().getService(task.getJobInfo().getServiceId());
         if (service == null)
             return null;
 
-        return executorService.submit(new PluginTaskRunner(this, task, service, getP2P().getConfig().getServerPath()));
+        return executorService.submit(new PluginTaskRunner(this, task, service, getP2P().getConfig().getServerPath(),zk));
     }
 
     @Override
