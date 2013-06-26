@@ -47,12 +47,12 @@ public class LinuxPlugin extends AbstractPlugin{
     }
 
     @Override
-    protected Future<PluginTask> startTask(PluginTask task) {
+    public Future<PluginTask> startTask(PluginTask task, ZooKeeperService zk) {
         PluginService service = getMyInfo().getService(task.getJobInfo().getServiceId());
         if (service == null)
             return null;
 
-        return executorService.submit(new PluginTaskRunner(this, task, service, getP2P().getConfig().getServerPath()));
+        return executorService.submit(new PluginTaskRunner(this, task, service, getP2P().getConfig().getServerPath(),zk));
     }
 
 
