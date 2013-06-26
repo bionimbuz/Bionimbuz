@@ -21,23 +21,15 @@ public class Download implements Command {
     @Override
     public String execute(String... params) throws Exception {
         
-        int index = 0;
-        int achou=0;
         String filerequest = params[0];
-        destino = shell.getRpcClient().getProxy().listFilesIp(filerequest);
-        
+        destino = shell.getRpcClient().getProxy().listFilesIp(filerequest);      
                 
-         Get conexao = new Get();
-          if(conexao.startSession(filerequest)){     
-                     achou = 1; 
+        Get conexao = new Get();
+          if(conexao.startSession(filerequest)){ 
+                     return "Download Completed";
+          }else{
+                    return "Arquivo não encontrado !!";
           }
-
-        if(achou == 0){
-            return "Arquivo não encontrado !!";
-        }
-        else{
-            return "Download Completed";
-        }
     }
 
     @Override

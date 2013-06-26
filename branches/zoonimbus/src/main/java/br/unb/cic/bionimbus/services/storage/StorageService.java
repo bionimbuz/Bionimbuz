@@ -303,6 +303,7 @@ public class StorageService extends AbstractBioService {
                     }
                 }
             }
+            return "Arquivo nao encontrado";
         } catch (KeeperException ex) {
             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
