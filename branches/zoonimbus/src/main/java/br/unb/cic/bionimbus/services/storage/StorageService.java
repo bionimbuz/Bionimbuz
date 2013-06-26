@@ -33,6 +33,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.avro.AvroRemoteException;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
@@ -266,7 +267,7 @@ public class StorageService extends AbstractBioService {
         return false;
     }
 
-    public List<String> getFiles(){
+            public List<String> getFiles(){
         List<String> listFiles=new ArrayList<String>();
         try {
             for(PluginInfo plugin : getPeers().values()){
@@ -330,7 +331,7 @@ public class StorageService extends AbstractBioService {
         
     }
     
-    public void transferFiles(List<NodeInfo> plugins,NodeInfo nodedest,br.unb.cic.bionimbus.avro.gen.FileInfo file, String path, int copies){
+    public void transferFiles(List<NodeInfo> plugins,NodeInfo nodedest,br.unb.cic.bionimbus.avro.gen.FileInfo file, String path, int copies) throws AvroRemoteException{
         
         String dest = null;
         int aux=1;
@@ -346,6 +347,7 @@ public class StorageService extends AbstractBioService {
                             aux++;
                             if(aux == copies){
                                 System.out.println("\n Replication Completed !! No de destino : "+node.getAddress());
+                               
                                 break;
                             }
                         }

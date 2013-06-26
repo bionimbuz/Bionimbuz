@@ -62,29 +62,5 @@ public abstract class AbstractBioService implements Service, P2PListener, Runnab
         
         return cloudMap;
     }
-    public Map<String, PluginFile> getFiles(){
-        List<String> children;
-        List<String> childrenF;
-        savedFiles.clear();
-        try {
-            children = zkService.getChildren(ROOT_PEER, null);
-            for (String child : children) {
-                ObjectMapper mapper = new ObjectMapper();
-                PluginFile files = mapper.readValue(zkService.getData(ROOT_PEER +SEPARATOR+ child+FILES, null), PluginFile.class);
-                    
-                if(zkService.getZNodeExist(files.getPath(), false)){ 
-                    savedFiles.put(files.getId(), files);
-                }
-            }
-        } catch (KeeperException ex) {
-            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        return savedFiles;
-    }
-
+   
 }

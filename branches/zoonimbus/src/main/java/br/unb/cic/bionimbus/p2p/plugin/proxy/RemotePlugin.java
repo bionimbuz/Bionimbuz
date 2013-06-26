@@ -9,6 +9,7 @@ import br.unb.cic.bionimbus.plugin.*;
 
 import br.unb.cic.bionimbus.p2p.Host;
 import br.unb.cic.bionimbus.p2p.P2PService;
+import br.unb.cic.bionimbus.services.ZooKeeperService;
 import java.io.IOException;
 
 //import static br.unb.cic.bionimbus.p2p.plugin.proxy.Command.GET_INFO;
@@ -119,8 +120,7 @@ public class RemotePlugin extends AbstractPlugin {
     }
 
 
-    @Override
-    protected Future<PluginTask> startTask(final PluginTask task) {
+        protected Future<PluginTask> startTask(final PluginTask task) {
 
         final PluginService service = getMyInfo().getService(task.getJobInfo().getServiceId());
         if (service == null) return null;
@@ -138,5 +138,10 @@ public class RemotePlugin extends AbstractPlugin {
                 });
 
         return future;
+    }
+
+    @Override
+    public Future<PluginTask> startTask(PluginTask task, ZooKeeperService zk) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
