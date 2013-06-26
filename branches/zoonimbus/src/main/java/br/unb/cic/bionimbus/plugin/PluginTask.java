@@ -17,6 +17,8 @@ public class PluginTask implements PluginOps {
     private String pluginExec;
 
     private String id = UUID.randomUUID().toString();
+    
+    private String pluginTaskPathZk;
 
     private JobInfo jobInfo;
 
@@ -58,6 +60,14 @@ public class PluginTask implements PluginOps {
 
     public void setPluginExec(String pluginExec) {
         this.pluginExec = pluginExec;
+    }
+    
+    public String getPluginTaskPathZk() {
+        return pluginTaskPathZk;
+    }
+
+    public void setPluginTaskPathZk(String pathZk) {
+        this.pluginTaskPathZk = pathZk;
     }
 
     

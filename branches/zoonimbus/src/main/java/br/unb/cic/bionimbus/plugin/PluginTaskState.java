@@ -1,14 +1,14 @@
 package br.unb.cic.bionimbus.plugin;
 
 public enum PluginTaskState {
-    //job aguardando escalonamento
+    //task escalonado 
     PENDING,
-    //job escalonado aguardando execução
+    //task escalonado aguardando execução
     WAITING,
-    //job atualmente sendo executado
+    //task atualmente sendo executado
     RUNNING,
-    //job executado
+    //task executado
     DONE,
-    //job cancelado
+    //task cancelado
     CANCELLED,
 }

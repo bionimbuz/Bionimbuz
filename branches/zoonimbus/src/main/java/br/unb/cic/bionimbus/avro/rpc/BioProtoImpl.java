@@ -6,7 +6,7 @@ import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.client.JobInfo;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
-import br.unb.cic.bionimbus.services.ServiceManager;
+import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import br.unb.cic.bionimbus.services.sched.SchedService;
@@ -15,24 +15,13 @@ import br.unb.cic.bionimbus.utils.Put;
 import com.google.inject.Inject;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
-import org.apache.avro.AvroRemoteException;
-
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static java.util.Arrays.*;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
+import static java.util.Arrays.asList;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.avro.AvroRemoteException;
 import org.apache.zookeeper.KeeperException;
-import org.codehaus.jackson.map.ObjectMapper;
 
 public class BioProtoImpl implements BioProto {
 
@@ -59,28 +48,64 @@ public class BioProtoImpl implements BioProto {
 
     @Override
     public List<String> listFiles() throws AvroRemoteException {
-        File dataFolder = storageService.getDataFolder();
-        return Arrays.asList(dataFolder.list());
+        
+        
+        return storageService.getFiles() == null ? new ArrayList<String>() : storageService.getFiles();
     }
 
     @Override
     public List<String> listServices() throws AvroRemoteException {
-        //TODO: call storageService
-        return asList("blast", "interpro", "bowtie");
+        Collection<PluginInfo> list = this.discoveryService.getPeers().values();
+        List<String> listNameIdService = new ArrayList<String>();
+
+        for(PluginInfo plugin : list){
+            for(PluginService pluginService: plugin.getServices()){
+                listNameIdService.add(pluginService.toString());
+                
+            }
+        }
+        
+        return listNameIdService;
     }
 
     @Override
-    public String startJob(String jobID) throws AvroRemoteException {
-
+    public String startJob(String param) throws AvroRemoteException {
+        final String path = "/jobs/job_";
         JobInfo job = new JobInfo();
-        job.setId(null);
-        job.setServiceId(Long.parseLong(jobID));
-
-        ArrayList<JobInfo> jobList = new ArrayList<JobInfo>();
-        jobList.add(job);
+        String params[] = param.split(" ");
+        String jobId = params[0];
+        int i=1;
+            
+        job.setServiceId(Long.parseLong(jobId));
+        job.setTimestamp(System.currentTimeMillis());
         
-        schedService.getPolicy().schedule(jobList, zkService);
-        return "Job Executado";
+        while (i < params.length) {
+            if (i == 1) {
+                job.setArgs(params[i]);
+                i++;
+            } else if (params[i].equals("-i")) {
+                i++;
+                while (i < params.length && !params[i].equals("-o")) {
+                    //verifica a existência dos arquivos de entrada na federação
+                    if(!listFiles().contains(params[i]))
+                        return "Job não foi escalonado, arquivo de entrada não existe.";
+                    
+                    job.addInput(params[i], Long.valueOf(0));
+                    i++;
+                }
+            } else if (params[i].equals("-o")) {
+                i++;
+                while (i < params.length) {
+                    job.addOutput(params[i]);
+                    i++;
+                }
+            }
+        }
+        
+        //inclusão do job para ser escalonado
+        zkService.createEphemeralZNode(path+job.getId(), job.toString());
+
+        return "Job Escalonado.\n Aguardando execução...";
     }
 
     @Override

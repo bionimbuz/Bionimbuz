@@ -3,17 +3,13 @@ package br.unb.cic.bionimbus.services.monitor;
 import br.unb.cic.bionimbus.p2p.P2PEvent;
 import br.unb.cic.bionimbus.p2p.P2PListener;
 import br.unb.cic.bionimbus.p2p.P2PService;
-import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.Service;
 import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
-import br.unb.cic.bionimbus.services.sched.SchedUpdatePeerData;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,7 +21,6 @@ import java.util.logging.Logger;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
-import org.codehaus.jackson.map.ObjectMapper;
 
 @Singleton
 public class MonitoringService extends AbstractBioService implements Service, P2PListener, Runnable {
@@ -112,11 +107,7 @@ public class MonitoringService extends AbstractBioService implements Service, P2
         }
     }
     
-    private void deletePeer(String peerPath) throws InterruptedException,KeeperException{
-        if(!zkService.getZNodeExist(peerPath+STATUS, false) && zkService.getZNodeExist(peerPath+STATUSWAITING, false)){
-            zkService.delete(peerPath);
-        }
-    }
+    
     /**
      * Realiza a verificação dos peers existentes identificando se existe algum peer aguardando recuperação,
      * se o peer estiver off-line e a recuperação já estiver sido feito, realiza a limpeza do peer.
@@ -131,7 +122,7 @@ public class MonitoringService extends AbstractBioService implements Service, P2
                     //TO DO descomentar linha abaixo caso o storage estiver fazendo a recuperação do peer 
 //                    if(zkService.getData(ROOT_PEER+SEPARATOR+peerPath+STATUSWAITING, null).contains("ES")){
                     if(zkService.getData(ROOT_PEER+SEPARATOR+peerPath+STATUSWAITING, null).contains("E")){
-                    deletePeer(ROOT_PEER+SEPARATOR+peerPath); 
+                        deletePeer(ROOT_PEER+SEPARATOR+peerPath); 
                     }
                 }
             }   
@@ -169,7 +160,11 @@ public class MonitoringService extends AbstractBioService implements Service, P2
 
         }
     
-    
+    private void deletePeer(String peerPath) throws InterruptedException,KeeperException{
+        if(!zkService.getZNodeExist(peerPath+STATUS, false) && zkService.getZNodeExist(peerPath+STATUSWAITING, false)){
+            zkService.delete(peerPath);
+        }
+    }
     
     
     
