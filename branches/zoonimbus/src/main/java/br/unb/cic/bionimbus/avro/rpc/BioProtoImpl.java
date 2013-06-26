@@ -42,6 +42,7 @@ public class BioProtoImpl implements BioProto {
         this.zkService =  zkservice;
     }
 
+    @Override
     public boolean ping() throws AvroRemoteException {
         return true;
     }
@@ -54,6 +55,15 @@ public class BioProtoImpl implements BioProto {
         }
         
         return listFile;
+    }
+    
+        public String listFilesIp() throws AvroRemoteException {
+        List<String> listFile = new ArrayList<String>();
+        for(Collection<String> collection : storageService.getFiles().values()){
+            
+        }
+        
+        return null;
     }
 
     @Override
