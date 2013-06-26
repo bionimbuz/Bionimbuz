@@ -31,12 +31,17 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
     private final PluginInfo pluginInfo = new PluginInfo();
 
     @Override
-    public PluginInfo call() throws Exception {
+    public PluginInfo call() {
+        
+        try {
         getCpuInfo();
         getMemoryInfo();
         getDiskInfo();
         getServices();
         getUptime();
+        }catch(Exception ex){
+            System.out.print(ex);
+        }
         return pluginInfo;
     }
 
