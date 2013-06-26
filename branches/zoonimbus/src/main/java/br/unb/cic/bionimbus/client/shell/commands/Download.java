@@ -12,6 +12,7 @@ public class Download implements Command {
     public static final String NAME = "download";
     private final SimpleShell shell;
     private List<String> filesList;
+    private String destino;
     
     public Download(SimpleShell shell) {
         this.shell = shell;
@@ -22,22 +23,15 @@ public class Download implements Command {
         
         int index = 0;
         int achou=0;
-        filesList = shell.getRpcClient().getProxy().listFiles();
         String filerequest = params[0];
+        destino = shell.getRpcClient().getProxy().listFilesIp(filerequest);
         
-        for(String file : filesList){
-            System.out.println("\n Files :" +filesList.get(index));
-            if(filerequest.equals(filesList.get(index))){
                 
-                Get conexao = new Get();
-                 if(conexao.startSession(filerequest)){     
+         Get conexao = new Get();
+          if(conexao.startSession(filerequest)){     
                      achou = 1; 
-                     break;
-                 }
-            }
-            index++;
-        }
-        
+          }
+
         if(achou == 0){
             return "Arquivo não encontrado !!";
         }
