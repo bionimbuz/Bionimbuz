@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -267,20 +268,19 @@ public class StorageService extends AbstractBioService {
         return false;
     }
 
-            public List<String> getFiles(){
-        List<String> listFiles=new ArrayList<String>();
+    public Map<String,List<String>> getFiles(){
+        Map<String,List<String>> mapFiles = new HashMap<String, List<String>>();
         try {
             for(PluginInfo plugin : getPeers().values()){
-                listFiles.addAll(zkService.getChildren(plugin.getPath_zk()+zkService.getPath().FILES.toString(), new UpdatePeerData(zkService, this)));
+                mapFiles.put(plugin.getHost().getAddress(),zkService.getChildren(plugin.getPath_zk()+zkService.getPath().FILES.toString(), new UpdatePeerData(zkService, this)));
             }
-            
         } catch (KeeperException ex) {
             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        return listFiles;
+        return mapFiles;
         
     }
     

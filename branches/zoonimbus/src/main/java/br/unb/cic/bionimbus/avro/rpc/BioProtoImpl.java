@@ -48,9 +48,12 @@ public class BioProtoImpl implements BioProto {
 
     @Override
     public List<String> listFiles() throws AvroRemoteException {
+        List<String> listFile = new ArrayList<String>();
+        for(Collection<String> collection : storageService.getFiles().values()){
+            listFile.addAll(collection);
+        }
         
-        
-        return storageService.getFiles() == null ? new ArrayList<String>() : storageService.getFiles();
+        return listFile;
     }
 
     @Override
