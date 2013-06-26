@@ -259,4 +259,14 @@ public class BioProtoImpl implements BioProto {
         return null;
     }
 
+    @Override
+        public String listFilesIp(String file) throws AvroRemoteException {
+        
+        String destino;    
+            
+        destino = storageService.getFilesIP(file);
+        
+        return null;
+    }
+
 }

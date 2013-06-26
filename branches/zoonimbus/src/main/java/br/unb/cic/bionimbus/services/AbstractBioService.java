@@ -42,7 +42,7 @@ public abstract class AbstractBioService implements Service, P2PListener, Runnab
         List<String> children;
         cloudMap.clear();
         try {
-            children = zkService.getChildren(ROOT_PEER, null);
+            children = zkService.getChildren(zkService.getPath().PEERS.getFullPath("","", ""), null);
             for (String child : children) {
                 ObjectMapper mapper = new ObjectMapper();
                 String datas = zkService.getData(ROOT_PEER +SEPARATOR+ child, null);
