@@ -289,6 +289,24 @@ public class StorageService extends AbstractBioService {
         
     }
     
+    public String getFilesIP(String file){
+        Map<String,List<String>> mapFiles = new HashMap<String, List<String>>();
+        try {
+            for(PluginInfo plugin : getPeers().values()){
+                mapFiles.put(plugin.getHost().getAddress(),zkService.getChildren(plugin.getPath_zk()+zkService.getPath().FILES.toString(), new UpdatePeerData(zkService, this)));
+                
+                System.out.println("zkService.getChildren(plugin.getPath_zk()+zkService.getPath().FILES.toString()");
+            }
+        } catch (KeeperException ex) {
+            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return null;
+        
+    }
+    
     
 //    public File getDataFolder() {
 //        return dataFolder;

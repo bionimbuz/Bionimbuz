@@ -211,6 +211,8 @@ protocol BioProto {
 
   array<string> listFiles();
 
+  string listFilesIp(string file);
+
   array<string> listServices();
 
   string startJob(string jobID);
