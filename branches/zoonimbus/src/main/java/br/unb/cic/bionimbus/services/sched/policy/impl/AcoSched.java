@@ -12,11 +12,14 @@ import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.sched.SchedUpdatePeerData;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
+import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.Watcher;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 /**
@@ -165,17 +168,26 @@ public class AcoSched extends SchedPolicy {
         if (blackList.containsKey(task)) {
             blackList.remove(task);
         }
-        ArrayList<Double> mapAcoTemp = (ArrayList)getMapAcoDatasZooKeeper(listPlugin).values();
-        //define o tempo de execução do ultimo job
-        mapAcoTemp.set(7,task.getTimeExec().doubleValue());
-        //define o tamanho do ultimo job executado
-        mapAcoTemp.set(8,getTotalSizeOfJobsFiles(task.getJobInfo()).doubleValue());
-        //soma o tamanho total do job executado com o tamanho dos demais jobs executados no plugin
-        mapAcoTemp.set(9, mapAcoTemp.get(8)+mapAcoTemp.get(9));
-        //grava novamente os dados no zookeeper
-        setDatasZookeeper("peer_"+task.getPluginExec(), SCHED, mapAcoTemp.toString());
-        //funcao para armazenar o tamanho do job que sera executado no plugin
-        upDateSizeOfJobsSchedCloud(task.getPluginExec(),task.getJobInfo());
+
+        String peerPath =task.getPluginTaskPathZk().substring(0, task.getPluginTaskPathZk().indexOf(SCHED));
+        String datas = getDatasZookeeper(peerPath, SCHED);
+        
+        ObjectMapper mapper =  new ObjectMapper();
+        ArrayList<Double> listAcoDatas;
+        try {
+            listAcoDatas = mapper.readValue(datas, ArrayList.class);
+        
+            //define o tempo de execução do ultimo job
+            listAcoDatas.set(7,task.getTimeExec().doubleValue());
+            //define o tamanho do ultimo job executado
+            listAcoDatas.set(8,getTotalSizeOfJobsFiles(task.getJobInfo()).doubleValue());
+            //soma o tamanho total do job executado com o tamanho dos demais jobs executados no plugin
+            listAcoDatas.set(9, listAcoDatas.get(8)+listAcoDatas.get(9));
+            //grava novamente os dados no zookeeper
+            setDatasZookeeper(peerPath, "", listAcoDatas.toString());
+        } catch (IOException ex) {
+            Logger.getLogger(AcoSched.class.getName()).log(Level.SEVERE, null, ex);
+        }
         System.out.println("Job " + task.getJobInfo().getId() + ": "+task.getTimeExec() + " segundos");
 
     }
@@ -418,7 +430,10 @@ public class AcoSched extends SchedPolicy {
         Double pheromone = getRound(Math.pow(datas.get(0), datas.get(3)));
         Double capacityComputing = getRound(Math.pow( capacityPlugin(plugin),datas.get(4)) );
         Double loadBalacing = getRound(Math.pow( loadBalancingPlugin(plugin),datas.get(5)));
-        Double capacityMemory = getRound(Math.pow( getRound(plugin.getMemoryFree()),datas.get(6)));
+
+        Double capacityMemory = getRound(Math.pow( getRound(plugin.getMemoryTotal()),datas.get(6)));
+
+//        Double capacityMemory = getRound(Math.pow( getRound(plugin.getMemoryFree()),datas.get(6)));
         //((Double)Math.pow(((Float)datas.get(2)).doubleValue(), ((Float)datas.get(5)).doubleValue() )).floatValue()
 
 //        return (new Float(formatDecimal.format(pheromone)).floatValue()* new Float(formatDecimal.format(capacityComputing)).floatValue()* new Float(formatDecimal.format(loadBalacing)).floatValue());
@@ -435,7 +450,7 @@ public class AcoSched extends SchedPolicy {
      */
     private Double capacityPlugin(PluginInfo plugin) {
         
-        return (plugin.getNumCores()-plugin.getNumOccupied())* plugin.getFrequencyCore() + plugin.getLatency();
+        return (plugin.getNumCores()*4-plugin.getNumOccupied())* plugin.getFrequencyCore() + plugin.getLatency();
 
     }
 
@@ -507,6 +522,11 @@ public class AcoSched extends SchedPolicy {
      * @return DI
      */
     private Double degreeImbalance(){
+    
+        /**
+         * MOdificar forma de recolher total de tarefas executadas
+         */
+        
         Double timeMax = Double.MIN_NORMAL,timeMin = Double.MAX_VALUE, time=null, timeAverage=0d;
    
         int cont=0;

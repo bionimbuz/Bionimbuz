@@ -35,6 +35,7 @@ import br.unb.cic.bionimbus.p2p.messages.StatusRespMessage;
 import br.unb.cic.bionimbus.p2p.messages.StoreAckMessage;
 import br.unb.cic.bionimbus.p2p.messages.StoreReqMessage;
 import br.unb.cic.bionimbus.p2p.messages.TaskErrorMessage;
+import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.utils.GetIpMac;
 import br.unb.cic.bionimbus.utils.Pair;
 import com.google.inject.Inject;
@@ -99,7 +100,7 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
 
     protected abstract Future<PluginGetFile> getFile(Host origin, PluginFile file, String taskId, String savePath);
 
-    protected abstract Future<PluginTask> startTask(PluginTask task);
+    public abstract Future<PluginTask> startTask(PluginTask task,ZooKeeperService zk);
 
 //    private String getId() {
     public String getId() {
@@ -115,7 +116,7 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
         this.futureInfo = futureInfo;
     }
 
-    protected PluginInfo getMyInfo() {
+    public PluginInfo getMyInfo() {
         return myInfo;
     }
     //private void setMyInfo(PluginInfo info) {
@@ -148,6 +149,7 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
 
     @Override
     public void start() {
+        
         schedExecutorService.scheduleAtFixedRate(this, 0, 3, TimeUnit.SECONDS);
     }
 
@@ -241,7 +243,7 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
 
             if (!f.isDone())
                 continue;
-
+                
             try {
                 PluginFile file = f.get();
                 file.setPluginId(getId());
@@ -299,7 +301,7 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
         count = pair.second;
         if (--count == 0) {
             pendingTasks.remove(taskId);
-            Future<PluginTask> futureTask = startTask(pair.first);
+            Future<PluginTask> futureTask = startTask(pair.first, null);
             Pair<PluginTask, Future<PluginTask>> fPair = Pair.of(pair.first, futureTask);
             executingTasks.put(pair.first.getId(), fPair);
             return;
@@ -342,13 +344,13 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
                 p2p.broadcast(new GetReqMessage(p2p.getPeerNode(), fileId, task.getId()));
             }
         } else {
-            Future<PluginTask> futureTask = startTask(task);
+            Future<PluginTask> futureTask = startTask(task,null);
             Pair<PluginTask, Future<PluginTask>> pair = Pair.of(task, futureTask);
             executingTasks.put(task.getId(), pair);
         }
 
-        StartRespMessage resp = new StartRespMessage(p2p.getPeerNode(), job.getId(), task);
-        p2p.sendMessage(origin, resp);
+//        StartRespMessage resp = new StartRespMessage(p2p.getPeerNode(), job.getId(), task);
+//        p2p.sendMessage(origin, resp);
     }
 
     @Override

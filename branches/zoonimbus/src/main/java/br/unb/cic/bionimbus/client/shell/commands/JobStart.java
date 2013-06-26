@@ -1,16 +1,8 @@
 package br.unb.cic.bionimbus.client.shell.commands;
 
-import java.util.ArrayList;
-
 import br.unb.cic.bionimbus.avro.gen.BioProto;
-import br.unb.cic.bionimbus.client.JobInfo;
 import br.unb.cic.bionimbus.client.shell.Command;
 import br.unb.cic.bionimbus.client.shell.SimpleShell;
-import br.unb.cic.bionimbus.p2p.P2PMessageType;
-import br.unb.cic.bionimbus.p2p.P2PService;
-import br.unb.cic.bionimbus.p2p.messages.JobReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.JobRespMessage;
-import com.google.common.base.Joiner;
 
 public class JobStart implements Command {
 
@@ -28,10 +20,14 @@ public class JobStart implements Command {
         if (!shell.isConnected())
             throw new IllegalStateException("This command should be used with an active connection!");
 
-        String jobID = params[0];
-
+        StringBuilder param = new StringBuilder();
+        for(String arg : params){
+            param.append(arg);
+            param.append(" ");
+        }
+        
         BioProto proxy = shell.getProxy();
-        return proxy.startJob(jobID);
+        return proxy.startJob(param.toString());
 
 /*        if (!shell.isConnected())
             throw new IllegalStateException(

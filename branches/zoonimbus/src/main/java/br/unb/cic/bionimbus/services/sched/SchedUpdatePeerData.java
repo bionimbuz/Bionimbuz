@@ -39,7 +39,8 @@ public class SchedUpdatePeerData implements Watcher  {
                     zkService.getChildren(event.getPath(), this);
                     break;
                 case NodeDataChanged:
-                    zkService.getData(event.getPath(), this);
+                    if(zkService.getZNodeExist(event.getPath(), false))
+                        zkService.getData(event.getPath(), this);
                     break;
                     
             }

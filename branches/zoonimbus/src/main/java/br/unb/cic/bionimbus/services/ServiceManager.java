@@ -23,8 +23,6 @@ public class ServiceManager {
     private static final String SEPARATOR = "/";
     private static final String PEERS = ROOT_PEER+SEPARATOR+"peer_";
     private static final String STATUS = "STATUS";
-    private static final String PENDING_SAVE="/pending_save";
-    private static final String PREFIX_FILE = "file_";
 
     private final HttpServer httpServer;
 
@@ -59,12 +57,6 @@ public class ServiceManager {
           
            //criando status efemera para verificar se o servidor esta rodando
            zkService.createEphemeralZNode(PEERS+ id+SEPARATOR+STATUS, null);
-           
-           //criando files persitente para armazenar os files
-           zkService.createPersistentZNode(PEERS+ id+SEPARATOR+"files", null);
-           
-           //criando pending save 
-           zkService.createPersistentZNode(PENDING_SAVE, null);
         
         }
     }

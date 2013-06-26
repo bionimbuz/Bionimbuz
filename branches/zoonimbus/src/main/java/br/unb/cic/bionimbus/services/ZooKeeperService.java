@@ -60,20 +60,19 @@ public class ZooKeeperService {
         public String getFullPath(String pluginid,String fileid,String taskid) {
             switch (this) {
                 case ROOT: return "" + this;
-                    
-                    case PENDING_SAVE: return "" +PENDING_SAVE;
-                        case PREFIX_PENDING_FILE: return ""+PENDING_SAVE+PREFIX_PENDING_FILE+fileid;
-                    case JOBS: return ""+JOBS;   
-                    case PEERS:  return "" + PEERS;
-                        case PREFIX_PEER: return ""+PEERS+PREFIX_PEER+pluginid;
-                            case STATUS: return ""+PEERS+PREFIX_PEER+pluginid+STATUS;
-                            case STATUSWAITING: return ""+PEERS+PREFIX_PEER+pluginid+STATUSWAITING;
-                            case SCHED: return ""+PEERS+PREFIX_PEER+pluginid+SCHED;
-                                case SIZE_JOBS: return ""+PEERS+PREFIX_PEER+pluginid+SCHED+SIZE_JOBS;
-                                case TASKS: return ""+PEERS+PREFIX_PEER+pluginid+SCHED+TASKS;  
-                                    case PREFIX_TASK: return ""+PEERS+PREFIX_PEER+pluginid+SCHED+TASKS+PREFIX_TASK+taskid;
-                            case FILES: return ""+PEERS+PREFIX_PEER+pluginid+FILES;
-                                case PREFIX_FILE: return ""+PEERS+PREFIX_PEER+pluginid+FILES+PREFIX_FILE+fileid;
+                case PENDING_SAVE: return "" +PENDING_SAVE;
+                case PREFIX_PENDING_FILE: return ""+PENDING_SAVE+PREFIX_PENDING_FILE+fileid;
+                case JOBS: return ""+JOBS;   
+                case PEERS:  return "" + PEERS;
+                case PREFIX_PEER: return ""+PEERS+PREFIX_PEER+pluginid;
+                case STATUS: return ""+PEERS+PREFIX_PEER+pluginid+STATUS;
+                case STATUSWAITING: return ""+PEERS+PREFIX_PEER+pluginid+STATUSWAITING;
+                case SCHED: return ""+PEERS+PREFIX_PEER+pluginid+SCHED;
+                case SIZE_JOBS: return ""+PEERS+PREFIX_PEER+pluginid+SCHED+SIZE_JOBS;
+                case TASKS: return ""+PEERS+PREFIX_PEER+pluginid+SCHED+TASKS;  
+                case PREFIX_TASK: return ""+PEERS+PREFIX_PEER+pluginid+SCHED+TASKS+PREFIX_TASK+taskid;
+                case FILES: return ""+PEERS+PREFIX_PEER+pluginid+FILES;
+                case PREFIX_FILE: return ""+PEERS+PREFIX_PEER+pluginid+FILES+PREFIX_FILE+fileid;
             }
             return "";
         }

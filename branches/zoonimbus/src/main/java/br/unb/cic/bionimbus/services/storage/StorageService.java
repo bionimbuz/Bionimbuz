@@ -2,61 +2,42 @@ package br.unb.cic.bionimbus.services.storage;
 
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.avro.rpc.BioProtoImpl;
+import br.unb.cic.bionimbus.client.FileInfo;
+import br.unb.cic.bionimbus.p2p.P2PEvent;
+import br.unb.cic.bionimbus.p2p.P2PService;
+import br.unb.cic.bionimbus.p2p.PeerNode;
+import br.unb.cic.bionimbus.plugin.PluginFile;
+import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.AbstractBioService;
-
+import br.unb.cic.bionimbus.services.UpdatePeerData;
+import br.unb.cic.bionimbus.services.ZooKeeperService;
+import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
+import br.unb.cic.bionimbus.utils.Put;
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.SftpException;
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import org.apache.commons.lang3.concurrent.BasicThreadFactory;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
-
-import br.unb.cic.bionimbus.client.FileInfo;
-import br.unb.cic.bionimbus.services.messaging.Message;
-import br.unb.cic.bionimbus.p2p.P2PEvent;
-import br.unb.cic.bionimbus.p2p.P2PEventType;
-import br.unb.cic.bionimbus.p2p.P2PMessageEvent;
-import br.unb.cic.bionimbus.p2p.P2PMessageType;
-import br.unb.cic.bionimbus.p2p.P2PService;
-import br.unb.cic.bionimbus.p2p.PeerNode;
-import br.unb.cic.bionimbus.p2p.messages.AbstractMessage;
-import br.unb.cic.bionimbus.p2p.messages.CloudRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.GetReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.GetRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.ListRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.StoreAckMessage;
-import br.unb.cic.bionimbus.p2p.messages.StoreReqMessage;
-import br.unb.cic.bionimbus.plugin.PluginFile;
-import br.unb.cic.bionimbus.plugin.PluginInfo;
-import br.unb.cic.bionimbus.services.UpdatePeerData;
-import br.unb.cic.bionimbus.services.ZooKeeperService;
-import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
-import br.unb.cic.bionimbus.utils.Put;
-import com.google.common.base.Preconditions;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.jcraft.jsch.Channel;
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
-import com.jcraft.jsch.SftpException;
-import com.twitter.common.zookeeper.ZooKeeperUtils;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 
 @Singleton
 public class StorageService extends AbstractBioService {
@@ -71,6 +52,8 @@ public class StorageService extends AbstractBioService {
     private P2PService p2p = null;
     private File dataFolder = new File("data-folder"); //TODO: remover hard-coded e colocar em node.yaml e injetar em StorageService
     private DiscoveryService discoveryService;
+        private static final String PENDING_SAVE="/pending_save";
+
 
     @Inject
     public StorageService(final ZooKeeperService service, MetricRegistry metricRegistry, DiscoveryService disc) {
@@ -85,15 +68,6 @@ public class StorageService extends AbstractBioService {
         c.inc();
         
         
-        if (!dataFolder.exists()) {
-            System.out.println("dataFolder " + dataFolder + " doesn't exists, creating...");
-            dataFolder.mkdirs();
-            //Recuperar a lista de plugins setados com a latência
-           // cloudMap = discoveryService.getPeers();
- //           cloudMap.isEmpty();
-
-
-        }
     }
 
     @Override
@@ -112,7 +86,16 @@ public class StorageService extends AbstractBioService {
 
     @Override
     public void start(P2PService p2p) {
-
+        this.p2p = p2p;
+        if (p2p != null) {
+            p2p.addListener(this);
+        }
+        //Criando pastas zookeeper para o módulo de armazenamento
+        zkService.createPersistentZNode(zkService.getPath().PENDING_SAVE.toString(), null);
+        zkService.createPersistentZNode(zkService.getPath().FILES.getFullPath(p2p.getConfig().getId(), "", ""), "");
+        checkFiles();
+        
+        
         File file = new File("data-folder/persistent-storage.json");
         if (file.exists()) {
             try {
@@ -132,10 +115,6 @@ public class StorageService extends AbstractBioService {
             }
         }
 
-        this.p2p = p2p;
-        if (p2p != null) {
-            p2p.addListener(this);
-        }
 
         executorService.scheduleAtFixedRate(this, 0, 3, TimeUnit.SECONDS);
     }
@@ -249,7 +228,34 @@ public class StorageService extends AbstractBioService {
         return false;
 
     }
+    public void checkFiles(){
+        try {
+            if (!dataFolder.exists()) {
+                System.out.println("dataFolder " + dataFolder + " doesn't exists, creating...");
+                dataFolder.mkdirs();
+            }
 
+            zkService.getChildren(zkService.getPath().FILES.getFullPath(p2p.getConfig().getId(),"",""), new UpdatePeerData(zkService, this));
+
+            for(File file : dataFolder.listFiles()){
+                PluginFile pluginFile =  new PluginFile();
+                pluginFile.setId(file.getName());
+                pluginFile.setName(file.getName());
+                pluginFile.setPath(file.getPath());
+                pluginFile.setPluginId(p2p.getConfig().getPlugin());
+                pluginFile.setSize(file.getUsableSpace());
+                
+                zkService.createPersistentZNode(zkService.getPath().PREFIX_FILE.getFullPath(p2p.getConfig().getId(),pluginFile.getId(),""),pluginFile.toString());
+                
+            }
+        } catch (KeeperException ex) {
+            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     public boolean checkFiles(PluginFile arc, Collection<PluginFile> old) throws IOException {
         for (PluginFile archive_check : old) {
             if (arc.getPath().equalsIgnoreCase(archive_check.getPath())) {
@@ -260,9 +266,27 @@ public class StorageService extends AbstractBioService {
         return false;
     }
 
-    public File getDataFolder() {
-        return dataFolder;
+    public List<String> getFiles(){
+        List<String> listFiles=new ArrayList<String>();
+        try {
+            for(PluginInfo plugin : getPeers().values()){
+                listFiles.addAll(zkService.getChildren(plugin.getPath_zk()+zkService.getPath().FILES.toString(), new UpdatePeerData(zkService, this)));
+            }
+            
+        } catch (KeeperException ex) {
+            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return listFiles;
+        
     }
+    
+    
+//    public File getDataFolder() {
+//        return dataFolder;
+//    }
     
 
     public void storeFileRec(PluginFile fileC){
@@ -290,14 +314,14 @@ public class StorageService extends AbstractBioService {
     }
     
     public void fileUploaded(PluginFile fileuploaded) throws KeeperException, InterruptedException{
-        if (zkService.getZNodeExist("/pending_save/file_"+fileuploaded.getId(), false))
+        if (zkService.getZNodeExist(PENDING_SAVE+"/file_"+fileuploaded.getId(), false))
         {    
            File fileServer =new File(fileuploaded.getPath());
            if(fileServer.exists()){
                storeFileRec(fileuploaded);
               // zkService.createEphemeralZNode("/peers/peer_"+fileuploaded.getPluginId()+"/files/file_"+fileuploaded.getId(), fileuploaded.toString());            
-               zkService.delete("/pending_save/file_"+fileuploaded.getId());
-//               zkService.getChildren("/pending_save/file_"+fileuploaded.getId(), new UpdatePeerData(zkService,this));
+               zkService.delete(PENDING_SAVE+"/file_"+fileuploaded.getId());
+//               zkService.getChildren(PENDING_SAVE+"/file_"+fileuploaded.getId(), new UpdatePeerData(zkService,this));
            }else
                System.out.println("Arquivo não encontrado!");
         }
@@ -337,7 +361,18 @@ public class StorageService extends AbstractBioService {
 
     @Override
     public void event(WatchedEvent eventType) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            switch(eventType.getType()){
+
+                case NodeChildrenChanged:
+
+                    break;
+                case NodeDataChanged:
+                break;
+
+                case NodeDeleted:
+
+                break;
+            }
     }
     
     
