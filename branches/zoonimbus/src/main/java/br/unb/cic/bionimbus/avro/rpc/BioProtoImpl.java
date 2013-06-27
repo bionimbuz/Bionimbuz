@@ -197,7 +197,13 @@ public class BioProtoImpl implements BioProto {
     
     @Override
     public synchronized Void transferFile(List<NodeInfo> plugins, String path, int copies,String destprimary) throws AvroRemoteException{
-        storageService.transferFiles(plugins, path, copies,destprimary);
+        try {
+            storageService.transferFiles(plugins, path, copies,destprimary);
+        } catch (KeeperException ex) {
+            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return null;
     }
 
