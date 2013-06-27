@@ -40,6 +40,7 @@ import br.unb.cic.bionimbus.utils.GetIpMac;
 import br.unb.cic.bionimbus.utils.Pair;
 import com.google.inject.Inject;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public abstract class AbstractPlugin extends P2PAbstractListener implements Plugin, Runnable {
 
@@ -246,7 +247,9 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
                 
             try {
                 PluginFile file = f.get();
-                file.setPluginId(getId());
+                List<String> pluginIds = new ArrayList<String>();
+                pluginIds.add(getId());
+                file.setPluginId(pluginIds);
                 pendingSaves.remove(f);
                 pluginFiles.put(file.getId(), file);
                 StoreAckMessage msg = new StoreAckMessage(p2p.getPeerNode(), file);

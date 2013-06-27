@@ -99,7 +99,7 @@ public class ZooKeeperService {
     public Status getStatus() {
         return status;
     }
-
+    
 
     public synchronized void connect(String hosts) throws IOException, InterruptedException {
 

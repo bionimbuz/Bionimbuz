@@ -53,6 +53,7 @@ import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskState;
 import br.unb.cic.bionimbus.utils.Pair;
+import java.util.ArrayList;
 
 public class HadoopPlugin implements Plugin, P2PListener, Runnable {
 
@@ -219,7 +220,10 @@ public class HadoopPlugin implements Plugin, P2PListener, Runnable {
             if (f.isDone()) {
                 try {
                     PluginFile file = f.get();
-                    file.setPluginId(this.id);
+                    //verificar depois lista de ids do zookeeper
+                    List<String> pluginsIds = new ArrayList<String>();
+                    pluginsIds.add(this.id);
+                    file.setPluginId(pluginsIds);
                     pendingSaves.remove(f);
                     pluginFiles.put(file.getId(), file);
                     StoreAckMessage msg = new StoreAckMessage(p2p.getPeerNode(), file);

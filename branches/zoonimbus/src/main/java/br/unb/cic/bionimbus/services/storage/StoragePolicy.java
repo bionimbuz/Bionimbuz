@@ -5,7 +5,6 @@
 package br.unb.cic.bionimbus.services.storage;
 
 
-import br.unb.cic.bionimbus.avro.gen.BioProto;
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.avro.rpc.BioProtoImpl;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
@@ -16,11 +15,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.avro.AvroRemoteException;
 import org.apache.zookeeper.KeeperException;
 
 

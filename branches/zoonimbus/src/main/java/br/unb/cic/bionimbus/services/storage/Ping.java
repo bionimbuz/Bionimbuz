@@ -13,15 +13,10 @@ import java.util.regex.Pattern;
  */
 public class Ping {
 
-    // private String pingCmd;
-    // public static void main(String[] args) throws IOException{
-
-    public static double calculo(String pingCmd) throws IOException {
-
-        //String pingCmd = "192.168.1.146";
+    public static double calculo(String ip) throws IOException {
 
         double avg = 0;
-        float taxadetransferencia = 0;
+        
         float sizerequest = 0;
         float temporesp = 0;
         int times = 0;
@@ -29,32 +24,28 @@ public class Ping {
         String teste;
         Matcher matcher;
         Runtime r = Runtime.getRuntime();
-        Process p = r.exec("ping " + pingCmd);
+        Process p = r.exec("ping " + ip);
         BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
         Pattern pattern = Pattern.compile("(?<=time=).*.(?= )");
         Pattern patternBand = Pattern.compile("(?<=\\) ).*.(?=\\()");
 
         while ((teste = in.readLine()) != null && times < 4) {
-//            System.out.println("1: " + teste);
-
             if (times == 0) {
                 matcher = patternBand.matcher(teste);
                 while (matcher.find()) {
                     sizerequest = Float.parseFloat(matcher.group());
-//                    System.out.println("tamanho da mensagem de requisição " + sizerequest);
                     found = true;
                 }
                 if (!found) {
                     System.out.println("I didn't found the text");
                 }
             } else {
+                float taxadetransferencia = 0;
                 matcher = pattern.matcher(teste);
                 while (matcher.find()) {
-//                    System.out.println("2: Tempo de resposta: " + matcher.group());
                     temporesp = Float.parseFloat(matcher.group());
                     taxadetransferencia = sizerequest / ((temporesp / 1000));
                     avg += Float.parseFloat(matcher.group());
-//                    System.out.println("Taxa de tranferência: " + taxadetransferencia + " Somatorio tempo de resposta: " + avg);
                     found = true;
                 }
                 if (!found) {
@@ -62,15 +53,10 @@ public class Ping {
                 }
             }
             times += 1;
-            //        pingResult += teste;
         }
         double avglatency = avg / (times - 1);
 
         return avglatency;
-       /* }
-        catch(IOException e){
-            System.out.println(abc);
-        }*/
     }
 }
 

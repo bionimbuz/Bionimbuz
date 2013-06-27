@@ -12,6 +12,7 @@ import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
+import br.unb.cic.bionimbus.services.monitor.MonitoringService;
 import br.unb.cic.bionimbus.utils.Put;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
@@ -54,8 +55,8 @@ public class StorageService extends AbstractBioService {
     private P2PService p2p = null;
     private File dataFolder = new File("data-folder"); //TODO: remover hard-coded e colocar em node.yaml e injetar em StorageService
     private DiscoveryService discoveryService;
-        private static final String PENDING_SAVE="/pending_save";
-
+//        private static final String PENDING_SAVE="/pending_save";
+    private Double MAXCAPACITY = 0.9;
 
     @Inject
     public StorageService(final ZooKeeperService service, MetricRegistry metricRegistry, DiscoveryService disc) {
@@ -68,21 +69,13 @@ public class StorageService extends AbstractBioService {
         // teste
         Counter c = metricRegistry.counter("teste");
         c.inc();
-        
-        
     }
 
     @Override
     public void run() {
         
         System.out.println("Running StorageService...");
-       // System.out.println("Cloudmap vazia?:"+cloudMap.values().isEmpty());
         System.out.println("Executando loop.");
-
-        //  System.out.println(" \n Hosts: " + p2p.getConfig().getHost());
-
-//                        Message msg = new CloudReqMessage(p2p.getPeerNode());
-//                        p2p.broadcast(msg); // TODO isso e' broadcast?                        
 
     }
 
@@ -96,26 +89,6 @@ public class StorageService extends AbstractBioService {
         zkService.createPersistentZNode(zkService.getPath().PENDING_SAVE.toString(), null);
         zkService.createPersistentZNode(zkService.getPath().FILES.getFullPath(p2p.getConfig().getId(), "", ""), "");
         checkFiles();
-        
-        
-        File file = new File("data-folder/persistent-storage.json");
-        if (file.exists()) {
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                Map<String, PluginFile> map = mapper.readValue(new File("data-folder/persistent-storage.json"), new TypeReference<Map<String, PluginFile>>() {
-                });
-                if (filesChanged(map.values())) {
-                    map = mapper.readValue(new File("data-folder/persistent-storage.json"), new TypeReference<Map<String, PluginFile>>() {
-                    });
-                }
-                savedFiles = new ConcurrentHashMap<String, PluginFile>(map);
-                for(PluginFile filePlugin: savedFiles.values()){
-                    zkService.createEphemeralZNode("/peers/peer_"+filePlugin.getPluginId()+"/files/file_"+filePlugin.getId(), filePlugin.toString());  
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
 
 
         executorService.scheduleAtFixedRate(this, 0, 3, TimeUnit.SECONDS);
@@ -134,102 +107,12 @@ public class StorageService extends AbstractBioService {
 
     @Override
         public void onEvent(P2PEvent event) {
-//        
-//        
-//        if (!event.getType().equals(P2PEventType.MESSAGE)) {
-//            return;
-//        }
-//
-//        P2PMessageEvent msgEvent = (P2PMessageEvent) event;
-//        Message msg = msgEvent.getMessage();
-//        if (msg == null) {
-//            return;
-//        }
-//
-//        PeerNode receiver = null;
-//        if (msg instanceof AbstractMessage) {
-//            receiver = ((AbstractMessage) msg).getPeer();
-//        }
-//
-//        switch (P2PMessageType.of(msg.getType())) {
-//            case CLOUDRESP:
-//                CloudRespMessage cloudMsg = (CloudRespMessage) msg;
-//                /*   DiscoveryService data=new DiscoveryService(zkService);
-//                 ConcurrentMap<String,PluginInfo> cloudData= data.getPeers();
-//                 for (PluginInfo info : cloudData.values()) {
-//                 cloudMap.put(info.getId(), info);
-//                 }*/
-//                break;
-//            case STOREREQ:
-//                StoreReqMessage storeMsg = (StoreReqMessage) msg;
-//                sendStoreResp(storeMsg.getFileInfo(), storeMsg.getTaskId(), receiver);
-//                break;
-//            case STOREACK:
-//                StoreAckMessage ackMsg = (StoreAckMessage) msg;
-//                savedFiles.put(ackMsg.getPluginFile().getId(), ackMsg.getPluginFile());
-//                try {
-//                    ObjectMapper mapper = new ObjectMapper();
-//                    mapper.writeValue(new File("persistent-storage.json"), savedFiles);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//                break;
-//            case LISTREQ:
-//                p2p.sendMessage(receiver.getHost(), new ListRespMessage(p2p.getPeerNode(), savedFiles.values()));
-//                break;
-//            case GETREQ:
-//                GetReqMessage getMsg = (GetReqMessage) msg;
-//                PluginFile file = savedFiles.get(getMsg.getFileId());
-//                // TODO Tem que verificar se o Id do file existe, ou melhor, caso o file seja null deve
-//                // exibir uma mensagem de erro avisando que o id do arquivo informado não existe
-//                for (PluginInfo plugin : cloudMap.values()) {
-//                    if (plugin.getId().equals(file.getPluginId())) {
-//                        p2p.sendMessage(receiver.getHost(), new GetRespMessage(p2p.getPeerNode(), plugin, file, getMsg.getTaskId()));
-//                        return;
-//                    }
-//                }
-//
-//                //TODO mensagem de erro?
-//                break;
-//        }
     }
 
-    public void sendStoreResp(FileInfo info, String taskId, PeerNode dest) {
-        for (PluginInfo plugin : cloudMap.values()) {
-            /*if (info.getSize() < plugin.getFsFreeSize()) {
-             StoreRespMessage msg = new StoreRespMessage(p2p.getPeerNode(), plugin, info, taskId);
-             p2p.sendMessage(dest.getHost(), msg);
-             return;
-             }*/
-        }
-    }
-
-    /**  
-     * Verifica se os arquivos listados no persistent storage existem, caso não
-     * existam é gerado um novo persistent-storage.json
-     *
-     * @param files
-     * @return
-     * @throws IOException 
-     */
-     
-    public boolean filesChanged(Collection<PluginFile> files) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        Collection<PluginFile> savedFilesOld = files;
-        for (PluginFile archive : files) {
-            //    System.out.println("nome:" + archive.getPath());
-            File arq = new File(archive.getPath());
-            if (arq.exists() && checkFiles(archive, savedFilesOld)) {
-                savedFiles.put(archive.getId(), archive);
-            }
-        }
-        if (!savedFiles.isEmpty() && !savedFiles.equals(savedFilesOld)) {
-            mapper.writeValue(new File("data-folder/persistent-storage.json"), savedFiles);
-            return true;
-        }
-        return false;
-
-    }
+    //Talves esse metodo seja apagado, pois se esse servidor cair, 
+    //o arquivo que foi duplicado em outra máquina sera duplicado para outra máquina, e assim que esse servidor 
+    //suba os arquivos serão deletados, a não ser que esse metodo verifique se existe somente 1 arquivo ou o numero 
+    //do fator de replicação para poder subir com estes arquivos par nuvem
     public void checkFiles(){
         try {
             if (!dataFolder.exists()) {
@@ -244,7 +127,11 @@ public class StorageService extends AbstractBioService {
                 pluginFile.setId(file.getName());
                 pluginFile.setName(file.getName());
                 pluginFile.setPath(file.getPath());
-                pluginFile.setPluginId(p2p.getConfig().getPlugin());
+                //list ids Verificar onde esse arquivo está caso já exista
+                List<String> listIds = new ArrayList<String>();
+                listIds.add(p2p.getConfig().getPlugin());
+                
+                pluginFile.setPluginId(listIds);
                 pluginFile.setSize(file.getUsableSpace());
                 
                 zkService.createPersistentZNode(zkService.getPath().PREFIX_FILE.getFullPath(p2p.getConfig().getId(),pluginFile.getId(),""),pluginFile.toString());
@@ -257,15 +144,6 @@ public class StorageService extends AbstractBioService {
         } catch (Exception ex) {
             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-    public boolean checkFiles(PluginFile arc, Collection<PluginFile> old) throws IOException {
-        for (PluginFile archive_check : old) {
-            if (arc.getPath().equalsIgnoreCase(archive_check.getPath())) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public Map<String,List<String>> getFiles(){
@@ -314,70 +192,48 @@ public class StorageService extends AbstractBioService {
         
     }
     
-    
-//    public File getDataFolder() {
-//        return dataFolder;
-//    }
-    
-
-    public void storeFileRec(PluginFile fileC){
-        PluginFile file=fileC;
-        //file.setPath("data-folder/"+file.getName());
-        savedFiles.put(file.getId(),file);
-        zkService.createPersistentZNode("/peers/peer_"+file.getPluginId()+"/files/file_"+file.getId(), file.toString());
-        try {
-                    ObjectMapper mapper = new ObjectMapper();
-                    mapper.writeValue(new File("data-folder/persistent-storage.json"), savedFiles);
-        } catch (Exception e) {
-                    e.printStackTrace();
-        }
-    }
-    
-
-    public List<NodeInfo> bestNode(){
+    public List<NodeInfo> bestNode(List<NodeInfo> list){
         
-        List<NodeInfo> plugin;
-        cloudMap = discoveryService.getPeers();
+        List<NodeInfo> plugins;
+        cloudMap = getPeers();
+            for(NodeInfo node : list){
+               cloudMap.get(node.getPeerId()).setLatency(node.getLatency());
+            }
         StoragePolicy policy = new StoragePolicy();
-        plugin = policy.calcBestCost(zkService,cloudMap.values());
+        plugins = policy.calcBestCost(zkService,cloudMap.values());
 
-        return plugin;
+        return plugins;
     }
     
     public void fileUploaded(PluginFile fileuploaded) throws KeeperException, InterruptedException{
-        if (zkService.getZNodeExist(PENDING_SAVE+"/file_"+fileuploaded.getId(), false))
-        {    
+        if (zkService.getZNodeExist(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileuploaded.getId(), ""), false)){    
            File fileServer =new File(fileuploaded.getPath());
            if(fileServer.exists()){
-               storeFileRec(fileuploaded);
-              // zkService.createEphemeralZNode("/peers/peer_"+fileuploaded.getPluginId()+"/files/file_"+fileuploaded.getId(), fileuploaded.toString());            
-               zkService.delete(PENDING_SAVE+"/file_"+fileuploaded.getId());
-//               zkService.getChildren(PENDING_SAVE+"/file_"+fileuploaded.getId(), new UpdatePeerData(zkService,this));
+                zkService.createPersistentZNode( zkService.getPath().PREFIX_FILE.getFullPath(fileuploaded.getPluginId().iterator().next(), 
+                                        fileuploaded.getId(), ""), fileuploaded.toString());
+               zkService.delete(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileuploaded.getId(), ""));
            }else
                System.out.println("Arquivo não encontrado!");
-        }
-        else
+        }else
             System.out.println("Arquivo não encontrado nas pendências !");
         
     }
     
-    public void transferFiles(List<NodeInfo> plugins,NodeInfo nodedest,br.unb.cic.bionimbus.avro.gen.FileInfo file, String path, int copies) throws AvroRemoteException{
+    public void transferFiles(List<NodeInfo> plugins, String path, int copies,String idPluginCopy) throws AvroRemoteException, KeeperException, InterruptedException{
         
-        String dest = null;
-        int aux=1;
+        int aux=0;
         
         for (Iterator<NodeInfo> it = plugins.iterator(); it.hasNext();) {
                  NodeInfo node = it.next();
                   
-                    Put conexao = new Put(node.getAddress(),path);
-                    
+                    Put conexao = new Put(node.getAddress(),path);   
                     try {
                         if(conexao.startSession()){
-                            dest = node.getPeerId();
                             aux++;
                             if(aux == copies){
+                                //Começar daqui aamanha
+                                zkService.getData(zkService.getPath().PREFIX_FILE.getFullPath(idPluginCopy, path, path), null);
                                 System.out.println("\n Replication Completed !! No de destino : "+node.getAddress());
-                               
                                 break;
                             }
                         }
@@ -390,20 +246,92 @@ public class StorageService extends AbstractBioService {
         }
         
     }
-
+    
+    public void failOverStorage(String id) throws AvroRemoteException, KeeperException, InterruptedException{
+        Map<String,PluginFile>filesPeerDown= getFilesPeer(id);
+        List<NodeInfo> nodesdisp = new ArrayList<NodeInfo>();
+        nodesdisp.clear();
+        Collection<PluginInfo> cloudPlugin=getPeers().values();
+        for (PluginFile file : filesPeerDown.values())
+        {
+            File localFile= new File(file.getPath());
+            for (Iterator<String> it = file.getPluginId().iterator(); it.hasNext();) {
+                String pluginId;
+                pluginId = it.next();
+                if (!pluginId.equals(id) && localFile.exists())
+                    
+                    for(PluginInfo plugin: cloudPlugin){
+                        try {
+                              NodeInfo node = new NodeInfo();
+                              if ((long)(plugin.getFsFreeSize()*MAXCAPACITY)>localFile.length()){
+                                node.setLatency(Ping.calculo(plugin.getHost().getAddress()));
+                                node.setAddress(plugin.getHost().getAddress());
+                                node.setFreesize(plugin.getFsFreeSize());
+                                node.setPeerId(pluginId);
+                                nodesdisp.add(node);
+                              }    
+                              plugin.setLatency(Ping.calculo(plugin.getHost().getAddress()));
+                        } catch (IOException ex) {
+                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                    //modificar o último valor para fator de replicação-1(MODIFICAR)
+                    transferFiles(bestNode(nodesdisp), localFile.getPath(),1,pluginId);
+            }
+        }
+    }
+    /**
+     * 
+     * @param pluginId id do plugin para pegar os arquivos do plugin
+     * @return 
+     */
+    public Map<String, PluginFile> getFilesPeer(String pluginId){
+        List<String> children;
+        Map<String,PluginFile>filesPeerSelected=new ConcurrentHashMap<String, PluginFile>(); 
+                 filesPeerSelected.clear();
+        try {
+            children = zkService.getChildren(zkService.getPath().FILES.getFullPath(pluginId,"",""), null);
+            for (String fileId : children) {
+                ObjectMapper mapper = new ObjectMapper();
+                PluginFile file = mapper.readValue(zkService.getData(zkService.getPath().PREFIX_FILE.getFullPath(pluginId, fileId, ""), null), PluginFile.class);
+                    
+                if(zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(pluginId, fileId, ""), false)){ 
+                    filesPeerSelected.put(file.getId(), file);
+                }
+            }
+        } catch (KeeperException ex) {
+            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return filesPeerSelected;
+    }
+    
     @Override
     public void event(WatchedEvent eventType) {
+               String path = eventType.getPath(); 
             switch(eventType.getType()){
 
                 case NodeChildrenChanged:
-
+                        System.out.print(path + "= NodeChildrenChanged");
                     break;
-                case NodeDataChanged:
-                break;
-
                 case NodeDeleted:
-
-                break;
+                    if(eventType.getPath().contains(zkService.getPath().STATUS.toString())){
+                        String peerPath =  path.subSequence(path.indexOf(zkService.getPath().PREFIX_PEER.toString()), path.indexOf("/STATUS")).toString();
+                   try {
+                       failOverStorage(peerPath);
+                   } catch (AvroRemoteException ex) {
+                       Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                   } catch (KeeperException ex) {
+                       Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                   } catch (InterruptedException ex) {
+                       Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                   }
+                    }
+                    break;
             }
     }
     

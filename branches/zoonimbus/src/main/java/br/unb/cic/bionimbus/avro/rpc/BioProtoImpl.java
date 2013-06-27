@@ -122,11 +122,9 @@ public class BioProtoImpl implements BioProto {
     public synchronized List<NodeInfo> getPeersNode() throws AvroRemoteException {
 
         NodeInfo nodeaux;
-        //for(PluginInfo info : discoveryService.getPeers())
         nodes.clear();
         for(PluginInfo info : discoveryService.getPeers().values()){
            nodeaux= new NodeInfo();
-            //esta setando nulo
            if(info!=null){
                 String address = info.getHost().getAddress();
                 nodeaux.setAddress(address);
@@ -140,55 +138,6 @@ public class BioProtoImpl implements BioProto {
         
         return new ArrayList<NodeInfo>(nodes.values());
     }
-    /**
-     *Set the nodes from the clients with latency 
-     */
-    @Override
-    public synchronized Void setNodes(List<NodeInfo> list) throws AvroRemoteException {
-           for (NodeInfo node : list) {
-              this.nodes.put(node.getAddress(), node);
-            }
-
-               for(NodeInfo nodeSeted : this.nodes.values()){
-                    //setar o valor na map com o retorno do node
-                   PluginInfo plugin = this.discoveryService.getPeers().get(nodeSeted.getPeerId());
-                    
-                   if(nodeSeted.getLatency()!=null)
-                       plugin.setLatency(nodeSeted.getLatency());
-               try {
-                   zkService.setData(plugin.getPath_zk(), plugin.toString());
-               } catch (KeeperException ex) {
-                   Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-               } catch (InterruptedException ex) {
-                   Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-               }
-                        
-                    
-                }            
-        
-      return null;
-    }
-
-//        public Void sendPlugins(List<NodeInfo> plugins) throws AvroRemoteException {
-//        
-//        List<? extends Plugin> pluginList = Lists.transform(plugins, new Function<NodeInfo, Plugin>() {
-//            
-//            private ObjectMapper objectMapper = new ObjectMapper();
-//            
-//            @Nullable
-//            @Override
-//            public Plugin apply(@Nullable NodeInfo input) {
-//                try {
-//                    return objectMapper.readValue(input, Plugin.class);
-//                } catch (IOException e) {
-//                    return null;
-//                }
-//
-//            }
-//        });      
-//        
-//        return null;  
-//   }
 
     /**
      * Passa PluginList para StorageService aqui
@@ -196,9 +145,9 @@ public class BioProtoImpl implements BioProto {
      * @throws AvroRemoteException 
      */
     @Override
-    public List<NodeInfo> callStorage() throws AvroRemoteException {
+    public List<NodeInfo> callStorage(List<NodeInfo> list) throws AvroRemoteException {
         
-        List<NodeInfo> bestnodes = storageService.bestNode();
+        List<NodeInfo> bestnodes = storageService.bestNode(list);
         return bestnodes;
     } 
     
@@ -210,27 +159,20 @@ public class BioProtoImpl implements BioProto {
      */
     @Override
     public Void setFileInfo(FileInfo file) throws AvroRemoteException {
-        PluginFile filePlugin= new PluginFile();
-        filePlugin.setId(file.getFileId());
-        filePlugin.setName(file.getName());
+        PluginFile filePlugin= new PluginFile(file);
         //*Alterar depois caminho para o zookeeperservice
         //verificar se a pasta pending_save existe
-        filePlugin.setPath("/pending_save/file_"+filePlugin.getId());
-        filePlugin.setSize(file.getSize());
+        filePlugin.setPath(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("",filePlugin.getId(),""));
         zkService.createPersistentZNode(filePlugin.getPath(), filePlugin.toString());
        return null;
     }
-//    public FileInfo getFileInfo(){
-//        return this.file;
-//    }
 
     @Override
     public synchronized Void fileSent(FileInfo fileSucess, String dest) throws AvroRemoteException {
-        PluginFile file = new PluginFile();
-        file.setId(fileSucess.getFileId());
-        file.setSize(fileSucess.getSize());
-        file.setName(fileSucess.getName());
-        file.setPluginId(dest);
+        PluginFile file = new PluginFile(fileSucess);
+        List<String> destinations = new ArrayList<String>();
+        destinations.add(dest);
+        file.setPluginId(destinations);
         file.setPath("/home/zoonimbus/NetBeansProjects/zoonimbus/data-folder/"+file.getName());
         try {
             storageService.fileUploaded(file);
@@ -254,9 +196,8 @@ public class BioProtoImpl implements BioProto {
      */
     
     @Override
-    public synchronized Void transferFile(List<NodeInfo> plugins,NodeInfo nodedest,FileInfo file, String path, int copies) throws AvroRemoteException{
-        
-        storageService.transferFiles(plugins, nodedest, file, path, copies);
+    public synchronized Void transferFile(List<NodeInfo> plugins, String path, int copies,String destprimary) throws AvroRemoteException{
+        storageService.transferFiles(plugins, path, copies,destprimary);
         return null;
     }
 
