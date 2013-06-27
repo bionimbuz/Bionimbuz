@@ -36,6 +36,8 @@ import org.apache.avro.AvroRemoteException;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 @Singleton
@@ -238,7 +240,7 @@ public class StorageService extends AbstractBioService {
      * @throws KeeperException
      * @throws InterruptedException
      */
-    public void transferFiles(List<NodeInfo> plugins, String path, int copies,String idPluginCopy) throws AvroRemoteException, KeeperException, InterruptedException{
+    public void transferFiles(List<NodeInfo> plugins, String path, int copies,List<String> idsPluginCopy) throws AvroRemoteException, KeeperException, InterruptedException{
         
         int aux=0;
         
@@ -251,7 +253,21 @@ public class StorageService extends AbstractBioService {
                             aux++;
                             if(aux == copies){
                                 //Começar daqui aamanha
-                                zkService.getData(zkService.getPath().PREFIX_FILE.getFullPath(idPluginCopy, path, path), null);
+                                for(String idPluginCopy : idsPluginCopy){
+                                  ObjectMapper mapper = new ObjectMapper();
+                                    try {
+                                        PluginFile file = mapper.readValue(zkService.getData(
+                                                zkService.getPath().PREFIX_FILE.getFullPath(
+                                                idPluginCopy,path.substring(path.lastIndexOf("/")), ""), null), PluginFile.class);
+                                        file.setPluginId(idsPluginCopy);
+                                        if(zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(idPluginCopy, path,""), true))
+                                            zkService.setData(zkService.getPath().PREFIX_FILE.getFullPath(idPluginCopy, path,""), file.toString());
+                                        else 
+                                            System.out.println("Não existe o nó!");
+                                    } catch (IOException ex) {
+                                        Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
+                                }
                                 System.out.println("\n Replication Completed !! No de destino : "+node.getAddress());
                                 break;
                             }
@@ -268,6 +284,8 @@ public class StorageService extends AbstractBioService {
     
     public void failOverStorage(String id) throws AvroRemoteException, KeeperException, InterruptedException{
         Map<String,PluginFile>filesPeerDown= getFilesPeer(id);
+        //modificar pois está estático
+        int fatoreplicacao =1;
         List<NodeInfo> nodesdisp = new ArrayList<NodeInfo>();
         nodesdisp.clear();
         Collection<PluginInfo> cloudPlugin=getPeers().values();
@@ -294,8 +312,10 @@ public class StorageService extends AbstractBioService {
                             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
-                    //modificar o último valor para fator de replicação-1(MODIFICAR)
-                    transferFiles(bestNode(nodesdisp), localFile.getPath(),1,pluginId);
+                    if(!file.getPluginId().remove(pluginId))
+                        System.out.println("Plugin não encontrado!!");
+                    //modificar o antepenúltimo valor para fator de replicação-1(MODIFICAR)
+                    transferFiles(bestNode(nodesdisp), localFile.getPath(),fatoreplicacao,file.getPluginId());
             }
         }
     }
