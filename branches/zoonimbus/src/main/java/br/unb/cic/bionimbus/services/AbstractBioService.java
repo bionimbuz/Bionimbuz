@@ -6,7 +6,6 @@ package br.unb.cic.bionimbus.services;
 
 
 import br.unb.cic.bionimbus.p2p.P2PListener;
-import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import com.google.inject.Singleton;
@@ -26,12 +25,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 public abstract class AbstractBioService implements Service, P2PListener, Runnable {
 
     protected ZooKeeperService zkService;
-    private static final String FILES = "/files";
-    private static final String ROOT_PEER = "/peers";
-    private static final String STATUS = "STATUS";
-    private static final String SEPARATOR = "/";
     private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
-    private Map<String, PluginFile> savedFiles = new ConcurrentHashMap<String, PluginFile>();
     
     
     /**
@@ -42,13 +36,13 @@ public abstract class AbstractBioService implements Service, P2PListener, Runnab
         List<String> children;
         cloudMap.clear();
         try {
-            children = zkService.getChildren(zkService.getPath().PEERS.getFullPath("","", ""), null);
-            for (String child : children) {
+            children = zkService.getChildren(zkService.getPath().PEERS.getFullPath("", "", ""), null);
+            for (String pluginId : children) {
                 ObjectMapper mapper = new ObjectMapper();
-                String datas = zkService.getData(ROOT_PEER +SEPARATOR+ child, null);
+                String datas = zkService.getData(zkService.getPath().PREFIX_PEER.getFullPath(pluginId, "", ""), null);
                 PluginInfo myInfo = mapper.readValue(datas, PluginInfo.class);
                     
-                if(zkService.getZNodeExist(myInfo.getPath_zk()+SEPARATOR+STATUS, false)){ 
+                if(zkService.getZNodeExist(zkService.getPath().STATUS.getFullPath(pluginId, "", ""), false)){ 
                     cloudMap.put(myInfo.getId(), myInfo);
                 }
             }

@@ -238,17 +238,15 @@ protocol BioProto {
   //Get peers from server
   array<NodeInfo> getPeersNode();
 
-  //Set node with latency from client
-   void setNodes(array<NodeInfo> list);  
-
   //Enviar plugins
   // void sendPlugins(array<NodeInfo> plugins);
 
   //Transferencia de arquivos entre os nodes bionimbus
-    void transferFile(array<NodeInfo> plugins,NodeInfo nodedest, FileInfo file,string path, int copies);  
+    void transferFile(array<NodeInfo> plugins,string path, int copies,string destprimary);  
 
   //Mensagem de arquivo enviado com sucesso do cliente pro servidor
     void fileSent(FileInfo fileSucess,string dest);
+
   //Chamar Storage Service
-    array<NodeInfo> callStorage();
+    array<NodeInfo> callStorage(array<NodeInfo> list);
 }

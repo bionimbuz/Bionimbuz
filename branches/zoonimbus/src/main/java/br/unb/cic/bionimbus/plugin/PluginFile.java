@@ -1,5 +1,7 @@
 package br.unb.cic.bionimbus.plugin;
 
+import br.unb.cic.bionimbus.avro.gen.FileInfo;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -11,6 +13,14 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 public class PluginFile {
 
+    public PluginFile(){
+    }
+    
+    public PluginFile(FileInfo filenode){
+        this.id = filenode.getFileId();
+        this.name= filenode.getName();
+        this.size =filenode.getSize();
+    }
     private String id;
 
     private String path;
@@ -19,7 +29,7 @@ public class PluginFile {
 
     private long size;
 
-    private String pluginId;
+    private List<String> pluginId;
 
     public String getId() {
         return id;
@@ -45,11 +55,11 @@ public class PluginFile {
         return size;
     }
 
-    public String getPluginId() {
+    public List<String> getPluginId() {
         return pluginId;
     }
 
-    public void setPluginId(String pluginId) {
+    public void setPluginId(List<String> pluginId) {
         this.pluginId = pluginId;
     }
 
