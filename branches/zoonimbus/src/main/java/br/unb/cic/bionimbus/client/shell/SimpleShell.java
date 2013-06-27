@@ -93,7 +93,7 @@ public final class SimpleShell {
 
         System.out.println(GREETINGS);
         while (true) {
-            // read
+            // readco
             System.out.print(PROMPT);
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             String line = reader.readLine().trim();

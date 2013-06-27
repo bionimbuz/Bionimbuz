@@ -2,17 +2,14 @@ package br.unb.cic.bionimbus.services.storage;
 
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.avro.rpc.BioProtoImpl;
-import br.unb.cic.bionimbus.client.FileInfo;
 import br.unb.cic.bionimbus.p2p.P2PEvent;
 import br.unb.cic.bionimbus.p2p.P2PService;
-import br.unb.cic.bionimbus.p2p.PeerNode;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
-import br.unb.cic.bionimbus.services.monitor.MonitoringService;
 import br.unb.cic.bionimbus.utils.Put;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
@@ -40,7 +37,6 @@ import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 
 @Singleton
 public class StorageService extends AbstractBioService {
@@ -167,6 +163,12 @@ public class StorageService extends AbstractBioService {
         
     }
     
+    /**
+     * Metodo para pegar o Ip de cada peer na federação e verificar se um arquivo está com este peer,
+     * se o arquivo for encontrado retorna o Ip do peer, caso contrário retorna null.
+     * @param file
+     * @return
+     */
     public String getFilesIP(String file){
         List<String> listFiles ;
         Map<String,List<String>> mapFiles = new HashMap<String, List<String>>();
@@ -192,6 +194,11 @@ public class StorageService extends AbstractBioService {
         
     }
     
+    /**
+     * Método que recebe uma list com todos os peers da federação e seta o custo de armazenamento em casa plugin
+     * @param list - Lista com todos os plugins da federação
+     * @return - Lista com todos os plugins com seus custos de armazenamento inseridos
+     */
     public List<NodeInfo> bestNode(List<NodeInfo> list){
         
         List<NodeInfo> plugins;
@@ -219,6 +226,18 @@ public class StorageService extends AbstractBioService {
         
     }
     
+    
+    /**
+     * Realiza a transferencia de arquivos de um servidor Bionimbus para os outros peers,
+     * usada para a replicação de arquivos.
+     * @param plugins - Lista de plugins com espaço livre disponivel para armazenamento
+     * @param path - Caminho do arquivo que será copiado
+     * @param copies - Número de cópias que se deseja na replicação.
+     * @param idPluginCopy
+     * @throws AvroRemoteException
+     * @throws KeeperException
+     * @throws InterruptedException
+     */
     public void transferFiles(List<NodeInfo> plugins, String path, int copies,String idPluginCopy) throws AvroRemoteException, KeeperException, InterruptedException{
         
         int aux=0;
