@@ -62,7 +62,8 @@ public class Upload implements Command {
                  NodeInfo node = it.next();
                  Put conexao = new Put(node.getAddress(),path);
                  if(conexao.startSession()){
-                       String dest = node.getPeerId();
+                       List<String> dest = new ArrayList<String>();
+                       dest.add(node.getPeerId());
                        shell.getRpcClient().getProxy().fileSent(info,dest);
                        System.out.println("\n Upload Completed!!");
                        shell.getRpcClient().getProxy().transferFile(nodesdisp,path,replication,dest);

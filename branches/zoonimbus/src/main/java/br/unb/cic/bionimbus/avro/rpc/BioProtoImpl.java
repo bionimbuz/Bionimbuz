@@ -26,8 +26,6 @@ public class BioProtoImpl implements BioProto {
     private final StorageService storageService;
     private final SchedService schedService;
     private final ZooKeeperService zkService;
-  //  private FileInfo file;
-//    private static final Object LOCK = new Object();
     
     private Map<String, NodeInfo> nodes = new HashMap<String, NodeInfo>();
 
@@ -129,8 +127,7 @@ public class BioProtoImpl implements BioProto {
                 nodeaux.setPeerId(info.getId());
                 nodeaux.setFreesize(info.getFsFreeSize());
                 nodes.put(address, nodeaux);
-           }
-          
+           }       
         }
         
         return new ArrayList<NodeInfo>(nodes.values());
@@ -165,11 +162,9 @@ public class BioProtoImpl implements BioProto {
     }
 
     @Override
-    public synchronized Void fileSent(FileInfo fileSucess, String dest) throws AvroRemoteException {
+    public synchronized Void fileSent(FileInfo fileSucess, List<String> dest) throws AvroRemoteException {
         PluginFile file = new PluginFile(fileSucess);
-        List<String> destinations = new ArrayList<String>();
-        destinations.add(dest);
-        file.setPluginId(destinations);
+        file.setPluginId(dest);
         file.setPath("/home/zoonimbus/NetBeansProjects/zoonimbus/data-folder/"+file.getName());
         try {
             storageService.fileUploaded(file);
@@ -193,7 +188,7 @@ public class BioProtoImpl implements BioProto {
      */
     
     @Override
-    public synchronized Void transferFile(List<NodeInfo> plugins, String path, int copies,String destprimary) throws AvroRemoteException{
+    public synchronized Void transferFile(List<NodeInfo> plugins, String path, int copies,List<String> destprimary) throws AvroRemoteException{
         try {
             storageService.transferFiles(plugins, path, copies,destprimary);
         } catch (KeeperException ex) {
