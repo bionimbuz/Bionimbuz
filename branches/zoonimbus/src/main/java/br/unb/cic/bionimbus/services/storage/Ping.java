@@ -9,10 +9,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * Classe para calculo de latencia
  * @author deric
  */
 public class Ping {
 
+    /**
+     * Método para realizar um ping no ip de destino para que seja calculada a latência.
+     * @param ip - Ip onde será enviado os pacotes para o calculo necessario
+     * @return - Latencia média entre quem enviou os pacotes e o destino
+     * @throws IOException
+     */
     public static double calculo(String ip) throws IOException {
 
         double avg = 0;
@@ -28,7 +35,9 @@ public class Ping {
         BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
         Pattern pattern = Pattern.compile("(?<=time=).*.(?= )");
         Pattern patternBand = Pattern.compile("(?<=\\) ).*.(?=\\()");
-
+        /*
+         * Para uma latência mais exata preferimos pingar 3 pacotes no IP e pegar a média.
+         */
         while ((teste = in.readLine()) != null && times < 4) {
             if (times == 0) {
                 matcher = patternBand.matcher(teste);

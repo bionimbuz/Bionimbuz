@@ -4,33 +4,30 @@
  */
 package br.unb.cic.bionimbus.utils;
 
-import br.unb.cic.bionimbus.p2p.Host;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
-import org.jboss.netty.channel.Channel;
 
 /**
- *
- * @author biocloud2
+ * Metodo para a conexao entre o servidor e o cliente em casos de downloads
+ * @author Deric
  */
 public class Get {
     
     private JSch jsch = new JSch();
     private Session session = null;
-    private String HOST = "192.168.1.111";
-    private String USER = "biocloud1";
-    private String PASSW = "cloudbio";
+    private String USER = "zoonimbus";
+    private String PASSW = "zoonimbus";
     private int PORT = 22;
     private com.jcraft.jsch.Channel channel;
     private String path = "/home/zoonimbus/NetBeansProjects/zoonimbus/data-folder/";
     
-    public boolean startSession(String file) throws JSchException, SftpException {
+    public boolean startSession(String file, String host) throws JSchException, SftpException {
             
             try {
-            session = jsch.getSession(USER, HOST, 22);
+            session = jsch.getSession(USER, host, 22);
             session.setConfig("StrictHostKeyChecking", "no");
             session.setPassword(PASSW);
             session.connect();
@@ -38,7 +35,7 @@ public class Get {
             com.jcraft.jsch.Channel channel = session.openChannel("sftp");
             channel.connect();
             ChannelSftp sftpChannel = (ChannelSftp) channel;
-            //sftpChannel.cd(path);
+            System.out.println("\n\n Downloading file.....");
             sftpChannel.get("/home/biocloud1/NetBeansProjects/zoonimbus/data-folder/"+file,"/tmp" );
             sftpChannel.exit();
             session.disconnect();

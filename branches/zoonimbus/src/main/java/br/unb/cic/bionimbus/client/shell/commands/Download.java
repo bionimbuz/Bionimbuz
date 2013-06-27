@@ -1,12 +1,16 @@
 package br.unb.cic.bionimbus.client.shell.commands;
 
-import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.client.shell.Command;
 import br.unb.cic.bionimbus.client.shell.SimpleShell;
 import br.unb.cic.bionimbus.utils.Get;
-import br.unb.cic.bionimbus.utils.Put;
 import java.util.List;
 
+/**
+ *
+ * @author Deric
+ * Esta classe realiza uma chamada RPC para o servidor em que o cliente estiver conectado,
+ * esta chamada irá retornar o IP do peer que tiver o arquivo que o cliente deseja baixar.
+ */
 public class Download implements Command {
 
     public static final String NAME = "download";
@@ -22,10 +26,20 @@ public class Download implements Command {
     public String execute(String... params) throws Exception {
         
         String filerequest = params[0];
+        /*
+         * Chamada RPC para o servidor
+         * 
+         * destino irá receber o IP onde o arquivo se encontra
+         * 
+         */
         destino = shell.getRpcClient().getProxy().listFilesIp(filerequest);      
                 
         Get conexao = new Get();
-          if(conexao.startSession(filerequest)){ 
+        /*
+         * Tenta se conectar ao destino para baixar o arquivo.
+         * Caso sucesso, irá retornar true.
+         */
+          if(conexao.startSession(filerequest, destino)){ 
                      return "Download Completed";
           }else{
                     return "Arquivo não encontrado !!";

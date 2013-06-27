@@ -1,7 +1,6 @@
 package br.unb.cic.bionimbus.plugin;
 
 import br.unb.cic.bionimbus.p2p.Host;
-import br.unb.cic.bionimbus.p2p.PeerNode;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;

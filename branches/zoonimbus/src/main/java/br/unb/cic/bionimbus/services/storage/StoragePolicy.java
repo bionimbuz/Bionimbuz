@@ -21,6 +21,7 @@ import org.apache.zookeeper.KeeperException;
 
 
 /**
+ * Classe que contem os metodos da politica de armazenamento
  * @author deric
  */
 public class StoragePolicy{
@@ -43,10 +44,10 @@ public class StoragePolicy{
         double uptime;
         double freesize;
         
-        /*Calculando os custos de armazenamento dos peers
-         *Custo = (Espaço livre + Uptime) * Latencia
+        /*
+         * Calculando os custos de armazenamento dos peers
+         * Custo = (Espaço livre + Uptime) * Latencia
          */
-       
         
         for(PluginInfo plugin : pluginList){
              uptime = plugin.getUptime() / 1000;
@@ -54,6 +55,9 @@ public class StoragePolicy{
              cost = (((freesize * peso_space) + 
                 (uptime * peso_uptime)) * 
                 (plugin.getLatency() * peso_latency));
+             /*
+              * Seta o custo de armazenamento no peer
+              */
              plugin.setStorageCost(cost);             
              try {
                    zkService.setData(plugin.getPath_zk(), plugin.toString());
@@ -64,13 +68,16 @@ public class StoragePolicy{
                }
              
         }
+        /*
+         * Converte o tipo de list para facilitar o ordenamento dos dados
+         */
         List<PluginInfo> plugin = SwapTypePlugin(pluginList);
-        System.out.println("\n Antes do ordenamento");
-        for(PluginInfo plug : plugin){
-            System.out.println("ID: "+plug.getId()+"\n Custo de armazenamento: "+plug.getStorageCost());
-        }
         sortPlugins(plugin);
         
+        /*
+         * Converte a lista ordenada em NodeInfo, um objeto menor e que contem somente os dados necessarios
+         * para a resolução da politica de armazenamento
+         */
         for(PluginInfo plug : plugin){
             NodeInfo node = new NodeInfo();
             node.setAddress(plug.getHost().getAddress());
@@ -85,8 +92,10 @@ public class StoragePolicy{
     }
 
     /**
-     * Quicksort para ordenar as melhores nuvens para armazenar os dados de acordo com o 
-     * custo de armazenamento das nuvens
+     * Sort para ordenar os melhores peers para armazenar os dados de acordo com o 
+     * custo de armazenamento das nuvens.
+     * @param plugins - Lista com todos os peers que serão ordenados,
+     * @return
      */
     public List<PluginInfo> sortPlugins(List<PluginInfo> plugins) {  
         
@@ -104,15 +113,14 @@ public class StoragePolicy{
                 return p1.getStorageCost() < p2.getStorageCost()? -1 : (p1.getStorageCost() > p2.getStorageCost() ? +1 : 0);    
             }
         });
-        System.out.println("\n DEPOIS DO ORDENAMENTO");
-        for(PluginInfo plugin : plugins){
-            System.out.println("ID: "+plugin.getId()+"\n Custo de armazenamento: "+plugin.getStorageCost());
-        }
+        
         return plugins;
     } 
         
-    /*
+    /**
      * Método para receber a map com os plugins e converter em List, para ficar mais fácil o tratamento dos dados
+     * @param plugins
+     * @return
      */
     public List<PluginInfo> SwapTypePlugin(Collection<PluginInfo> plugins){
         List<PluginInfo> plugin = new ArrayList<PluginInfo>();
@@ -122,10 +130,4 @@ public class StoragePolicy{
         }
         return plugin;
     } 
-    
-    
-    public void sendFile(){
-        
-        
-    }
 }

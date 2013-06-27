@@ -211,6 +211,7 @@ protocol BioProto {
 
   array<string> listFiles();
 
+  /** Procurar em qual Ip está o arquivo file */    
   string listFilesIp(string file);
 
   array<string> listServices();

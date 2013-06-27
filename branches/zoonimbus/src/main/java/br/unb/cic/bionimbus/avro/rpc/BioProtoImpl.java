@@ -11,12 +11,9 @@ import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import br.unb.cic.bionimbus.services.sched.SchedService;
 import br.unb.cic.bionimbus.services.storage.StorageService;
-import br.unb.cic.bionimbus.utils.Put;
 import com.google.inject.Inject;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
-import java.io.File;
-import static java.util.Arrays.asList;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -207,6 +204,14 @@ public class BioProtoImpl implements BioProto {
         return null;
     }
 
+    /**
+     * Metodo irá chamar a storage service passando o nome do arquivo solicitado para download,
+     * caso a storage service encontre o arquivo irá retornar o Ip de onde aquele arquivo se encontra,
+     * se não encontra retorna a string "Arquivo nao encontrado"
+     * @param file - Nome do arquivo requisitado para download.
+     * @return - Ip de onde o arquivo se encontra ou "Arquivo nao encontrado"
+     * @throws AvroRemoteException
+     */
     @Override
         public String listFilesIp(String file) throws AvroRemoteException {
         
