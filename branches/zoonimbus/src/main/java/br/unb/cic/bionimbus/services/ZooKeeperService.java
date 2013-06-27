@@ -42,7 +42,7 @@ public class ZooKeeperService {
         
         ROOT("/"), PREFIX_PEER("/peer_"), PEERS("/peers"), FILES("/files"),PENDING_SAVE("/pending_save"),PREFIX_PENDING_FILE("pending_file_"),
         JOBS("/jobs"),PREFIX_FILE("/file_"),STATUS("/STATUS"),STATUSWAITING("/STATUSWAITING"),SCHED("/sched"),
-        SIZE_JOBS("/size_jobs"),TASKS("/tasks"), PREFIX_TASK("/task_");
+        SIZE_JOBS("/size_jobs"),TASKS("/tasks"), PREFIX_TASK("/task_"), UNDERSCORE("_");
         
         private final String value;
         
