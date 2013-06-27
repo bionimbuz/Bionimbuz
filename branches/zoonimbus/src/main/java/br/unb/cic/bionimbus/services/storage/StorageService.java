@@ -173,14 +173,16 @@ public class StorageService extends AbstractBioService {
      */
     public String getFilesIP(String file){
         List<String> listFiles ;
-        Map<String,List<String>> mapFiles = new HashMap<String, List<String>>();
+       // Map<String,List<String>> mapFiles = new HashMap<String, List<String>>();
         try {
             for (Iterator<PluginInfo> it = getPeers().values().iterator(); it.hasNext();) {
                 PluginInfo plugin = it.next();
-                mapFiles.put(plugin.getHost().getAddress(),zkService.getChildren(plugin.getPath_zk()+zkService.getPath().FILES.toString(), new UpdatePeerData(zkService, this)));
+               // mapFiles.put(plugin.getHost().getAddress(),zkService.getChildren(plugin.getPath_zk()+zkService.getPath().FILES.toString(), new UpdatePeerData(zkService, this)));
                 listFiles = zkService.getChildren(plugin.getPath_zk()+zkService.getPath().FILES.toString(), new UpdatePeerData(zkService, this));
                 for(String checkfile : listFiles){
-                    if(file.equals(checkfile)){
+                  
+                    String idfile=checkfile.substring(checkfile.indexOf(zkService.getPath().UNDERSCORE.toString())+1);
+                    if(file.equals(idfile)){
                         return plugin.getHost().getAddress();
                     }
                 }
