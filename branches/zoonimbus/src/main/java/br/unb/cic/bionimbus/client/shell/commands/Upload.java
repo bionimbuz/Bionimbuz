@@ -25,6 +25,7 @@ public class Upload implements Command {
     private List<NodeInfo> pluginList;
     private List<NodeInfo> nodesdisp = new ArrayList<NodeInfo>();
     private Double MAXCAPACITY = 0.9;
+    private static int flag = 0;
 
     public Upload(SimpleShell shell) {
         this.shell = shell;
@@ -60,7 +61,7 @@ public class Upload implements Command {
             
             for (Iterator<NodeInfo> it = nodesdisp.iterator(); it.hasNext();) {
                  NodeInfo node = it.next();
-                 Put conexao = new Put(node.getAddress(),path);
+                 Put conexao = new Put(node.getAddress(),path,flag);
                  if(conexao.startSession()){
                        List<String> dest = new ArrayList<String>();
                        dest.add(node.getPeerId());

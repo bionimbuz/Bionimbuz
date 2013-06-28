@@ -245,11 +245,12 @@ public class StorageService extends AbstractBioService {
     public void transferFiles(List<NodeInfo> plugins, String path, int copies,List<String> idsPluginCopy) throws AvroRemoteException, KeeperException, InterruptedException{
         
         int aux=0;
+        int flag=1;
         
         for (Iterator<NodeInfo> it = plugins.iterator(); it.hasNext();) {
                  NodeInfo node = it.next();
                   
-                    Put conexao = new Put(node.getAddress(),path);   
+                    Put conexao = new Put(node.getAddress(),path,flag);   
                     try {
                         if(conexao.startSession()){
                             aux++;
