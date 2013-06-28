@@ -24,10 +24,17 @@ public class Put {
     private Channel channel;
     private String path;
     private String dest = "/home/zoonimbus/NetBeansProjects/zoonimbus/data-folder/";
+    /*
+     * Flag usada para separar o processo de upload do processo de replicação
+     * flag 0 = upload
+     * flag 1 = replicação
+     */
+    private int flag;
 
-    public Put(String address, String path) {
+    public Put(String address, String path, int flag) {
         this.address = address;
         this.path = path;
+        this.flag = flag;
     }
 
     public Put() {
@@ -63,9 +70,16 @@ public class Put {
              */
             //sftpChannel.chmod(777, path);
             System.out.println("\n Uploading file.....\n\n\n");
-            sftpChannel.put(dest+path, dest);
-            sftpChannel.exit();
-            session.disconnect();
+            if(flag == 0){
+                sftpChannel.put(path, dest);
+                sftpChannel.exit();
+                session.disconnect();
+            }
+            else{
+                sftpChannel.put(dest+path, dest);
+                sftpChannel.exit();
+                session.disconnect();
+            }
         } catch (JSchException a) {
             return false;
         }
