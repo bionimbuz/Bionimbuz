@@ -23,7 +23,7 @@ public class Put {
     private int PORT = 22;
     private Channel channel;
     private String path;
-    private String dest = "/home/zoonimbus/NetBeansProjects/zoonimbus/data-folder";
+    private String dest = "/home/zoonimbus/NetBeansProjects/zoonimbus/data-folder/";
 
     public Put(String address, String path) {
         this.address = address;
@@ -63,7 +63,7 @@ public class Put {
              */
             //sftpChannel.chmod(777, path);
             System.out.println("\n Uploading file.....\n\n\n");
-            sftpChannel.put(path, dest);
+            sftpChannel.put(dest+path, dest);
             sftpChannel.exit();
             session.disconnect();
         } catch (JSchException a) {
