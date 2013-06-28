@@ -242,14 +242,14 @@ public class StorageService extends AbstractBioService {
      * @throws KeeperException
      * @throws InterruptedException
      */
-    public void transferFiles(List<NodeInfo> plugins, String path, int copies,List<String> idsPluginCopy) throws AvroRemoteException, KeeperException, InterruptedException{
+    public void transferFiles(List<NodeInfo> plugins, String path, int copies,List<String> idsPluginCopy,String nodeaddres) throws AvroRemoteException, KeeperException, InterruptedException{
         
         int aux=0;
         int flag=1;
         
         for (Iterator<NodeInfo> it = plugins.iterator(); it.hasNext();) {
                  NodeInfo node = it.next();
-                  
+                 if(!node.getAddress().equals(nodeaddres)){ 
                     Put conexao = new Put(node.getAddress(),path,flag);   
                     try {
                         if(conexao.startSession()){
@@ -259,9 +259,7 @@ public class StorageService extends AbstractBioService {
                                 for(String idPluginCopy : idsPluginCopy){
                                   ObjectMapper mapper = new ObjectMapper();
                                     try {
-                                        PluginFile file = mapper.readValue(zkService.getData(
-                                                zkService.getPath().PREFIX_FILE.getFullPath(
-                                                idPluginCopy,path.substring(path.lastIndexOf("/")), ""), null), PluginFile.class);
+                                        PluginFile file = mapper.readValue(zkService.getData(zkService.getPath().PREFIX_FILE.getFullPath(idPluginCopy,path,""), null),PluginFile.class);
                                         file.setPluginId(idsPluginCopy);
                                         if(zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(idPluginCopy, path,""), true))
                                             zkService.setData(zkService.getPath().PREFIX_FILE.getFullPath(idPluginCopy, path,""), file.toString());
@@ -280,7 +278,7 @@ public class StorageService extends AbstractBioService {
                     } catch (JSchException ex) {
                          Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                
+                 }
         }
         
     }
@@ -318,7 +316,7 @@ public class StorageService extends AbstractBioService {
                     if(!file.getPluginId().remove(pluginId))
                         System.out.println("Plugin não encontrado!!");
                     //modificar o antepenúltimo valor para fator de replicação-1(MODIFICAR)
-                    transferFiles(bestNode(nodesdisp), localFile.getPath(),fatoreplicacao,file.getPluginId());
+                    transferFiles(bestNode(nodesdisp), localFile.getPath(),fatoreplicacao,file.getPluginId(),"");
             }
         }
     }
