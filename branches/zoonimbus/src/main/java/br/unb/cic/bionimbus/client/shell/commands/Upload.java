@@ -65,15 +65,14 @@ public class Upload implements Command {
                        List<String> dest = new ArrayList<String>();
                        dest.add(node.getPeerId());
                        shell.getRpcClient().getProxy().fileSent(info,dest);
-                       System.out.println("\n Upload Completed!!");
                        shell.getRpcClient().getProxy().transferFile(nodesdisp,path,replication,dest);
-                       return null;
+                       return "\n Upload Completed!!";
                  }
              }
          
          }
          
-        return null;
+        return "\n\n Erro no upload !!";
     }
 
     @Override

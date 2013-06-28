@@ -11,6 +11,7 @@ public class Connect implements Command {
 
     public static final String NAME = "connect";
     private final SimpleShell shell;
+    private int port = 9999;
 
     public Connect(SimpleShell shell) {
         this.shell = shell;
@@ -19,13 +20,12 @@ public class Connect implements Command {
     @Override
     public String execute(String... params) throws Exception {
 
-        if (params.length != 2) {
+        if (params.length != 1) {
             shell.setConnected(false);
-            return "Invalid arguments\nusage: connect <address> <port>";
+            return "Invalid arguments\nusage: connect <address> ";
         }
 
         String hostname = params[0];
-        int port = Integer.parseInt(params[1]);
         RpcClient rpcClient = new AvroClient("http", hostname, port);
 
         // test to see if hostname is reachable
@@ -42,7 +42,7 @@ public class Connect implements Command {
 
     @Override
     public String usage() {
-        return NAME  + " <address> <port>";
+        return NAME  + " <address>";
     }
 
     @Override
