@@ -56,13 +56,13 @@ public class Put {
             this.channel = session.openChannel("sftp");
             channel.connect();
             ChannelSftp sftpChannel = (ChannelSftp) channel;
-            System.out.println("\n Uploading file.....\n\n\n");
             /*
              * Sem setar nenhuma permissao o arquivo chega trancado no destino, sendo acessado apenas pelo root,
              * portanto preferi dar um 777 antes de enviar o arquivo para que chegue livre ao destino.
              * Por questões de segurança, talvez isso deva ser repensado futuramente.
              */
-            sftpChannel.chmod(777, path);
+            //sftpChannel.chmod(777, path);
+            System.out.println("\n Uploading file.....\n\n\n");
             sftpChannel.put(path, dest);
             sftpChannel.exit();
             session.disconnect();

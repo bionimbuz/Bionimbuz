@@ -39,11 +39,11 @@ public class Download implements Command {
          * Tenta se conectar ao destino para baixar o arquivo.
          * Caso sucesso, irá retornar true.
          */
-          if(conexao.startSession(filerequest, destino)){ 
-                     return "Download Completed";
-          }else{
-                    return "Arquivo não encontrado !!";
+          if(!conexao.startSession(filerequest, destino)){ 
+                     return "Arquivo não encontrado !!";
           }
+          
+          return "\n\n Download Completed !!";
     }
 
     @Override

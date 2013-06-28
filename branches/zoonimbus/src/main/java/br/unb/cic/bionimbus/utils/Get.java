@@ -36,7 +36,7 @@ public class Get {
             channel.connect();
             ChannelSftp sftpChannel = (ChannelSftp) channel;
             System.out.println("\n\n Downloading file.....");
-            sftpChannel.get("/home/biocloud1/NetBeansProjects/zoonimbus/data-folder/"+file,"/tmp" );
+            sftpChannel.get("/home/zoonimbus/NetBeansProjects/zoonimbus/data-folder/"+file,"/tmp" );
             sftpChannel.exit();
             session.disconnect();
         } catch (JSchException e) {
