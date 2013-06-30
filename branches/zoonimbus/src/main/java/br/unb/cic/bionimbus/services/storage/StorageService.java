@@ -36,6 +36,8 @@ import org.apache.avro.AvroRemoteException;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 @Singleton
@@ -400,6 +402,25 @@ public class StorageService extends AbstractBioService {
             switch(eventType.getType()){
 
                 case NodeChildrenChanged:
+                    if(eventType.getPath().contains(zkService.getPath().PENDING_SAVE.toString())){
+                       String fileId =  path.substring(path.indexOf(zkService.getPath().PREFIX_PENDING_FILE.toString())+13);
+                       ObjectMapper mapper = new ObjectMapper();
+                   try {
+                       PluginFile file = mapper.readValue(zkService.getData(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileId, ""), null), PluginFile.class);
+                       if(p2p.getConfig().getId().equals(file.getPluginId())){
+                           System.out.println("\n\n Eu sou o peer que recebeu o arquivo");
+                       }
+                       
+                   } catch (IOException ex) {
+                       Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+   
+                   } catch (KeeperException ex) {
+                       Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                   } catch (InterruptedException ex) {
+                       Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                   }    
+                        
+                    }
                         System.out.print(path + "= NodeChildrenChanged");
                     break;
                 case NodeDeleted:
