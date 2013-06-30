@@ -26,7 +26,7 @@ public class Upload implements Command {
     private List<NodeInfo> nodesdisp = new ArrayList<NodeInfo>();
     //private List<NodeInfo> nodesdisp2 = Collections.synchronizedList(new ArrayList());
     private Double MAXCAPACITY = 0.9;
-    private static int flag = 0;
+    private int flag = 0;
 
     public Upload(SimpleShell shell) {
         this.shell = shell;
