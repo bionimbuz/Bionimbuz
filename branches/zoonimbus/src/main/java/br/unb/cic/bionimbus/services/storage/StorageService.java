@@ -86,6 +86,13 @@ public class StorageService extends AbstractBioService {
         //Criando pastas zookeeper para o módulo de armazenamento
         zkService.createPersistentZNode(zkService.getPath().PENDING_SAVE.toString(), null);
         zkService.createPersistentZNode(zkService.getPath().FILES.getFullPath(p2p.getConfig().getId(), "", ""), "");
+        try {
+            zkService.getChildren(zkService.getPath().PENDING_SAVE.getFullPath("","",""),new UpdatePeerData(zkService, this));
+        } catch (KeeperException ex) {
+            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+        }
         checkFiles();
         checkPeers();
 
@@ -266,7 +273,10 @@ public class StorageService extends AbstractBioService {
            if(fileServer.exists()){
                 zkService.createPersistentZNode( zkService.getPath().PREFIX_FILE.getFullPath(fileuploaded.getPluginId().iterator().next(), 
                                         fileuploaded.getId(), ""), fileuploaded.toString());
-               zkService.delete(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileuploaded.getId(), ""));
+                
+                fileuploaded.setSize(0);
+                zkService.setData(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileuploaded.getId(), ""), fileuploaded.toString());
+               
            }else
                System.out.println("Arquivo não encontrado!");
         }else
@@ -402,26 +412,31 @@ public class StorageService extends AbstractBioService {
             switch(eventType.getType()){
 
                 case NodeChildrenChanged:
-                    if(eventType.getPath().contains(zkService.getPath().PENDING_SAVE.toString())){
+                    System.out.println("\n\n Event get path"+path);
+                    //como pegar o znode que foi mudado ......
+                    if(path.contains(zkService.getPath().PENDING_SAVE.toString())){
                        String fileId =  path.substring(path.indexOf(zkService.getPath().PREFIX_PENDING_FILE.toString())+13);
                        ObjectMapper mapper = new ObjectMapper();
-                   try {
-                       PluginFile file = mapper.readValue(zkService.getData(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileId, ""), null), PluginFile.class);
-                       if(p2p.getConfig().getId().equals(file.getPluginId())){
-                           System.out.println("\n\n Eu sou o peer que recebeu o arquivo");
-                       }
+                        try {
+                            PluginFile file = mapper.readValue(zkService.getData(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileId, ""), null), PluginFile.class);
+                            for(String pluginId : file.getPluginId()){
+                                 if(p2p.getConfig().getId().equals(pluginId)){
+                                    System.out.println("\n\n Eu sou o peer que recebeu o arquivo");
+                                }
+                            }
+                           
                        
-                   } catch (IOException ex) {
-                       Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (IOException ex) {
+                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
    
-                   } catch (KeeperException ex) {
-                       Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-                   } catch (InterruptedException ex) {
-                       Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-                   }    
+                        } catch (KeeperException ex) {
+                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                        }    
                         
                     }
-                        System.out.print(path + "= NodeChildrenChanged");
+                    System.out.print(path + "= NodeChildrenChanged");
                     break;
                 case NodeDeleted:
                     if(eventType.getPath().contains(zkService.getPath().STATUS.toString())){
