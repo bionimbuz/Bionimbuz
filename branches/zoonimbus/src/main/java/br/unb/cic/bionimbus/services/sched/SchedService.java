@@ -115,7 +115,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
         zkService.createPersistentZNode(zkService.getPath().TASKS.getFullPath(idPlugin, "", ""), null);
         zkService.createPersistentZNode(zkService.getPath().SIZE_JOBS.getFullPath(idPlugin, "", ""), null);
         
-        //cloudMap.put(pluginInfo.getId(), pluginInfo);
+        cloudMap.putAll(getPeers());
         
         
         try {
