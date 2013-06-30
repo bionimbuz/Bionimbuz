@@ -38,16 +38,19 @@ public class AcoSched extends SchedPolicy {
     private ZooKeeperService zk;
    
     @Override
-    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos,ZooKeeperService zk) {
+    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, ZooKeeperService zk) {
+        this.zk = zk;
+        //condição para verificar se a chamada foi apenas para iniciar o zk
+        if(jobInfos ==null)
+            return null;
+
         HashMap jobCloud = new HashMap<JobInfo, PluginInfo>();
         JobInfo biggerJob = getBiggerJob(new ArrayList<JobInfo>(jobInfos));
-        
+
         // escalonador irá receber um zookeeperService como parâmetro
-        this.zk = zk;
-        
-        
-        
-        jobCloud.put(biggerJob, scheduleJob(biggerJob));
+
+
+            jobCloud.put(biggerJob, scheduleJob(biggerJob));
 
         return jobCloud;
 
@@ -184,7 +187,7 @@ public class AcoSched extends SchedPolicy {
             //soma o tamanho total do job executado com o tamanho dos demais jobs executados no plugin
             listAcoDatas.set(9, listAcoDatas.get(8)+listAcoDatas.get(9));
             //grava novamente os dados no zookeeper
-            setDatasZookeeper(peerPath, "", listAcoDatas.toString());
+            setDatasZookeeper(peerPath, SCHED, listAcoDatas.toString());
         } catch (IOException ex) {
             Logger.getLogger(AcoSched.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -608,7 +611,6 @@ public class AcoSched extends SchedPolicy {
      */
     private String getDatasZookeeper(String zkPath, String dir){
         String datas = "";
-        Watcher teste =  new SchedUpdatePeerData(zk, null);
         try {
             datas = zk.getData(zkPath+dir, null);
         } catch (KeeperException ex) {

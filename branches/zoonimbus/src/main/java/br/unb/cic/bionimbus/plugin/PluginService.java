@@ -89,7 +89,8 @@ public class PluginService {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(PluginService.class).add("id", id)
-                .add("name", name).toString();
+//        return Objects.toStringHelper(PluginService.class).add("id", id)
+//                .add("name", name).toString();
+        return "Id: "+id+",  Name: "+name+",  Info: "+info;
     }
 }
