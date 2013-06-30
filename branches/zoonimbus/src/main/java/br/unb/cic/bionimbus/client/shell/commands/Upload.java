@@ -74,8 +74,7 @@ public class Upload implements Command {
             if(no != null){
                 List<String> dest = new ArrayList<String>();
                 dest.add(no.getPeerId());
-                nodesdisp.remove(no);
-                
+                nodesdisp.remove(no);             
                 shell.getRpcClient().getProxy().fileSent(info,dest);
                 shell.getRpcClient().getProxy().transferFile(nodesdisp,info.getName(),replication,dest);
                 return "\n Upload Completed!!";
