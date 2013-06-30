@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import br.unb.cic.bionimbus.utils.Pair;
+import java.io.OutputStream;
 
 public class PluginTaskRunner implements Callable<PluginTask> {
 
@@ -38,22 +39,23 @@ public class PluginTaskRunner implements Callable<PluginTask> {
             String input = pair.first;
             //linha comentada pois arquivos de entrada não ficam mais no AbstractPlugin
 //            args = args.replaceFirst("%I" + i, path + File.pathSeparator + plugin.getInputFiles().get(input).first);
-            args = args.replaceFirst("%I" + i, path+PATHFILES + File.pathSeparator + input+" ");
+            args = args.replaceFirst("%I" + i, path+PATHFILES + File.separator + input+" ");
             i++;
         }
 
         List<String> outputs = task.getJobInfo().getOutputs();
         i = 1;
         for (String output : outputs) {
-            args = args.replaceFirst("%O" + i, path+PATHFILES + File.pathSeparator + output);
+            args = args.replaceFirst("%O" + i, path+PATHFILES + File.separator + output);
             i++;
         }
-        System.out.println("Argumentos:"+ args);
         Process p = null;
         try {
             p = Runtime.getRuntime().exec(service.getPath() + " " + args);
+//                        p = Runtime.getRuntime().exec(path+service.getPath().substring(1,service.getPath().length()) + " " + args);
 
             task.setState(PluginTaskState.RUNNING);
+           
             if(zkService!=null)
                 zkService.setData(task.getPluginTaskPathZk(), task.toString());
             
@@ -63,10 +65,14 @@ public class PluginTaskRunner implements Callable<PluginTask> {
                 System.out.println(line);
             }
             br.close();
-            task.setState(PluginTaskState.DONE);
-            task.setTimeExec((((float) System.currentTimeMillis() - task.getJobInfo().getTimestamp()) / 1000));
+            task.setTimeExec(((float) (System.currentTimeMillis() - task.getJobInfo().getTimestamp()) / 1000));
+
+            if(p.waitFor()==0)
+                task.setState(PluginTaskState.DONE);
+
             if(zkService!=null)
                 zkService.setData(task.getPluginTaskPathZk(), task.toString());
+
         } catch (Exception e) {
             e.printStackTrace();
         }

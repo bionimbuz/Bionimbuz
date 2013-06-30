@@ -6,10 +6,12 @@ import br.unb.cic.bionimbus.p2p.P2PEvent;
 import br.unb.cic.bionimbus.p2p.P2PService;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
+import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
+import br.unb.cic.bionimbus.utils.Get;
 import br.unb.cic.bionimbus.utils.Put;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
@@ -87,7 +89,7 @@ public class StorageService extends AbstractBioService {
         zkService.createPersistentZNode(zkService.getPath().PENDING_SAVE.toString(), null);
         zkService.createPersistentZNode(zkService.getPath().FILES.getFullPath(p2p.getConfig().getId(), "", ""), "");
         checkFiles();
-
+        checkPeers();
 
         executorService.scheduleAtFixedRate(this, 0, 3, TimeUnit.SECONDS);
     }
@@ -107,10 +109,25 @@ public class StorageService extends AbstractBioService {
         public void onEvent(P2PEvent event) {
     }
 
-    //Talves esse metodo seja apagado, pois se esse servidor cair, 
-    //o arquivo que foi duplicado em outra máquina sera duplicado para outra máquina, e assim que esse servidor 
-    //suba os arquivos serão deletados, a não ser que esse metodo verifique se existe somente 1 arquivo ou o numero 
-    //do fator de replicação para poder subir com estes arquivos par nuvem
+    /**
+     * Verifica os peers(plugins) existentes e adiciona um observador(watcher) no zNode STATUS de cada plugin.
+     */
+    public void checkPeers(){
+        for(PluginInfo plugin : getPeers().values()){
+            try {
+                zkService.getData(zkService.getPath().STATUS.getFullPath(plugin.getId(), null, null), new UpdatePeerData(zkService,this));
+            } catch (KeeperException ex) {
+                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+    }
+    /**
+     * Verifica os arquivos que existem no recurso e se o fator de replicação está sendo respeitado na federação.
+     * Roda apenas quando o plugin está sendo iniciado.
+     */
     public void checkFiles(){
         try {
             if (!dataFolder.exists()) {
@@ -121,18 +138,24 @@ public class StorageService extends AbstractBioService {
             zkService.getChildren(zkService.getPath().FILES.getFullPath(p2p.getConfig().getId(),"",""), new UpdatePeerData(zkService, this));
 
             for(File file : dataFolder.listFiles()){
-                PluginFile pluginFile =  new PluginFile();
-                pluginFile.setId(file.getName());
-                pluginFile.setName(file.getName());
-                pluginFile.setPath(file.getPath());
-                //list ids Verificar onde esse arquivo está caso já exista
-                List<String> listIds = new ArrayList<String>();
-                listIds.add(p2p.getConfig().getPlugin());
-                
-                pluginFile.setPluginId(listIds);
-                pluginFile.setSize(file.getUsableSpace());
-                
-                zkService.createPersistentZNode(zkService.getPath().PREFIX_FILE.getFullPath(p2p.getConfig().getId(),pluginFile.getId(),""),pluginFile.toString());
+              if(existReplication(file.getName())){
+                  
+                  // apagar arquivo
+                  
+              }else{
+                    PluginFile pluginFile =  new PluginFile();
+                    pluginFile.setId(file.getName());
+                    pluginFile.setName(file.getName());
+                    pluginFile.setPath(file.getPath());
+                    //list ids Verificar onde esse arquivo está caso já exista
+                    List<String> listIds = new ArrayList<String>();
+                    listIds.add(p2p.getConfig().getPlugin());
+
+                    pluginFile.setPluginId(listIds);
+                    pluginFile.setSize(file.getUsableSpace());
+                    //checkFilesReplication();
+                    zkService.createPersistentZNode(zkService.getPath().PREFIX_FILE.getFullPath(p2p.getConfig().getId(),pluginFile.getId(),""),pluginFile.toString());
+               }
                 
             }
         } catch (KeeperException ex) {
@@ -144,6 +167,30 @@ public class StorageService extends AbstractBioService {
         }
     }
 
+    /**
+     * Verifica a existência da replicação do arquivo na federação. Se a replicação estiver feita retona true.
+     * Fator de replicação igual a 2.
+     * return true se existir replicação.
+     */
+    private boolean existReplication(String fileName){
+        int cont=0;
+        for(Collection<String> collection : getFiles().values()){
+            for (Iterator<String> it = collection.iterator(); it.hasNext();) {
+                String fileNamePlugin = it.next();
+                if(fileName.equals(fileNamePlugin))
+                    cont++;
+            }
+        }
+        if(cont!=2)
+            return false;
+        
+        return true;
+    }
+    /**
+     * Cria map com endereço dos peers(plugins) e seus respectivos arquivos baseado nos dados do 
+     * zookeeper.
+     * @return map de endereço e lista de arquivos.
+     */
     public Map<String,List<String>> getFiles(){
         Map<String,List<String>> mapFiles = new HashMap<String, List<String>>();
         List<String> listFiles ;
@@ -177,8 +224,7 @@ public class StorageService extends AbstractBioService {
         try {
             for (Iterator<PluginInfo> it = getPeers().values().iterator(); it.hasNext();) {
                 PluginInfo plugin = it.next();
-               // mapFiles.put(plugin.getHost().getAddress(),zkService.getChildren(plugin.getPath_zk()+zkService.getPath().FILES.toString(), new UpdatePeerData(zkService, this)));
-                listFiles = zkService.getChildren(plugin.getPath_zk()+zkService.getPath().FILES.toString(), new UpdatePeerData(zkService, this));
+                listFiles = zkService.getChildren(plugin.getPath_zk()+zkService.getPath().FILES.toString(),null);
                 for(String checkfile : listFiles){
                   
                     String idfile=checkfile.substring(checkfile.indexOf(zkService.getPath().UNDERSCORE.toString())+1);
@@ -242,14 +288,14 @@ public class StorageService extends AbstractBioService {
      * @throws KeeperException
      * @throws InterruptedException
      */
-    public void transferFiles(List<NodeInfo> plugins, String path, int copies,List<String> idsPluginCopy) throws AvroRemoteException, KeeperException, InterruptedException{
+    public void transferFiles(List<NodeInfo> plugins, String fileName, int copies,List<String> idsPluginCopy) throws AvroRemoteException, KeeperException, InterruptedException{
         
         int aux=0;
         int flag=1;
         
         for (Iterator<NodeInfo> it = plugins.iterator(); it.hasNext();) {
                  NodeInfo node = it.next();         
-                    Put conexao = new Put(node.getAddress(),path,flag);   
+                    Put conexao = new Put(node.getAddress(),fileName,flag);   
                     try {
                         if(conexao.startSession()){
                             aux++;
@@ -258,10 +304,10 @@ public class StorageService extends AbstractBioService {
                                 for(String idPluginCopy : idsPluginCopy){
                                   ObjectMapper mapper = new ObjectMapper();
                                     try {
-                                        PluginFile file = mapper.readValue(zkService.getData(zkService.getPath().PREFIX_FILE.getFullPath(idPluginCopy,path,""), null),PluginFile.class);
+                                        PluginFile file = mapper.readValue(zkService.getData(zkService.getPath().PREFIX_FILE.getFullPath(idPluginCopy,fileName,""), null),PluginFile.class);
                                         file.setPluginId(idsPluginCopy);
-                                        if(zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(idPluginCopy, path,""), true))
-                                            zkService.setData(zkService.getPath().PREFIX_FILE.getFullPath(idPluginCopy, path,""), file.toString());
+                                        if(zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(idPluginCopy, fileName,""), true))
+                                            zkService.setData(zkService.getPath().PREFIX_FILE.getFullPath(idPluginCopy, fileName,""), file.toString());
                                         else 
                                             System.out.println("Não existe o nó!");
                                     } catch (IOException ex) {
@@ -316,6 +362,9 @@ public class StorageService extends AbstractBioService {
                         System.out.println("Plugin não encontrado!!");
                     //modificar o antepenúltimo valor para fator de replicação-1(MODIFICAR)
                     transferFiles(bestNode(nodesdisp), localFile.getPath(),fatoreplicacao,file.getPluginId());
+                    StringBuilder info = new StringBuilder(zkService.getData(zkService.getPath().STATUSWAITING.getFullPath(pluginId, "", ""), null));
+                    info.append("S");
+                    zkService.setData(zkService.getPath().STATUSWAITING.getFullPath(pluginId, "", ""), info.toString());
             }
         }
     }
@@ -359,16 +408,21 @@ public class StorageService extends AbstractBioService {
                     break;
                 case NodeDeleted:
                     if(eventType.getPath().contains(zkService.getPath().STATUS.toString())){
-                        String peerPath =  path.subSequence(path.indexOf(zkService.getPath().PREFIX_PEER.toString()), path.indexOf("/STATUS")).toString();
-                   try {
-                       failOverStorage(peerPath);
-                   } catch (AvroRemoteException ex) {
-                       Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-                   } catch (KeeperException ex) {
-                       Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-                   } catch (InterruptedException ex) {
-                       Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-                   }
+                        String peerId =  path.substring(path.indexOf(zkService.getPath().PREFIX_FILE.toString())+5, path.indexOf("/STATUS"));
+                        try {
+                            if(!zkService.getZNodeExist(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), false)){
+                                zkService.createPersistentZNode(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), "");
+                            }
+                            if(!zkService.getData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), null).contains("S")){
+                                failOverStorage(peerId);
+                            }
+                        } catch (AvroRemoteException ex) {
+                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (KeeperException ex) {
+                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                     }
                     break;
             }
