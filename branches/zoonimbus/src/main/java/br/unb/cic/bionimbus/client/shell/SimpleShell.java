@@ -33,7 +33,6 @@ public final class SimpleShell {
     private static final String PROMPT = "[@bionimbus]$ ";
     private static final Map<String, Command> commandMap = new HashMap<String, Command>();
     public static History history = new History(10);
-
     private RpcClient rpcClient;
 
     static {
@@ -59,7 +58,7 @@ public final class SimpleShell {
         commandMap.put(ListFiles.NAME, new ListFiles(this));
         commandMap.put(ListServices.NAME, new ListServices(this));
         commandMap.put(JobStart.NAME, new JobStart(this));
-        
+
         commandMap.put(JobCancel.NAME, new JobCancel(this));
         //PingCommand
         //GetFile
@@ -75,7 +74,7 @@ public final class SimpleShell {
     public void setRpcClient(RpcClient client) {
         this.rpcClient = client;
     }
-            
+
     public RpcClient getRpcClient() {
         return rpcClient;
     }
@@ -159,7 +158,8 @@ public final class SimpleShell {
     public Collection<Command> getCommands() {
         return Collections.unmodifiableCollection(commandMap.values());
     }
+
     public BioProto getProxy() throws IOException {
-       return rpcClient.getProxy();
+        return rpcClient.getProxy();
     }
 }

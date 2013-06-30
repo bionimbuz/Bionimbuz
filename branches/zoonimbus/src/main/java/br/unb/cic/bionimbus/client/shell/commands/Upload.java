@@ -24,6 +24,7 @@ public class Upload implements Command {
     private int replication = 2; //Variavel para designar o número de cópias para outros nodes Bionimbus
     private List<NodeInfo> pluginList;
     private List<NodeInfo> nodesdisp = new ArrayList<NodeInfo>();
+    //private List<NodeInfo> nodesdisp2 = Collections.synchronizedList(new ArrayList());
     private Double MAXCAPACITY = 0.9;
     private static int flag = 0;
 
@@ -48,6 +49,7 @@ public class Upload implements Command {
             System.out.println("\n Calculando Latencia.....");
             pluginList = shell.getRpcClient().getProxy().getPeersNode();
             shell.getRpcClient().getProxy().setFileInfo(info);
+            NodeInfo node2 = null;
             for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
                 NodeInfo plugin = it.next();
                 if ((long)(plugin.getFreesize()*MAXCAPACITY)>info.getSize()){
@@ -55,23 +57,29 @@ public class Upload implements Command {
                     nodesdisp.add(plugin);
                 }    
             }
-        
-        //Retorna a lista dos nos ordenados como melhores, passando a latência calculada 
-            nodesdisp = shell.getRpcClient().getProxy().callStorage(nodesdisp); 
-            
-            for (Iterator<NodeInfo> it = nodesdisp.iterator(); it.hasNext();) {
-                 NodeInfo node = it.next();
-                 Put conexao = new Put(node.getAddress(),path,flag);
+        //Retorna a lista dos nos ordenados como melhores, passando a latência calculada
+            nodesdisp = new ArrayList<NodeInfo>(shell.getRpcClient().getProxy().callStorage(nodesdisp)); 
+           
+            NodeInfo no=null;
+            Iterator<NodeInfo> it = nodesdisp.iterator();
+            while (it.hasNext() && no == null) {
+                 NodeInfo node = (NodeInfo)it.next();
+                 
+                 
+                 Put conexao = new Put(node.getAddress(),path,flag);                
                  if(conexao.startSession()){
-                       List<String> dest = new ArrayList<String>();
-                       dest.add(node.getPeerId());
-                       shell.getRpcClient().getProxy().fileSent(info,dest);
-                       nodesdisp.remove(node);
-                       shell.getRpcClient().getProxy().transferFile(nodesdisp,info.getName(),replication,dest);
-                       return "\n Upload Completed!!";
-                 }
+                       no = node;
+                }
              }
-         
+            if(no != null){
+                List<String> dest = new ArrayList<String>();
+                dest.add(no.getPeerId());
+                nodesdisp.remove(no);
+                
+                shell.getRpcClient().getProxy().fileSent(info,dest);
+                shell.getRpcClient().getProxy().transferFile(nodesdisp,info.getName(),replication,dest);
+                return "\n Upload Completed!!";
+            }
          }
          
         return "\n\n Erro no upload !!";
