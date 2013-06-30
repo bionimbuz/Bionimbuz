@@ -169,10 +169,6 @@ public class SchedService extends AbstractBioService implements Service, P2PList
                     //adiciona o job na lista de execução do servidor zookeeper
                     zkService.createPersistentZNode(task.getPluginTaskPathZk(), task.toString());
                     
-                    //verifica se o arquivo existe no plugin se não cria a solicitação de transfêrencia do arquivo
-                    if(!existFiles(task.getJobInfo().getInputs()))
-                        requestFile(task.getJobInfo().getInputs());
-                        
                     //retira o job da lista de jobs para escanolamento no zookeeper
                     zkService.delete(JOBS+PREFIX_JOB+task.getJobInfo().getId());
                     //retira o job da lista de jobs para escalonamento
@@ -482,6 +478,11 @@ public class SchedService extends AbstractBioService implements Service, P2PList
      * @param task 
      */
     private void executeTasks(PluginTask task) throws Exception{
+         //verifica se o arquivo existe no plugin se não cria a solicitação de transfêrencia do arquivo
+        if(!existFiles(task.getJobInfo().getInputs()))
+            requestFile(task.getJobInfo().getInputs());
+        
+        checkFilesPlugin();
         if(existFiles(task.getJobInfo().getInputs())){
             myLinuxPlugin.startTask(task,zkService);
         }else{
