@@ -381,7 +381,7 @@ public class StorageService extends AbstractBioService {
             info.setName(file.getName());
             info.setSize(file.length());           
             
-            pluginList = getNodeDisp(info.size);
+            pluginList = getNodeDisp(info.getSize());
             
             System.out.println("\n Calculando Latencia.....");
             for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
@@ -394,15 +394,16 @@ public class StorageService extends AbstractBioService {
             Iterator<NodeInfo> it = nodesdisp.iterator();
             while (it.hasNext() && filesreplicated != copies) {
                  NodeInfo node = (NodeInfo)it.next();
-                 if(node.getAddress().equals(address)){
+                 if(!(node.getAddress().equals(address))){
                     Put conexao = new Put(node.getAddress(),info.getName(),flag);                
                     if(conexao.startSession()){
                        filesreplicated++;
                        System.out.println("\n File Replicated !!");
+                       break;
                     }
                  }
             }
-            
+            System.out.println("\n\n saiu da replicacao");
          }     
     } 
     
