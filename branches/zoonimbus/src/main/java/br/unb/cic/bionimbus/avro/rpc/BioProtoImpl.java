@@ -14,6 +14,8 @@ import br.unb.cic.bionimbus.services.storage.StorageService;
 import com.google.inject.Inject;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -152,17 +154,15 @@ public class BioProtoImpl implements BioProto {
      * @throws AvroRemoteException 
      */
     @Override
-    public Void setFileInfo(FileInfo file) throws AvroRemoteException {
+    public void setFileInfo(FileInfo file) {
         PluginFile filePlugin= new PluginFile(file);
         //*Alterar depois caminho para o zookeeperservice
         //verificar se a pasta pending_save existe
-        filePlugin.setPath(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("",filePlugin.getId(),""));
-        zkService.createPersistentZNode(filePlugin.getPath(), filePlugin.toString());
-       return null;
+        storageService.setPendingFile(filePlugin);
     }
 
     @Override
-    public synchronized Void fileSent(FileInfo fileSucess, List<String> dest) throws AvroRemoteException {
+    public synchronized void fileSent(FileInfo fileSucess, List<String> dest){
         PluginFile file = new PluginFile(fileSucess);
         file.setPluginId(dest);
         file.setPath("/home/zoonimbus/NetBeansProjects/zoonimbus/data-folder/"+file.getName());
@@ -173,8 +173,6 @@ public class BioProtoImpl implements BioProto {
         } catch (InterruptedException ex) {
             Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        return null;
     }
     
     /**
@@ -187,17 +185,17 @@ public class BioProtoImpl implements BioProto {
      * @throws SftpException
      */
     
-    @Override
-        public synchronized Void transferFile(List<NodeInfo> plugins, String path, int copies,List<String> destprimary) throws AvroRemoteException{
-        try {
-            storageService.transferFiles(plugins, path, copies,destprimary);
-        } catch (KeeperException ex) {
-            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
+//    @Override
+//        public synchronized Void transferFile(List<NodeInfo> plugins, String path, int copies,List<String> destprimary) throws AvroRemoteException{
+//        try {
+//            storageService.transferFiles(plugins, path, copies,destprimary);
+//        } catch (KeeperException ex) {
+//            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (InterruptedException ex) {
+//            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        return null;
+//    }
 
     /**
      * Metodo irá chamar a storage service passando o nome do arquivo solicitado para download,
@@ -208,7 +206,7 @@ public class BioProtoImpl implements BioProto {
      * @throws AvroRemoteException
      */
     @Override
-        public String listFilesIp(String file) throws AvroRemoteException {
+    public String listFilesIp(String file) throws AvroRemoteException {
         
         String destino;    
             
@@ -216,5 +214,29 @@ public class BioProtoImpl implements BioProto {
         
         return destino;
     }
+
+    @Override
+    public void transferFile(List<NodeInfo> plugins, String path, int copies, List<String> destprimary) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void notifyReply(String filename, String address) {
+        try {
+            storageService.replication(filename,address);
+        } catch (IOException ex) {
+            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (JSchException ex) {
+            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SftpException ex) {
+            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    public void verifyFile(String filename,String address) {
+        storageService.checkFiles(); 
+    }
+
 
 }
