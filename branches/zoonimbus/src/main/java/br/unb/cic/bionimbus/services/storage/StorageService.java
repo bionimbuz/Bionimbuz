@@ -298,7 +298,6 @@ public class StorageService extends AbstractBioService {
                cloudMap.get(node.getPeerId()).setLatency(node.getLatency());
                cloudMap.get(node.getPeerId()).setFsFreeSize(node.getFreesize());
             }
-        cloudMap.remove(p2p.getConfig().getId());
         StoragePolicy policy = new StoragePolicy();
         plugins = policy.calcBestCost(zkService,cloudMap.values());
 
