@@ -100,7 +100,8 @@ public class StorageService extends AbstractBioService {
         checkFiles();
         checkPeers();
         try {
-            checkReplicationFiles();
+            if(getPeers().size()!=1)
+                checkReplicationFiles();
         } catch (Exception ex) {
             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -197,6 +198,7 @@ public class StorageService extends AbstractBioService {
                        rpcClient.close();
                    }
                    else{
+                       //
                        replication(fileNamePlugin, ipPluginFile);
                    }
                 }
@@ -283,7 +285,7 @@ public class StorageService extends AbstractBioService {
     }
     
     /**
-     * Método que recebe uma list com todos os peers da federação e seta o custo de armazenamento em casa plugin
+     * Método que recebe uma list com todos os peers da federação e seta o custo de armazenamento em cada plugin
      * @param list - Lista com todos os plugins da federação
      * @return - Lista com todos os plugins com seus custos de armazenamento inseridos
      */
@@ -292,8 +294,11 @@ public class StorageService extends AbstractBioService {
         List<NodeInfo> plugins;
         cloudMap = getPeers();
             for(NodeInfo node : list){
+                System.out.println(""+cloudMap.get(node.getPeerId()));
                cloudMap.get(node.getPeerId()).setLatency(node.getLatency());
+               cloudMap.get(node.getPeerId()).setFsFreeSize(node.getFreesize());
             }
+        cloudMap.remove(p2p.getConfig().getId());
         StoragePolicy policy = new StoragePolicy();
         plugins = policy.calcBestCost(zkService,cloudMap.values());
 
@@ -353,10 +358,10 @@ public class StorageService extends AbstractBioService {
     
     public void replication (String filename,String address) throws IOException, JSchException, SftpException{
         
-        List<NodeInfo> nodesdisp = new ArrayList<NodeInfo>();
+
         List<NodeInfo> pluginList = new ArrayList<NodeInfo>();
         List<String> idsPluginsFile = new ArrayList<String>();
-        File file = new File(filename);
+        File file = new File("/home/zoonimbus/NetBeansProjects/zoonimbus/data-folder/"+filename);
         
         int flag =1;
         int filesreplicated = 1;
@@ -365,23 +370,30 @@ public class StorageService extends AbstractBioService {
             FileInfo info = new FileInfo();            
             info.setFileId(file.getName());
             info.setName(file.getName());
-            info.setSize(file.length());           
+            info.setSize(file.length());
+            
             PluginFile pluginFile= new PluginFile(info);
+            
             pluginList = getNodeDisp(info.getSize());
+            Iterator<NodeInfo> it= pluginList.iterator();
+            NodeInfo no=null;
+            while(it.hasNext()){
+                NodeInfo node =(NodeInfo)it.next();
+                if(node.getAddress().equals(address)){
+                    no=node;
+                }
+            }
+            if(no!=null)
+                pluginList.remove(no);
             idsPluginsFile.add(p2p.getConfig().getId());
 //            pluginFile.setPluginId(idsPluginsFile);
-            System.out.println("\n Calculando Latencia.....");
-            for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
-                NodeInfo plugin = it.next();
-                   plugin.setLatency(Ping.calculo(plugin.getAddress()));
-                   nodesdisp.add(plugin);
-                }    
-            nodesdisp = new ArrayList<NodeInfo>(bestNode(nodesdisp));
-            Iterator<NodeInfo> it = nodesdisp.iterator();
-            while (it.hasNext() && filesreplicated != REPLICATIONFACTOR) {
-                 NodeInfo node = (NodeInfo)it.next();
+            pluginList = new ArrayList<NodeInfo>(bestNode(pluginList));
+            pluginList.remove(no);
+            Iterator<NodeInfo> bt = pluginList.iterator();
+            while (bt.hasNext() && filesreplicated != REPLICATIONFACTOR) {
+                 NodeInfo node = (NodeInfo)bt.next();
                  if(!(node.getAddress().equals(address))){
-                    Put conexao = new Put(node.getAddress(),info.getName(),flag);                
+                    Put conexao = new Put(node.getAddress(),dataFolder+"/"+info.getName(),flag);                
                     if(conexao.startSession()){
                        idsPluginsFile.add(node.getPeerId());
                        pluginFile.setPluginId(idsPluginsFile);
@@ -409,7 +421,7 @@ public class StorageService extends AbstractBioService {
             System.out.println("\n\n saiu da replicacao");
          }     
     } 
-    
+    //nao calcula a latencia de si mesmo ***/*//
     public List<NodeInfo> getNodeDisp(long lengthFile){
         List<NodeInfo> nodesdisp = new ArrayList<NodeInfo>();
         Collection<PluginInfo> cloudPlugin=getPeers().values();
@@ -421,10 +433,9 @@ public class StorageService extends AbstractBioService {
                                 node.setLatency(Ping.calculo(plugin.getHost().getAddress()));
                                 node.setAddress(plugin.getHost().getAddress());
                                 node.setFreesize(plugin.getFsFreeSize());
-                                node.setPeerId(p2p.getConfig().getPlugin());
+                                node.setPeerId(plugin.getId());
                                 nodesdisp.add(node);
                               }    
-                              plugin.setLatency(Ping.calculo(plugin.getHost().getAddress()));
                         } catch (IOException ex) {
                             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
                         }
