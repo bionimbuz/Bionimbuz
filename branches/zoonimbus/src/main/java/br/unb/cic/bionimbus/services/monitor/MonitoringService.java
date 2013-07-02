@@ -3,13 +3,16 @@ package br.unb.cic.bionimbus.services.monitor;
 import br.unb.cic.bionimbus.p2p.P2PEvent;
 import br.unb.cic.bionimbus.p2p.P2PListener;
 import br.unb.cic.bionimbus.p2p.P2PService;
+import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.Service;
 import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
+import br.unb.cic.bionimbus.services.storage.StorageService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,6 +24,9 @@ import java.util.logging.Logger;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 
 @Singleton
 public class MonitoringService extends AbstractBioService implements Service, P2PListener, Runnable {
@@ -57,6 +63,7 @@ public class MonitoringService extends AbstractBioService implements Service, P2
     public void start(P2PService p2p) {
         try {
             checkPeers();
+//            checkPendingSave();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -85,19 +92,25 @@ public class MonitoringService extends AbstractBioService implements Service, P2
             switch(eventType.getType()){
 
                 case NodeCreated:
+                  
                     System.out.print(path + "= NodeCreated");
                     break;
                 case NodeChildrenChanged:
-                        System.out.print(path + "= NodeChildrenChanged");
+//                    if(eventType.getPath().contains(zkService.getPath().PENDING_SAVE.toString())){
+//                       String fileId =  path.substring(path.indexOf(zkService.getPath().PREFIX_PENDING_FILE.toString())+13);
+//                       ObjectMapper mapper = new ObjectMapper();
+//                       PluginFile file = mapper.readValue(zkService.getData(zkService.getPath().PREFIX_FILE.getFullPath("", fileId, ""), null), PluginFile.class);
+//                       if (((Long)file.getSize())==null){
+//                           checkPendingSave();
+//                       }
+//                    }
+                    System.out.print(path + "= NodeChildrenChanged");
                     break;
                 case NodeDeleted:
                     String peerPath =  path.subSequence(0, path.indexOf("STATUS")-1).toString();
-                    
                     if(path.contains(STATUSWAITING)){
                         deletePeer(peerPath);
-
                     }
-                    
                     break;
             }
         } catch (KeeperException ex) {
@@ -115,7 +128,7 @@ public class MonitoringService extends AbstractBioService implements Service, P2
      */
     private void checkPeersStatus(){
         try {
-            List<String> listPeers = zkService.getChildren(ROOT_PEER, null);
+            List<String> listPeers = zkService.getChildren(zkService.getPath().ROOT.toString(), null);
             for (String peerPath : listPeers) {
 
                 if(zkService.getZNodeExist(ROOT_PEER+SEPARATOR+peerPath+STATUSWAITING, false)){
@@ -132,6 +145,26 @@ public class MonitoringService extends AbstractBioService implements Service, P2
             Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    /**
+     * 
+    private void checkPendingSave(){
+        try {
+            List<String> listFiles = zkService.getChildren(zkService.getPath().PENDING_SAVE.toString(), null);
+            for (String fileId : listFiles){
+                if(zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath("", fileId, ""), false)){
+                    //Começar aqui amanha verificar se 2 arquivos na rede
+                   // zkService.getData(JOBS, )
+                    
+                }
+            }
+        } catch (KeeperException ex) {
+            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    } */
+    
     /**
      * Incia o processo de recuperação dos peers caso ainda não tenho sido iniciado e adiciona um watcher nos peer on-lines.
      */
@@ -167,22 +200,6 @@ public class MonitoringService extends AbstractBioService implements Service, P2
     }
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
     @Override
     public void onEvent(P2PEvent event) {
 //        if (!event.getType().equals(P2PEventType.MESSAGE))

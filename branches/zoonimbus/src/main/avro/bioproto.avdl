@@ -234,7 +234,7 @@ protocol BioProto {
   }
 
    //Set information file that will be uploaded
-   void setFileInfo(FileInfo file);
+   void setFileInfo(FileInfo file) oneway;
 
   //Get peers from server
   array<NodeInfo> getPeersNode();
@@ -243,11 +243,15 @@ protocol BioProto {
   // void sendPlugins(array<NodeInfo> plugins);
 
   //Transferencia de arquivos entre os nodes bionimbus
-    void transferFile(array<NodeInfo> plugins,string path, int copies,array<string> destprimary);  
+    void transferFile(array<NodeInfo> plugins,string path, int copies,array<string> destprimary) oneway; 
 
   //Mensagem de arquivo enviado com sucesso do cliente pro servidor
-    void fileSent(FileInfo fileSucess,array<string> dest);
+    void fileSent(FileInfo fileSucess,array<string> dest) oneway;
 
   //Chamar Storage Service
     array<NodeInfo> callStorage(array<NodeInfo> list);
+
+   void notifyReply(string filename,string address) oneway;
+
+   void verifyFile(string filename,string address) oneway;
 }

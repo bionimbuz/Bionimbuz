@@ -76,7 +76,7 @@ public class Put {
                 session.disconnect();
             }
             else{
-                sftpChannel.put(dest+path, dest);
+                sftpChannel.put(path, dest);
                 sftpChannel.exit();
                 session.disconnect();
             }
