@@ -28,7 +28,7 @@ public class SchedTester {
     private PluginInfo generatePlugin(String id, int numCores, int latency, int numOccupied) {
         PluginInfo p = new PluginInfo();
         p.setId(id);
-        p.setLatency(latency);
+        p.setLatency((double)latency);
         p.setNumCores(numCores);
         p.setNumOccupied(numOccupied);
         ArrayList<PluginService> services = new ArrayList<PluginService>();
