@@ -21,7 +21,6 @@ public class Upload implements Command {
 
     public static final String NAME = "upload";
     private final SimpleShell shell;
-    private int replication = 2; //Variavel para designar o número de cópias para outros nodes Bionimbus
     private List<NodeInfo> pluginList;
     private List<NodeInfo> nodesdisp = new ArrayList<NodeInfo>();
     private Double MAXCAPACITY = 0.9;

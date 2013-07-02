@@ -14,7 +14,6 @@ import br.unb.cic.bionimbus.services.storage.StorageService;
 import com.google.inject.Inject;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
@@ -153,6 +152,7 @@ public class BioProtoImpl implements BioProto {
      * @return
      * @throws AvroRemoteException 
      */
+    
     @Override
     public void setFileInfo(FileInfo file) {
         PluginFile filePlugin= new PluginFile(file);
@@ -172,6 +172,8 @@ public class BioProtoImpl implements BioProto {
             Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
             Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -185,6 +187,7 @@ public class BioProtoImpl implements BioProto {
      * @throws SftpException
      */
     
+
 //    @Override
 //        public synchronized Void transferFile(List<NodeInfo> plugins, String path, int copies,List<String> destprimary) throws AvroRemoteException{
 //        try {
@@ -197,6 +200,7 @@ public class BioProtoImpl implements BioProto {
 //        return null;
 //    }
 
+
     /**
      * Metodo irá chamar a storage service passando o nome do arquivo solicitado para download,
      * caso a storage service encontre o arquivo irá retornar o Ip de onde aquele arquivo se encontra,
@@ -206,7 +210,7 @@ public class BioProtoImpl implements BioProto {
      * @throws AvroRemoteException
      */
     @Override
-    public String listFilesIp(String file) throws AvroRemoteException {
+    public String listFilesIp(String file){
         
         String destino;    
             
@@ -237,6 +241,5 @@ public class BioProtoImpl implements BioProto {
     public void verifyFile(String filename,String address) {
         storageService.checkFiles(); 
     }
-
 
 }
