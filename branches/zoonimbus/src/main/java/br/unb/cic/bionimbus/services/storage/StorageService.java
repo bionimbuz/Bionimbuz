@@ -59,6 +59,7 @@ public class StorageService extends AbstractBioService {
     private Double MAXCAPACITY = 0.9;
     private int PORT =9999;
     private int REPLICATIONFACTOR = 2;
+    List<String> listFile = new ArrayList<String>();
     @Inject
     public StorageService(final ZooKeeperService service, MetricRegistry metricRegistry/*, DiscoveryService disc*/) {
 
@@ -77,7 +78,30 @@ public class StorageService extends AbstractBioService {
         
         System.out.println("Running StorageService...");
         System.out.println("Executando loop.");
-
+        for(PluginInfo plugin : getPeers().values()){
+            try {
+                for(String file : zkService.getChildren(plugin.getPath_zk()+zkService.getPath().FILES.toString(), new UpdatePeerData(zkService, this))){
+                    if(!existReplication(file.substring(5,file.length())))
+                        replication(file.substring(5,file.length()),plugin.getHost().getAddress());
+                }
+            } catch (KeeperException ex) {
+                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (JSchException ex) {
+                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SftpException ex) {
+                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+         }
+        
+        try {
+            checkReplicationFiles();
+        } catch (Exception ex) {
+            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
