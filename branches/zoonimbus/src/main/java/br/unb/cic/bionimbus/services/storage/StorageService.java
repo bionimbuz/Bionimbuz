@@ -535,9 +535,9 @@ public class StorageService extends AbstractBioService {
             children = zkService.getChildren(zkService.getPath().FILES.getFullPath(pluginId,"",""), null);
             for (String fileId : children) {
                 ObjectMapper mapper = new ObjectMapper();
-                PluginFile file = mapper.readValue(zkService.getData(zkService.getPath().PREFIX_FILE.getFullPath(pluginId, fileId, ""), null), PluginFile.class);
+                PluginFile file = mapper.readValue(zkService.getData(zkService.getPath().PREFIX_FILE.getFullPath(pluginId, fileId.substring(5,fileId.length()), ""), null), PluginFile.class);
                     
-                if(zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(pluginId, fileId, ""), false)){ 
+                if(zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(pluginId, fileId.substring(5,fileId.length()), ""), false)){ 
                     filesPeerSelected.put(file.getId(), file);
                 }
             }
