@@ -50,7 +50,7 @@ public class StorageService extends AbstractBioService {
             .newScheduledThreadPool(1, new BasicThreadFactory.Builder()
             .namingPattern("StorageService-%d").build());
     private Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
-    //private Map<String, PluginFile> savedFiles = new ConcurrentHashMap<String, PluginFile>();
+    private Map<String, PluginFile> savedFiles = new ConcurrentHashMap<String, PluginFile>();
     private P2PService p2p = null;
     private File dataFolder = new File("data-folder"); //TODO: remover hard-coded e colocar em node.yaml e injetar em StorageService
   //  private DiscoveryService discoveryService;
@@ -76,30 +76,30 @@ public class StorageService extends AbstractBioService {
         
         System.out.println("Running StorageService...");
         System.out.println("Executando loop.");
-        for(PluginInfo plugin : getPeers().values()){
-            try {
-                for(String file : zkService.getChildren(plugin.getPath_zk()+zkService.getPath().FILES.toString(), new UpdatePeerData(zkService, this))){
-                    if(!existReplication(file.substring(5,file.length())))
-                        replication(file.substring(5,file.length()),plugin.getHost().getAddress());
-                }
-            } catch (KeeperException ex) {
-                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
-                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (JSchException ex) {
-                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (SftpException ex) {
-                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-            }
-         }
-        
-        try {
-            checkReplicationFiles();
-        } catch (Exception ex) {
-            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        for(PluginInfo plugin : getPeers().values()){
+//            try {
+//                for(String file : zkService.getChildren(plugin.getPath_zk()+zkService.getPath().FILES.toString(), new UpdatePeerData(zkService, this))){
+//                    if(!existReplication(file.substring(5,file.length())))
+//                        replication(file.substring(5,file.length()),plugin.getHost().getAddress());
+//                }
+//            } catch (KeeperException ex) {
+//                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+//            } catch (InterruptedException ex) {
+//                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+//            } catch (IOException ex) {
+//                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+//            } catch (JSchException ex) {
+//                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+//            } catch (SftpException ex) {
+//                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//         }
+//        
+//        try {
+//            checkReplicationFiles();
+//        } catch (Exception ex) {
+//            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+//        }
     }
 
     @Override
@@ -172,14 +172,17 @@ public class StorageService extends AbstractBioService {
             }
             zkService.getChildren(zkService.getPath().FILES.getFullPath(p2p.getConfig().getId(),"",""), new UpdatePeerData(zkService, this));
             for(File file : dataFolder.listFiles()){
-              if(existReplication(file.getName())){
-                   if(zkService.getZNodeExist(zkService.getPath().FILES.getFullPath(p2p.getConfig().getId(),file.getName(),""), true)){
-                       zkService.delete(zkService.getPath().FILES.getFullPath(p2p.getConfig().getId(),file.getName(),""));
-                       if(file.delete()){
-                            System.out.println("Arquivo Apagado!");
-                        }
-                   }
-              }else{
+                if(!savedFiles.containsKey(file.getName())){
+                    
+                    //realizar verificação de replicação apenas quando necessário, adotar critério para excluir arquivo
+//              if(existReplication(file.getName())){
+//                   if(zkService.getZNodeExist(zkService.getPath().FILES.getFullPath(p2p.getConfig().getId(),file.getName(),""), true)){
+//                       zkService.delete(zkService.getPath().FILES.getFullPath(p2p.getConfig().getId(),file.getName(),""));
+//                       if(file.delete()){
+//                            System.out.println("Arquivo Apagado!");
+//                        }
+//                   }
+//              }else{
                     PluginFile pluginFile =  new PluginFile();
                     pluginFile.setId(file.getName());
                     pluginFile.setName(file.getName());
@@ -192,7 +195,10 @@ public class StorageService extends AbstractBioService {
                     pluginFile.setSize(file.length());
                     zkService.createPersistentZNode(zkService.getPath().PREFIX_FILE.getFullPath(p2p.getConfig().getId(),pluginFile.getId(),""),pluginFile.toString());
                     zkService.getData(zkService.getPath().PREFIX_FILE.getFullPath(p2p.getConfig().getId(),pluginFile.getId(),""), new UpdatePeerData(zkService, this));
-              }
+                    
+                    savedFiles.put(pluginFile.getName(), pluginFile);
+//              }
+                }
                 
             }
         } catch (KeeperException ex) {
