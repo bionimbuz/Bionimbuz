@@ -20,6 +20,8 @@ public class ServiceManager {
     private final RpcServer rpcServer;
     
     private static final String ROOT_PEER = "/peers";
+    private static final String LATENCY = "/latency";
+
     private static final String SEPARATOR = "/";
     private static final String PEERS = ROOT_PEER+SEPARATOR+"peer_";
     private static final String STATUS = "STATUS";
@@ -49,9 +51,10 @@ public class ServiceManager {
     public void createZnodeZK(String id) throws IOException, InterruptedException, KeeperException {
         if (zkService.getStatus() == ZooKeeperService.Status.CONNECTED) {
            
-            //inves de criar direto verifica se existe senão cria? Breno
             zkService.createPersistentZNode(ROOT_PEER, null);
-                
+            
+            zkService.createPersistentZNode(LATENCY, null);
+            
            //criando zNode persistente para cada novo peer
            zkService.createPersistentZNode(PEERS+ id, null);
           
@@ -72,10 +75,6 @@ public class ServiceManager {
             connectZK(p2p.getConfig().getZkHosts());
             createZnodeZK(p2p.getConfig().getId());
             for (Service service : services) {
-                //perguntar pro edward pq é separado a chamada do storage
-                if (service instanceof StorageService) {
-                    ((StorageService) service).run();
-                }
                 service.start(p2p);
             }
 

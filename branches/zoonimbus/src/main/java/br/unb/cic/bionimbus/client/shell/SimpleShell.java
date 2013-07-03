@@ -7,20 +7,7 @@ import java.util.*;
 
 import br.unb.cic.bionimbus.avro.gen.BioProto;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
-import br.unb.cic.bionimbus.client.shell.commands.Connect;
-import br.unb.cic.bionimbus.client.shell.commands.DateTime;
-import br.unb.cic.bionimbus.client.shell.commands.Download;
-import br.unb.cic.bionimbus.client.shell.commands.Echo;
-import br.unb.cic.bionimbus.client.shell.commands.Help;
-import br.unb.cic.bionimbus.client.shell.commands.History;
-import br.unb.cic.bionimbus.client.shell.commands.JobCancel;
-import br.unb.cic.bionimbus.client.shell.commands.JobStart;
-import br.unb.cic.bionimbus.client.shell.commands.ListCommands;
-import br.unb.cic.bionimbus.client.shell.commands.ListFiles;
-import br.unb.cic.bionimbus.client.shell.commands.ListServices;
-import br.unb.cic.bionimbus.client.shell.commands.Quit;
-import br.unb.cic.bionimbus.client.shell.commands.ScriptRunner;
-import br.unb.cic.bionimbus.client.shell.commands.Upload;
+import br.unb.cic.bionimbus.client.shell.commands.*;
 import br.unb.cic.bionimbus.utils.Pair;
 
 /**
@@ -57,6 +44,8 @@ public final class SimpleShell {
         commandMap.put(Connect.NAME, new Connect(this));
         commandMap.put(ListFiles.NAME, new ListFiles(this));
         commandMap.put(ListServices.NAME, new ListServices(this));
+        commandMap.put(ListPeersCommand.NAME, new ListServices(this));
+
         commandMap.put(JobStart.NAME, new JobStart(this));
 
         commandMap.put(JobCancel.NAME, new JobCancel(this));

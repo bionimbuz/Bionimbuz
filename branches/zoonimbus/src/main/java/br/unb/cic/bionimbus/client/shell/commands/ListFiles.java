@@ -22,7 +22,7 @@ public class ListFiles implements Command {
         }
         BioProto proxy = shell.getProxy();
        
-       return Joiner.on("\n").join(proxy.listFiles());
+       return Joiner.on("\n").join(proxy.listFilesName());
 
 /*
         }

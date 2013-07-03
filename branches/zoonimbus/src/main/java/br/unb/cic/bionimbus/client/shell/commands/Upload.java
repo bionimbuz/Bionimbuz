@@ -45,6 +45,7 @@ public class Upload implements Command {
             info.setName(file.getName());
             info.setSize(file.length());
             System.out.println("\n Calculando Latencia.....");
+            
             pluginList = shell.getRpcClient().getProxy().getPeersNode();
             shell.getRpcClient().getProxy().setFileInfo(info);
             for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {

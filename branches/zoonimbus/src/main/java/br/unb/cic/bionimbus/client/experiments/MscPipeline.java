@@ -18,44 +18,44 @@ public class MscPipeline implements Pipeline {
 
     public MscPipeline(PluginFile file) {
         input = file;
-        outputFiles.add(input.getPath() + "-align.sam");
-        outputFiles.add(input.getPath() + "-align.bed");
-        outputFiles.add(input.getPath() + "-interv.out");
-        outputFiles.add(input.getPath() + "-coverage.out");
+        outputFiles.add(input.getName() + "-align.sam");
+        outputFiles.add(input.getName() + "-align.bed");
+        outputFiles.add(input.getName() + "-interv.out");
+        outputFiles.add(input.getName() + "-coverage.out");
 
         // bowtie
         JobInfo job = new JobInfo();
-        job.setArgs("%I1 %I2 %O1");
-        job.setId(null);
+        job.setArgs("%I1%I2%O1");
+//        job.setId(null);
         job.setServiceId(1111);
         job.addInput(input.getId(), input.getSize());
         // AQUI VOCE TEM QUE COLOCAR O ID DO ARQUIVO s1.fa
-        job.addInput("7fa0a4ec-5776-492e-9d92-f8036eba43f3", new Long(114503237));
+        job.addInput("s1.fa", new Long(114503237));
         job.addOutput(outputFiles.get(0));
         jobs.add(job);
 
         // sam2bed
         job = new JobInfo();
-        job.setArgs("%I1 %O1");
-        job.setId(null);
+        job.setArgs("%I1%O1");
+//        job.setId(null);
         job.setServiceId(1112);
         job.addOutput(outputFiles.get(1));
         jobs.add(job);
 
         // genome2interval
         job = new JobInfo();
-        job.setArgs("%I1 10000 %O1");
-        job.setId(null);
+        job.setArgs("%I110000%O1");
+//        job.setId(null);
         job.setServiceId(1113);
         // AQUI VOCE TEM QUE COLOCAR O ID DO ARQUIVO human.genome
-        job.addInput("5abb7a9d-5398-49a2-9821-6352ebe7defc", new Long(365));
+        job.addInput("human.hg19.genome", new Long(365));
         job.addOutput(outputFiles.get(2));
         jobs.add(job);
 
         // coverageBed
         job = new JobInfo();
-        job.setArgs("%I1 %I2 %O1");
-        job.setId(null);
+        job.setArgs("%I1%I2%O1");
+//        job.setId(null);
         job.setServiceId(1114);
         job.addOutput(outputFiles.get(3));
         jobs.add(job);

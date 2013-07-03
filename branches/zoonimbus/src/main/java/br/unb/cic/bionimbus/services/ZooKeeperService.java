@@ -42,7 +42,7 @@ public class ZooKeeperService {
         
         ROOT("/"), PREFIX_PEER("/peer_"), PEERS("/peers"), FILES("/files"),PENDING_SAVE("/pending_save"),PREFIX_PENDING_FILE("/pending_file_"),
         JOBS("/jobs"),PREFIX_FILE("/file_"),STATUS("/STATUS"),STATUSWAITING("/STATUSWAITING"),SCHED("/sched"),
-        SIZE_JOBS("/size_jobs"),TASKS("/tasks"), PREFIX_TASK("/task_"), UNDERSCORE("_");
+        SIZE_JOBS("/size_jobs"),TASKS("/tasks"), PREFIX_TASK("/task_"),PREFIX_JOB("/job_"), UNDERSCORE("_");
         
         private final String value;
         
@@ -63,6 +63,7 @@ public class ZooKeeperService {
                 case PENDING_SAVE: return "" +PENDING_SAVE;
                 case PREFIX_PENDING_FILE: return ""+PENDING_SAVE+PREFIX_PENDING_FILE+fileid;
                 case JOBS: return ""+JOBS;   
+                case PREFIX_JOB: return ""+JOBS+PREFIX_JOB+taskid;
                 case PEERS:  return "" + PEERS;
                 case PREFIX_PEER: return ""+PEERS+PREFIX_PEER+pluginid;
                 case STATUS: return ""+PEERS+PREFIX_PEER+pluginid+STATUS;

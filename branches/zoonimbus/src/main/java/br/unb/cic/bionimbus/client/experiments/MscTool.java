@@ -1,66 +1,49 @@
 package br.unb.cic.bionimbus.client.experiments;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import br.unb.cic.bionimbus.client.FileInfo;
+import br.unb.cic.bionimbus.avro.gen.FileInfo;
+import br.unb.cic.bionimbus.avro.gen.NodeInfo;
+import br.unb.cic.bionimbus.avro.gen.Pair;
+import br.unb.cic.bionimbus.avro.rpc.AvroClient;
+import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.client.JobInfo;
-import br.unb.cic.bionimbus.client.shell.commands.SyncCommunication;
-import br.unb.cic.bionimbus.config.BioNimbusConfig;
-import br.unb.cic.bionimbus.config.BioNimbusConfigLoader;
 import br.unb.cic.bionimbus.p2p.P2PMessageType;
-import br.unb.cic.bionimbus.p2p.P2PService;
 import br.unb.cic.bionimbus.p2p.messages.JobReqMessage;
 import br.unb.cic.bionimbus.p2p.messages.JobRespMessage;
 import br.unb.cic.bionimbus.p2p.messages.ListReqMessage;
 import br.unb.cic.bionimbus.p2p.messages.ListRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.StoreReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.StoreRespMessage;
 import br.unb.cic.bionimbus.plugin.PluginFile;
-import br.unb.cic.bionimbus.plugin.PluginInfo;
+import br.unb.cic.bionimbus.services.Service;
+import br.unb.cic.bionimbus.services.storage.Ping;
+import br.unb.cic.bionimbus.utils.Put;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MscTool {
 
     private static final Logger LOG = LoggerFactory.getLogger(MscTool.class);
 
-    private P2PService p2p;
-
-    private SyncCommunication communication;
-
-    private void initCommunication() throws IOException, InterruptedException {
-        String configFile = System.getProperty("config.file", "conf/client.json");
-        BioNimbusConfig config = BioNimbusConfigLoader.loadHostConfig(configFile);
-
-        this.p2p = new P2PService(config);
-        this.p2p.start();
-        while (p2p.getPeers().isEmpty())
-            ;
-
-        LOG.info("client is connected.");
-        //TimeUnit.SECONDS.sleep(10);
-        this.communication = new SyncCommunication(p2p);
-    }
+    RpcClient rpcClient = new AvroClient("http", "localhost", 9999);
+//    private P2PService p2p;
+//
+//    private SyncCommunication communication;
 
     private List<String> readFileNames() throws IOException {
         ArrayList<String> list = new ArrayList<String>();
-        BufferedReader br = new BufferedReader(new FileReader("inputfiles.txt"));
+        BufferedReader br = new BufferedReader(new FileReader("/home/zoonimbus/zoonimbusProject/data-folder/inputfiles.txt"));
         String line;
         while ((line = br.readLine()) != null)
             list.add(line);
         return list;
     }
 
-    private void uploadFile(String name) throws IOException, InterruptedException {
+    private void uploadFile(String name) throws IOException, InterruptedException, Exception{
         File file = new File(name);
         FileInfo info = new FileInfo();
         info.setName(file.getName());
@@ -68,17 +51,50 @@ public class MscTool {
 
         LOG.info("uploading " + name + ": " + file.length() + " bytes");
 
-        communication.sendReq(new StoreReqMessage(p2p.getPeerNode(), info, ""), P2PMessageType.STORERESP);
-        StoreRespMessage resp = (StoreRespMessage) communication.getResp();
-        PluginInfo pluginInfo = resp.getPluginInfo();
+//        rpcClient.getProxy().
+//        communication.sendReq(new StoreReqMessage(p2p.getPeerNode(), info, ""), P2PMessageType.STORERESP);
+//        StoreRespMessage resp = (StoreRespMessage) communication.getResp();
+//        PluginInfo pluginInfo = resp.getPluginInfo();
+//
+//        LOG.info("uploading to plugin " + pluginInfo.getId() + " at " + pluginInfo.getHost().getAddress());
+//        p2p.sendFile(pluginInfo.getHost(), resp.getFileInfo().getName());
+        List<NodeInfo> nodesdisp = new ArrayList<NodeInfo>();
 
-        LOG.info("uploading to plugin " + pluginInfo.getId() + " at " + pluginInfo.getHost().getAddress());
-        p2p.sendFile(pluginInfo.getHost(), resp.getFileInfo().getName());
+        List<NodeInfo> pluginList = rpcClient.getProxy().getPeersNode();
+        rpcClient.getProxy().setFileInfo(info);
+        for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
+            NodeInfo plugin = it.next();
+            Float prioridade = plugin.getFreesize()*new Float("0,9");
+            if (prioridade>info.getSize()){
+                plugin.setLatency(Ping.calculo(plugin.getAddress()));
+                nodesdisp.add(plugin);
+            }    
+        }
+        //Retorna a lista dos nos ordenados como melhores, passando a latência calculada
+        nodesdisp = new ArrayList<NodeInfo>(rpcClient.getProxy().callStorage(nodesdisp)); 
+
+        NodeInfo no=null;
+        Iterator<NodeInfo> it = nodesdisp.iterator();
+        while (it.hasNext() && no == null) {
+                NodeInfo node = (NodeInfo)it.next();
+
+            Put conexao = new Put(node.getAddress(),file.getPath(),0);                
+                if(conexao.startSession()){
+                    no = node;
+                }
+            }
+        if(no != null){
+            List<String> dest = new ArrayList<String>();
+            dest.add(no.getPeerId());
+            nodesdisp.remove(no);
+
+            rpcClient.getProxy().fileSent(info,dest);
+            rpcClient.getProxy().transferFile(nodesdisp,info.getName(),2,dest);
+        }
     }
 
-    public void uploadFiles() throws IOException, InterruptedException {
+    public void uploadFiles() throws IOException, InterruptedException,Exception {
         List<String> fileNames = readFileNames();
-        initCommunication();
         for (String name : fileNames) {
             uploadFile(name);
         }
@@ -86,7 +102,7 @@ public class MscTool {
 
     private PluginFile getPluginFile(String file, Collection<PluginFile> cloudFiles) throws FileNotFoundException {
         for (PluginFile pluginFile : cloudFiles)
-            if (pluginFile.getPath().equals(file))
+            if (pluginFile.getName().equals(file))
                 return pluginFile;
         throw new FileNotFoundException(file);
     }
@@ -102,7 +118,7 @@ public class MscTool {
     }
 
     public void runJobs() throws IOException, InterruptedException {
-        initCommunication();
+        
         List<Pipeline> list = getPipelines();
         List<Pipeline> sending = new ArrayList<Pipeline>(list);
 
@@ -136,7 +152,7 @@ public class MscTool {
                 if (file == null)
                     continue;
                 for (PluginFile pluginFile : files) {
-                    if (!pluginFile.getPath().equals(file))
+                    if (!pluginFile.getName().equals(file))
                         continue;
                     JobInfo job = pipeline.nextJob(pluginFile);
                     if (job != null) {
@@ -156,16 +172,47 @@ public class MscTool {
         LOG.info("test concluded!");
     }
 
-    private Collection<PluginFile> listCloudFiles() throws InterruptedException {
-        communication.sendReq(new ListReqMessage(p2p.getPeerNode()), P2PMessageType.LISTRESP);
-        ListRespMessage listResp = (ListRespMessage) communication.getResp();
-        return listResp.values();
+    private Collection<PluginFile> listCloudFiles() throws InterruptedException ,IOException{
+//        communication.sendReq(new ListReqMessage(p2p.getPeerNode()), P2PMessageType.LISTRESP);
+//        ListRespMessage listResp = (ListRespMessage) communication.getResp();
+        Collection<PluginFile> collection = new ArrayList<PluginFile> ();
+        for(br.unb.cic.bionimbus.avro.gen.PluginFile info : rpcClient.getProxy().listFiles()){
+            PluginFile file = new PluginFile();
+            file.setId(info.getId());
+            file.setName(info.getName());
+            file.setPath(info.getPath());
+            file.setPluginId(info.getPluginId());
+            file.setSize(info.getSize());
+            collection.add(file);
+        }
+        return collection;
     }
 
-    private void sendJobs(List<JobInfo> jobs) throws InterruptedException {
-        communication.sendReq(new JobReqMessage(p2p.getPeerNode(), jobs), P2PMessageType.JOBRESP);
-        JobRespMessage resp = (JobRespMessage) communication.getResp();
-        LOG.info("job " + resp.getJobInfo().getId() + " sent succesfully...");
+    private void sendJobs(List<JobInfo> jobs) throws InterruptedException,IOException {
+//        communication.sendReq(new JobReqMessage(p2p.getPeerNode(), jobs), P2PMessageType.JOBRESP);
+//        JobRespMessage resp = (JobRespMessage) communication.getResp();
+        List<br.unb.cic.bionimbus.avro.gen.JobInfo> listjob = new ArrayList<br.unb.cic.bionimbus.avro.gen.JobInfo>();
+        for(JobInfo jobInfo : jobs){
+            br.unb.cic.bionimbus.avro.gen.JobInfo job = new br.unb.cic.bionimbus.avro.gen.JobInfo();
+            job.setArgs(jobInfo.getArgs());
+            job.setId(jobInfo.getId());
+            job.setLocalId("");
+            job.setServiceId(jobInfo.getServiceId());
+            job.setTimestamp(jobInfo.getTimestamp());
+            List<Pair> listPair =  new ArrayList<Pair>();
+            for(br.unb.cic.bionimbus.utils.Pair<String,Long> pairInfo : jobInfo.getInputs()){
+                Pair pair = new Pair();
+                pair.first = pairInfo.first;
+                pair.second = pairInfo.second;
+                listPair.add(pair);
+            }
+            job.setInputs(listPair);
+            job.setOutputs(jobInfo.getOutputs());
+            
+            listjob.add(job);
+        }
+        rpcClient.getProxy().startJob(listjob);
+//        LOG.info("job " + resp.getJobInfo().getId() + " sent succesfully...");
     }
 
     public void printResult() {
