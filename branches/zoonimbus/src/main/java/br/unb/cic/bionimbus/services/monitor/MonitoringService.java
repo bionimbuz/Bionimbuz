@@ -173,8 +173,7 @@ public class MonitoringService extends AbstractBioService implements Service, P2
 
                 if(zkService.getZNodeExist(ROOT_PEER+SEPARATOR+peerPath+STATUSWAITING, false)){
                     //TO DO descomentar linha abaixo caso o storage estiver fazendo a recuperação do peer 
-//                    if(zkService.getData(ROOT_PEER+SEPARATOR+peerPath+STATUSWAITING, null).contains("ES")){
-                    if(zkService.getData(ROOT_PEER+SEPARATOR+peerPath+STATUSWAITING, null).contains("E")){
+                     if(zkService.getData(ROOT_PEER+SEPARATOR+peerPath+STATUSWAITING, null).contains("ES")){
                         deletePeer(ROOT_PEER+SEPARATOR+peerPath); 
                     }
                 }
