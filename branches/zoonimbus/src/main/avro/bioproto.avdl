@@ -308,5 +308,5 @@ protocol BioProto {
   //Invocar metodo de replicação
    void notifyReply(string filename,string address) oneway;
 
-   void verifyFile(string filename,string address) oneway;
+   boolean verifyFile(FileInfo fileSucess,array<string> dest);
 }

@@ -279,8 +279,10 @@ public class BioProtoImpl implements BioProto {
     }
 
     @Override
-    public void verifyFile(String filename,String address) {
-        storageService.checkFiles(); 
+    public boolean verifyFile(FileInfo fileSucess,List dest) {
+        PluginFile fileS = new PluginFile(fileSucess);
+        fileS.setPluginId(dest);
+        return storageService.checkFilePeer(fileS); 
     }
 
 
