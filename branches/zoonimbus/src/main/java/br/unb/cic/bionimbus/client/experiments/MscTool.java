@@ -36,7 +36,7 @@ public class MscTool {
 
     private List<String> readFileNames() throws IOException {
         ArrayList<String> list = new ArrayList<String>();
-        BufferedReader br = new BufferedReader(new FileReader("/home/zoonimbus/zoonimbusProject/data-folder/inputfiles.txt"));
+        BufferedReader br = new BufferedReader(new FileReader("/home/zoonimbus/NetBeansProjects/zoonimbus/data-folder/inputfiles.txt"));
         String line;
         while ((line = br.readLine()) != null)
             list.add(line);

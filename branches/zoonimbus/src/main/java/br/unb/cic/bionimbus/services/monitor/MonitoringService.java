@@ -168,7 +168,7 @@ public class MonitoringService extends AbstractBioService implements Service, P2
      */
     private void checkPeersStatus(){
         try {
-            List<String> listPeers = zkService.getChildren(zkService.getPath().ROOT.toString(), null);
+            List<String> listPeers = zkService.getChildren(zkService.getPath().PEERS.toString(), null);
             for (String peerPath : listPeers) {
 
                 if(zkService.getZNodeExist(ROOT_PEER+SEPARATOR+peerPath+STATUSWAITING, false)){
@@ -216,12 +216,14 @@ public class MonitoringService extends AbstractBioService implements Service, P2
                     if(zkService.getZNodeExist(ROOT_PEER+SEPARATOR+peerPath+STATUS, false)){
                         //adicionando wacth
                         zkService.getData(ROOT_PEER+SEPARATOR+peerPath+STATUS, new UpdatePeerData(zkService,this));
+                        zkService.getData(ROOT_PEER+SEPARATOR+peerPath+STATUS, null);
                     }
                     //verifica se algum plugin havia ficado off e não foi realizado sua recuperação
                     if(!zkService.getZNodeExist(ROOT_PEER+SEPARATOR+peerPath+STATUS, false) 
                             && !zkService.getZNodeExist(ROOT_PEER+SEPARATOR+peerPath+STATUSWAITING, false)){
                         zkService.createPersistentZNode(ROOT_PEER+SEPARATOR+peerPath+STATUSWAITING, "");
                         zkService.getData(ROOT_PEER+SEPARATOR+peerPath+STATUSWAITING, new UpdatePeerData(zkService,this));
+                        zkService.getData(ROOT_PEER+SEPARATOR+peerPath+STATUSWAITING, null);
                     }
             }
         } catch (KeeperException ex) {
