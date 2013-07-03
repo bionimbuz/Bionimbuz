@@ -44,7 +44,7 @@ public class Upload implements Command {
             info.setFileId(file.getName());
             info.setName(file.getName());
             info.setSize(file.length());  
-            if(shell.getRpcClient().getProxy().listFilesIp(info.getName()).equals("Arquivo não encontrado!!")){
+            if(shell.getRpcClient().getProxy().listFilesIp(info.getName()).equals("")){
                 System.out.println("\n Calculando Latencia.....");
                 pluginList = shell.getRpcClient().getProxy().getPeersNode();
                 shell.getRpcClient().getProxy().setFileInfo(info);
