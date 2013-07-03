@@ -26,9 +26,10 @@ public abstract class SchedPolicy {
     public static SchedPolicy getInstance() {
         SchedPolicy policy = new AcoSched();
         return policy;
+        
     }
 
-    public static SchedPolicy getInstance(ConcurrentHashMap<String, PluginInfo> cloudMap) {
+    public static SchedPolicy getInstance(ConcurrentHashMap<String, PluginInfo> cloudMap, ZooKeeperService zk) {
         SchedPolicy policy = new AcoSched();
         policy.setCloudMap(cloudMap);
         return policy;
