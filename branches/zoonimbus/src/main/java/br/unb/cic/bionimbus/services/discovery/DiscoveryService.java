@@ -9,6 +9,7 @@ import br.unb.cic.bionimbus.plugin.linux.LinuxGetInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
@@ -16,12 +17,14 @@ import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import java.io.IOException;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 
 @Singleton
@@ -64,6 +67,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
     @Override
     public void run() {    
         System.out.println("running DiscoveryService...");
+        setDatasPluginInfo(false);
 //        Map<String, PluginInfo> listPlugin = getPeers();
 //        if(!listPlugin.isEmpty()){
 //            for (PluginInfo myInfo : listPlugin.values()) {
@@ -99,35 +103,51 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
      }
      */
      }
-//    public String getData() throws IOException {
-//        return "id: " + config.getId() + "\n"
-//                + "net-address: " + config.getHost().getAddress() + "\n"
-//                + "net-port: " + config.getHost().getPort() + "\n"
-//                + "cpu-cores: " + Runtime.getRuntime().availableProcessors() + "\n"
-//                + "disk-space: " + FileService.getFreeSpace("/") + "\n"
-//                + "uptime: " + System.currentTimeMillis();
-//    }
+    public void setDatasPluginInfo(boolean start) {
+        try {
+            LinuxGetInfo getinfo=new LinuxGetInfo();
+            PluginInfo infopc= getinfo.call();
+            
+            infopc.setId(p2p.getConfig().getId());
+            
+            if(start){
+                LinuxPlugin linuxPlugin = new LinuxPlugin(p2p);
+
+                infopc.setHost(p2p.getConfig().getHost());
+                infopc.setUptime(p2p.getPeerNode().uptime());
+                infopc.setPrivateCloud(p2p.getConfig().getPrivateCloud());
+
+                //definindo myInfo após a primeira leitura dos dados
+                linuxPlugin.setMyInfo(infopc);
+            }else{
+                PluginInfo plugin = new ObjectMapper().readValue(zkService.getData(infopc.getPath_zk(), null), PluginInfo.class);
+                plugin.setFsFreeSize(infopc.getFsFreeSize());
+                plugin.setMemoryFree(infopc.getMemoryFree());
+                plugin.setNumOccupied(infopc.getNumOccupied());
+                infopc = plugin;
+            }
+            //armazenando dados do plugin no zookeeper
+            zkService.setData(infopc.getPath_zk(), infopc.toString());
+            
+        } catch (KeeperException ex) {
+            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
 //    @Override
     public void start(final P2PService p2p) {
         try {
             Preconditions.checkNotNull(p2p);
-            LinuxGetInfo getinfo=new LinuxGetInfo();
-            LinuxPlugin linuxPlugin = new LinuxPlugin(p2p);
-
-            PluginInfo infopc= getinfo.call();
-            infopc.setId(p2p.getConfig().getId());
-            infopc.setHost(p2p.getConfig().getHost());
-            infopc.setUptime(p2p.getPeerNode().uptime());
-            infopc.setPrivateCloud(p2p.getConfig().getPrivateCloud());
-
-            //definindo myInfo após a leitura dos dados
-            linuxPlugin.setMyInfo(infopc);
-            //armazenando dados do plugin no zookeeper
-            zkService.setData(infopc.getPath_zk(), infopc.toString());
-          
             this.p2p = p2p;
+            
+            setDatasPluginInfo(true);
+            
             p2p.addListener(this);
+          
             schedExecService.scheduleAtFixedRate(this, 0, PERIOD_SECS, TimeUnit.SECONDS);
         } catch (Exception ex) {
             Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);

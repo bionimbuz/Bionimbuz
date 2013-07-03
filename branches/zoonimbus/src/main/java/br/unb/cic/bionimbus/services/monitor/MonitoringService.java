@@ -3,16 +3,17 @@ package br.unb.cic.bionimbus.services.monitor;
 import br.unb.cic.bionimbus.p2p.P2PEvent;
 import br.unb.cic.bionimbus.p2p.P2PListener;
 import br.unb.cic.bionimbus.p2p.P2PService;
-import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginTask;
+import br.unb.cic.bionimbus.plugin.PluginTaskState;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.Service;
 import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
-import br.unb.cic.bionimbus.services.storage.StorageService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,9 +25,6 @@ import java.util.logging.Logger;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
 
 @Singleton
 public class MonitoringService extends AbstractBioService implements Service, P2PListener, Runnable {
@@ -34,17 +32,17 @@ public class MonitoringService extends AbstractBioService implements Service, P2
     private final ScheduledExecutorService schedExecService = Executors.newScheduledThreadPool(1, new BasicThreadFactory.Builder().namingPattern("MonitorService-%d").build());
 
     private final Map<String, PluginTask> waitingTask = new ConcurrentHashMap<String, PluginTask>();
+        
+    private final List<String> waitingJobs = new ArrayList<String>();
     
     private P2PService p2p = null;
     
     private static final String ROOT_PEER = "/peers";
+    private static final String TASKS = "/tasks";
+    private static final String SCHED = "/sched";
     private static final String STATUS = "/STATUS";
     private static final String STATUSWAITING = "/STATUSWAITING";
     private static final String SEPARATOR = "/";
-    private static final String JOBS = "/jobs";
-    private static final String PREFIX_JOB = "/job_";
-    private static final String PREFIX_TASK = "/task_";
-    private static final String TASKS = "/tasks";
 
     @Inject
     public MonitoringService(final ZooKeeperService zKService) {
@@ -56,7 +54,7 @@ public class MonitoringService extends AbstractBioService implements Service, P2
     public void run() {
         System.out.println("running MonitorService...");
         checkPeersStatus();
-        
+        checkJobsTasks();
     }
 
     @Override
@@ -70,7 +68,7 @@ public class MonitoringService extends AbstractBioService implements Service, P2
 //        this.p2p = p2p;
 //        if (p2p != null)
 //            p2p.addListener(this);
-        schedExecService.scheduleAtFixedRate(this, 0, 2, TimeUnit.MINUTES);
+        schedExecService.scheduleAtFixedRate(this, 0, 1, TimeUnit.MINUTES);
     }
 
     @Override
@@ -120,6 +118,48 @@ public class MonitoringService extends AbstractBioService implements Service, P2
         }
     }
     
+    /**
+     * Verifica se os jobs que estava aguardando escalonamento e as tarefas que já foram escalonadas ainda estão com o mesmo status da
+     * última leitura.
+     */
+    private void checkJobsTasks(){
+        try {
+            for (String job : zkService.getChildren(zkService.getPath().JOBS.toString(), null)) {
+                //verifica se o job já estava na lista, recupera e lança novamente os dados para disparar watchers
+                if(waitingJobs.contains(job)){
+                    String datas = zkService.getData(zkService.getPath().JOBS.toString()+SEPARATOR+job,null);
+                    zkService.delete(zkService.getPath().JOBS.toString()+SEPARATOR+job);
+                    zkService.createPersistentZNode(zkService.getPath().JOBS.toString()+SEPARATOR+job, datas);
+                    waitingJobs.remove(job);
+                }else{
+                    waitingJobs.add(job);
+                }
+                
+            }
+            for (String peer : zkService.getChildren(zkService.getPath().PEERS.toString(), null)) {
+                for (String task : zkService.getChildren(ROOT_PEER+SEPARATOR+peer+SCHED+TASKS, null)) {
+                    PluginTask pluginTask = new ObjectMapper().readValue(zkService.getData(ROOT_PEER+SEPARATOR+peer+SCHED+TASKS+SEPARATOR+task, null), PluginTask.class);
+                //verifica se o job já estava na lista, recupera e lança novamente os dados para disparar watchers                    if(count ==1){
+                    if(pluginTask.getState()==PluginTaskState.PENDING){
+                        if(waitingTask.containsKey(task)){
+                             zkService.delete(ROOT_PEER+SEPARATOR+peer+SCHED+TASKS+SEPARATOR+task);
+                            zkService.createPersistentZNode(ROOT_PEER+SEPARATOR+peer+SCHED+TASKS+SEPARATOR+task, pluginTask.toString());
+                            waitingJobs.remove(task);
+                        }else{
+                            waitingTask.put(task,pluginTask);
+                        }
+                    }
+                }
+            }
+        } catch (KeeperException ex) {
+            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+        }catch (IOException ex) {
+            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
     
     /**
      * Realiza a verificação dos peers existentes identificando se existe algum peer aguardando recuperação,

@@ -4,7 +4,6 @@ package br.unb.cic.bionimbus.services.storage;
 import br.unb.cic.bionimbus.avro.gen.FileInfo;
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
-import br.unb.cic.bionimbus.avro.rpc.BioProtoImpl;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.p2p.P2PEvent;
 import br.unb.cic.bionimbus.p2p.P2PService;
@@ -37,7 +36,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.avro.AvroRemoteException;
-import org.apache.avro.generic.GenericData;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
@@ -192,7 +190,6 @@ public class StorageService extends AbstractBioService {
 
                     pluginFile.setPluginId(listIds);
                     pluginFile.setSize(file.length());
-                    //checkFilesReplication();
                     zkService.createPersistentZNode(zkService.getPath().PREFIX_FILE.getFullPath(p2p.getConfig().getId(),pluginFile.getId(),""),pluginFile.toString());
                     zkService.getData(zkService.getPath().PREFIX_FILE.getFullPath(p2p.getConfig().getId(),pluginFile.getId(),""), new UpdatePeerData(zkService, this));
               }
@@ -218,7 +215,7 @@ public class StorageService extends AbstractBioService {
                    String ipPluginFile =getFilesIP(fileNamePlugin);
                    if(!ipPluginFile.equals(p2p.getConfig().getAddress())){
                        RpcClient rpcClient = new AvroClient("http", ipPluginFile, PORT);
-                       rpcClient.getProxy().notifyReply(fileNamePlugin,ipPluginFile);
+//                       rpcClient.getProxy().notifyReply(fileNamePlugin,ipPluginFile);
                        rpcClient.close();
                    }
                    else{
@@ -258,6 +255,7 @@ public class StorageService extends AbstractBioService {
     public Map<String,List<String>> getFiles(){
         Map<String,List<String>> mapFiles = new HashMap<String, List<String>>();
         List<String> listFiles ;
+        checkFiles();
         try {
             for(PluginInfo plugin : getPeers().values()){
                 listFiles = new ArrayList<String>();
@@ -332,11 +330,11 @@ public class StorageService extends AbstractBioService {
         if (zkService.getZNodeExist(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileuploaded.getId(), ""), false)){    
            String ipPluginFile =getFilesIP(fileuploaded.getName());
            RpcClient rpcClient = new AvroClient("http",ipPluginFile, PORT);
-            try {
-                rpcClient.getProxy().verifyFile(fileuploaded.getName(),ipPluginFile);
-            } catch (IOException ex) {
-                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-            }
+//            try {
+//                rpcClient.getProxy().verifyFile(fileuploaded.getName(),ipPluginFile);
+//            } catch (IOException ex) {
+//                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+//            }
             try {
                 rpcClient.close();
             } catch (Exception ex) {

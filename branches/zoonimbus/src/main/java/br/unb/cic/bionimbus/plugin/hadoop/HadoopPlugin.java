@@ -56,7 +56,8 @@ import br.unb.cic.bionimbus.utils.Pair;
 import java.util.ArrayList;
 
 public class HadoopPlugin implements Plugin, P2PListener, Runnable {
-
+//public class HadoopPlugin extends AbstractBioService implements Plugin, P2PListener, Runnable {
+    
     private String id = UUID.randomUUID().toString();
 
     private final ScheduledExecutorService schedExecutorService = Executors.newScheduledThreadPool(1, new BasicThreadFactory.Builder().namingPattern("HadoopPlugin-%d").build());
@@ -89,7 +90,14 @@ public class HadoopPlugin implements Plugin, P2PListener, Runnable {
 
     private P2PService p2p;
 
+//    @Inject
+//    public HadoopPlugin(final ZooKeeperService zk) {
     public HadoopPlugin() {
+        
+         //nova impementação para obter os dados plugininfo, retirado dos arquivos .json
+//        Preconditions.checkNotNull(zkService);
+//        this.zkService = zk;
+        
         File infoFile = new File("plugininfo.json");
         if (infoFile.exists()) {
             try {
@@ -469,4 +477,5 @@ public class HadoopPlugin implements Plugin, P2PListener, Runnable {
         CancelRespMessage msg = new CancelRespMessage(p2p.getPeerNode(), task);
         p2p.sendMessage(receiver.getHost(), msg);
     }
+
 }

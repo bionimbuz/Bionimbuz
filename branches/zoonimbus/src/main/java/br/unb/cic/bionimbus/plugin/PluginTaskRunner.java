@@ -46,7 +46,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
         List<String> outputs = task.getJobInfo().getOutputs();
         i = 1;
         for (String output : outputs) {
-            args = args.replaceFirst("%O" + i, path+PATHFILES + File.separator + output);
+            args = args.replaceFirst("%O" + i, " "+path+PATHFILES + File.separator + output);
             i++;
         }
         Process p = null;
@@ -65,10 +65,11 @@ public class PluginTaskRunner implements Callable<PluginTask> {
                 System.out.println(line);
             }
             br.close();
-            task.setTimeExec(((float) (System.currentTimeMillis() - task.getJobInfo().getTimestamp()) / 1000));
-
-            if(p.waitFor()==0)
+            
+            if(p.waitFor()==0){
+                task.setTimeExec(((float) (System.currentTimeMillis() - task.getJobInfo().getTimestamp()) / 1000));
                 task.setState(PluginTaskState.DONE);
+            }
 
             if(zkService!=null)
                 zkService.setData(task.getPluginTaskPathZk(), task.toString());

@@ -42,14 +42,31 @@ public class BioProtoImpl implements BioProto {
     public boolean ping() throws AvroRemoteException {
         return true;
     }
-
+    
     @Override
-    public List<String> listFiles() throws AvroRemoteException {
+    public List<String> listFilesName() throws AvroRemoteException {
         List<String> listFile = new ArrayList<String>();
         for(Collection<String> collection : storageService.getFiles().values()){
             listFile.addAll(collection);
         }
         
+        return listFile;
+    }
+    
+    @Override
+    public List<br.unb.cic.bionimbus.avro.gen.PluginFile> listFiles() throws AvroRemoteException {
+        List<br.unb.cic.bionimbus.avro.gen.PluginFile> listFile = new ArrayList<br.unb.cic.bionimbus.avro.gen.PluginFile>();
+        for(PluginInfo plugin : this.discoveryService.getPeers().values()){
+            for(PluginFile fileInfo : storageService.getFilesPeer(plugin.getId()).values()){
+                br.unb.cic.bionimbus.avro.gen.PluginFile file = new  br.unb.cic.bionimbus.avro.gen.PluginFile();
+                file.setId(fileInfo.getId());
+                file.setName(fileInfo.getName());
+                file.setPath(fileInfo.getPath());
+                file.setPluginId(fileInfo.getPluginId());
+                file.setSize(fileInfo.getSize());
+                listFile.add(file);
+            }    
+        }
         return listFile;
     }
     
@@ -69,7 +86,7 @@ public class BioProtoImpl implements BioProto {
     }
 
     @Override
-    public String startJob(String param) throws AvroRemoteException {
+    public String startJobName(String param) throws AvroRemoteException {
         final String path = "/jobs/job_";
         JobInfo job = new JobInfo();
         String params[] = param.split(" ");
@@ -78,7 +95,6 @@ public class BioProtoImpl implements BioProto {
             
         job.setServiceId(Long.parseLong(jobId));
         job.setTimestamp(System.currentTimeMillis());
-        
         while (i < params.length) {
             if (i == 1) {
                 job.setArgs(params[i]);
@@ -87,10 +103,10 @@ public class BioProtoImpl implements BioProto {
                 i++;
                 while (i < params.length && !params[i].equals("-o")) {
                     //verifica a existência dos arquivos de entrada na federação
-                    if(!listFiles().contains(params[i]))
+                    if(!listFilesName().contains(params[i]))
                         return "Job não foi escalonado, arquivo de entrada não existe.";
                     
-                    job.addInput(params[i], Long.valueOf(0));
+                    job.addInput(params[i], getPluginFile(params[i]).getSize());
                     i++;
                 }
             } else if (params[i].equals("-o")) {
@@ -103,11 +119,36 @@ public class BioProtoImpl implements BioProto {
         }
         
         //inclusão do job para ser escalonado
-        zkService.createEphemeralZNode(path+job.getId(), job.toString());
+        zkService.createPersistentZNode(path+job.getId(), job.toString());
 
         return "Job Escalonado.\n Aguardando execução...";
     }
 
+    @Override
+    public String startJob(List<br.unb.cic.bionimbus.avro.gen.JobInfo> listJob) throws AvroRemoteException {
+        //inclusão do job para ser escalonado
+        
+        for (br.unb.cic.bionimbus.avro.gen.JobInfo job: listJob){
+            zkService.createEphemeralZNode(zkService.getPath().PREFIX_JOB.getFullPath("", "", job.getId()) , job.toString());
+        }
+        
+        return "Jobs Escalonados.\n Aguardando execução...";
+    }
+    
+    private br.unb.cic.bionimbus.avro.gen.PluginFile getPluginFile(String fileName){
+        try {
+            for(br.unb.cic.bionimbus.avro.gen.PluginFile file : listFiles()){
+                if(file.getName().equals(fileName))
+                    return file;
+            }
+        } catch (AvroRemoteException ex) {
+            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return null;
+    
+    }
+     
     @Override
     public String cancelJob(String jobID) throws AvroRemoteException {
         //TODO: call schedService
@@ -241,5 +282,6 @@ public class BioProtoImpl implements BioProto {
     public void verifyFile(String filename,String address) {
         storageService.checkFiles(); 
     }
+
 
 }
