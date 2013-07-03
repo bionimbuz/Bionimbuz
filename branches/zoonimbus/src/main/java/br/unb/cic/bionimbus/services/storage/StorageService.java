@@ -586,21 +586,29 @@ public class StorageService extends AbstractBioService {
                     break;
                 case NodeDeleted:
                     if(eventType.getPath().contains(zkService.getPath().STATUS.toString())){
-//                        String peerId =  path.substring(path.indexOf(zkService.getPath().PREFIX_FILE.toString())+5, path.indexOf("/STATUS"));
-//                        try {
-//                            if(!zkService.getZNodeExist(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), false)){
-//                                zkService.createPersistentZNode(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), "");
-//                            }
-//                            if(!zkService.getData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), null).contains("S")){
-//                                failOverStorage(peerId);
-//                            }
-//                        } catch (AvroRemoteException ex) {
-//                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-//                        } catch (KeeperException ex) {
-//                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-//                        } catch (InterruptedException ex) {
-//                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-//                        }
+                        String peerId =  path.substring(path.indexOf(zkService.getPath().PREFIX_FILE.toString())+5, path.indexOf("/STATUS"));
+                        try {
+                            if(!zkService.getZNodeExist(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), false)){
+                                zkService.createPersistentZNode(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), "");
+                            }
+                            if(!zkService.getData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), null).contains("S")){
+                                for(PluginFile fileExcluded :getFilesPeer(peerId).values()){
+                                    fileUploaded(fileExcluded);
+                                }
+                                StringBuilder info = new StringBuilder(zkService.getData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), null));
+                                info.append("S");
+                                zkService.setData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), info.toString());
+                            }
+                            
+                        } catch (AvroRemoteException ex) {
+                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (KeeperException ex) {
+                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (IOException ex) {
+                       Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                   }
                     }
                     break;
             }
