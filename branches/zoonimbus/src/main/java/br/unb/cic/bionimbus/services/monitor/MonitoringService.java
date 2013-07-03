@@ -3,6 +3,7 @@ package br.unb.cic.bionimbus.services.monitor;
 import br.unb.cic.bionimbus.p2p.P2PEvent;
 import br.unb.cic.bionimbus.p2p.P2PListener;
 import br.unb.cic.bionimbus.p2p.P2PService;
+import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskState;
 import br.unb.cic.bionimbus.services.AbstractBioService;
@@ -136,14 +137,15 @@ public class MonitoringService extends AbstractBioService implements Service, P2
                 }
                 
             }
-            for (String peer : zkService.getChildren(zkService.getPath().PEERS.toString(), null)) {
-                for (String task : zkService.getChildren(ROOT_PEER+SEPARATOR+peer+SCHED+TASKS, null)) {
-                    PluginTask pluginTask = new ObjectMapper().readValue(zkService.getData(ROOT_PEER+SEPARATOR+peer+SCHED+TASKS+SEPARATOR+task, null), PluginTask.class);
+            
+            for (PluginInfo peer : getPeers().values()) {
+                for (String task : zkService.getChildren(zkService.getPath().TASKS.getFullPath(peer.getId(), "", ""), null)) {
+                    PluginTask pluginTask = new ObjectMapper().readValue(zkService.getData(zkService.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())), null), PluginTask.class);
                 //verifica se o job já estava na lista, recupera e lança novamente os dados para disparar watchers                    if(count ==1){
                     if(pluginTask.getState()==PluginTaskState.PENDING){
                         if(waitingTask.containsKey(task)){
-                             zkService.delete(ROOT_PEER+SEPARATOR+peer+SCHED+TASKS+SEPARATOR+task);
-                            zkService.createPersistentZNode(ROOT_PEER+SEPARATOR+peer+SCHED+TASKS+SEPARATOR+task, pluginTask.toString());
+                            zkService.delete(zkService.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())));
+                            zkService.createPersistentZNode(zkService.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())), pluginTask.toString());
                             waitingJobs.remove(task);
                         }else{
                             waitingTask.put(task,pluginTask);
