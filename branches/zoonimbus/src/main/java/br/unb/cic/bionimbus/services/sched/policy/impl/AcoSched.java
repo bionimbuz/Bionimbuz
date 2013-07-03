@@ -45,12 +45,12 @@ public class AcoSched extends SchedPolicy {
             return null;
 
         HashMap jobCloud = new HashMap<JobInfo, PluginInfo>();
-        JobInfo biggerJob = getBiggerJob(new ArrayList<JobInfo>(jobInfos));
+        JobInfo biggerJob = getBiggerJob(jobInfos);
 
         // escalonador irá receber um zookeeperService como parâmetro
 
 
-            jobCloud.put(biggerJob, scheduleJob(biggerJob));
+        jobCloud.put(biggerJob, scheduleJob(biggerJob));
 
         return jobCloud;
 
@@ -100,7 +100,7 @@ public class AcoSched extends SchedPolicy {
         setMapAcoDatasZooKeeper(listPlugin);
         
         
-        return plugin;
+        return plugin.getId() == null ? null : plugin;
     }
 
     /**
@@ -195,8 +195,12 @@ public class AcoSched extends SchedPolicy {
 
     }
 
-
-    public static JobInfo getBiggerJob(List<JobInfo> jobInfos) {
+    /**
+     * Retorna o job com o maior arquivo de entrada. Todo os arquivos de entrada são considerados.
+     * @param jobInfos
+     * @return 
+     */
+    public static JobInfo getBiggerJob(Collection<JobInfo> jobInfos) {
         if (jobInfos.isEmpty())
             return null;
 
@@ -207,17 +211,20 @@ public class AcoSched extends SchedPolicy {
             if (bigger == null) {
                 bigger = jobInfo;
                 biggerTotal = total;
-            } else {
-                if (getTotalSizeOfJobsFiles(jobInfo) > biggerTotal) {
+            }else if(getTotalSizeOfJobsFiles(jobInfo) > biggerTotal) {
                     bigger = jobInfo;
                     biggerTotal = total;
-                }
             }
         }
         return bigger;
     }
 
-    public static Long getTotalSizeOfJobsFiles(JobInfo jobInfo) {
+    /**
+     * Retorna o tamanho total dos arquivos de entrada de um job.
+     * @param jobInfo
+     * @return 
+     */
+    private static Long getTotalSizeOfJobsFiles(JobInfo jobInfo) {
         long sum = 0;
 
         for (Pair<String, Long> pair : jobInfo.getInputs()) {
@@ -226,24 +233,22 @@ public class AcoSched extends SchedPolicy {
 
         return sum;
     }
-    
-    public void upDateSizeOfJobsSchedCloud(String pluginId, JobInfo job){
-        Double size;
-        PluginInfo plugin=null;
-        int i= listPlugin.size();
-        
-        while(i>0){
-            if(listPlugin.get(i).getId().equals(pluginId)){
-                plugin = listPlugin.get(i);
-                i=1;
+    /**
+     * Retorna o nome do  maior arquivo de entrda do job.
+     * @param jobInfos
+     * @return 
+     */
+    public static String getBiggerInputJob(JobInfo jobInfo) {
+        Pair<String, Long> file=null;
+        System.out.println("getBiggerInputJob");
+
+        for (Pair<String, Long> pair : jobInfo.getInputs()) {
+            if (file ==null || file.second<pair.second){
+                file =  pair;
             }
-            i--;
         }
         
-        size = new Double(getDatasZookeeper(plugin.getPath_zk(), DIR_SIZEALLJOBS))+getTotalSizeOfJobsFiles(job).doubleValue();
-        
-        setDatasZookeeper(plugin.getPath_zk(), DIR_SIZEALLJOBS, size.toString());
-        
+        return file.first;
     }
     
     /**
@@ -264,7 +269,6 @@ public class AcoSched extends SchedPolicy {
             }
         }
         return clouds;
-
     }
 
     /**
@@ -292,6 +296,8 @@ public class AcoSched extends SchedPolicy {
     private void AlgorithmAco(List<PluginInfo> plugins){
         //Laço para define o feronômio de cada plugin(VM)
         for (PluginInfo plugin : plugins) {
+            System.out.println("Valores do plugin:" +plugin.toString());
+
             pheromone(plugin);
         }
 
@@ -412,7 +418,7 @@ public class AcoSched extends SchedPolicy {
             sum = sum + multiplicationDatasPlugin(plugin);
         }
         
-        pb = multiplicationDatasPlugin(plg)/sum;
+        pb = (sum==0d ? 0d : multiplicationDatasPlugin(plg)/sum);
         plg.setRanking(pb);
 
         return pb;
@@ -430,11 +436,11 @@ public class AcoSched extends SchedPolicy {
         ArrayList<Double> datas = mapAcoDatas.get(plugin.getId());
 
         //feronomio elevado a potencia alfa(valor da variavel de controle)
-        Double pheromone = getRound(Math.pow(datas.get(0), datas.get(3)));
-        Double capacityComputing = getRound(Math.pow( capacityPlugin(plugin),datas.get(4)) );
-        Double loadBalacing = getRound(Math.pow( loadBalancingPlugin(plugin),datas.get(5)));
+        Double pheromone = (Math.pow(datas.get(0), datas.get(3)));
+        Double capacityComputing = (Math.pow( capacityPlugin(plugin),datas.get(4)) );
+        Double loadBalacing = Math.pow( loadBalancingPlugin(plugin),datas.get(5));
 
-        Double capacityMemory = getRound(Math.pow( getRound(plugin.getMemoryTotal()),datas.get(6)));
+        Double capacityMemory = (Math.pow( (plugin.getMemoryTotal()),datas.get(6)));
 
 //        Double capacityMemory = getRound(Math.pow( getRound(plugin.getMemoryFree()),datas.get(6)));
         //((Double)Math.pow(((Float)datas.get(2)).doubleValue(), ((Float)datas.get(5)).doubleValue() )).floatValue()
@@ -490,8 +496,8 @@ public class AcoSched extends SchedPolicy {
          *
          */
         //(total do tamanho das tarefas executadas na VM)/capacidade computacional + tamanho da tarefa executada anteriormente/ latency
-        return  capacityPlugin(plugin)==0d ? 0d : (mapAcoDatas.get(plugin.getId()).get(9) /capacityPlugin(plugin)) + 
-                plugin.getLatency() == 0f ? 0d : mapAcoDatas.get(plugin.getId()).get(8)/(plugin.getLatency());
+        return  (capacityPlugin(plugin)==0d ? 0d : (mapAcoDatas.get(plugin.getId()).get(9) /capacityPlugin(plugin))) + 
+                (plugin.getLatency() == 0d ? 0d : mapAcoDatas.get(plugin.getId()).get(8)/(plugin.getLatency()));
 
     }
 
