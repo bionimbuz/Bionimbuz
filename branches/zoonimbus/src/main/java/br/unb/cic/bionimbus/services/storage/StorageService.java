@@ -531,6 +531,7 @@ public class StorageService extends AbstractBioService {
         List<String> children;
         Map<String,PluginFile>filesPeerSelected=new ConcurrentHashMap<String, PluginFile>(); 
                  filesPeerSelected.clear();
+        checkFiles();
         try {
             children = zkService.getChildren(zkService.getPath().FILES.getFullPath(pluginId,"",""), null);
             for (String fileId : children) {
