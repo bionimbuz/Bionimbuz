@@ -43,40 +43,41 @@ public class Upload implements Command {
             
             info.setFileId(file.getName());
             info.setName(file.getName());
-            info.setSize(file.length());
-            System.out.println("\n Calculando Latencia.....");
-            
-            pluginList = shell.getRpcClient().getProxy().getPeersNode();
-            shell.getRpcClient().getProxy().setFileInfo(info);
-            for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
-                NodeInfo plugin = it.next();
-                if ((long)(plugin.getFreesize()*MAXCAPACITY)>info.getSize()){
-                    plugin.setLatency(Ping.calculo(plugin.getAddress()));
-                    nodesdisp.add(plugin);
-                }    
-            }
-            //Retorna a lista dos nos ordenados como melhores, passando a latência calculada
-            nodesdisp = new ArrayList<NodeInfo>(shell.getRpcClient().getProxy().callStorage(nodesdisp)); 
-           
-            NodeInfo no=null;
-            Iterator<NodeInfo> it = nodesdisp.iterator();
-            while (it.hasNext() && no == null) {
-                 NodeInfo node = (NodeInfo)it.next();
-                 
-                 Put conexao = new Put(node.getAddress(),path,flag);                
-                 if(conexao.startSession()){
-                       no = node;
+            info.setSize(file.length());  
+            if(shell.getRpcClient().getProxy().listFilesIp(info.getName()).equals("Arquivo não encontrado!!")){
+                System.out.println("\n Calculando Latencia.....");
+                pluginList = shell.getRpcClient().getProxy().getPeersNode();
+                shell.getRpcClient().getProxy().setFileInfo(info);
+                for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
+                    NodeInfo plugin = it.next();
+                    if ((long)(plugin.getFreesize()*MAXCAPACITY)>info.getSize()){
+                        plugin.setLatency(Ping.calculo(plugin.getAddress()));
+                        nodesdisp.add(plugin);
+                    }    
                 }
-            }
-            if(no != null){
-                List<String> dest = new ArrayList<String>();
-                dest.add(no.getPeerId());
-                nodesdisp.remove(no);             
-                shell.getRpcClient().getProxy().fileSent(info,dest);
-                return "\n Upload Completed!!";
-            }
+                //Retorna a lista dos nos ordenados como melhores, passando a latência calculada
+                nodesdisp = new ArrayList<NodeInfo>(shell.getRpcClient().getProxy().callStorage(nodesdisp)); 
+           
+          
+                NodeInfo no=null;
+                Iterator<NodeInfo> it = nodesdisp.iterator();
+                while (it.hasNext() && no == null) {
+                     NodeInfo node = (NodeInfo)it.next();
+
+                     Put conexao = new Put(node.getAddress(),path,flag);                
+                     if(conexao.startSession()){
+                           no = node;
+                    }
+                }
+                if(no != null){
+                    List<String> dest = new ArrayList<String>();
+                    dest.add(no.getPeerId());
+                    nodesdisp.remove(no);             
+                    shell.getRpcClient().getProxy().fileSent(info,dest);
+                    return "\n Upload Completed!!";
+                }
+             }
          }
-         
          return "\n\n Erro no upload !!";
     }
 

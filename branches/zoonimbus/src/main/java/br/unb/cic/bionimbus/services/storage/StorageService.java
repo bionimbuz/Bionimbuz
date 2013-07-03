@@ -331,23 +331,44 @@ public class StorageService extends AbstractBioService {
 
         return plugins;
     }
+    public boolean checkFilePeer( PluginFile file){
+        File localFile= new File("/home/zoonimbus/NetBeansProjects/zoonimbus/data-folder/"+file.getName());
+        if(localFile.exists()){
+             zkService.createPersistentZNode(zkService.getPath().PREFIX_FILE.getFullPath(p2p.getConfig().getId(),file.getId() , ""), file.toString());
+            try {
+                zkService.getData(zkService.getPath().PREFIX_FILE.getFullPath(p2p.getConfig().getId(),file.getId() , ""), new UpdatePeerData(zkService, this));
+            } catch (KeeperException ex) {
+                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return true;
+        }
+        return false;
+    }
     
     public void fileUploaded(PluginFile fileuploaded) throws KeeperException, InterruptedException, IOException{
-        if (zkService.getZNodeExist(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileuploaded.getId(), ""), false)){    
-           String ipPluginFile =getFilesIP(fileuploaded.getName());
+        if (zkService.getZNodeExist(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileuploaded.getId(), ""), false)){
+            
+           String ipPluginFile =getPeers().get(fileuploaded.getPluginId().iterator().next()).getHost().getAddress();
            RpcClient rpcClient = new AvroClient("http",ipPluginFile, PORT);
-//            try {
-//                rpcClient.getProxy().verifyFile(fileuploaded.getName(),ipPluginFile);
-//            } catch (IOException ex) {
-//                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-//            }
+           FileInfo file = new FileInfo();
+           file.setFileId(fileuploaded.getId());
+           file.setName(fileuploaded.getName());
+           file.setSize(fileuploaded.getSize());
+           if(rpcClient.getProxy().verifyFile(file,fileuploaded.getPluginId()))
+           {
+             if(zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(fileuploaded.getPluginId().iterator().next(),fileuploaded.getId(), ""), true));
+               zkService.delete(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("",fileuploaded.getId(), ""));
+           }
+           else
+                System.out.println("Arquivo não submetido!");
+           rpcClient.getProxy().notifyReply(fileuploaded.getName(), ipPluginFile);
             try {
                 rpcClient.close();
             } catch (Exception ex) {
                 Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
             }
-           if(zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(fileuploaded.getPluginId().iterator().next(),fileuploaded.getId(), ""), true));
-              zkService.delete(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("",fileuploaded.getId(), ""));
         }else
             System.out.println("Arquivo não encontrado nas pendências !");
         
@@ -456,7 +477,8 @@ public class StorageService extends AbstractBioService {
         for(PluginInfo plugin: cloudPlugin){
                         try {
                               NodeInfo node = new NodeInfo();
-                              if ((long)(plugin.getFsFreeSize()*MAXCAPACITY)>lengthFile){
+                              
+                              if ((long)(plugin.getFsFreeSize()*MAXCAPACITY)>lengthFile && plugin.getId().equals(p2p.getConfig().getId())){
                                 node.setLatency(Ping.calculo(plugin.getHost().getAddress()));
                                 node.setAddress(plugin.getHost().getAddress());
                                 node.setFreesize(plugin.getFsFreeSize());
@@ -498,8 +520,8 @@ public class StorageService extends AbstractBioService {
      */
     public void setPendingFile(PluginFile file){
         zkService.createPersistentZNode(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("",file.getId(),""), file.toString());
-//             String ipPluginFile =getFilesIP(file.getName());
     }
+    
     /**
      * 
      * @param pluginId id do plugin para pegar os arquivos do plugin
