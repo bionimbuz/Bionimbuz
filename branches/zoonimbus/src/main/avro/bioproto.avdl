@@ -15,6 +15,29 @@ protocol BioProto {
     string address;
     union {NodeState, null} nodeState; // optional
   }
+    
+  record Pair{
+    string first;
+    long second;
+    }  
+  
+  record JobInfo {
+    string id;
+    string localId;
+    long serviceId;
+    string args ;
+    array<Pair> inputs;
+    array<string> outputs;
+    long timestamp;
+  }
+
+  record PluginFile {
+    string id;
+    string path;
+    string name;
+   long size;
+    array<string> pluginId;
+  }
 
   record CancelReqMessage {
     string taskId;
@@ -192,6 +215,30 @@ protocol BioProto {
   }
   */
 
+    record Pair{
+    string first;
+    long second;
+    }  
+  
+  record JobInfo {
+    string id;
+    string localId;
+    long serviceId;
+    string args ;
+    array<Pair> inputs;
+    array<string> outputs;
+    long timestamp;
+  }
+
+  record PluginFile {
+    string id;
+    string path;
+    string name;
+   long size;
+    array<string> pluginId;
+  }
+
+
   /** Sends a bid request to a bidder and receives the response */
   //BidResponse bid(BidRequest bidRequest) throws BidderError;
 
@@ -209,18 +256,24 @@ protocol BioProto {
   /** Pings a node, e.g. to measure latency */
   boolean ping();
 
-  array<string> listFiles();
+  array<string> listFilesName();
 
   /** Procurar em qual Ip está o arquivo file */    
   string listFilesIp(string file);
 
   array<string> listServices();
 
-  string startJob(string jobID);
+  array<PluginFile> listFiles();
+
+  string startJobName(string jobID);
+
+  string startJob(array<JobInfo> listJob);
+
+  
 
   string cancelJob(string jobID);
 
-  record NodeInfo {
+    record NodeInfo {
     string peerId;
     string address;
     float freesize;
