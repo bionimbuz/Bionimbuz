@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import br.unb.cic.bionimbus.utils.Pair;
-import java.io.OutputStream;
+import java.io.*;
 
 public class PluginTaskRunner implements Callable<PluginTask> {
 
@@ -59,12 +59,16 @@ public class PluginTaskRunner implements Callable<PluginTask> {
             if(zkService!=null)
                 zkService.setData(task.getPluginTaskPathZk(), task.toString());
             
-            BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            BufferedReader saidaSucesso = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            BufferedReader saidaErro = new BufferedReader(new InputStreamReader(p.getErrorStream()));
             String line;
-            while ((line = br.readLine()) != null) {
-                System.out.println(line);
+            while ((line = saidaSucesso.readLine()) != null) {
+                System.out.println("Job "+task.getJobInfo().getId()+". Saída: "+line);
+                
             }
-            br.close();
+            while ((line = saidaErro.readLine()) != null) {
+                System.out.println("Job "+task.getJobInfo().getId()+". Erro: "+line);
+            }
             
             if(p.waitFor()==0){
                 task.setTimeExec(((float) (System.currentTimeMillis() - task.getJobInfo().getTimestamp()) / 1000));

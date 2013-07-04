@@ -11,6 +11,7 @@ import br.unb.cic.bionimbus.plugin.PluginTaskState;
 import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.Service;
+import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.services.sched.policy.impl.AcoSched;
@@ -123,8 +124,9 @@ public class SchedService extends AbstractBioService implements Service, P2PList
         
         try {
             //adicona watchers para receber um alerta quando um novo job for criado para ser escalonado, e uma nova requisição de latência existir
-            zkService.getChildren(JOBS, new SchedUpdatePeerData(zkService, this));
-            zkService.getChildren(LATENCY, new SchedUpdatePeerData(zkService, this));
+            zkService.getChildren(JOBS, new UpdatePeerData(zkService, this));
+            zkService.getChildren(ROOT_PEER, new UpdatePeerData(zkService, this));
+            zkService.getChildren(LATENCY, new UpdatePeerData(zkService, this));
 
 
             checkMyPlugin();
@@ -272,20 +274,15 @@ public class SchedService extends AbstractBioService implements Service, P2PList
     private void requestFile(List<Pair<String,Long>> listFiles){
         for(Pair<String,Long> pair : listFiles){
             if(!mapFilesPlugin.containsKey(pair.first)){
-                PluginFile pluginFile = mapFilesPlugin.get(pair.first);
-                List<String> listPlugin = new ArrayList<String>();
-                
-                listPlugin.add(idPlugin);
-                pluginFile.setPluginId(listPlugin);
+                String ipContainsFile = getFilesIP(pair.first);
                 Get conexao =  new Get();
                 try {
-                    conexao.startSession(pluginFile.getName(), getFilesIP(pluginFile.getName()));
+                    conexao.startSession(pair.first, ipContainsFile);
                 } catch (JSchException ex) {
                     java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (SftpException ex) {
                     java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                
                 
                 
                 //zkService.createPersistentZNode(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", pair.first, ""), pluginFile.toString());
@@ -409,7 +406,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
             
             //cria watch para ser adicionado no znode que contém as tarefas escanoladas desse plugin
             if(myLinuxPlugin.getMyInfo().getId().equals(plugin.getId())){
-                watcher = new SchedUpdatePeerData(zkService, this);
+                watcher = new UpdatePeerData(zkService, this);
             }else{
                 watcher = null;
             }
@@ -426,7 +423,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
             }
 
             //adiconando watch para cada peer, realizará recuperação de task escalonadas caso o plugin fique off-line
-                zkService.getData(plugin.getPath_zk()+STATUS, new SchedUpdatePeerData(zkService,this));
+                zkService.getData(plugin.getPath_zk()+STATUS, new UpdatePeerData(zkService,this));
         }
         
     }
@@ -440,7 +437,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
      * @throws InterruptedException
      * @throws IOException 
      */
-    private PluginTask checkWaitingTask(String taskPath) throws KeeperException,InterruptedException,IOException{
+    private PluginTask getNewTask(String taskPath) throws KeeperException,InterruptedException,IOException{
         ObjectMapper mapper = new ObjectMapper();
         PluginTask pluginTask =null;
         List<String> tasksChildren = zkService.getChildren(taskPath, null);
@@ -452,7 +449,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
             //verifica se a tarefa já estava na lista para não adicionar mais de um watcher
             if(!waitingTask.containsKey(task.getJobInfo().getId())){
                 //adiciona um watcher na task que foi escanolada
-                zkService.getData(taskPath+SEPARATOR+taskChild, new SchedUpdatePeerData(zkService, this));
+                zkService.getData(taskPath+SEPARATOR+taskChild, new UpdatePeerData(zkService, this));
                 if(task.getState()==PluginTaskState.PENDING){
                     waitingTask.put(task.getJobInfo().getId(), new Pair<PluginInfo, PluginTask>(cloudMap.get(task.getPluginExec()),task));
                     pluginTask = task;
@@ -472,7 +469,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
                 //verifica se é a primeira vez que é executado e então cria o watcher e inicia a lista
                 if(mapFilesPlugin==null){
                     mapFilesPlugin= new HashMap<String, PluginFile>();
-                    filesChildren = zkService.getChildren(myLinuxPlugin.getMyInfo().getPath_zk()+zkService.getPath().FILES.toString(), new SchedUpdatePeerData(zkService, this));
+                    filesChildren = zkService.getChildren(myLinuxPlugin.getMyInfo().getPath_zk()+zkService.getPath().FILES.toString(), new UpdatePeerData(zkService, this));
                 }else{  
                     filesChildren = zkService.getChildren(myLinuxPlugin.getMyInfo().getPath_zk()+zkService.getPath().FILES.toString(), null);
                 }
@@ -499,7 +496,21 @@ public class SchedService extends AbstractBioService implements Service, P2PList
 
     
     }
+    /**
+     * Verifica o status da tarefa e se ela pertence ao plugin e executa se satisfizer essas condições.
+     */
+    private void checkStatusTask(){
+        for(Pair<PluginInfo,  PluginTask> pair : waitingTask.values()){
+            if(myLinuxPlugin.getMyInfo().getId().equals(pair.first.getId()) && pair.second.getState() == PluginTaskState.PENDING){
+                try {
+                    executeTasks(pair.second);
+                } catch (Exception ex) {
+                    java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
     
+    }
     /**
      * Verifica se as tarefas que estavam aguardando algum arquivo já foram executadas, se não solicita execução.
      */
@@ -526,6 +537,11 @@ public class SchedService extends AbstractBioService implements Service, P2PList
      */
     private void executeTasks(PluginTask task) throws Exception{
          //verifica se o arquivo existe no plugin se não cria a solicitação de transfêrencia do arquivo
+        if(!existFilesCloud(task.getJobInfo().getInputs())){
+            if(task.getState() ==PluginTaskState.PENDING)
+                task.setState(PluginTaskState.WAITING);
+            return;
+        }
         if(!existFiles(task.getJobInfo().getInputs())){
             requestFile(task.getJobInfo().getInputs());
             checkFilesPlugin();
@@ -553,6 +569,23 @@ public class SchedService extends AbstractBioService implements Service, P2PList
         }
         
         return false;
+    }
+    
+    /**
+     * Verifica a existência dos arquivos de entrada na federação, caso não exista retorna false.
+     * @param listInputFiles
+     * @return false se não existir algum arquivo no zoonimbus
+     */
+    private boolean existFilesCloud(List<Pair<String,Long>> listInputFiles){
+    
+        for(Pair<String,Long> fileInput : listInputFiles){
+            if(getFilesIP(fileInput.first)==null){
+                System.out.println("Arquivo :"+fileInput.first+" não existe no Zoonimbus !!!");
+                return false;
+            }
+        }
+        
+        return true;
     }
     
     /**
@@ -599,7 +632,6 @@ public class SchedService extends AbstractBioService implements Service, P2PList
                     }
                 }
             }
-            return "Arquivo nao encontrado";
         } catch (KeeperException ex) {
            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
@@ -644,11 +676,13 @@ public class SchedService extends AbstractBioService implements Service, P2PList
 
                     }else if(eventType.getPath().contains(SCHED+TASKS)){
                             //verifica qual foi o job colocado para ser executado 
-                            PluginTask pluginTask = checkWaitingTask(eventType.getPath());
+                            PluginTask pluginTask = getNewTask(eventType.getPath());
                             //verifica se um existe algum novo pluginTask
                             if(pluginTask !=null){
                                 if(pluginTask.getState() == PluginTaskState.PENDING)
                                     executeTasks(pluginTask);
+                            }else if(!waitingTask.isEmpty()){
+                                    checkStatusTask();
                             }
 
                     }else if(eventType.getPath().contains(zkService.getPath().FILES.toString())){
@@ -658,6 +692,10 @@ public class SchedService extends AbstractBioService implements Service, P2PList
                             setLatencyPlugins(zkService.getData(LATENCY+SCHED, null));
                             scheduleJobs();
 
+                    }else if(eventType.getPath().equals(ROOT_PEER)){
+                            if(cloudMap.size()<getPeers().size()){
+                                verifyPlugins();
+                            }
                     }
 
                     break;
@@ -694,16 +732,21 @@ public class SchedService extends AbstractBioService implements Service, P2PList
             }
     }
             
-    private PluginFile getFileById(String fileId,
-        Collection<PluginFile> pluginFiles) {
-        for (PluginFile file : pluginFiles) {
-            if (file.getId().equals(fileId)) {
-                return file;
+    @Override
+    public void verifyPlugins(){
+        Collection<PluginInfo> temp  = getPeers().values();
+        temp.removeAll(cloudMap.values());
+        for(PluginInfo plugin : temp){
+            try {
+                zkService.getData(zkService.getPath().STATUS.getFullPath(plugin.getId(), "", ""), new UpdatePeerData(zkService, this));
+            } catch (KeeperException ex) {
+                java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InterruptedException ex) {
+                java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        return null;
+    
     }
-
     private Object convertString(Class classe, String datas ){
         Object object=null;
         try {

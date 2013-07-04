@@ -17,6 +17,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,6 +37,7 @@ public class MonitoringService extends AbstractBioService implements Service, P2
     private final ScheduledExecutorService schedExecService = Executors.newScheduledThreadPool(1, new BasicThreadFactory.Builder().namingPattern("MonitorService-%d").build());
     private final Map<String, PluginTask> waitingTask = new ConcurrentHashMap<String, PluginTask>();
     private final List<String> waitingJobs = new ArrayList<String>();
+    private final Collection<String> plugins = new ArrayList<String>();
     private P2PService p2p = null;
     private static final String ROOT_PEER = "/peers";
     private static final String TASKS = "/tasks";
@@ -93,14 +95,10 @@ public class MonitoringService extends AbstractBioService implements Service, P2
                     System.out.print(path + "= NodeCreated");
                     break;
                 case NodeChildrenChanged:
-//                    if(eventType.getPath().contains(zkService.getPath().PENDING_SAVE.toString())){
-//                       String fileId =  path.substring(path.indexOf(zkService.getPath().PREFIX_PENDING_FILE.toString())+13);
-//                       ObjectMapper mapper = new ObjectMapper();
-//                       PluginFile file = mapper.readValue(zkService.getData(zkService.getPath().PREFIX_FILE.getFullPath("", fileId, ""), null), PluginFile.class);
-//                       if (((Long)file.getSize())==null){
-//                           checkPendingSave();
-//                       }
-//                    }
+                        if(eventType.getPath().equals(ROOT_PEER))
+                            if(plugins.size()<getPeers().size()){
+                                verifyPlugins();
+                            }
                     System.out.print(path + "= NodeChildrenChanged");
                     break;
                 case NodeDeleted:
@@ -118,6 +116,21 @@ public class MonitoringService extends AbstractBioService implements Service, P2
             Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    @Override
+    public void verifyPlugins() {
+        Collection<PluginInfo> temp  = getPeers().values();
+        temp.removeAll(plugins);
+        for(PluginInfo plugin : temp){
+            try {
+                zkService.getData(zkService.getPath().STATUS.getFullPath(plugin.getId(), "", ""), new UpdatePeerData(zkService, this));
+            } catch (KeeperException ex) {
+                java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InterruptedException ex) {
+                java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } 
+    }
 
     /**
      * Verifica se os jobs que estava aguardando escalonamento e as tarefas que
@@ -125,10 +138,12 @@ public class MonitoringService extends AbstractBioService implements Service, P2
      */
     private void checkJobsTasks() {
         try {
+
             for (String job : zkService.getChildren(zkService.getPath().JOBS.toString(), null)) {
                 //verifica se o job já estava na lista, recupera e lança novamente os dados para disparar watchers
                 if (waitingJobs.contains(job)) {
                     String datas = zkService.getData(zkService.getPath().JOBS.toString() + SEPARATOR + job, null);
+                    // remove e cria task novamente para que os watchers sejam disparados e execute essa tarefa
                     zkService.delete(zkService.getPath().JOBS.toString() + SEPARATOR + job);
                     zkService.createPersistentZNode(zkService.getPath().JOBS.toString() + SEPARATOR + job, datas);
                     waitingJobs.remove(job);
@@ -144,8 +159,11 @@ public class MonitoringService extends AbstractBioService implements Service, P2
                     //verifica se o job já estava na lista, recupera e lança novamente os dados para disparar watchers                    if(count ==1){
                     if (pluginTask.getState() == PluginTaskState.PENDING) {
                         if (waitingTask.containsKey(task)) {
-                            zkService.delete(zkService.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())));
-                            zkService.createPersistentZNode(zkService.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())), pluginTask.toString());
+                            //condição para verificar se a tarefa está sendo utilizada
+                            if(zkService.getZNodeExist(zkService.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())), false)){
+                                zkService.delete(zkService.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())));
+                                zkService.createPersistentZNode(zkService.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())), pluginTask.toString());
+                            }
                             waitingJobs.remove(task);
                         } else {
                             waitingTask.put(task, pluginTask);
@@ -171,15 +189,21 @@ public class MonitoringService extends AbstractBioService implements Service, P2
      */
     private void checkPeersStatus() {
         try {
-            List<String> listPeers = zkService.getChildren(zkService.getPath().PEERS.toString(), null);
+            List<String> listPeers = zkService.getChildren(zkService.getPath().PEERS.toString(), new UpdatePeerData(zkService, this));
             for (String peerPath : listPeers) {
+//                if(!plugins.contains(peerPath)){
+//                    plugins.add(peerPath);
+//                    RpcClient rpcClient = new AvroClient("http", plugin.getHost().getAddress(), PORT);
+//                    rpcClient.getProxy().setWatcher(plugin.getId());
+//                    rpcClient.close();
 
-                if (zkService.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, false)) {
-                    //TO DO descomentar linha abaixo caso o storage estiver fazendo a recuperação do peer 
-                    if (zkService.getData(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, null).contains("ES")) {
-                        deletePeer(ROOT_PEER + SEPARATOR + peerPath);
+                    if (zkService.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, false)) {
+                        //TO DO descomentar linha abaixo caso o storage estiver fazendo a recuperação do peer 
+                        if (zkService.getData(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, null).contains("ES")) {
+                            deletePeer(ROOT_PEER + SEPARATOR + peerPath);
+                        }
                     }
-                }
+//                }
             }
         } catch (KeeperException ex) {
             Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
@@ -211,29 +235,21 @@ public class MonitoringService extends AbstractBioService implements Service, P2
      */
     private void checkPeers() {
         try {
-            //VERIFICAR AQUI GABRIEL
-//            for (PluginInfo plugin : getPeers().values()) {
-//
-//                RpcClient rpcClient = new AvroClient("http", plugin.getHost().getAddress(), PORT);
-//                rpcClient.getProxy().setWatcher(plugin.getId());
-//                rpcClient.close();
-//            }
             //executa a verificação inicial para ver se os peers estão on-line, adiciona um watcher para avisar quando o peer ficar off-line
             List<String> listPeers = zkService.getChildren(ROOT_PEER, null);
             for (String peerPath : listPeers) {
-                if (zkService.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUS, false)) {
-                    //adicionando wacth
-                    zkService.getData(ROOT_PEER + SEPARATOR + peerPath + STATUS, new UpdatePeerData(zkService, this));
-                    //GABRIEL PORQUE VOCE SETA NULL DEPOIS?
-                    zkService.getData(ROOT_PEER + SEPARATOR + peerPath + STATUS, null);
-                }
-                //verifica se algum plugin havia ficado off e não foi realizado sua recuperação
-                if (!zkService.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUS, false)
-                        && !zkService.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, false)) {
-                    zkService.createPersistentZNode(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, "");
-                    zkService.getData(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, new UpdatePeerData(zkService, this));
-                    zkService.getData(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, null);
-                }
+                    if (zkService.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUS, false)) {
+                        //adicionando wacth
+                        zkService.getData(ROOT_PEER + SEPARATOR + peerPath + STATUS, new UpdatePeerData(zkService, this));
+
+                    }
+                    //verifica se algum plugin havia ficado off e não foi realizado sua recuperação
+                    if (!zkService.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUS, false)
+                            && !zkService.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, false)) {
+                        zkService.createPersistentZNode(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, "");
+                        zkService.getData(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, new UpdatePeerData(zkService, this));
+                    }
+                    plugins.add(peerPath);
             }
         } catch (KeeperException ex) {
             Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
@@ -336,4 +352,5 @@ public class MonitoringService extends AbstractBioService implements Service, P2
 //    //        JobInfo job = pair.first;
 //        //p2p.sendMessage(new EndJobMessage(job));
 //    }
+
 }
