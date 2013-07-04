@@ -296,17 +296,21 @@ protocol BioProto {
   // void sendPlugins(array<NodeInfo> plugins) oneway;
 
   //Transferencia de arquivos entre os nodes bionimbus
-   void transferFile(array<NodeInfo> plugins,string path, int copies,array<string> destprimary) oneway; 
+  void transferFile(array<NodeInfo> plugins,string path, int copies,array<string> destprimary) oneway; 
 
 
   //Mensagem de arquivo enviado com sucesso do cliente pro servidor
-    void fileSent(FileInfo fileSucess,array<string> dest) oneway;
+  void fileSent(FileInfo fileSucess,array<string> dest) oneway;
 
   //Chamar Storage Service
-    array<NodeInfo> callStorage(array<NodeInfo> list);
+   array<NodeInfo> callStorage(array<NodeInfo> list);
 
   //Invocar metodo de replicação
-   void notifyReply(string filename,string address) oneway;
+  void notifyReply(string filename,string address) oneway;
 
+  //verifica se exist o arquivo e cria no znode setando o watcher
    boolean verifyFile(FileInfo fileSucess,array<string> dest);
+   
+  //seta os watchers na status para a storage , pode ser setado pros outros servicos tambem
+   void setWatcher(string idPlugin) oneway; 
 }

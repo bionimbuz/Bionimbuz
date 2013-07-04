@@ -1,5 +1,7 @@
 package br.unb.cic.bionimbus.services.monitor;
 
+import br.unb.cic.bionimbus.avro.rpc.AvroClient;
+import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.p2p.P2PEvent;
 import br.unb.cic.bionimbus.p2p.P2PListener;
 import br.unb.cic.bionimbus.p2p.P2PService;
@@ -44,7 +46,7 @@ public class MonitoringService extends AbstractBioService implements Service, P2
     private static final String STATUS = "/STATUS";
     private static final String STATUSWAITING = "/STATUSWAITING";
     private static final String SEPARATOR = "/";
-
+    private static final int PORT = 9999;
     @Inject
     public MonitoringService(final ZooKeeperService zKService) {
         this.zkService = zKService;
@@ -115,6 +117,8 @@ public class MonitoringService extends AbstractBioService implements Service, P2
         } catch (KeeperException ex) {
             Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
+            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
             Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -210,14 +214,21 @@ public class MonitoringService extends AbstractBioService implements Service, P2
      * Incia o processo de recuperação dos peers caso ainda não tenho sido iniciado e adiciona um watcher nos peer on-lines.
      */
     private void checkPeers(){
-        try {
-        
+        try{
+            //VERIFICAR AQUI GABRIEL
+            for(PluginInfo plugin : getPeers().values()){
+                        
+                RpcClient rpcClient = new AvroClient("http", plugin.getHost().getAddress(), PORT);
+                rpcClient.getProxy().setWatcher(plugin.getId());
+                rpcClient.close();
+            }
             //executa a verificação inicial para ver se os peers estão on-line, adiciona um watcher para avisar quando o peer ficar off-line
             List<String> listPeers = zkService.getChildren(ROOT_PEER, null);
             for (String peerPath : listPeers) {
                     if(zkService.getZNodeExist(ROOT_PEER+SEPARATOR+peerPath+STATUS, false)){
                         //adicionando wacth
                         zkService.getData(ROOT_PEER+SEPARATOR+peerPath+STATUS, new UpdatePeerData(zkService,this));
+                        //GABRIEL PORQUE VOCE SETA NULL DEPOIS?
                         zkService.getData(ROOT_PEER+SEPARATOR+peerPath+STATUS, null);
                     }
                     //verifica se algum plugin havia ficado off e não foi realizado sua recuperação
@@ -231,6 +242,10 @@ public class MonitoringService extends AbstractBioService implements Service, P2
         } catch (KeeperException ex) {
             Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
+            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
             Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         }
 
