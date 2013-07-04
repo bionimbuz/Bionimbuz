@@ -189,7 +189,7 @@ public class StorageService extends AbstractBioService {
                     pluginFile.setPath(file.getPath());
                     //list ids Verificar onde esse arquivo está caso já exista
                     List<String> listIds = new ArrayList<String>();
-                    listIds.add(p2p.getConfig().getPlugin());
+                    listIds.add(p2p.getConfig().getId());
 
                     pluginFile.setPluginId(listIds);
                     pluginFile.setSize(file.length());
@@ -221,7 +221,7 @@ public class StorageService extends AbstractBioService {
                    String ipPluginFile =getFilesIP(fileNamePlugin);
                    if(!ipPluginFile.equals(p2p.getConfig().getAddress())){
                        RpcClient rpcClient = new AvroClient("http", ipPluginFile, PORT);
-//                       rpcClient.getProxy().notifyReply(fileNamePlugin,ipPluginFile);
+                       rpcClient.getProxy().notifyReply(fileNamePlugin,ipPluginFile);
                        rpcClient.close();
                    }
                    else{
