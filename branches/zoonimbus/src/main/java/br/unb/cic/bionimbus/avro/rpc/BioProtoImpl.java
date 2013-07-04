@@ -285,5 +285,10 @@ public class BioProtoImpl implements BioProto {
         return storageService.checkFilePeer(fileS); 
     }
 
+    @Override
+    public void setWatcher(String idPlugin) {
+        storageService.starWatchers(idPlugin);
+    }
+
 
 }

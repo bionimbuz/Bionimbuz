@@ -76,6 +76,21 @@ public class StorageService extends AbstractBioService {
         System.out.println("Executando loop.");
     }
 
+    public void starWatchers(String id){
+        try {
+            zkService.getChildren(zkService.getPath().STATUS.getFullPath(id,"",""),new UpdatePeerData(zkService, this));
+        } catch (KeeperException ex) {
+            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    /**
+     * 
+     * @param p2p 
+     */
+    
     @Override
     public void start(P2PService p2p) {
         this.p2p = p2p;
@@ -527,7 +542,7 @@ public class StorageService extends AbstractBioService {
             switch(eventType.getType()){
 
                 case NodeChildrenChanged:
-                    System.out.println("\n\n Event get path"+path);
+//                    System.out.println("\n\n Event get path"+path);
                     System.out.print(path + "= NodeChildrenChanged");
                     break;
                 case NodeDeleted:
@@ -539,6 +554,13 @@ public class StorageService extends AbstractBioService {
                             }
                             if(!zkService.getData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), null).contains("S")){
                                 for(PluginFile fileExcluded :getFilesPeer(peerId).values()){
+                                    String idPluginExcluded=new String();
+                                    for(String idPlugin: fileExcluded.getPluginId()){
+                                        if(peerId.equals(idPlugin)){
+                                            idPluginExcluded= idPlugin;
+                                        }
+                                    }
+                                    fileExcluded.getPluginId().remove(idPluginExcluded);
                                     fileUploaded(fileExcluded);
                                 }
                                 StringBuilder info = new StringBuilder(zkService.getData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), null));
