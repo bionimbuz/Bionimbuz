@@ -324,7 +324,7 @@ public class StorageService extends AbstractBioService {
      * @param file - Arquivo a ser verifcado
      * @return true caso o arquivo exista e tenha sido setado 
      */
-    public boolean checkFilePeer( PluginFile file){
+    public boolean checkFilePeer(PluginFile file){
         File localFile= new File("/home/zoonimbus/NetBeansProjects/zoonimbus/data-folder/"+file.getName());
         if(localFile.exists()){
              zkService.createPersistentZNode(zkService.getPath().PREFIX_FILE.getFullPath(p2p.getConfig().getId(),file.getId() , ""), file.toString());
@@ -351,24 +351,39 @@ public class StorageService extends AbstractBioService {
         if (zkService.getZNodeExist(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileuploaded.getId(), ""), false)){
             
            String ipPluginFile =getPeers().get(fileuploaded.getPluginId().iterator().next()).getHost().getAddress();
-           RpcClient rpcClient = new AvroClient("http",ipPluginFile, PORT);
            FileInfo file = new FileInfo();
            file.setFileId(fileuploaded.getId());
            file.setName(fileuploaded.getName());
            file.setSize(fileuploaded.getSize());
-           if(rpcClient.getProxy().verifyFile(file,fileuploaded.getPluginId()))
-           {
-             if(zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(fileuploaded.getPluginId().iterator().next(),fileuploaded.getId(), ""), true));
-               zkService.delete(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("",fileuploaded.getId(), ""));
+           if(!p2p.getConfig().getAddress().equals(ipPluginFile)){
+                RpcClient rpcClient = new AvroClient("http",ipPluginFile, PORT);
+                if(rpcClient.getProxy().verifyFile(file,fileuploaded.getPluginId())) {
+                  if(zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(fileuploaded.getPluginId().iterator().next(),fileuploaded.getId(), ""), true));
+                    zkService.delete(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("",fileuploaded.getId(), ""));
+                }
+                else{
+                     System.out.println("Arquivo não submetido!");
+                }
+                rpcClient.getProxy().notifyReply(fileuploaded.getName(), ipPluginFile);
+                try {
+                     rpcClient.close();
+                } catch (Exception ex) {
+                     Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                }
            }
-           else
-                System.out.println("Arquivo não submetido!");
-           rpcClient.getProxy().notifyReply(fileuploaded.getName(), ipPluginFile);
-            try {
-                rpcClient.close();
-            } catch (Exception ex) {
-                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-            }
+           else{
+               if(checkFilePeer(fileuploaded))
+                   if(zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(fileuploaded.getPluginId().iterator().next(),fileuploaded.getId(), ""), true));
+                        zkService.delete(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("",fileuploaded.getId(), ""));
+               try {
+                   replication(file.getName(), p2p.getConfig().getAddress());
+               } catch (JSchException ex) {
+                   Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+               } catch (SftpException ex) {
+                   Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+               }
+                   
+           }
         }else
             System.out.println("Arquivo não encontrado nas pendências !");
         
