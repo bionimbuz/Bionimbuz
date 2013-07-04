@@ -349,7 +349,7 @@ public class StorageService extends AbstractBioService {
      * @throws InterruptedException
      * @throws IOException
      */
-    public void fileUploaded(PluginFile fileuploaded) throws KeeperException, InterruptedException, IOException{
+    public synchronized void fileUploaded(PluginFile fileuploaded) throws KeeperException, InterruptedException, IOException{
         if (zkService.getZNodeExist(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileuploaded.getId(), ""), false)){
             
            String ipPluginFile =getPeers().get(fileuploaded.getPluginId().iterator().next()).getHost().getAddress();
@@ -399,7 +399,7 @@ public class StorageService extends AbstractBioService {
      * @throws JSchException
      * @throws SftpException
      */
-    public void replication (String filename,String address) throws IOException, JSchException, SftpException{
+    public synchronized void replication (String filename,String address) throws IOException, JSchException, SftpException{
         
 
         List<NodeInfo> pluginList = new ArrayList<NodeInfo>();

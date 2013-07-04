@@ -95,6 +95,9 @@ public class Upload implements Command {
                     return "\n Upload Completed!!";
                 }
              }
+            else{
+                return "\n\n Arquivo ja existe na federação !!";
+            }
          }
          return "\n\n Erro no upload !!";
     }
