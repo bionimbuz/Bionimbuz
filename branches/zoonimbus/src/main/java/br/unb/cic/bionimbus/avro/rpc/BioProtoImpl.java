@@ -287,7 +287,7 @@ public class BioProtoImpl implements BioProto {
 
     @Override
     public void setWatcher(String idPlugin) {
-        storageService.starWatchers(idPlugin);
+//        storageService.starWatchers(idPlugin);
     }
 
 

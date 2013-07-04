@@ -76,16 +76,6 @@ public class StorageService extends AbstractBioService {
         System.out.println("Executando loop.");
     }
 
-    public void starWatchers(String id){
-        try {
-            zkService.getChildren(zkService.getPath().STATUS.getFullPath(id,"",""),new UpdatePeerData(zkService, this));
-        } catch (KeeperException ex) {
-            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
     /**
      * 
      * @param p2p 
@@ -102,6 +92,8 @@ public class StorageService extends AbstractBioService {
         zkService.createPersistentZNode(zkService.getPath().FILES.getFullPath(p2p.getConfig().getId(), "", ""), "");
         try {
             zkService.getChildren(zkService.getPath().PENDING_SAVE.getFullPath("","",""),new UpdatePeerData(zkService, this));
+            
+
         } catch (KeeperException ex) {
             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
@@ -538,7 +530,9 @@ public class StorageService extends AbstractBioService {
     
     @Override
     public void event(WatchedEvent eventType) {
-               String path = eventType.getPath(); 
+        System.out.println("StoringService event path:"+eventType.getPath().toString());
+        System.out.println("StoringService event type"+eventType.getType().toString());
+            String path = eventType.getPath(); 
             switch(eventType.getType()){
 
                 case NodeChildrenChanged:
@@ -547,20 +541,23 @@ public class StorageService extends AbstractBioService {
                     break;
                 case NodeDeleted:
                     if(eventType.getPath().contains(zkService.getPath().STATUS.toString())){
-                        String peerId =  path.substring(path.indexOf(zkService.getPath().PREFIX_FILE.toString())+5, path.indexOf("/STATUS"));
+                        System.out.println("StoringService status apagada");
+
+                        String peerId =  path.substring(12, path.indexOf("/STATUS"));
                         try {
                             if(!zkService.getZNodeExist(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), false)){
                                 zkService.createPersistentZNode(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), "");
                             }
                             if(!zkService.getData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), null).contains("S")){
                                 for(PluginFile fileExcluded :getFilesPeer(peerId).values()){
-                                    String idPluginExcluded=new String();
+                                    String idPluginExcluded=null;
                                     for(String idPlugin: fileExcluded.getPluginId()){
                                         if(peerId.equals(idPlugin)){
                                             idPluginExcluded= idPlugin;
                                         }
                                     }
                                     fileExcluded.getPluginId().remove(idPluginExcluded);
+                                    setPendingFile(fileExcluded);
                                     fileUploaded(fileExcluded);
                                 }
                                 StringBuilder info = new StringBuilder(zkService.getData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), null));
