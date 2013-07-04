@@ -56,9 +56,10 @@ public class BioProtoImpl implements BioProto {
     @Override
     public List<br.unb.cic.bionimbus.avro.gen.PluginFile> listFiles() throws AvroRemoteException {
         List<br.unb.cic.bionimbus.avro.gen.PluginFile> listFile = new ArrayList<br.unb.cic.bionimbus.avro.gen.PluginFile>();
+        br.unb.cic.bionimbus.avro.gen.PluginFile file=null;
         for(PluginInfo plugin : this.discoveryService.getPeers().values()){
-            for(PluginFile fileInfo : storageService.getFilesPeer(plugin.getId()).values()){
-                br.unb.cic.bionimbus.avro.gen.PluginFile file = new  br.unb.cic.bionimbus.avro.gen.PluginFile();
+            for(PluginFile fileInfo : storageService.getFilesPeer(plugin.getId())){
+                file = new  br.unb.cic.bionimbus.avro.gen.PluginFile();
                 file.setId(fileInfo.getId());
                 file.setName(fileInfo.getName());
                 file.setPath(fileInfo.getPath());

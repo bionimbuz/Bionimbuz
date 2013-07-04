@@ -13,6 +13,7 @@ import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
+import br.unb.cic.bionimbus.services.monitor.MonitoringService;
 import br.unb.cic.bionimbus.utils.Put;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
@@ -92,6 +93,7 @@ public class StorageService extends AbstractBioService {
         zkService.createPersistentZNode(zkService.getPath().FILES.getFullPath(p2p.getConfig().getId(), "", ""), "");
         try {
             zkService.getChildren(zkService.getPath().PENDING_SAVE.getFullPath("","",""),new UpdatePeerData(zkService, this));
+            zkService.getChildren(zkService.getPath().PEERS.getFullPath("","",""), new UpdatePeerData(zkService, this));
             
 
         } catch (KeeperException ex) {
@@ -517,30 +519,40 @@ public class StorageService extends AbstractBioService {
      * @param pluginId id do plugin para pegar os arquivos do plugin
      * @return Map com os plugins e seus arquivos
      */
-    public Map<String, PluginFile> getFilesPeer(String pluginId){
+    public List<PluginFile> getFilesPeer(String pluginId){
         List<String> children;
-        Map<String,PluginFile>filesPeerSelected=new ConcurrentHashMap<String, PluginFile>(); 
-        filesPeerSelected.clear();
+        List<PluginFile>filesPeerSelected= new ArrayList<PluginFile> (); 
         checkFiles();
         try {
             children = zkService.getChildren(zkService.getPath().FILES.getFullPath(pluginId,"",""), null);
             for (String fileId : children) {
-                ObjectMapper mapper = new ObjectMapper();
-                PluginFile file = mapper.readValue(zkService.getData(zkService.getPath().PREFIX_FILE.getFullPath(pluginId, fileId.substring(5,fileId.length()), ""), null), PluginFile.class);
-                    
-                if(zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(pluginId, fileId.substring(5,fileId.length()), ""), false)){ 
-                    filesPeerSelected.put(file.getId(), file);
+                String fileName = fileId.substring(5,fileId.length());
+                if(savedFiles.containsKey(fileName)){
+                    filesPeerSelected.add(savedFiles.get(fileName));
                 }
             }
         } catch (KeeperException ex) {
             Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
             Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         return filesPeerSelected;
+    }
+    
+    @Override
+    public void verifyPlugins() {
+        Collection<PluginInfo> temp  = getPeers().values();
+        temp.removeAll(cloudMap.values());
+        for(PluginInfo plugin : temp){
+            try {
+                zkService.getData(zkService.getPath().STATUS.getFullPath(plugin.getId(), "", ""), new UpdatePeerData(zkService, this));
+            } catch (KeeperException ex) {
+                java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InterruptedException ex) {
+                java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
     
     @Override
@@ -551,9 +563,11 @@ public class StorageService extends AbstractBioService {
             switch(eventType.getType()){
 
                 case NodeChildrenChanged:
-//                    System.out.println("\n\n Event get path"+path);
-                    System.out.print(path + "= NodeChildrenChanged");
-                    break;
+                    if(eventType.getPath().equals(zkService.getPath().PEERS))
+                        if(cloudMap.size()<getPeers().size()){
+                            verifyPlugins();
+                        }
+                    
                 case NodeDeleted:
                     if(eventType.getPath().contains(zkService.getPath().STATUS.toString())){
                         System.out.println("StoringService status apagada");
@@ -564,7 +578,7 @@ public class StorageService extends AbstractBioService {
                                 zkService.createPersistentZNode(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), "");
                             }
                             if(!zkService.getData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), null).contains("S")){
-                                for(PluginFile fileExcluded :getFilesPeer(peerId).values()){
+                                for(PluginFile fileExcluded :getFilesPeer(peerId)){
                                     String idPluginExcluded=null;
                                     for(String idPlugin: fileExcluded.getPluginId()){
                                         if(peerId.equals(idPlugin)){
@@ -592,5 +606,7 @@ public class StorageService extends AbstractBioService {
                    }
                     break;
             }
-    }     
+    }
+
+    
 }

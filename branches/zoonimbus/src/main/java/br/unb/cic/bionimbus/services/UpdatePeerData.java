@@ -41,10 +41,11 @@ public class UpdatePeerData implements Watcher  {
             switch(event.getType()){
             
                 case NodeChildrenChanged:
-                    zkService.getData(event.getPath(), this);
+                    zkService.getChildren(event.getPath(), this);
                 break;
                 case NodeDataChanged:
-                    zkService.getData(event.getPath(), this);
+                    if(zkService.getZNodeExist(event.getPath(), false))
+                        zkService.getData(event.getPath(), this);
                 break;
             
             }
@@ -53,6 +54,6 @@ public class UpdatePeerData implements Watcher  {
         } catch (InterruptedException ex) {
             Logger.getLogger(UpdatePeerData.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
+    } 
         
 }

@@ -226,4 +226,9 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
     public void shutdown() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public void verifyPlugins() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }
