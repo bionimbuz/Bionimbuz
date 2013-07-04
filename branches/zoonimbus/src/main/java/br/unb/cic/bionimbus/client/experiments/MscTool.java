@@ -6,19 +6,12 @@ import br.unb.cic.bionimbus.avro.gen.Pair;
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.client.JobInfo;
-import br.unb.cic.bionimbus.p2p.P2PMessageType;
-import br.unb.cic.bionimbus.p2p.messages.JobReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.JobRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.ListReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.ListRespMessage;
 import br.unb.cic.bionimbus.plugin.PluginFile;
-import br.unb.cic.bionimbus.services.Service;
 import br.unb.cic.bionimbus.services.storage.Ping;
 import br.unb.cic.bionimbus.utils.Put;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -78,7 +71,7 @@ public class MscTool {
         while (it.hasNext() && no == null) {
                 NodeInfo node = (NodeInfo)it.next();
 
-            Put conexao = new Put(node.getAddress(),file.getPath(),0);                
+            Put conexao = new Put(node.getAddress(),file.getPath());                
                 if(conexao.startSession()){
                     no = node;
                 }

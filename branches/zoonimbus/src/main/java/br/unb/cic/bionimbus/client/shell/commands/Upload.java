@@ -24,7 +24,6 @@ public class Upload implements Command {
     private List<NodeInfo> pluginList;
     private List<NodeInfo> nodesdisp = new ArrayList<NodeInfo>();
     private Double MAXCAPACITY = 0.9;
-    private int flag = 0;
 
     public Upload(SimpleShell shell) {
         this.shell = shell;
@@ -32,9 +31,11 @@ public class Upload implements Command {
 
     @Override
     public String execute(String... params) throws Exception {
+        
         /*
          * Verifica se o arquivo existe
-         */       
+         */ 
+        
          File file = new File(params[0]);
          if (file.exists()) {
            
@@ -44,18 +45,29 @@ public class Upload implements Command {
             info.setFileId(file.getName());
             info.setName(file.getName());
             info.setSize(file.length());  
+            /*
+             * Pega uma lista com todos os peers para calcular a latencia entre o cliente 
+             * e os servidores.
+             */
             if(shell.getRpcClient().getProxy().listFilesIp(info.getName()).equals("")){
                 System.out.println("\n Calculando Latencia.....");
                 pluginList = shell.getRpcClient().getProxy().getPeersNode();
                 shell.getRpcClient().getProxy().setFileInfo(info);
                 for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
                     NodeInfo plugin = it.next();
+                    /*
+                     * Adiciona na lista de possiveis peers de destino somente os que possuem
+                     * espaço livre para receber o arquivo
+                     */
                     if ((long)(plugin.getFreesize()*MAXCAPACITY)>info.getSize()){
                         plugin.setLatency(Ping.calculo(plugin.getAddress()));
                         nodesdisp.add(plugin);
                     }    
                 }
-                //Retorna a lista dos nos ordenados como melhores, passando a latência calculada
+                
+                /*
+                * Retorna a lista dos nos ordenados como melhores, passando a latência calculada
+                */
                 nodesdisp = new ArrayList<NodeInfo>(shell.getRpcClient().getProxy().callStorage(nodesdisp)); 
            
           
@@ -63,8 +75,10 @@ public class Upload implements Command {
                 Iterator<NodeInfo> it = nodesdisp.iterator();
                 while (it.hasNext() && no == null) {
                      NodeInfo node = (NodeInfo)it.next();
-
-                     Put conexao = new Put(node.getAddress(),path,flag);                
+                     /*
+                      * Tenta enviar o arquivo a partir do melhor peer que está na lista
+                      */
+                     Put conexao = new Put(node.getAddress(),path);                
                      if(conexao.startSession()){
                            no = node;
                     }
@@ -72,7 +86,11 @@ public class Upload implements Command {
                 if(no != null){
                     List<String> dest = new ArrayList<String>();
                     dest.add(no.getPeerId());
-                    nodesdisp.remove(no);             
+                    nodesdisp.remove(no); 
+                    /*
+                     * Envia RPC para o peer em que está conectado, para que ele sete no Zookeeper
+                     * os dados do arquivo que foi upado.
+                     */
                     shell.getRpcClient().getProxy().fileSent(info,dest);
                     return "\n Upload Completed!!";
                 }
