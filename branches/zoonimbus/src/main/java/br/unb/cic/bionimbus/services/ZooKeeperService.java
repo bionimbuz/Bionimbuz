@@ -41,7 +41,7 @@ public class ZooKeeperService {
     public enum Path {
         
         ROOT("/"), PREFIX_PEER("/peer_"), PEERS("/peers"), FILES("/files"),PENDING_SAVE("/pending_save"),PREFIX_PENDING_FILE("/pending_file_"),
-        JOBS("/jobs"),PREFIX_FILE("/file_"),STATUS("/STATUS"),STATUSWAITING("/STATUSWAITING"),SCHED("/sched"),
+        JOBS("/jobs"),PREFIX_FILE("/file_"),STATUS("/STATUS"),STATUSWAITING("/STATUSWAITING"),SCHED("/sched"),LOCK_JOB("/LOCK"),
         SIZE_JOBS("/size_jobs"),TASKS("/tasks"), PREFIX_TASK("/task_"),PREFIX_JOB("/job_"), UNDERSCORE("_");
         
         private final String value;
@@ -74,6 +74,7 @@ public class ZooKeeperService {
                 case PREFIX_TASK: return ""+PEERS+PREFIX_PEER+pluginid+SCHED+TASKS+PREFIX_TASK+taskid;
                 case FILES: return ""+PEERS+PREFIX_PEER+pluginid+FILES;
                 case PREFIX_FILE: return ""+PEERS+PREFIX_PEER+pluginid+FILES+PREFIX_FILE+fileid;
+                case LOCK_JOB: return ""+JOBS+PREFIX_JOB+taskid+LOCK_JOB;
             }
             return "";
         }
