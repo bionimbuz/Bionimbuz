@@ -40,6 +40,8 @@ import org.apache.avro.AvroRemoteException;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 @Singleton
@@ -75,6 +77,7 @@ public class StorageService extends AbstractBioService {
         
         System.out.println("Running StorageService...");
         System.out.println("Executando loop.");
+        getFileSize("neymar.gif");
     }
 
     /**
@@ -298,6 +301,26 @@ public class StorageService extends AbstractBioService {
         
     }
     
+    public long getFileSize(String file){
+        List<String> listFiles ;
+       // Map<String,List<String>> mapFiles = new HashMap<String, List<String>>();
+        try {
+            for (Iterator<PluginInfo> it = getPeers().values().iterator(); it.hasNext();) {
+                PluginInfo plugin = it.next();
+                listFiles = zkService.getChildren(plugin.getPath_zk()+zkService.getPath().FILES.toString(),null);
+                PluginFile files = new ObjectMapper().readValue(zkService.getData(zkService.getPath().FILES.getFullPath(plugin.getId(), "",""),null),PluginFile.class);
+                return files.getSize();
+            }
+            
+        } catch (KeeperException ex) {
+            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+        }  
+        return 0;
+    }
     /**
      * Recebe uma list com todos os peers da federação e seta o custo de armazenamento em cada plugin
      * @param list - Lista com todos os plugins da federação
@@ -564,6 +587,10 @@ public class StorageService extends AbstractBioService {
 
                 case NodeChildrenChanged:
                     if(eventType.getPath().equals(zkService.getPath().PEERS))
+                        if(cloudMap.size()<getPeers().size()){
+                            verifyPlugins();
+                        }
+                    if(eventType.getPath().equals(zkService.getPath().PENDING_SAVE.toString()))
                         if(cloudMap.size()<getPeers().size()){
                             verifyPlugins();
                         }

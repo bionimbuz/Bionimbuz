@@ -48,8 +48,10 @@ public class Upload implements Command {
             /*
              * Pega uma lista com todos os peers para calcular a latencia entre o cliente 
              * e os servidores.
-             */
+            */
             if(shell.getRpcClient().getProxy().listFilesIp(info.getName()).equals("")){
+                long filesize = shell.getRpcClient().getProxy().checkFileSize(info.getName());
+                if(filesize != info.getSize()){
                 System.out.println("\n Calculando Latencia.....");
                 pluginList = shell.getRpcClient().getProxy().getPeersNode();
                 shell.getRpcClient().getProxy().setFileInfo(info);
@@ -64,39 +66,40 @@ public class Upload implements Command {
                         nodesdisp.add(plugin);
                     }    
                 }
-                
+
                 /*
                 * Retorna a lista dos nos ordenados como melhores, passando a latência calculada
                 */
                 nodesdisp = new ArrayList<NodeInfo>(shell.getRpcClient().getProxy().callStorage(nodesdisp)); 
-           
-          
+
+
                 NodeInfo no=null;
                 Iterator<NodeInfo> it = nodesdisp.iterator();
                 while (it.hasNext() && no == null) {
                      NodeInfo node = (NodeInfo)it.next();
                      /*
-                      * Tenta enviar o arquivo a partir do melhor peer que está na lista
-                      */
-                     Put conexao = new Put(node.getAddress(),path);                
-                     if(conexao.startSession()){
-                           no = node;
-                    }
-                }
-                if(no != null){
-                    List<String> dest = new ArrayList<String>();
-                    dest.add(no.getPeerId());
-                    nodesdisp.remove(no); 
-                    /*
-                     * Envia RPC para o peer em que está conectado, para que ele sete no Zookeeper
-                     * os dados do arquivo que foi upado.
-                     */
-                    shell.getRpcClient().getProxy().fileSent(info,dest);
-                    return "\n Upload Completed!!";
-                }
+                        * Tenta enviar o arquivo a partir do melhor peer que está na lista
+                        */
+                       Put conexao = new Put(node.getAddress(),path);                
+                       if(conexao.startSession()){
+                             no = node;
+                      }
+                  }
+                  if(no != null){
+                      List<String> dest = new ArrayList<String>();
+                      dest.add(no.getPeerId());
+                      nodesdisp.remove(no); 
+                      /*
+                       * Envia RPC para o peer em que está conectado, para que ele sete no Zookeeper
+                       * os dados do arquivo que foi upado.
+                       */
+                      shell.getRpcClient().getProxy().fileSent(info,dest);
+                      return "\n Upload Completed!!";
+                  }
+                  }
              }
             else{
-                return "\n\n Arquivo ja existe na federação !!";
+                return "\n\n Ja existe um arquivo com mesmo nome e tamanho na federação !!!";
             }
          }
          return "\n\n Erro no upload !!";
