@@ -204,6 +204,14 @@ public class BioProtoImpl implements BioProto {
     }
 
     @Override
+    public long checkFileSize(String file){
+        
+       long size = storageService.getFileSize(file);
+        
+       return size;   
+    }
+    
+    @Override
     public synchronized void fileSent(FileInfo fileSucess, List<String> dest){
         PluginFile file = new PluginFile(fileSucess);
         file.setPluginId(dest);
@@ -286,6 +294,8 @@ public class BioProtoImpl implements BioProto {
         return storageService.checkFilePeer(fileS); 
     }
 
+
+    
     @Override
     public void setWatcher(String idPlugin) {
 //        storageService.starWatchers(idPlugin);

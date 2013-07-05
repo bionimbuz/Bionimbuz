@@ -313,4 +313,7 @@ protocol BioProto {
    
   //seta os watchers na status para a storage , pode ser setado pros outros servicos tambem
    void setWatcher(string idPlugin) oneway; 
+
+  //verifica o tamanho do arquivo
+  long checkFileSize (string file);
 }
