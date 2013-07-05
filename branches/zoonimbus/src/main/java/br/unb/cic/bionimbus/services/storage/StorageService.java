@@ -77,7 +77,6 @@ public class StorageService extends AbstractBioService {
         
         System.out.println("Running StorageService...");
         System.out.println("Executando loop.");
-        getFileSize("neymar.gif");
     }
 
     /**
