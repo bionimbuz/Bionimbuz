@@ -444,24 +444,30 @@ public class StorageService extends AbstractBioService {
              * PLuginList ira receber a lista dos Peers disponiveis na federação
              * e que possuem espaço em disco para receber o arquivo a ser replicado
              */
-            pluginList = getNodeDisp(info.getSize());
-            Iterator<NodeInfo> it= pluginList.iterator();
+
             NodeInfo no=null;
             /*
              * While para que o peer pegue o próprio endereço e ele seja removido da lista de peers, 
              * isso é feito para evitar que ele tente replicar
              * o arquivo para ele mesmo.
              */
-            while(it.hasNext()){
-                NodeInfo node =(NodeInfo)it.next();
+            for (NodeInfo node: getNodeDisp(info.getSize())){
                 if(node.getAddress().equals(address)){
                     no=node;
+                    break;
                 }
             }
-            if(no!=null)
+            if(no!=null){
                 pluginList.remove(no);
                 idsPluginsFile.add(p2p.getConfig().getId());
                 pluginList = new ArrayList<NodeInfo>(bestNode(pluginList));
+                for (NodeInfo curr : pluginList){
+                    if (no.getAddress().equals(curr.getAddress())){
+                        no = curr;
+                        break;
+                    }
+                }
+                
                 pluginList.remove(no);
                 Iterator<NodeInfo> bt = pluginList.iterator();
                 while (bt.hasNext() && filesreplicated != REPLICATIONFACTOR) {
@@ -497,7 +503,8 @@ public class StorageService extends AbstractBioService {
                     }
                  }
             }
-         }     
+         }        
+        }
     } 
     
     /**
