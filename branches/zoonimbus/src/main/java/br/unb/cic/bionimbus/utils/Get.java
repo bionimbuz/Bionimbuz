@@ -22,7 +22,7 @@ public class Get {
     private String PASSW = "zoonimbus";
     private int PORT = 22;
     private com.jcraft.jsch.Channel channel;
-    private String path = "/home/zoonimbus/NetBeansProjects/zoonimbus/data-folder/";
+    private String path = System.getProperty("user.dir")+"/data-folder/";
     
     public boolean startSession(String file, String host) throws JSchException, SftpException {
             
@@ -36,7 +36,7 @@ public class Get {
             channel.connect();
             ChannelSftp sftpChannel = (ChannelSftp) channel;
             System.out.println("\n\n Downloading file.....");
-            sftpChannel.get("/home/zoonimbus/NetBeansProjects/zoonimbus/data-folder/"+file,"/home/zoonimbus/NetBeansProjects/zoonimbus/data-folder/");
+            sftpChannel.get(path+file,path);
             sftpChannel.exit();
             session.disconnect();
         } catch (JSchException e) {
