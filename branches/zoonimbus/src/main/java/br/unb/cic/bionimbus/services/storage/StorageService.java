@@ -476,10 +476,11 @@ public class StorageService extends AbstractBioService {
         try {
             ObjectMapper mapper = new ObjectMapper();
             int cont = 0;
-            List<String> pendingsave = zkService.getChildren(zkService.getPath().PENDING_SAVE.toString(), new UpdatePeerData(zkService, this));
+            List<String> pendingsave = zkService.getChildren(zkService.getPath().PENDING_SAVE.toString(), null);
             for(String files: pendingsave){
+                System.out.println("aqr: "+files);
                 try {
-                    PluginFile fileplugin = mapper.readValue(zkService.getData(zkService.getPath().PENDING_SAVE.getFullPath("", files, ""), null), PluginFile.class);
+                    PluginFile fileplugin = mapper.readValue(zkService.getData(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", files, ""), null), PluginFile.class);
                     while(cont < 6){
                         if(fileplugin.getPluginId().size() == REPLICATIONFACTOR){
                             zkService.delete(zkService.getPath().PENDING_SAVE.getFullPath("", fileplugin.getId(), ""));
