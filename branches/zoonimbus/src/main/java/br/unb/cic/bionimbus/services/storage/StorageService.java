@@ -447,11 +447,16 @@ public class StorageService extends AbstractBioService {
             }else {
                 System.out.println("(fileUploaded) Replicação no próprio peer ");
                 if (checkFilePeer(fileuploaded)) {
-                    System.out.println("(fileUploaded) O arquivo existe aqui no peer!");
-                    if (zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(fileuploaded.getPluginId().iterator().next(), fileuploaded.getId(), ""), true)){
+                    System.out.println("(fileUploaded) O arquivo existe aqui no peer:"+p2p.getConfig().getId());
+                    if (zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(fileuploaded.getPluginId().iterator().next(), fileuploaded.getId(), ""), true)&&!existReplication(file.getName())){
                         try {
-                            if(replication(file.getName(), p2p.getConfig().getAddress()))
-                                 zkService.delete(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileuploaded.getId(),"")); 
+                                 replication(file.getName(), p2p.getConfig().getAddress());
+                                 if(existReplication(file.getName())){
+                                 zkService.delete(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileuploaded.getId(),""));
+                                 }
+                                 else{
+                                     System.out.println("\n\n Erro na replicacao, arquivo nao foi replicado!!");
+                                 }
                         } catch (JSchException ex) {
                             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
                         } catch (SftpException ex) {
@@ -477,7 +482,7 @@ public class StorageService extends AbstractBioService {
      * @throws JSchException
      * @throws SftpException
      */
-    public synchronized boolean replication(String filename, String address) throws IOException, JSchException, SftpException {
+    public synchronized void replication(String filename, String address) throws IOException, JSchException, SftpException {
 
         System.out.println("(replication) Replicando o arquivo de nome: "+filename+" do peer: "+address);
         List<NodeInfo> pluginList = new ArrayList<NodeInfo>();
@@ -560,13 +565,14 @@ public class StorageService extends AbstractBioService {
                         }
                         filesreplicated++;
                         if(filesreplicated==REPLICATIONFACTOR)
-                            return true;
+                            break;
                     }
-                    return false;
+                  
                 }
             }
+            System.out.println("\n Nenhum peer disponivel para receber o arquivo !!");
         }
-        return false;
+        System.out.println("\n Arquivo nao encontrado !!");
     }
 
 
@@ -696,6 +702,7 @@ public class StorageService extends AbstractBioService {
                                 }
                                 fileExcluded.getPluginId().remove(idPluginExcluded);
                                 setPendingFile(fileExcluded);
+                                fileExcluded.setService("storagePeerDown");
                                 fileUploaded(fileExcluded);
                             }
                             StringBuilder info = new StringBuilder(zkService.getData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), null));

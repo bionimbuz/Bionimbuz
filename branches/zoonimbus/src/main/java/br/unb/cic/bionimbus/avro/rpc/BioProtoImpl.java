@@ -196,8 +196,9 @@ public class BioProtoImpl implements BioProto {
      */
     
     @Override
-    public void setFileInfo(FileInfo file) {
+    public void setFileInfo(FileInfo file, String kindString) {
         PluginFile filePlugin= new PluginFile(file);
+        filePlugin.setService(kindString);
         //*Alterar depois caminho para o zookeeperservice
         //verificar se a pasta pending_save existe
         storageService.setPendingFile(filePlugin);
