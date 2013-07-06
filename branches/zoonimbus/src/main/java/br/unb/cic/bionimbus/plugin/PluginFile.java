@@ -28,7 +28,9 @@ public class PluginFile {
     private String name;
 
     private long size;
-
+    
+    private String service;
+    
     private List<String> pluginId;
 
     public String getId() {
@@ -63,6 +65,34 @@ public class PluginFile {
         this.pluginId = pluginId;
     }
 
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return the service
+     */
+    public String getService() {
+        return service;
+    }
+
+    /**
+     * @param service the service to set
+     */
+    public void setService(String service) {
+        this.service = service;
+    }    
+    
     @Override
     public boolean equals(Object object) {
         if (this == object)
@@ -90,19 +120,5 @@ public class PluginFile {
             Logger.getLogger(PluginInfo.class.getName()).log(Level.SEVERE, null, ex);
         } 
          return null;
-    }
-
-    /**
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @param name the name to set
-     */
-    public void setName(String name) {
-        this.name = name;
     }
 }

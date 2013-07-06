@@ -448,25 +448,24 @@ public class StorageService extends AbstractBioService {
                 System.out.println("(fileUploaded) Replicação no próprio peer ");
                 if (checkFilePeer(fileuploaded)) {
                     System.out.println("(fileUploaded) O arquivo existe aqui no peer!");
-                    if (zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(fileuploaded.getPluginId().iterator().next(), fileuploaded.getId(), ""), true))
-                        zkService.delete(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileuploaded.getId(),"")); 
-                }
-                else{
-                    try {
-                        System.out.println("(fileUploaded) Fazendo a replicação do arquivo local!");
-                        replication(file.getName(), p2p.getConfig().getAddress());
-                    } catch (JSchException ex) {
-                        Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (SftpException ex) {
-                        Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                    if (zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(fileuploaded.getPluginId().iterator().next(), fileuploaded.getId(), ""), true)){
+                        try {
+                            if(replication(file.getName(), p2p.getConfig().getAddress()))
+                                 zkService.delete(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileuploaded.getId(),"")); 
+                        } catch (JSchException ex) {
+                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (SftpException ex) {
+                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                       
                     }
-                }
+               }
             }
-        } else {
-            System.out.println("Arquivo não encontrado nas pendências !");   
-        }  
- 
-    }
+        }
+        else {
+                    System.out.println("Arquivo não encontrado nas pendências !");   
+        }
+ }
 
     /**
      * Realiza a replicação de arquivos, sejam eles enviados pelo cliente ou
@@ -478,7 +477,7 @@ public class StorageService extends AbstractBioService {
      * @throws JSchException
      * @throws SftpException
      */
-    public synchronized void replication(String filename, String address) throws IOException, JSchException, SftpException {
+    public synchronized boolean replication(String filename, String address) throws IOException, JSchException, SftpException {
 
         System.out.println("(replication) Replicando o arquivo de nome: "+filename+" do peer: "+address);
         List<NodeInfo> pluginList = new ArrayList<NodeInfo>();
@@ -560,11 +559,14 @@ public class StorageService extends AbstractBioService {
                             }
                         }
                         filesreplicated++;
-                        break;
+                        if(filesreplicated==REPLICATIONFACTOR)
+                            return true;
                     }
+                    return false;
                 }
             }
         }
+        return false;
     }
 
 
