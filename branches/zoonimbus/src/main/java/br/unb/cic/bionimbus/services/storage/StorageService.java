@@ -35,13 +35,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.sound.midi.Soundbank;
 import org.apache.avro.AvroRemoteException;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 @Singleton
@@ -75,6 +72,7 @@ public class StorageService extends AbstractBioService {
 
     @Override
     public void run() {
+        checkingPendingSave();
     }
 
     /**
@@ -471,6 +469,45 @@ public class StorageService extends AbstractBioService {
                     System.out.println("Arquivo não encontrado nas pendências !");   
         }
  }
+    
+    public void checkingPendingSave(){
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            int cont = 0;
+            List<String> pendingsave = zkService.getChildren(zkService.getPath().PENDING_SAVE.toString(), new UpdatePeerData(zkService, this));
+            for(String files: pendingsave){
+                try {
+                    PluginFile fileplugin = mapper.readValue(zkService.getData(zkService.getPath().PENDING_SAVE.getFullPath("", files, ""), null), PluginFile.class);
+                    while(cont < 6){
+                        if(fileplugin.getPluginId().size() == REPLICATIONFACTOR){
+                            break;
+                        }
+                        String address = getFilesIP(fileplugin.getName());
+                        try {
+                            replication(fileplugin.getName(),address);
+                        } catch (JSchException ex) {
+                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (SftpException ex) {
+                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        cont++;
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                existReplication(files);
+                
+                
+            }
+        } catch (KeeperException ex) {
+            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+    
+    
 
     /**
      * Realiza a replicação de arquivos, sejam eles enviados pelo cliente ou
@@ -545,6 +582,7 @@ public class StorageService extends AbstractBioService {
                     Put conexao = new Put(node.getAddress(), dataFolder + "/" + info.getName());
                     if (conexao.startSession()) {
                         idsPluginsFile.add(node.getPeerId());
+                        
                         pluginFile.setPluginId(idsPluginsFile);
                         /*
                          * Com o arquivo enviado, seta os seus dados no Zookeeper
@@ -690,7 +728,7 @@ public class StorageService extends AbstractBioService {
                     String peerId = path.substring(12, path.indexOf("/STATUS"));
                     try {
                         if (!zkService.getZNodeExist(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), false)) {
-                            zkService.createPersistentZNode(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), "");
+                            zkService.createPersistentZNode(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), "");              
                         }
                         if (!zkService.getData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), null).contains("S")) {
                             for (PluginFile fileExcluded : getFilesPeer(peerId)) {
@@ -701,6 +739,7 @@ public class StorageService extends AbstractBioService {
                                     }
                                 }
                                 fileExcluded.getPluginId().remove(idPluginExcluded);
+                                
                                 setPendingFile(fileExcluded);
                                 fileExcluded.setService("storagePeerDown");
                                 fileUploaded(fileExcluded);
