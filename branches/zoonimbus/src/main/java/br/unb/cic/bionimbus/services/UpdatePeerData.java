@@ -31,8 +31,6 @@ public class UpdatePeerData implements Watcher  {
      */
     @Override
     public void process(WatchedEvent event){
-        System.out.println("Monitoring Service evento :"+event.getType());
-        System.out.println("Monitoring Service evento :"+event.getPath());
         //chamada para alertar servico que adicionou o watcher, tratar evento na service
         service.event(event);
         
@@ -41,7 +39,8 @@ public class UpdatePeerData implements Watcher  {
             switch(event.getType()){
             
                 case NodeChildrenChanged:
-                    zkService.getChildren(event.getPath(), this);
+                    if(zkService.getZNodeExist(event.getPath(), false))
+                        zkService.getChildren(event.getPath(), this);
                 break;
                 case NodeDataChanged:
                     if(zkService.getZNodeExist(event.getPath(), false))
