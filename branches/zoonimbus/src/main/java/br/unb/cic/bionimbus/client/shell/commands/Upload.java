@@ -51,7 +51,7 @@ public class Upload implements Command {
             if (shell.getRpcClient().getProxy().listFilesIp(info.getName()).equals("") && shell.getRpcClient().getProxy().checkFileSize(info.getName()) != info.getSize()){
                 System.out.println("\n Calculando Latencia.....");
                 pluginList = shell.getRpcClient().getProxy().getPeersNode();
-                shell.getRpcClient().getProxy().setFileInfo(info);
+                shell.getRpcClient().getProxy().setFileInfo(info,"upload!");
                 for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
                     NodeInfo plugin = it.next();
                     /*

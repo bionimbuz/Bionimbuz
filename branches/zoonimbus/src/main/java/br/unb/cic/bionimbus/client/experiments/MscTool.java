@@ -54,7 +54,7 @@ public class MscTool {
         List<NodeInfo> nodesdisp = new ArrayList<NodeInfo>();
 
         List<NodeInfo> pluginList = rpcClient.getProxy().getPeersNode();
-        rpcClient.getProxy().setFileInfo(info);
+        rpcClient.getProxy().setFileInfo(info,"uploadTesteMscTool");
         for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
             NodeInfo plugin = it.next();
             Float prioridade = plugin.getFreesize()*new Float("0,9");
