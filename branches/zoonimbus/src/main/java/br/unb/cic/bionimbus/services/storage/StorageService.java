@@ -72,6 +72,8 @@ public class StorageService extends AbstractBioService {
 
     @Override
     public void run() {
+        
+        System.out.println("checando pending save...");
         checkingPendingSave();
     }
 
@@ -480,6 +482,7 @@ public class StorageService extends AbstractBioService {
                     PluginFile fileplugin = mapper.readValue(zkService.getData(zkService.getPath().PENDING_SAVE.getFullPath("", files, ""), null), PluginFile.class);
                     while(cont < 6){
                         if(fileplugin.getPluginId().size() == REPLICATIONFACTOR){
+                            zkService.delete(zkService.getPath().PENDING_SAVE.getFullPath("", fileplugin.getId(), ""));
                             break;
                         }
                         String address = getFilesIP(fileplugin.getName());
@@ -747,6 +750,7 @@ public class StorageService extends AbstractBioService {
                             StringBuilder info = new StringBuilder(zkService.getData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), null));
                             info.append("S");
                             zkService.setData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), info.toString());
+                            checkingPendingSave();
                         }
 
                     } catch (AvroRemoteException ex) {
