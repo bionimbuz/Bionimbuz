@@ -75,9 +75,6 @@ public class StorageService extends AbstractBioService {
 
     @Override
     public void run() {
-
-        //System.out.println("Running StorageService...");
-      //  System.out.println("Executando loop.");
     }
 
     /**
@@ -655,9 +652,7 @@ public class StorageService extends AbstractBioService {
 
     @Override
     public void event(WatchedEvent eventType) {
-        System.out.println("StoringService event path:" + eventType.getPath().toString());
-        System.out.println("StoringService event type" + eventType.getType().toString());
-        String path = eventType.getPath();
+        String path = eventType.getPath(); 
         switch (eventType.getType()) {
 
             case NodeChildrenChanged:
