@@ -21,6 +21,10 @@ import java.util.logging.Logger;
 import org.apache.avro.AvroRemoteException;
 import org.apache.zookeeper.KeeperException;
 
+/**
+ * Classe de Implementação dos métodos criados na bioproto.avdl, rpc
+ * @author zoonimbus
+ */
 public class BioProtoImpl implements BioProto {
 
     private final DiscoveryService discoveryService;
@@ -43,6 +47,11 @@ public class BioProtoImpl implements BioProto {
         return true;
     }
     
+    /**
+     * 
+     * @return
+     * @throws AvroRemoteException 
+     */
     @Override
     public List<String> listFilesName() throws AvroRemoteException {
         List<String> listFile = new ArrayList<String>();
@@ -53,6 +62,11 @@ public class BioProtoImpl implements BioProto {
         return listFile;
     }
     
+    /**
+     * 
+     * @return
+     * @throws AvroRemoteException 
+     */
     @Override
     public List<br.unb.cic.bionimbus.avro.gen.PluginFile> listFiles() throws AvroRemoteException {
         List<br.unb.cic.bionimbus.avro.gen.PluginFile> listFile = new ArrayList<br.unb.cic.bionimbus.avro.gen.PluginFile>();
@@ -155,7 +169,12 @@ public class BioProtoImpl implements BioProto {
         //TODO: call schedService
         return "OK";
     }
-
+    
+    /**
+     * Método RPC que pega os peers do zoonimbus e retorna uma lista do tipo NodeInfo
+     * @return lista de NodeInfo PeerId, Address, Freesize;
+     * @throws AvroRemoteException 
+     */
     @Override
     public synchronized List<NodeInfo> getPeersNode() throws AvroRemoteException {
 
@@ -178,7 +197,7 @@ public class BioProtoImpl implements BioProto {
 
     /**
      * Passa PluginList para StorageService aqui
-     * @return
+     * @return bestnodes lista do tipo NodeInfo, retornando os melhores nós da federação
      * @throws AvroRemoteException 
      */
     @Override
@@ -190,11 +209,10 @@ public class BioProtoImpl implements BioProto {
     
     /**
      * Método que cria o znode do arquivo no diretório /pending_save/file_"id_do arquivo" com as informações de arquivos que clientes querem enviar;
-     * @param file
-     * @return
+     * @param file informações do arquivo:id,nome e tamanho
+     * @param kindString Tipo de serviço que está requisitando o arquivo
      * @throws AvroRemoteException 
-     */
-    
+     */  
     @Override
     public void setFileInfo(FileInfo file, String kindString) {
         PluginFile filePlugin= new PluginFile(file);
@@ -203,7 +221,12 @@ public class BioProtoImpl implements BioProto {
         //verificar se a pasta pending_save existe
         storageService.setPendingFile(filePlugin);
     }
-
+    
+    /**
+     * Método RPC que retorna o tamanho do arquivo verificado em outro peer;
+     * @param file Nome do arquivo
+     * @return  size o tamanho do arquivo
+     */
     @Override
     public long checkFileSize(String file){
         
@@ -211,7 +234,11 @@ public class BioProtoImpl implements BioProto {
         
        return size;   
     }
-    
+    /**
+     * Método avro que chama o método fileuploaded da storage para avisar que o arquivo foi enviado.
+     * @param fileSucess informações do arquivo:id,nome e tamanho
+     * @param dest lista com os plugins de destino
+     */
     @Override
     public synchronized void fileSent(FileInfo fileSucess, List<String> dest){
         PluginFile file = new PluginFile(fileSucess);
@@ -227,29 +254,6 @@ public class BioProtoImpl implements BioProto {
             Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    /**
-     *
-     * @param pluginList //Lista com os plugins disponiveis para armazenamento
-     * @param nodedest // Node de destino onde foi armazenado o primeiro arquivo
-     * @param path // Caminho do arquivo
-     * @return
-     * @throws JSchException
-     * @throws SftpException
-     */
-    
-
-//    @Override
-//        public synchronized Void transferFile(List<NodeInfo> plugins, String path, int copies,List<String> destprimary) throws AvroRemoteException{
-//        try {
-//            storageService.transferFiles(plugins, path, copies,destprimary);
-//        } catch (KeeperException ex) {
-//            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        return null;
-//    }
 
 
     /**
@@ -269,12 +273,12 @@ public class BioProtoImpl implements BioProto {
         
         return destino;
     }
-
-    @Override
-    public void transferFile(List<NodeInfo> plugins, String path, int copies, List<String> destprimary) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
+    
+    /**
+     * Método que notifica o peer para fazer a replicação
+     * @param filename nome do arquivo a ser replicado
+     * @param address  endereço do peer que possui o arquivo
+     */
     @Override
     public void notifyReply(String filename, String address) {
         try {
@@ -287,7 +291,13 @@ public class BioProtoImpl implements BioProto {
             Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
+    /**
+     *Método que verifica se o arquivo existe nó de destino 
+     * @param fileSucess
+     * @param dest lista de ids 
+     * @return 
+     */
     @Override
     public boolean verifyFile(FileInfo fileSucess,List dest) {
         PluginFile fileS = new PluginFile(fileSucess);

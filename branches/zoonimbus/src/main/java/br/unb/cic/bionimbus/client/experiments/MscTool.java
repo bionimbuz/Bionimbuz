@@ -82,7 +82,6 @@ public class MscTool {
             nodesdisp.remove(no);
 
             rpcClient.getProxy().fileSent(info,dest);
-            rpcClient.getProxy().transferFile(nodesdisp,info.getName(),2,dest);
         }
     }
 
