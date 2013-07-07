@@ -480,7 +480,7 @@ public class StorageService extends AbstractBioService {
             for(String files: pendingsave){
                 System.out.println("aqr: "+files);
                 try {
-                    PluginFile fileplugin = mapper.readValue(zkService.getData(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", files, ""), null), PluginFile.class);
+                    PluginFile fileplugin = mapper.readValue(zkService.getData(zkService.getPath().PENDING_SAVE.getFullPath("", "", ""), null), PluginFile.class);
                     while(cont < 6){
                         if(fileplugin.getPluginId().size() == REPLICATIONFACTOR){
                             zkService.delete(zkService.getPath().PENDING_SAVE.getFullPath("", fileplugin.getId(), ""));
@@ -573,7 +573,6 @@ public class StorageService extends AbstractBioService {
                 
                 pluginList.remove(no);
             }
-            idsPluginsFile.add(p2p.getConfig().getId());
             pluginList = new ArrayList<NodeInfo>(bestNode(pluginList));
             pluginList.remove(no);
             Iterator<NodeInfo> bt = pluginList.iterator();
@@ -612,9 +611,7 @@ public class StorageService extends AbstractBioService {
                   
                 }
             }
-            System.out.println("\n Nenhum peer disponivel para receber o arquivo !!");
         }
-        System.out.println("\n Arquivo nao encontrado !!");
     }
 
 
