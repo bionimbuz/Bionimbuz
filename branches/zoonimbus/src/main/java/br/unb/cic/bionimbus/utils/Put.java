@@ -1,6 +1,5 @@
 package br.unb.cic.bionimbus.utils;
 
-import br.unb.cic.bionimbus.p2p.Host;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
@@ -16,7 +15,6 @@ public class Put {
 
     private JSch jsch = new JSch();
     private Session session = null;
-    private Host host;
     private String address;
     private String USER = "zoonimbus";
     private String PASSW = "zoonimbus";
