@@ -54,7 +54,6 @@ public class MonitoringService extends AbstractBioService implements Service, P2
 
 //    @Override
     public void run() {
-        System.out.println("running MonitorService...");
         checkPeersStatus();
         checkJobsTasks();
     }
@@ -74,7 +73,7 @@ public class MonitoringService extends AbstractBioService implements Service, P2
     }
 
     @Override
-    public void shutdown() {
+public void shutdown() {
         p2p.remove(this);
         schedExecService.shutdownNow();
     }
