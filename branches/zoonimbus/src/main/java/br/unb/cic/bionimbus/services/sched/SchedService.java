@@ -61,9 +61,6 @@ public class SchedService extends AbstractBioService implements Service, P2PList
 
     private final Map<String, PluginInfo> cancelingJobs = new ConcurrentHashMap<String, PluginInfo>();
     
-    //controla o uso da latência por cada recurso
-    private int countLock=0;
-    
     private P2PService p2p = null;
     
     private  String idPlugin;
@@ -202,26 +199,25 @@ public class SchedService extends AbstractBioService implements Service, P2PList
      * @param ip que deve calcular a latência
      */
     private void setLatencyPlugins(String ip){
-        
-        try {
-            
-            if(myLinuxPlugin.getMyInfo().getHost().getAddress().equals(ip)){
-                for(PluginInfo plugin : getPeers().values() ){
-                    plugin.setLatency(Ping.calculo(plugin.getHost().getAddress()));
-                    zkService.setData(zkService.getPath().PREFIX_PEER.getFullPath(idPlugin, "", ""), plugin.toString());
-                }
-            }
-            
-            zkService.delete(LATENCY+SCHED);
-            countLock--;
-        } catch (KeeperException ex) {
-            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        if(myLinuxPlugin.getMyInfo().getHost().getAddress().equals(ip)){
+            try {
 
+                if(myLinuxPlugin.getMyInfo().getHost().getAddress().equals(ip)){
+                    for(PluginInfo plugin : getPeers().values() ){
+                        plugin.setLatency(Ping.calculo(plugin.getHost().getAddress()));
+                        zkService.setData(zkService.getPath().PREFIX_PEER.getFullPath(idPlugin, "", ""), plugin.toString());
+                    }
+                }
+
+                zkService.delete(LATENCY+SCHED);
+            } catch (KeeperException ex) {
+                java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InterruptedException ex) {
+                java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
     
     private void requestLatency(String ip){
@@ -230,7 +226,6 @@ public class SchedService extends AbstractBioService implements Service, P2PList
                 TimeUnit.SECONDS.sleep(2);
             }
             zkService.createEphemeralZNode(LATENCY+SCHED, ip);
-            countLock++;
         } catch (KeeperException ex) {
             java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
@@ -721,7 +716,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
 
                     }else if(eventType.getPath().contains(zkService.getPath().FILES.toString())){
                             checkFilesPlugin();
-                    }else if(eventType.getPath().contains(LATENCY) && (zkService.getZNodeExist(LATENCY+SCHED, false)) && countLock==1){
+                    }else if(eventType.getPath().contains(LATENCY) && (zkService.getZNodeExist(LATENCY+SCHED, false))){
                             System.out.println("Gerando latencia");    
                             setLatencyPlugins(zkService.getData(LATENCY+SCHED, null));
                             scheduleJobs();
