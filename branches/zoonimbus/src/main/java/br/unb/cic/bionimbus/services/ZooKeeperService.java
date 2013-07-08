@@ -8,8 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import org.apache.zookeeper.KeeperException.ConnectionLossException;
 
 @Singleton
 public class ZooKeeperService {
@@ -28,6 +30,7 @@ public class ZooKeeperService {
     private volatile Status status = Status.NO_CONNECTED;
     
     private volatile Path path = Path.ROOT;
+    private String hosts;
     
     public enum Status {
         NO_CONNECTED, CONNECTING, CONNECTED
@@ -102,8 +105,16 @@ public class ZooKeeperService {
         return status;
     }
     
+    public synchronized void reconnect() throws IOException, InterruptedException {
+        System.out.println("Reconectando em hosts " + hosts);
+        status = Status.NO_CONNECTED;
+        connect(hosts);
+    }
+    
 
     public synchronized void connect(String hosts) throws IOException, InterruptedException {
+        
+        this.hosts = hosts;
 
         Preconditions.checkNotNull(hosts, "zkHosts cannot be null");
 
@@ -123,6 +134,8 @@ public class ZooKeeperService {
                 System.out.println(event);
             }
         });
+        
+        
 
         // Espera pelo evento de conexão
         countDownLatch.await();
@@ -261,8 +274,25 @@ public class ZooKeeperService {
      * @throws KeeperException
      * @throws InterruptedException 
      */
-    public List<String> getChildren(String path, Watcher watcher) throws KeeperException, InterruptedException {
-        return zk.getChildren(path, watcher, null);
+    public List<String> getChildren(String path, Watcher watcher) throws KeeperException, InterruptedException, IOException {
+             
+        while (true) {
+            try {
+                List<String> retorno = zk.getChildren(path, watcher, null);
+                return retorno;
+            }
+            catch (ConnectionLossException ce) {
+                
+                reconnect();          
+            }
+            catch (KeeperException e) {
+                throw e;
+            }
+            catch (InterruptedException e) {
+                throw e;
+            } 
+        }
+
     }
     
     /**
