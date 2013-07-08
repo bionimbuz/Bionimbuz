@@ -4,6 +4,7 @@
  */
 package br.unb.cic.bionimbus.services;
 
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.zookeeper.KeeperException;
@@ -51,6 +52,8 @@ public class UpdatePeerData implements Watcher  {
         } catch (KeeperException ex) {
             Logger.getLogger(UpdatePeerData.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
+            Logger.getLogger(UpdatePeerData.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
             Logger.getLogger(UpdatePeerData.class.getName()).log(Level.SEVERE, null, ex);
         }
     } 

@@ -120,7 +120,13 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
                 //definindo myInfo após a primeira leitura dos dados
                 linuxPlugin.setMyInfo(infopc);
             }else{
-                PluginInfo plugin = new ObjectMapper().readValue(zkService.getData(infopc.getPath_zk(), null), PluginInfo.class);
+                String data = zkService.getData(infopc.getPath_zk(), null);
+                if (data == null || data.trim().isEmpty()){
+                    System.out.println("znode vazio para path " + infopc.getPath_zk());
+                    return;
+                }
+                    
+                PluginInfo plugin = new ObjectMapper().readValue(data, PluginInfo.class);
                 plugin.setFsFreeSize(infopc.getFsFreeSize());
                 plugin.setMemoryFree(infopc.getMemoryFree());
                 plugin.setNumOccupied(infopc.getNumOccupied());

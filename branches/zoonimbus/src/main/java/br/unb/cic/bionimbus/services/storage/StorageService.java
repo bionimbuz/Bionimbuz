@@ -74,7 +74,11 @@ public class StorageService extends AbstractBioService {
     public void run() {
         
         System.out.println("checando pending save...");
-        checkingPendingSave();
+        try {
+            checkingPendingSave();
+        } catch (IOException ex) {
+            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -94,10 +98,11 @@ public class StorageService extends AbstractBioService {
             zkService.getChildren(zkService.getPath().PENDING_SAVE.getFullPath("", "", ""), new UpdatePeerData(zkService, this));
             zkService.getChildren(zkService.getPath().PEERS.getFullPath("", "", ""), new UpdatePeerData(zkService, this));
 
-
         } catch (KeeperException ex) {
             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
+            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
         }
 
@@ -228,7 +233,7 @@ public class StorageService extends AbstractBioService {
      * replicação estiver feita retona true; Fator de replicação igual a 2;
      * Retorna true se existir replicação.
      */
-    private boolean existReplication(String fileName) {
+    private boolean existReplication(String fileName) throws IOException {
         int cont = 0;
         System.out.println("(existReplication)Verificando se o arquivo: "+fileName+" está replicado!");
         for (Collection<String> collection : getFiles().values()) {
@@ -254,7 +259,7 @@ public class StorageService extends AbstractBioService {
      *
      * @return map de endereço e lista de arquivos.
      */
-    public Map<String, List<String>> getFiles() {
+    public Map<String, List<String>> getFiles() throws IOException {
         Map<String, List<String>> mapFiles = new HashMap<String, List<String>>();
         List<String> listFiles;
         checkFiles();
@@ -284,7 +289,7 @@ public class StorageService extends AbstractBioService {
      * @param file
      * @return Ip que possui o arquivo ou null
      */
-    public String getFilesIP(String file) {
+    public String getFilesIP(String file) throws IOException {
         List<String> listFiles;
         try {
             for (Iterator<PluginInfo> it = getPeers().values().iterator(); it.hasNext();) {
@@ -444,14 +449,19 @@ public class StorageService extends AbstractBioService {
     /**
      * Metodo que checa os znodes filhos da pending_save, para replica-lós
      */
-    public void checkingPendingSave(){
+    public void checkingPendingSave() throws IOException{
         try {
             ObjectMapper mapper = new ObjectMapper();
             int cont = 0;
             List<String> pendingsave = zkService.getChildren(zkService.getPath().PENDING_SAVE.toString(), null);
             for(String files: pendingsave){
                 try {
-                    PluginFile fileplugin = mapper.readValue(zkService.getData(zkService.getPath().PENDING_SAVE.getFullPath("", "", ""), null), PluginFile.class);
+                    String data = zkService.getData(zkService.getPath().PENDING_SAVE.getFullPath("", "", ""), null);
+                    if (data == null || data.trim().isEmpty()){
+                        System.out.println(">>>>>>>>>> NÃO EXISTEM DADOS PARA PATH " + zkService.getPath().PENDING_SAVE.getFullPath("", "", ""));
+                        continue;
+                    }
+                    PluginFile fileplugin = mapper.readValue(data, PluginFile.class);
                     while(cont < 6){
                         if(fileplugin.getPluginId().size() == REPLICATIONFACTOR){
                             zkService.delete(zkService.getPath().PENDING_SAVE.getFullPath("", fileplugin.getId(), ""));
@@ -646,6 +656,8 @@ public class StorageService extends AbstractBioService {
             Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
             Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return filesPeerSelected;
@@ -692,11 +704,13 @@ public class StorageService extends AbstractBioService {
                             zkService.createPersistentZNode(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), "");              
                         }
                         if (!zkService.getData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), null).contains("S")) {
+                            //Verificar pluginid para gravar
                             for (PluginFile fileExcluded : getFilesPeer(peerId)) {
                                 String idPluginExcluded = null;
                                 for (String idPlugin : fileExcluded.getPluginId()) {
-                                    if (peerId.equals(idPlugin)) {
+                                    if (peerId.equals(idPlugin)) {fileExcluded.getPluginId().remove(idPluginExcluded);
                                         idPluginExcluded = idPlugin;
+                                        break;
                                     }
                                 }
                                 fileExcluded.getPluginId().remove(idPluginExcluded);
