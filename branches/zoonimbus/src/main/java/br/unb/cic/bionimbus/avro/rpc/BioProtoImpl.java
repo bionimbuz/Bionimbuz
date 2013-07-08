@@ -55,8 +55,12 @@ public class BioProtoImpl implements BioProto {
     @Override
     public List<String> listFilesName() throws AvroRemoteException {
         List<String> listFile = new ArrayList<String>();
-        for(Collection<String> collection : storageService.getFiles().values()){
-            listFile.addAll(collection);
+        try {
+            for(Collection<String> collection : storageService.getFiles().values()){
+                listFile.addAll(collection);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         return listFile;
@@ -267,9 +271,12 @@ public class BioProtoImpl implements BioProto {
     @Override
     public String listFilesIp(String file){
         
-        String destino;    
-            
-        destino = storageService.getFilesIP(file);
+        String destino=null;    
+        try {
+            destino = storageService.getFilesIP(file);
+        } catch (IOException ex) {
+            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         return destino;
     }
