@@ -144,7 +144,7 @@ public class BioProtoImpl implements BioProto {
         //inclusão do job para ser escalonado
         
         for (br.unb.cic.bionimbus.avro.gen.JobInfo job: listJob){
-            zkService.createEphemeralZNode(zkService.getPath().PREFIX_JOB.getFullPath("", "", job.getId()) , job.toString());
+            zkService.createPersistentZNode(zkService.getPath().PREFIX_JOB.getFullPath("", "", job.getId()) , job.toString());
         }
         
         return "Jobs Escalonados.\n Aguardando execução...";

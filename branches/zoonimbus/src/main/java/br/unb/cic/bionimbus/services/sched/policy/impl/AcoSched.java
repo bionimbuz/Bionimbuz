@@ -42,7 +42,7 @@ public class AcoSched extends SchedPolicy {
 
         HashMap jobCloud = new HashMap<JobInfo, PluginInfo>();
         JobInfo biggerJob = getBiggerJob(jobInfos);
-
+//        biggerJob.setTimestamp(0, System.currentTimeMillis());
         // escalonador irá receber um zookeeperService como parâmetro
 
 
@@ -338,7 +338,6 @@ public class AcoSched extends SchedPolicy {
         if (mapAcoDatas.get(plugin.getId())!=null && !mapAcoDatas.get(plugin.getId()).isEmpty()) {
             pheronome = mapAcoDatas.get(plugin.getId()).get(0);
 
-            //colocar variação para quando achar a melhor solução
             pheronome = (1 - p) * pheronome + (1 / smallerProbability);
             mapAcoDatas.get(plugin.getId()).set(0, pheronome);
         }else{

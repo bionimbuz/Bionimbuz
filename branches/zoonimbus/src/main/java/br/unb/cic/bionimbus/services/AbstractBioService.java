@@ -41,7 +41,6 @@ public abstract class AbstractBioService implements Service, P2PListener, Runnab
                 ObjectMapper mapper = new ObjectMapper();
                 String id=pluginId.substring(pluginId.indexOf(zkService.getPath().UNDERSCORE.toString())+1);
                 String datas = zkService.getData(zkService.getPath().PREFIX_PEER.getFullPath(id, "", ""), null);
-                System.out.println("Dados AbstractBioService datas:"+datas);
                 if (datas != null && !datas.trim().isEmpty()){
                     PluginInfo myInfo = mapper.readValue(datas, PluginInfo.class);
                     

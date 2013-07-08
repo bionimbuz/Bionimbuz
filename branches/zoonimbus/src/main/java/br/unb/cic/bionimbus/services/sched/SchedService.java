@@ -103,7 +103,6 @@ public class SchedService extends AbstractBioService implements Service, P2PList
 
     @Override
     public void run() {
-        System.out.println("running SchedService...");
         
         checkTasks();
     }
@@ -633,6 +632,23 @@ public class SchedService extends AbstractBioService implements Service, P2PList
                 listFiles = zkService.getChildren(plugin.getPath_zk()+zkService.getPath().FILES.toString(),null);
                 for(String checkfile : listFiles){
                   
+                    
+                    
+                    
+                    
+                    //atualizar
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
                     String idfile=checkfile.substring(checkfile.indexOf(zkService.getPath().UNDERSCORE.toString())+1);
                     if(file.equals(idfile)){
                         return plugin.getHost().getAddress();
@@ -656,8 +672,6 @@ public class SchedService extends AbstractBioService implements Service, P2PList
     @Override
     public void event(WatchedEvent eventType) {
         try {
-            System.out.println("SchedService event path:"+eventType.getPath().toString());
-            System.out.println("SchedService event type"+eventType.getType().toString());
             switch(eventType.getType()){
 
                 case NodeChildrenChanged:
