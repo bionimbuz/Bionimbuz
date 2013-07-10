@@ -30,7 +30,7 @@ protocol BioProto {
     array<string> outputs;
     long timestamp;
   }
-
+ 
   record PluginFile {
     string id;
     string path;
@@ -269,7 +269,8 @@ protocol BioProto {
 
   string startJob(array<JobInfo> listJob);
 
-  
+  string statusJob(string jobId);
+
 
   string cancelJob(string jobID);
 
