@@ -4,11 +4,12 @@ rpc_port: 9999
 # http or netty
 rpc_protocol: http
 # ZooKeeper connection string (comma separated)
-zookeeper_hosts: 192.168.1.111:2181
+zookeeper_hosts: 164.41.209.90:2181
 # old params
 client: false
 plugin: linux
-server-path: /home/biocloud1/NetBeansProjects/zoonimbus
-address: 192.168.1.111
+cost_per_giga: 0
+server-path: /home/zoonimbus/NetBeansProjects/zoonimbus
+address: 164.41.209.90
 id: 3943483403afb
-host: {"address": "192.168.1.111", "port":9999}
+host: {"address": "164.41.209.90", "port":9999}

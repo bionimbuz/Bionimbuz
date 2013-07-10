@@ -19,6 +19,8 @@ public class PluginInfo implements PluginOps {
     private long uptime;
 
     private Double latency = 0d;
+    
+    private double costpergiga;
 
     private long timestamp;
 
@@ -71,6 +73,14 @@ public class PluginInfo implements PluginOps {
 
     public void setHost(Host host) {
         this.host = host;
+    }
+    
+    public double getCostPerGiga() {
+        return costpergiga;
+    }
+
+    public void setCostPerGiga(double costpergiga) {
+        this.costpergiga = costpergiga;
     }
 
     public long getUptime() {
