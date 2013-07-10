@@ -456,7 +456,7 @@ public class StorageService extends AbstractBioService {
             List<String> pendingsave = zkService.getChildren(zkService.getPath().PENDING_SAVE.toString(), null);
             for(String files: pendingsave){
                 try {
-                    String data = zkService.getData(zkService.getPath().PENDING_SAVE.getFullPath("", "", ""), null);
+                    String data = zkService.getData(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", files.substring(13, files.length()), ""), null);
                     if (data == null || data.trim().isEmpty()){
                         System.out.println(">>>>>>>>>> NÃO EXISTEM DADOS PARA PATH " + zkService.getPath().PENDING_SAVE.getFullPath("", "", ""));
                         continue;
