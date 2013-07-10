@@ -22,14 +22,14 @@ public class MscTool {
 
     private static final Logger LOG = LoggerFactory.getLogger(MscTool.class);
 
-    RpcClient rpcClient = new AvroClient("http", "localhost", 9999);
+    RpcClient rpcClient = new AvroClient("http", "localhost", 8080);
 //    private P2PService p2p;
 //
 //    private SyncCommunication communication;
 
     private List<String> readFileNames() throws IOException {
         ArrayList<String> list = new ArrayList<String>();
-        BufferedReader br = new BufferedReader(new FileReader("/home/zoonimbus/NetBeansProjects/zoonimbus/data-folder/inputfiles.txt"));
+        BufferedReader br = new BufferedReader(new FileReader(System.getProperty("user.dir")+"/data-folder/"+"inputfiles.txt"));
         String line;
         while ((line = br.readLine()) != null)
             list.add(line);

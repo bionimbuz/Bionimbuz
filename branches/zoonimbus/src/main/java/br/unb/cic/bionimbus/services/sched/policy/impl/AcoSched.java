@@ -236,8 +236,6 @@ public class AcoSched extends SchedPolicy {
      */
     public static String getBiggerInputJob(JobInfo jobInfo) {
         Pair<String, Long> file=null;
-        System.out.println("getBiggerInputJob");
-
         for (Pair<String, Long> pair : jobInfo.getInputs()) {
             if (file ==null || file.second<pair.second){
                 file =  pair;
@@ -429,6 +427,7 @@ public class AcoSched extends SchedPolicy {
      */
     private Double multiplicationDatasPlugin(PluginInfo  plugin){
         ArrayList<Double> datas = mapAcoDatas.get(plugin.getId());
+        System.out.println("Dados aco plugin: "+plugin.toString());
 
         //feronomio elevado a potencia alfa(valor da variavel de controle)
         Double pheromone = (Math.pow(datas.get(0), datas.get(3)));
@@ -454,7 +453,7 @@ public class AcoSched extends SchedPolicy {
      */
     private Double capacityPlugin(PluginInfo plugin) {
         
-        return (plugin.getNumCores()*4-plugin.getNumOccupied())* plugin.getFrequencyCore() + plugin.getLatency();
+        return (plugin.getNumCores()*plugin.getNumOccupied())* plugin.getFrequencyCore() + plugin.getLatency();
 
     }
 
@@ -526,11 +525,6 @@ public class AcoSched extends SchedPolicy {
      * @return DI
      */
     private Double degreeImbalance(){
-    
-        /**
-         * MOdificar forma de recolher total de tarefas executadas
-         */
-        
         Double timeMax = Double.MIN_NORMAL,timeMin = Double.MAX_VALUE, time=null, timeAverage=0d;
    
         int cont=0;

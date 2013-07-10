@@ -64,7 +64,7 @@ public class AvroClient implements RpcClient {
     
     public static void main(String[] args) throws IOException {
 
-        BioProto proxy = new AvroClient("http", "localhost", 9999).getProxy();
+        BioProto proxy = new AvroClient("http", "localhost", 8080).getProxy();
         long init = System.currentTimeMillis();
         System.out.println(proxy.ping());
         long end = System.currentTimeMillis();
