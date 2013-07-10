@@ -47,6 +47,7 @@ public final class SimpleShell {
         commandMap.put(ListPeersCommand.NAME, new ListServices(this));
 
         commandMap.put(JobStart.NAME, new JobStart(this));
+        commandMap.put(JobStatus.NAME, new JobStatus(this));
 
         commandMap.put(JobCancel.NAME, new JobCancel(this));
         //PingCommand

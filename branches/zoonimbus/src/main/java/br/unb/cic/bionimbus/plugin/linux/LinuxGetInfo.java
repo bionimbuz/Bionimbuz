@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -19,7 +20,7 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
 
     public static final String PATH = "files";
 
-    public static final String CORES = "grep -m 1 cores /proc/cpuinfo";
+    public static final String CORES = "mpstat -P ALL";
 
     public static final String CPUMHz = "grep -m 1 MHz /proc/cpuinfo";
 
@@ -58,6 +59,38 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
         pluginInfo.setFrequencyCore((new Double(cpuInfo.substring(cpuInfo.indexOf(":") + 1, cpuInfo.length()).trim())) / 1000);
     }
 
+    /**
+     * Retorna o número de cores ocupados no recuso caso seu processamento estaja acima de 70 porcento.
+     * @return número de cores ocupados
+     */
+    private int getCoresOccupied(){
+        ArrayList<String> lines= new ArrayList();
+        String line;
+        InputStreamReader read;
+        int nCores =0,indexCPU=0,i=4,cpuUsage,cpuUsageMax=80;
+        try {
+            read = new InputStreamReader(Runtime.getRuntime().exec(CORES).getInputStream());
+            BufferedReader buffer = new BufferedReader(read);
+            while((line = buffer.readLine())!=null){
+                lines.add(line.trim());
+                if(line.contains("%usr")){
+                    indexCPU = line.indexOf("%usr");
+                }
+            }
+            while(lines.size()>i){
+                cpuUsage = new Integer(lines.get(i).substring(indexCPU-1, indexCPU+5).substring(0,2));
+                if(cpuUsage>cpuUsageMax){
+                    nCores++;
+                }
+                i++;
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(LinuxGetInfo.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return nCores;
+    }
+    
     /**
      * Obtem as informações da memória RAM do recurso e realiza o setter dessa informações na classe pluginInfo.
      * Memória total e memória livre em MegaBytes.
