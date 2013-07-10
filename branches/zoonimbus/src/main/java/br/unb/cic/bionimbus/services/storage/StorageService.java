@@ -374,7 +374,7 @@ public class StorageService extends AbstractBioService {
      */
     public boolean checkFilePeer(PluginFile file) {
         System.out.println("(checkFilePeer)vericando se o arquivo "+file.toString()+" existe no peer");
-        File localFile = new File("/home/zoonimbus/NetBeansProjects/zoonimbus/data-folder/" + file.getName());
+        File localFile = new File(System.getProperty("user.dir")+"/data-folder/" + file.getName());
         
         if (localFile.exists()) {
             zkService.createPersistentZNode(zkService.getPath().PREFIX_FILE.getFullPath(p2p.getConfig().getId(), file.getId(), ""), file.toString());
@@ -507,7 +507,8 @@ public class StorageService extends AbstractBioService {
         System.out.println("(replication) Replicando o arquivo de nome: "+filename+" do peer: "+address);
         List<NodeInfo> pluginList = new ArrayList<NodeInfo>();
         List<String> idsPluginsFile = new ArrayList<String>();
-        File file = new File("/home/zoonimbus/NetBeansProjects/zoonimbus/data-folder/" + filename);
+        File file = new File(System.getProperty("user.dir")+"/data-folder/" + filename);
+        
 
         int filesreplicated = 1;
 

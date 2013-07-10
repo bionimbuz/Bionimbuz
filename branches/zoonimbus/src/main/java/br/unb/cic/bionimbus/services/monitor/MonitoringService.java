@@ -154,6 +154,7 @@ public void shutdown() {
 
             for (PluginInfo peer : getPeers().values()) {
                 for (String task : zkService.getChildren(zkService.getPath().TASKS.getFullPath(peer.getId(), "", ""), null)) {
+                    
                     PluginTask pluginTask = new ObjectMapper().readValue(zkService.getData(zkService.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())), null), PluginTask.class);
                     //verifica se o job já estava na lista, recupera e lança novamente os dados para disparar watchers                    if(count ==1){
                     if (pluginTask.getState() == PluginTaskState.PENDING) {

@@ -4,13 +4,12 @@ import br.unb.cic.bionimbus.avro.gen.BioProto;
 import br.unb.cic.bionimbus.avro.gen.FileInfo;
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.client.JobInfo;
-import br.unb.cic.bionimbus.plugin.PluginFile;
-import br.unb.cic.bionimbus.plugin.PluginInfo;
-import br.unb.cic.bionimbus.plugin.PluginService;
+import br.unb.cic.bionimbus.plugin.*;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import br.unb.cic.bionimbus.services.sched.SchedService;
 import br.unb.cic.bionimbus.services.storage.StorageService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
@@ -47,16 +46,51 @@ public class BioProtoImpl implements BioProto {
         return true;
     }
     
+    
+    @Override
+    public String statusJob(String jobId) throws AvroRemoteException {
+        try {
+            if(zkService.getChildren(zkService.getPath().JOBS.getFullPath("", "", ""), null).contains(jobId)){
+                return  "Job "+jobId+" ainda não foi escalonado";
+            }else {
+                String datas =null;
+                ObjectMapper mapper = new ObjectMapper();
+                for(PluginInfo plugin : storageService.getPeers().values()){
+                    for(String task : zkService.getChildren(zkService.getPath().TASKS.getFullPath(plugin.getId(), "", ""), null)){
+                        datas = zkService.getData(zkService.getPath().PREFIX_TASK.getFullPath(plugin.getId(),"",task.substring(5, task.length())),null);
+                        if(datas!=null){
+                            PluginTask pluginTask = mapper.readValue(datas, PluginTask.class);
+                            if(pluginTask.getJobInfo().getId().equals(jobId))
+                                return "Job: "+pluginTask.getState().toString();
+                        }
+                    }
+                }
+                    
+            }
+        } catch (KeeperException ex) {
+            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return "Job "+jobId+" não encontrado!";
+    }
+
+    
+    
+    
     /**
-     * 
-     * @return
+     * Retorna uma lista com o nome dos arquivos pertencentes a toda a federação.
+     * @return lista com nome dos arquivos
      * @throws AvroRemoteException 
      */
     @Override
     public List<String> listFilesName() throws AvroRemoteException {
-        List<String> listFile = new ArrayList<String>();
+        ArrayList<String> listFile = new ArrayList<String>();
         try {
             for(Collection<String> collection : storageService.getFiles().values()){
+                listFile.removeAll(collection);
                 listFile.addAll(collection);
             }
         } catch (IOException ex) {
@@ -96,7 +130,8 @@ public class BioProtoImpl implements BioProto {
 
         for(PluginInfo plugin : list){
             for(PluginService pluginService: plugin.getServices()){
-                listNameIdService.add(pluginService.toString());
+                if(!listNameIdService.contains(pluginService.toString()))
+                    listNameIdService.add(pluginService.toString());
                 
             }
         }
@@ -140,7 +175,7 @@ public class BioProtoImpl implements BioProto {
         //inclusão do job para ser escalonado
         zkService.createPersistentZNode(path+job.getId(), job.toString());
 
-        return "Job Escalonado.\n Aguardando execução...";
+        return "Job Escalonado, Id : "+job.getId()+".\nAguardando execução...";
     }
 
     @Override
@@ -247,7 +282,7 @@ public class BioProtoImpl implements BioProto {
     public synchronized void fileSent(FileInfo fileSucess, List<String> dest){
         PluginFile file = new PluginFile(fileSucess);
         file.setPluginId(dest);
-        file.setPath("/home/zoonimbus/NetBeansProjects/zoonimbus/data-folder/"+file.getName());
+        file.setPath(System.getProperty("user.dir")+"/data-folder/"+file.getName());
         try {
             storageService.fileUploaded(file);
         } catch (KeeperException ex) {
@@ -318,6 +353,5 @@ public class BioProtoImpl implements BioProto {
     public void setWatcher(String idPlugin) {
 //        storageService.starWatchers(idPlugin);
     }
-
 
 }

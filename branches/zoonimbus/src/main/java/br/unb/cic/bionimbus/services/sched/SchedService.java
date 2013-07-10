@@ -23,7 +23,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
-import com.twitter.common.util.Stat;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
@@ -158,6 +157,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
         // Caso nao exista nenhum job pendente da a chance do escalonador
         // realocar as tarefas.
         if (!getPendingJobs().isEmpty()) {
+            cloudMap.clear();
             cloudMap.putAll(getPeers());
             //realiza a requisicao dos valores da lantênia antes de escalonar um job
             schedMap = getPolicy().schedule(getPendingJobs().values(), zkService);
@@ -603,6 +603,16 @@ public class SchedService extends AbstractBioService implements Service, P2PList
         try {
             schedPolicy.jobDone(pair.second);
             zkService.delete(pair.second.getPluginTaskPathZk());
+            for(String fileName : pair.second.getJobInfo().getOutputs()){
+                PluginFile file =  new PluginFile();
+                file.setId(fileName);
+                file.setName(fileName);
+                List<String> ids = new ArrayList<String>();
+                ids.add(pair.first.getId());
+                file.setPluginId(ids);
+                zkService.createEphemeralZNode(zkService.getPath().PENDING_SAVE.toString(), file.toString());
+            }
+            
         } catch (KeeperException ex) {
             java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {

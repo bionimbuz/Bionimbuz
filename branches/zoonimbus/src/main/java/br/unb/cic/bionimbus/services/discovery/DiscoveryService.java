@@ -66,7 +66,6 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 
     @Override
     public void run() {    
-        System.out.println("running DiscoveryService...");
         setDatasPluginInfo(false);
 //        Map<String, PluginInfo> listPlugin = getPeers();
 //        if(!listPlugin.isEmpty()){
@@ -130,6 +129,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
                 plugin.setFsFreeSize(infopc.getFsFreeSize());
                 plugin.setMemoryFree(infopc.getMemoryFree());
                 plugin.setNumOccupied(infopc.getNumOccupied());
+                infopc.setUptime(plugin.getUptime());
                 infopc = plugin;
             }
             //armazenando dados do plugin no zookeeper
