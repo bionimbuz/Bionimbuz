@@ -21,7 +21,7 @@ public class Put {
     private int PORT = 22;
     private Channel channel;
     private String path;
-    private String dest = "/home/zoonimbus/NetBeansProjects/zoonimbus/data-folder/";
+    private String dest =System.getProperty("user.dir")+"/data-folder/";
 
     public Put(String address, String path) {
         this.address = address;
