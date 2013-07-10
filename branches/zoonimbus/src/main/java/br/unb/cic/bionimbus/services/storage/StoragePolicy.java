@@ -9,6 +9,7 @@ import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.avro.rpc.BioProtoImpl;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
+import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,6 +19,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.zookeeper.KeeperException;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 
 
 /**
@@ -43,6 +47,7 @@ public class StoragePolicy{
         double cost;
         double uptime;
         double freesize;
+        double costpergiga = 0;
         
         /*
          * Calculando os custos de armazenamento dos peers
@@ -50,22 +55,38 @@ public class StoragePolicy{
          */
         
         for(PluginInfo plugin : pluginList){
-             uptime = plugin.getUptime() / 1000;
-             freesize = (plugin.getFsFreeSize() / 1024 / 1024 / 1024);
-             cost = (((freesize * peso_space) + 
-                (uptime * peso_uptime)) * 
-                (plugin.getLatency() * peso_latency));
-             /*
-              * Seta o custo de armazenamento no peer
-              */
-             plugin.setStorageCost(cost);             
              try {
-                   zkService.setData(plugin.getPath_zk(), plugin.toString());
-               } catch (KeeperException ex) {
-                   Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+                String datastring = zkService.getData(zkService.getPath().PREFIX_PEER.getFullPath(plugin.getId(), "", ""), null);
+                 try {
+                     PluginInfo plugindata = new ObjectMapper().readValue(datastring, PluginInfo.class);
+                     costpergiga = plugindata.getCostPerGiga();
+                 } catch (IOException ex) {
+                     Logger.getLogger(StoragePolicy.class.getName()).log(Level.SEVERE, null, ex);
+                 }
+                 
+                 uptime = plugin.getUptime() / 1000;
+                 freesize = (plugin.getFsFreeSize() / 1024 / 1024 / 1024);
+                 cost = (((freesize * peso_space) + 
+                    (uptime * peso_uptime)) * 
+                    (plugin.getLatency() * peso_latency));
+                 cost = cost + costpergiga;
+                 /*
+                  * Seta o custo de armazenamento no peer
+                  */
+                 plugin.setStorageCost(cost);             
+                 try {
+                       zkService.setData(plugin.getPath_zk(), plugin.toString());
+                   } catch (KeeperException ex) {
+                       Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+                   } catch (InterruptedException ex) {
+                       Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+                   }
+                 
+            } catch (KeeperException ex) {
+                   Logger.getLogger(StoragePolicy.class.getName()).log(Level.SEVERE, null, ex);
                } catch (InterruptedException ex) {
-                   Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-               }
+                Logger.getLogger(StoragePolicy.class.getName()).log(Level.SEVERE, null, ex);
+            }
              
         }
         /*
