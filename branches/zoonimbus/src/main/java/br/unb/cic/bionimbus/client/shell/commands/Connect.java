@@ -25,14 +25,19 @@ public class Connect implements Command {
             return "Invalid arguments\nusage: connect <address> ";
         }
 
+        
         String hostname = params[0];
         RpcClient rpcClient = new AvroClient("http", hostname, port);
 
         // test to see if hostname is reachable
-//        rpcClient.getProxy().ping();
+        
+        if(rpcClient.getProxy().ping()){
+            shell.print("Client is true");
+        }
         
         shell.setRpcClient(rpcClient);
 
+        
         shell.setConnected(true);
 
         return "client is connected.";
