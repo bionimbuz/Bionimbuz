@@ -11,7 +11,7 @@ public class Connect implements Command {
 
     public static final String NAME = "connect";
     private final SimpleShell shell;
-    private int port = 9999;
+    private int port = 8080;
 
     public Connect(SimpleShell shell) {
         this.shell = shell;
