@@ -29,7 +29,9 @@ public class MscTool {
 
     private List<String> readFileNames() throws IOException {
         ArrayList<String> list = new ArrayList<String>();
-        BufferedReader br = new BufferedReader(new FileReader(System.getProperty("user.dir")+"/data-folder/"+"inputfiles.txt"));
+        String pathHome = System.getProperty("user.dir");
+        String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
+        BufferedReader br = new BufferedReader(new FileReader(path+"inputfiles.txt"));
         String line;
         while ((line = br.readLine()) != null)
             list.add(line);

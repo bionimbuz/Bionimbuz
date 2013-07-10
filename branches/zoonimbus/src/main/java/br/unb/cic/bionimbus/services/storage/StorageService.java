@@ -374,7 +374,9 @@ public class StorageService extends AbstractBioService {
      */
     public boolean checkFilePeer(PluginFile file) {
         System.out.println("(checkFilePeer)vericando se o arquivo "+file.toString()+" existe no peer");
-        File localFile = new File(System.getProperty("user.dir")+"/data-folder/" + file.getName());
+        String pathHome = System.getProperty("user.dir");
+        String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
+        File localFile = new File(path + file.getName());
         
         if (localFile.exists()) {
             zkService.createPersistentZNode(zkService.getPath().PREFIX_FILE.getFullPath(p2p.getConfig().getId(), file.getId(), ""), file.toString());
