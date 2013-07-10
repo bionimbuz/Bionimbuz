@@ -54,7 +54,7 @@ public class StorageService extends AbstractBioService {
     private P2PService p2p = null;
     private File dataFolder = new File("data-folder"); //TODO: remover hard-coded e colocar em node.yaml e injetar em StorageService
     private Double MAXCAPACITY = 0.9;
-    private int PORT = 9999;
+    private int PORT = 8080;
     private int REPLICATIONFACTOR = 2;
     List<String> listFile = new ArrayList<String>();
 

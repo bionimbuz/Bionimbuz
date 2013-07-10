@@ -45,7 +45,7 @@ public class MonitoringService extends AbstractBioService implements Service, P2
     private static final String STATUS = "/STATUS";
     private static final String STATUSWAITING = "/STATUSWAITING";
     private static final String SEPARATOR = "/";
-    private static final int PORT = 9999;
+    private static final int PORT = 8080;
 
     @Inject
     public MonitoringService(final ZooKeeperService zKService) {
