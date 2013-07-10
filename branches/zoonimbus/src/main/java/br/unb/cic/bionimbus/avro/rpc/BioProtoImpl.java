@@ -282,7 +282,9 @@ public class BioProtoImpl implements BioProto {
     public synchronized void fileSent(FileInfo fileSucess, List<String> dest){
         PluginFile file = new PluginFile(fileSucess);
         file.setPluginId(dest);
-        file.setPath(System.getProperty("user.dir")+"/data-folder/"+file.getName());
+        String pathHome = System.getProperty("user.dir");
+        String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
+        file.setPath(pathHome+path+file.getName());
         try {
             storageService.fileUploaded(file);
         } catch (KeeperException ex) {

@@ -17,11 +17,10 @@ public class Put {
     private Session session = null;
     private String address;
     private String USER = "zoonimbus";
-    private String PASSW = "zoonimbus";
+    private String PASSW = "Zoonimbus1";
     private int PORT = 22;
     private Channel channel;
     private String path;
-    private String dest =System.getProperty("user.dir")+"/data-folder/";
 
     public Put(String address, String path) {
         this.address = address;
@@ -40,6 +39,8 @@ public class Put {
      * @throws SftpException
      */
     public boolean startSession() throws JSchException, SftpException {
+        String pathHome = System.getProperty("user.dir");
+        String pathDest =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
         try {
 
             session = jsch.getSession(USER, address, PORT);
@@ -61,7 +62,7 @@ public class Put {
              */
             //sftpChannel.chmod(777, path);
             System.out.println("\n Uploading file.....\n\n\n");
-                sftpChannel.put(path, dest);
+                sftpChannel.put(path, pathDest);
                 sftpChannel.exit();
                 session.disconnect();
 

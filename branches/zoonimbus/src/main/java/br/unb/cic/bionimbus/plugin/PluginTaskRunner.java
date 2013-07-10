@@ -17,7 +17,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
     private final PluginService service;
     private final String path;
     private final ZooKeeperService zkService;
-    private final String PATHFILES="/data-folder";
+    private final String PATHFILES="data-folder/";
 
     public PluginTaskRunner(AbstractPlugin plugin, PluginTask task,
                             PluginService service, String path,ZooKeeperService zk) {
@@ -39,7 +39,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
             String input = pair.first;
             //linha comentada pois arquivos de entrada não ficam mais no AbstractPlugin
 //            args = args.replaceFirst("%I" + i, path + File.pathSeparator + plugin.getInputFiles().get(input).first);
-            args = args.replaceFirst("%I" + i, path+PATHFILES + File.separator + input+" ");
+            args = args.replaceFirst("%I" + i, path+PATHFILES + input+" ");
             i++;
         }
 
