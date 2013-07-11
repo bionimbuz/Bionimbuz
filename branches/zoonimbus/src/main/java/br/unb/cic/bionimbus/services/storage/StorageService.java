@@ -54,7 +54,7 @@ public class StorageService extends AbstractBioService {
     private P2PService p2p = null;
     private File dataFolder = new File("data-folder"); //TODO: remover hard-coded e colocar em node.yaml e injetar em StorageService
     private Double MAXCAPACITY = 0.9;
-    private int PORT = 8080;
+    private int PORT = 9999;
     private int REPLICATIONFACTOR = 2;
     List<String> listFile = new ArrayList<String>();
 
@@ -74,9 +74,11 @@ public class StorageService extends AbstractBioService {
     public void run() {
         
         System.out.println("checando pending save...");
-        try {
-            checkingPendingSave();
-        } catch (IOException ex) {
+        try{
+            if (getPeers().size() != 1) 
+                checkingPendingSave(); 
+        } 
+        catch (IOException ex) {
             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -470,14 +472,27 @@ public class StorageService extends AbstractBioService {
                             break;
                         }
                         String address = getFilesIP(fileplugin.getName());
-                        try {
-                            replication(fileplugin.getName(),address);
-                        } catch (JSchException ex) {
-                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (SftpException ex) {
-                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-                        }
+                        if(!address.equals(p2p.getConfig().getAddress())){
+                            RpcClient rpcClient = new AvroClient("http", address, PORT);
+                            rpcClient.getProxy().notifyReply(fileplugin.getName(), address);
+                            try {
+                                rpcClient.close();
+                                cont++;
+                            } catch (Exception ex) {
+                                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }           
+                                    
+                        else{
+                            try{
+                                replication(fileplugin.getName(),address);
+                            } catch (JSchException ex) {
+                                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (SftpException ex) {
+                                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                            }
                         cont++;
+                        }
                     }
                 } catch (IOException ex) {
                     Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
