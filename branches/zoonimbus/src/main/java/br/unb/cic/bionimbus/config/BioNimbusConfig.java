@@ -39,6 +39,9 @@ public class BioNimbusConfig {
     @JsonProperty("rpc_port")
     private Integer rpcPort;
     
+    @JsonProperty("cost_per_giga")
+    private double costpergiga;
+    
     @JsonProperty("zookeeper_hosts")
     private String zkHosts;
     
@@ -130,6 +133,14 @@ public class BioNimbusConfig {
         return id;
     }
 
+    public double getCostPerGiga() {
+        return costpergiga;
+    }
+
+    public void setCostPerGiga(double costpergiga) {
+        this.costpergiga = costpergiga;
+    }
+    
     public String getServerPath() {
         return serverPath;
     }
@@ -179,6 +190,7 @@ public class BioNimbusConfig {
                 .add("host", host)
                 .add("seeds", seeds)
                 .add("private_cloud", privateCloud)
+                .add("cost_per_giga", costpergiga)
                 .add("server-path", serverPath)
                 .toString();
     }
