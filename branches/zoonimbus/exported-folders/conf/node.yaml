@@ -12,6 +12,6 @@ plugin: linux
 server-path: /home/zoonimbus/zoonimbusProject/
 address: 192.168.1.101
 private_cloud: 1
-cost_per_giga : 0
+cost_per_giga: 0
 #id: 3943483403afa // utilização aleatoria para   plugin
 host: {"address": "192.168.1.101","port": 8080}
