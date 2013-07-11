@@ -1,13 +1,17 @@
 # http://en.wikipedia.org/wiki/YAML
 # if rpc-port can be a default number or a range (8888-9999)
-rpc_port: 9999
+rpc_port: 8080
 # http or netty
 rpc_protocol: http
 # ZooKeeper connection string (comma separated)
-zookeeper_hosts: localhost:2181
+zookeeper_hosts: 192.168.1.101:2181
+#192.168.1.111:2181
 # old params
 client: false
 plugin: linux
-server-path: ./server
-address: localhost
-id: 3943483403afc
+server-path: /home/zoonimbus/zoonimbusProject/
+address: 192.168.1.101
+private_cloud: 1
+cost_per_giga : 0
+#id: 3943483403afa // utilização aleatoria para   plugin
+host: {"address": "192.168.1.101","port": 8080}
