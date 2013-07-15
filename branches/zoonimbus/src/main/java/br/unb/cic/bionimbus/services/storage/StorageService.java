@@ -13,6 +13,7 @@ import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import br.unb.cic.bionimbus.services.monitor.MonitoringService;
+import br.unb.cic.bionimbus.services.sched.SchedService;
 import br.unb.cic.bionimbus.utils.Put;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
@@ -54,7 +55,7 @@ public class StorageService extends AbstractBioService {
     private P2PService p2p = null;
     private File dataFolder = new File("data-folder"); //TODO: remover hard-coded e colocar em node.yaml e injetar em StorageService
     private Double MAXCAPACITY = 0.9;
-    private int PORT = 9999;
+    private int PORT = 8080;
     private int REPLICATIONFACTOR = 2;
     List<String> listFile = new ArrayList<String>();
 
@@ -73,14 +74,6 @@ public class StorageService extends AbstractBioService {
     @Override
     public void run() {
         
-        System.out.println("checando pending save...");
-        try{
-            if (getPeers().size() != 1) 
-                checkingPendingSave(); 
-        } 
-        catch (IOException ex) {
-            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
     /**
@@ -97,6 +90,7 @@ public class StorageService extends AbstractBioService {
         zkService.createPersistentZNode(zkService.getPath().PENDING_SAVE.toString(), null);
         zkService.createPersistentZNode(zkService.getPath().FILES.getFullPath(p2p.getConfig().getId(), "", ""), "");
         try {
+            //watcher para verificar se um pending_save foi lançado
             zkService.getChildren(zkService.getPath().PENDING_SAVE.getFullPath("", "", ""), new UpdatePeerData(zkService, this));
             zkService.getChildren(zkService.getPath().PEERS.getFullPath("", "", ""), new UpdatePeerData(zkService, this));
 
@@ -142,7 +136,8 @@ public class StorageService extends AbstractBioService {
     public void checkPeers() {
         for (PluginInfo plugin : getPeers().values()) {
             try {
-                zkService.getData(zkService.getPath().STATUS.getFullPath(plugin.getId(), null, null), new UpdatePeerData(zkService, this));
+                if(zkService.getZNodeExist(zkService.getPath().STATUS.getFullPath(plugin.getId(), null, null), false))
+                    zkService.getData(zkService.getPath().STATUS.getFullPath(plugin.getId(), null, null), new UpdatePeerData(zkService, this));
             } catch (KeeperException ex) {
                 Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
             } catch (InterruptedException ex) {
@@ -153,9 +148,7 @@ public class StorageService extends AbstractBioService {
     }
 
     /**
-     * Verifica os arquivos que existem no recurso e se o fator de replicação
-     * está sendo respeitado na federação. Roda apenas quando o plugin está
-     * sendo iniciado.
+     * Verifica os arquivos que existem no recurso.
      */
     public void checkFiles() {
         try {
@@ -172,16 +165,13 @@ public class StorageService extends AbstractBioService {
                     pluginFile.setName(file.getName());
                     pluginFile.setPath(file.getPath());
 
-                    /*
-                     * listIds - ID do Plugin que contem os arquivos
-                     *  Verifica onde esse arquivo está caso já exista
-                     */
                     List<String> listIds = new ArrayList<String>();
                     listIds.add(p2p.getConfig().getId());
 
                     pluginFile.setPluginId(listIds);
                     pluginFile.setSize(file.length());
-                    String path =zkService.createPersistentZNode(zkService.getPath().PREFIX_FILE.getFullPath(p2p.getConfig().getId(), pluginFile.getId(), ""), pluginFile.toString());
+                    //cria um novo znode para o arquivo e adiciona o watcher
+                    zkService.createPersistentZNode(zkService.getPath().PREFIX_FILE.getFullPath(p2p.getConfig().getId(), pluginFile.getId(), ""), pluginFile.toString());
                     zkService.getData(zkService.getPath().PREFIX_FILE.getFullPath(p2p.getConfig().getId(), pluginFile.getId(), ""), new UpdatePeerData(zkService, this));
 
                     savedFiles.put(pluginFile.getName(), pluginFile);
@@ -461,11 +451,19 @@ public class StorageService extends AbstractBioService {
             for(String files: pendingsave){
                 try {
                     String data = zkService.getData(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", files.substring(13, files.length()), ""), null);
+                    //verifica se arquivo existe
                     if (data == null || data.trim().isEmpty()){
                         System.out.println(">>>>>>>>>> NÃO EXISTEM DADOS PARA PATH " + zkService.getPath().PENDING_SAVE.getFullPath("", "", ""));
                         continue;
                     }
                     PluginFile fileplugin = mapper.readValue(data, PluginFile.class);
+                    
+                    //verifica se é um arquivo de saída de uma execução e se o arquivo foi gerado nesse recurso
+                    if(fileplugin.getService()!=null && fileplugin.getService().equals(SchedService.class.getSimpleName()) && fileplugin.getPluginId().get(0).equals(p2p.getConfig().getId())){
+                        //adiciona o arquivo a lista do zookeeper
+                        checkFiles();
+                    }
+                    
                     while(cont < 6){
                         if(fileplugin.getPluginId().size() == REPLICATIONFACTOR){
                             zkService.delete(zkService.getPath().PENDING_SAVE.getFullPath("", fileplugin.getId(), ""));
@@ -497,7 +495,9 @@ public class StorageService extends AbstractBioService {
                 } catch (IOException ex) {
                     Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                existReplication(files);
+                //verifica se exite replicação quando houver mais de um peer
+                if (getPeers().size() != 1)
+                    existReplication(files);
                 
                 
             }
@@ -690,7 +690,9 @@ public class StorageService extends AbstractBioService {
         temp.removeAll(cloudMap.values());
         for (PluginInfo plugin : temp) {
             try {
-                zkService.getData(zkService.getPath().STATUS.getFullPath(plugin.getId(), "", ""), new UpdatePeerData(zkService, this));
+                if(zkService.getZNodeExist(zkService.getPath().STATUS.getFullPath(plugin.getId(), null, null), false))
+                    zkService.getData(zkService.getPath().STATUS.getFullPath(plugin.getId(), "", ""), new UpdatePeerData(zkService, this));
+                
             } catch (KeeperException ex) {
                 java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
             } catch (InterruptedException ex) {
@@ -712,16 +714,32 @@ public class StorageService extends AbstractBioService {
                     if (cloudMap.size() < getPeers().size()) {
                         verifyPlugins();
                     }
+                }else if (eventType.getPath().equals(zkService.getPath().PENDING_SAVE.toString())) {
+                    //chamada para checar a pending_save apenas quando uma alerta para ela for lançado
+                       try{
+                            checkingPendingSave(); 
+                        } 
+                        catch (IOException ex) {
+                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                 }
             case NodeDeleted:
                 if (eventType.getPath().contains(zkService.getPath().STATUS.toString())) {
-                    System.out.println("StoringService status apagada");
+                    System.out.println("StoringService : znode status apagada");
                     String peerId = path.substring(12, path.indexOf("/STATUS"));
                     try {
                         if (!zkService.getZNodeExist(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), false)) {
                             zkService.createPersistentZNode(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), "");              
                         }
-                        if (!zkService.getData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), null).contains("S")) {
+                        
+                        StringBuilder info = new StringBuilder(zkService.getData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), null));
+                        
+                        //verifica se recurso já foi recuperado ou está sendo recuperado por outro recurso
+                        if (!info.toString().contains("S") && !info.toString().contains("L")) {
+            
+                        //bloqueio para recuperar tarefas sem que outros recursos realizem a mesma operação
+                        zkService.setData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), info.append("L").toString());
+                        
                             //Verificar pluginid para gravar
                             for (PluginFile fileExcluded : getFilesPeer(peerId)) {
                                 String idPluginExcluded = null;
@@ -737,10 +755,14 @@ public class StorageService extends AbstractBioService {
                                 fileExcluded.setService("storagePeerDown");
                                 fileUploaded(fileExcluded);
                             }
-                            StringBuilder info = new StringBuilder(zkService.getData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), null));
+                            
+                            //retira bloqueio de uso e adiciona marcação de recuperação
+                            info.deleteCharAt(info.indexOf("L"));
                             info.append("S");
                             zkService.setData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), info.toString());
-                            checkingPendingSave();
+                            
+                            //nao é necessário chamar esse método aqui, ele será chamado se for necessário ao receber um alerta de watcher
+//                            checkingPendingSave();
                         }
 
                     } catch (AvroRemoteException ex) {

@@ -30,7 +30,7 @@ public class AvroServer implements RpcServer {
     private static final Logger LOGGER = LoggerFactory.getLogger(AvroServer.class);
 
     public AvroServer() {
-        this("http", 9999);
+        this("http", 8080);
     }
 
     public AvroServer(String transport, int port) {

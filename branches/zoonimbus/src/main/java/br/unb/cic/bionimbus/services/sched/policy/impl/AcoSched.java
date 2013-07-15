@@ -42,7 +42,7 @@ public class AcoSched extends SchedPolicy {
 
         HashMap jobCloud = new HashMap<JobInfo, PluginInfo>();
         JobInfo biggerJob = getBiggerJob(jobInfos);
-//        biggerJob.setTimestamp(0, System.currentTimeMillis());
+        biggerJob.setTimestamp(System.currentTimeMillis());
         // escalonador irá receber um zookeeperService como parâmetro
 
 
@@ -67,10 +67,6 @@ public class AcoSched extends SchedPolicy {
         //realiza a chamada do método para a leitura dos dados no servidor zookeeper
         mapAcoDatas = getMapAcoDatasZooKeeper(listPlugin);
 
-        //verifica se existe mais de um plugin para rodar a tarefa, se não houver retorna o plugin existente        ***descomentar ao estar em rede com outros plugins
-//        if(listServices.size()==1){                       
-//            return listServices.iterator().next();
-//        }
         if(listPlugin.isEmpty())
             return null;
         
@@ -90,7 +86,7 @@ public class AcoSched extends SchedPolicy {
         }
         
         
-        //chamada para metodo que atualiza o valor do feromonio de cada plugin de acordo com o melhor escolhido
+        //chamada para método que atualiza o valor do feromônio de cada plugin de acordo com o melhor escolhido
         theBestPheromone(listPlugin, plugin.getRanking());
         //armazena as informações utilizadas e atualizadas para o escalonamento no servidor zookeeper
         setMapAcoDatasZooKeeper(listPlugin);
@@ -168,11 +164,10 @@ public class AcoSched extends SchedPolicy {
             blackList.remove(task);
         }
 
-        String peerPath =task.getPluginTaskPathZk().substring(0, task.getPluginTaskPathZk().indexOf(SCHED));
-        String datas = getDatasZookeeper(peerPath, SCHED);
+        String datas = getDatasZookeeper(zk.getPath().PREFIX_PEER.getFullPath(task.getPluginExec(), "", ""), SCHED);
         
-        ObjectMapper mapper =  new ObjectMapper();
         ArrayList<Double> listAcoDatas;
+        ObjectMapper mapper =  new ObjectMapper();
         try {
             listAcoDatas = mapper.readValue(datas, ArrayList.class);
         
@@ -180,10 +175,12 @@ public class AcoSched extends SchedPolicy {
             listAcoDatas.set(7,task.getTimeExec().doubleValue());
             //define o tamanho do ultimo job executado
             listAcoDatas.set(8,getTotalSizeOfJobsFiles(task.getJobInfo()).doubleValue());
+            
             //soma o tamanho total do job executado com o tamanho dos demais jobs executados no plugin
             listAcoDatas.set(9, listAcoDatas.get(8)+listAcoDatas.get(9));
+
             //grava novamente os dados no zookeeper
-            setDatasZookeeper(peerPath, SCHED, listAcoDatas.toString());
+            setDatasZookeeper(zk.getPath().PREFIX_PEER.getFullPath(task.getPluginExec(), "", ""), SCHED, listAcoDatas.toString());
         } catch (IOException ex) {
             Logger.getLogger(AcoSched.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -333,7 +330,7 @@ public class AcoSched extends SchedPolicy {
     private void pheromone(PluginInfo plugin){
         Double p = 0.8, pheronome=0d;
 
-        if (mapAcoDatas.get(plugin.getId())!=null && !mapAcoDatas.get(plugin.getId()).isEmpty()) {
+        if (mapAcoDatas.get(plugin.getId())!=null && !mapAcoDatas.get(plugin.getId()).isEmpty() && !mapAcoDatas.get(plugin.getId()).get(0).equals(0d) ) {
             pheronome = mapAcoDatas.get(plugin.getId()).get(0);
 
             pheronome = (1 - p) * pheronome + (1 / smallerProbability);
@@ -383,8 +380,6 @@ public class AcoSched extends SchedPolicy {
             if(pheronome != null && pheronome!=0d){
                 pheronome = (1-p)*pheronome+(mapAcoDatas.get(plugin.getId()).get(0) /probability);
 
-                //Impressão do resultada do escalonamento
-                
                 mapAcoDatas.get(plugin.getId()).set(0,pheronome);
                 setDatasZookeeper(plugin.getPath_zk(), SCHED, mapAcoDatas.get(plugin.getId()).toString());
             }
@@ -453,7 +448,7 @@ public class AcoSched extends SchedPolicy {
      */
     private Double capacityPlugin(PluginInfo plugin) {
         
-        return (plugin.getNumCores()*plugin.getNumOccupied())* plugin.getFrequencyCore() + plugin.getLatency();
+        return (plugin.getNumCores()-plugin.getNumOccupied())==0d ? 0.00001d :  (plugin.getNumCores()-plugin.getNumOccupied()) * plugin.getFrequencyCore() - plugin.getLatency();
 
     }
 
@@ -563,9 +558,7 @@ public class AcoSched extends SchedPolicy {
     private HashMap getMapAcoDatasZooKeeper(List<PluginInfo> listClouds){
         HashMap map = new HashMap<String, ArrayList<Double>>();
         String datasString ;
-        Iterator it=  listClouds.iterator();
-        while(it.hasNext()){
-            PluginInfo plugin= (PluginInfo)it.next();
+        for (PluginInfo plugin : listClouds) {
             datasString = getDatasZookeeper(plugin.getPath_zk(), SCHED);
              ObjectMapper mapper =  new ObjectMapper();
             try {
@@ -588,14 +581,9 @@ public class AcoSched extends SchedPolicy {
      * Grava os valores utilizados pelo ACO de cada plugin no zookeeper.
      */
     private void setMapAcoDatasZooKeeper(List<PluginInfo> listClouds){
-
-        Iterator it=  listClouds.iterator();
-        while(it.hasNext()){
-            PluginInfo plugin= (PluginInfo)it.next();
+        for (PluginInfo plugin : listClouds) {
             setDatasZookeeper(plugin.getPath_zk(), SCHED, mapAcoDatas.get(plugin.getId()).toString());
-//                       setDatasZookeeper(plugin.getPath_zk(), SCHED, "");
         }
-    
     }
     
     /**

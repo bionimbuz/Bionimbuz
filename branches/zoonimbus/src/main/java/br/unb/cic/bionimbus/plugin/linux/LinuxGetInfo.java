@@ -2,6 +2,7 @@ package br.unb.cic.bionimbus.plugin.linux;
 
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginService;
+import com.twitter.common.quantity.Time;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -20,7 +22,7 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
 
     public static final String PATH = "files";
 
-    public static final String CORES = "mpstat -P ALL";
+    public static final String CORES = "dstat -cf";
 
     public static final String CPUMHz = "grep -m 1 MHz /proc/cpuinfo";
 
@@ -52,9 +54,10 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
      * Número de cores, frequencia do processador(GHz) e quantidade de cores ocupados.
      */
     private void getCpuInfo() {
-        pluginInfo.setNumCores(Runtime.getRuntime().availableProcessors());
+        int nCpus = Runtime.getRuntime().availableProcessors();
+        pluginInfo.setNumCores(nCpus);
         pluginInfo.setNumNodes(1);
-        pluginInfo.setNumOccupied(0);
+        pluginInfo.setNumOccupied(getCoresOccupied(nCpus));
         String cpuInfo = execCommand(CPUMHz);
         pluginInfo.setFrequencyCore((new Double(cpuInfo.substring(cpuInfo.indexOf(":") + 1, cpuInfo.length()).trim())) / 1000);
     }
@@ -63,32 +66,76 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
      * Retorna o número de cores ocupados no recuso caso seu processamento estaja acima de 70 porcento.
      * @return número de cores ocupados
      */
-    private int getCoresOccupied(){
-        ArrayList<String> lines= new ArrayList();
-        String line;
-        InputStreamReader read;
-        int nCores =0,indexCPU=0,i=4,cpuUsage,cpuUsageMax=80;
-        try {
-            read = new InputStreamReader(Runtime.getRuntime().exec(CORES).getInputStream());
-            BufferedReader buffer = new BufferedReader(read);
-            while((line = buffer.readLine())!=null){
-                lines.add(line.trim());
-                if(line.contains("%usr")){
-                    indexCPU = line.indexOf("%usr");
+    private int getCoresOccupied(int numCpu){
+//        ArrayList<String> lines= new ArrayList();
+//        String line;
+//        InputStreamReader read;
+//        int nCores =0,indexCPU=0,i=4,cpuUsage,cpuUsageMax=80;
+//        try {
+//            read = new InputStreamReader(Runtime.getRuntime().exec(CORES).getInputStream());
+//            TimeUnit.SECONDS.sleep(3);
+//
+//            BufferedReader buffer = new BufferedReader(read);
+//            while((line = buffer.readLine())!=null){
+//                lines.add(line.trim());
+//                if(line.contains("%usr")){
+//                    indexCPU = line.indexOf("%usr");
+//                }
+//            }
+//            while(lines.size()>i){
+//                cpuUsage = new Integer(lines.get(i).substring(indexCPU-1, indexCPU+5).substring(0,2));
+//                if(cpuUsage>cpuUsageMax){
+//                    nCores++;
+//                }
+//                i++;
+//            }
+//        } catch (Exception ex) {
+//            Logger.getLogger(LinuxGetInfo.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+            int nCpuOccupied=0;
+            try {
+                InputStreamReader read ;
+                BufferedReader buffer ;
+                List<Integer> linesCPU= new ArrayList<Integer>(numCpu);
+                String[] columns,lines;
+                String line;
+                int count=0,i=0;
+                
+                Process p = Runtime.getRuntime().exec("dstat -cf");
+                read = new InputStreamReader(p.getInputStream());
+                buffer = new BufferedReader(read);
+                while((line = buffer.readLine())!=null && count<(numCpu+4)){
+                    if(count>=3){
+                        columns = line.trim().split(":");
+                        for(int j=0; j<numCpu;j++){
+                            lines = columns[j].trim().split(" ");
+                            if(i!=0){
+                                linesCPU.set(j,new Integer(lines[0])+linesCPU.get(j));
+                            }else{
+                                linesCPU.add(j,new Integer(lines[0]));
+
+                            }
+
+                        }
+                    i++;
+                    }
+                    count++;
                 }
-            }
-            while(lines.size()>i){
-                cpuUsage = new Integer(lines.get(i).substring(indexCPU-1, indexCPU+5).substring(0,2));
-                if(cpuUsage>cpuUsageMax){
-                    nCores++;
+                //finaliza a execução
+                p.destroy();
+
+                for(i=0; i<numCpu;i++){
+                    if((linesCPU.get(i)/3)>80){
+                        nCpuOccupied++;
+                    }
                 }
-                i++;
+            
+            } catch (IOException ex) {
+                Logger.getLogger(LinuxGetInfo.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } catch (Exception ex) {
-            Logger.getLogger(LinuxGetInfo.class.getName()).log(Level.SEVERE, null, ex);
-        }
         
-        return nCores;
+        
+        return nCpuOccupied;
     }
     
     /**

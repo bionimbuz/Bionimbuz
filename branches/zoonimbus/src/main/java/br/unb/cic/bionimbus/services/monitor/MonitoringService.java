@@ -122,7 +122,8 @@ public void shutdown() {
         temp.removeAll(plugins);
         for(PluginInfo plugin : temp){
             try {
-                zkService.getData(zkService.getPath().STATUS.getFullPath(plugin.getId(), "", ""), new UpdatePeerData(zkService, this));
+                if(zkService.getZNodeExist(zkService.getPath().STATUS.getFullPath(plugin.getId(), null, null), false))
+                    zkService.getData(zkService.getPath().STATUS.getFullPath(plugin.getId(), "", ""), new UpdatePeerData(zkService, this));
             } catch (KeeperException ex) {
                 java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
             } catch (InterruptedException ex) {
@@ -154,19 +155,22 @@ public void shutdown() {
 
             for (PluginInfo peer : getPeers().values()) {
                 for (String task : zkService.getChildren(zkService.getPath().TASKS.getFullPath(peer.getId(), "", ""), null)) {
-                    
-                    PluginTask pluginTask = new ObjectMapper().readValue(zkService.getData(zkService.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())), null), PluginTask.class);
-                    //verifica se o job já estava na lista, recupera e lança novamente os dados para disparar watchers                    if(count ==1){
-                    if (pluginTask.getState() == PluginTaskState.PENDING) {
-                        if (waitingTask.containsKey(task)) {
-                            //condição para verificar se a tarefa está sendo utilizada
-                            if(zkService.getZNodeExist(zkService.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())), false)){
-                                zkService.delete(zkService.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())));
-                                zkService.createPersistentZNode(zkService.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())), pluginTask.toString());
+                    String datas =  zkService.getData(zkService.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())), null);
+                        
+                    if(datas!=null && datas.isEmpty()){
+                        PluginTask pluginTask = new ObjectMapper().readValue(datas, PluginTask.class);
+                        //verifica se o job já estava na lista, recupera e lança novamente os dados para disparar watchers                    if(count ==1){
+                        if (pluginTask.getState() == PluginTaskState.PENDING) {
+                            if (waitingTask.containsKey(task)) {
+                                //condição para verificar se a tarefa está sendo utilizada
+                                if(zkService.getZNodeExist(zkService.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())), false)){
+                                    zkService.delete(zkService.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())));
+                                    zkService.createPersistentZNode(zkService.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())), pluginTask.toString());
+                                }
+                                waitingJobs.remove(task);
+                            } else {
+                                waitingTask.put(task, pluginTask);
                             }
-                            waitingJobs.remove(task);
-                        } else {
-                            waitingTask.put(task, pluginTask);
                         }
                     }
                 }
