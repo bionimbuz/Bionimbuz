@@ -19,12 +19,19 @@ public class JobStatus implements Command {
         
         BioProto rpc = shell.getProxy();
         
-        return rpc.statusJob(params[0]);
+        // verifica se é a solicitação de status para todos os jobs
+        if(params[0].equalsIgnoreCase("all")){
+            return rpc.statusAllJob();
+        }else{
+            return rpc.statusJob(params[0]);
+        }
+        
+        
     }
 
     @Override
     public String usage() {
-        return NAME + " <jobId>";
+        return NAME + " <jobId> \n"+NAME+" ALL";
     }
 
     @Override

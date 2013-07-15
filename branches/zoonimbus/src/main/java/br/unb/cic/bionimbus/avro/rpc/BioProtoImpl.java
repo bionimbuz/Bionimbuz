@@ -46,11 +46,16 @@ public class BioProtoImpl implements BioProto {
         return true;
     }
     
-    
+    /**
+     * Retorna o status do job solicitado.
+     * @param jobId id do job que deve ser consultado
+     * @return string com o status do job
+     * @throws AvroRemoteException 
+     */
     @Override
     public String statusJob(String jobId) throws AvroRemoteException {
         try {
-            if(zkService.getChildren(zkService.getPath().JOBS.getFullPath("", "", ""), null).contains(jobId)){
+            if(zkService.getChildren(zkService.getPath().JOBS.getFullPath("", "", ""), null).contains("job_"+jobId)){
                 return  "Job "+jobId+" ainda não foi escalonado";
             }else {
                 String datas =null;
@@ -77,6 +82,51 @@ public class BioProtoImpl implements BioProto {
         return "Job "+jobId+" não encontrado!";
     }
 
+    /**
+     * Retorna o status de todos os jobs existentes.
+     * @return string com o status de todos os jobs
+     * @throws AvroRemoteException 
+     */
+    @Override
+    public String statusAllJob() throws AvroRemoteException {
+        StringBuilder allJobs = new StringBuilder();
+        try {
+            //verificação dos jobs ainda não escalonados
+            List<String> jobs = zkService.getChildren(zkService.getPath().JOBS.getFullPath("", "", ""), null);
+            ObjectMapper mapper = new ObjectMapper();
+            if(jobs!=null && !jobs.isEmpty()){
+                for(String job : jobs){
+                        String jobData = zkService.getData(zkService.getPath().PREFIX_JOB.getFullPath("","",job.substring(4,job.length())),null);
+                        if(jobData!=null){
+                            JobInfo jobInfo = mapper.readValue(jobData, JobInfo.class);
+                                allJobs.append("Job ").append(jobInfo.getId()).append(" Ainda não escalonado.\n ");
+                        }
+                    }
+                
+            }
+            //verificação dos jobs escalonados
+            
+            String datasTask =null;
+            for(PluginInfo plugin : storageService.getPeers().values()){
+                for(String task : zkService.getChildren(zkService.getPath().TASKS.getFullPath(plugin.getId(), "", ""), null)){
+                    datasTask = zkService.getData(zkService.getPath().PREFIX_TASK.getFullPath(plugin.getId(),"",task.substring(5, task.length())),null);
+                    if(datasTask!=null){
+                        PluginTask pluginTask = mapper.readValue(datasTask, PluginTask.class);
+                        allJobs.append("Job ").append(pluginTask.getJobInfo().getId().toString()).append(" : ").append(pluginTask.getState().toString()).append("\n ");
+                    }
+                }
+            }
+                    
+        } catch (KeeperException ex) {
+            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return  allJobs.toString().isEmpty() ? "Não existem jobs." : "Jobs :\n "+allJobs;
+    }
     
     
     
@@ -205,8 +255,8 @@ public class BioProtoImpl implements BioProto {
      
     @Override
     public String cancelJob(String jobID) throws AvroRemoteException {
-        //TODO: call schedService
-        return "OK";
+//        schedService.cancelJob(jobID);
+        return "Not enabled";
     }
     
     /**

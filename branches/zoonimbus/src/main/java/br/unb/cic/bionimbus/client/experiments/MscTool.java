@@ -6,27 +6,50 @@ import br.unb.cic.bionimbus.avro.gen.Pair;
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.services.storage.Ping;
 import br.unb.cic.bionimbus.utils.Put;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MscTool {
 
     private static final Logger LOG = LoggerFactory.getLogger(MscTool.class);
+//    private static StringBuilder result = new  StringBuilder();
 
-    RpcClient rpcClient = new AvroClient("http", "localhost", 8080);
-//    private P2PService p2p;
-//
-//    private SyncCommunication communication;
 
+    RpcClient rpcClient;
+
+    public MscTool() {
+        initCommunication();
+    }
+
+    private void initCommunication() {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        BioNimbusConfig config;
+        try {
+            config = mapper.readValue(new File("conf/node.yaml"), BioNimbusConfig.class);
+            rpcClient = new AvroClient(config.getRpcProtocol(), config.getHost().getAddress(), config.getRpcPort());
+            if(rpcClient.getProxy().ping())
+                LOG.info("client is connected.");
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(MscTool.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+    
     private List<String> readFileNames() throws IOException {
         ArrayList<String> list = new ArrayList<String>();
         String pathHome = System.getProperty("user.dir");
@@ -112,7 +135,7 @@ public class MscTool {
     }
 
     public void runJobs() throws IOException, InterruptedException {
-        
+        long timeInit = System.currentTimeMillis();
         List<Pipeline> list = getPipelines();
         List<Pipeline> sending = new ArrayList<Pipeline>(list);
 
@@ -162,8 +185,9 @@ public class MscTool {
 
             TimeUnit.SECONDS.sleep(5);
         }
-
-        LOG.info("test concluded!");
+        long timeExec = (timeInit - System.currentTimeMillis())/1000;
+//        result.append("\nTempo de execução :").append(result);
+        LOG.info("Test Concluded! Tempo de execução: "+timeExec);
     }
 
     private Collection<PluginFile> listCloudFiles() throws InterruptedException ,IOException{

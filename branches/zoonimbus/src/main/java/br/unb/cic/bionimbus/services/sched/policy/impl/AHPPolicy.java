@@ -28,7 +28,7 @@ public class AHPPolicy extends SchedPolicy {
 
     @Override
     public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos) {
-        if (jobInfos.isEmpty()) return null;
+        if (jobInfos==null || jobInfos.isEmpty()) return null;
 
         HashMap<JobInfo, PluginInfo> jobMap = new HashMap<JobInfo, PluginInfo>();
         JobInfo biggerJob = getBiggerJob(new ArrayList<JobInfo>(jobInfos));
@@ -317,6 +317,7 @@ public class AHPPolicy extends SchedPolicy {
 
     @Override
     public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, ZooKeeperService zk) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        
+        return schedule(jobInfos);
     }
 }

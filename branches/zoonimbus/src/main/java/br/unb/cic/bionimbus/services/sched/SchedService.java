@@ -76,7 +76,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
     private static final String LATENCY = "/latency";
     private static final String TASKS = "/tasks";
     private static final String PREFIX_JOB = "/job_";
-    private static final String PREFIX_TASK = "/task_";
+    private static final String PREFIX_TASK = "/task_"; 
     private static final String SEPARATOR = "/";
     
     
@@ -200,16 +200,15 @@ public class SchedService extends AbstractBioService implements Service, P2PList
      */
     private void setLatencyPlugins(String ip){
         if(myLinuxPlugin.getMyInfo().getHost().getAddress().equals(ip)){
+            System.out.println("Gerando latencia");    
             try {
-
-                if(myLinuxPlugin.getMyInfo().getHost().getAddress().equals(ip)){
-                    for(PluginInfo plugin : getPeers().values() ){
-                        plugin.setLatency(Ping.calculo(plugin.getHost().getAddress()));
-                        zkService.setData(zkService.getPath().PREFIX_PEER.getFullPath(idPlugin, "", ""), plugin.toString());
-                    }
+                for(PluginInfo plugin : getPeers().values() ){
+                    plugin.setLatency(Ping.calculo(plugin.getHost().getAddress()));
+                    zkService.setData(zkService.getPath().PREFIX_PEER.getFullPath(idPlugin, "", ""), plugin.toString());
                 }
 
                 zkService.delete(LATENCY+SCHED);
+                System.out.println("Latencia Gerada");    
             } catch (KeeperException ex) {
                 java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
             } catch (InterruptedException ex) {
@@ -235,15 +234,19 @@ public class SchedService extends AbstractBioService implements Service, P2PList
     
     /**
      * Rotinas para auxiliar escalonamento,chamado caso seja necessário cancelar um job.
+     * Não remove job em execução.
+     * 
+     * OBS: não utilizado
      * 
      * @param origin
      * @param jobId 
      */
-    private void cancelJob(String jobId) {
-        // Apenas remove dos jobs pendentes (ou seja, ainda nem foi escalonado)
+    public void cancelJob(String jobId) {
         if (getPendingJobs().containsKey(jobId)) {
             getPendingJobs().remove(jobId);
             //excluir o job do zookeeper TO DO
+        }else if(waitingTask.containsKey(jobId)){
+                waitingTask.remove(jobId);
         }
         try {
             zkService.delete(JOBS+PREFIX_JOB+jobId);
@@ -298,7 +301,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
      * Recebe uma lista de PluginsTasks para serem relançadas ao escalonamento.
      * @param tasks lista das tarefas
      */
-    public void relocateTasks(Collection<PluginTask> tasks) {
+    public void relocateTasks(Collection<PluginTask> tasks) throws KeeperException, InterruptedException{
         relocateTasks.addAll(tasks);
         
         //Adiciona os jobs cancelados a lista de jobs a serem escalonados no servidor zookeeper
@@ -308,6 +311,10 @@ public class SchedService extends AbstractBioService implements Service, P2PList
                 zkService.createPersistentZNode(JOBS+PREFIX_JOB+task.getJobInfo().getId(), task.getJobInfo().toString());
                 
             } catch (Exception ex) {
+                
+//                zkService.getData(zkService.getPath().PREFIX_TASK.getFullPath(task.getPluginExec(), "", task.getId()), null);
+                StringBuilder datas = new StringBuilder(zkService.getData(zkService.getPath().STATUSWAITING.getFullPath(task.getPluginExec(), "",""), null));
+                zkService.setData(zkService.getPath().STATUSWAITING.getFullPath(task.getPluginExec(), "",""), datas.append("E").toString());
                 tasks.add(task);
                 java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -330,19 +337,26 @@ public class SchedService extends AbstractBioService implements Service, P2PList
                 zkService.createPersistentZNode(peerPath+STATUSWAITING, "");
             
             dataStatus.append(zkService.getData(peerPath+STATUSWAITING, null));
-            if(dataStatus.toString().contains("E"))
+            
+            //verifica se recurso já foi recuperado ou está sendo recuperado por outro recurso
+            if(dataStatus.toString().contains("E") || dataStatus.toString().contains("B"))
                 return;
-                    
+            
+            //bloqueio para recuperar tarefas sem que outros recursos realizem a mesma operação
+            zkService.setData(peerPath+STATUSWAITING, dataStatus.append("B").toString());
+        
             List<String> tasksChildren = zkService.getChildren(peerPath+SCHED+TASKS, null);
 
             for (String taskChild : tasksChildren) {
                 ObjectMapper mapper = new ObjectMapper();
                 PluginTask pluginTask = mapper.readValue(zkService.getData(peerPath+SCHED+TASKS+SEPARATOR+taskChild, null), PluginTask.class);
-                if(pluginTask.getState()!=PluginTaskState.DONE)
+                if(pluginTask.getState()!=PluginTaskState.DONE && pluginTask.getState()!=PluginTaskState.ERRO)
                     repairTasks.add(pluginTask);
             }
-            
             relocateTasks(repairTasks);
+            
+            //retira bloqueio de uso e sinaliza que as tarefas do plugin foram recuperadas
+            dataStatus.deleteCharAt(dataStatus.indexOf("B")).toString();
             zkService.setData(peerPath+STATUSWAITING, dataStatus.append("E").toString());
             
         } catch (KeeperException ex) {
@@ -406,11 +420,13 @@ public class SchedService extends AbstractBioService implements Service, P2PList
         List<PluginInfo> plgs = new ArrayList<PluginInfo> (getPeers().values());
         List<String> listTasks;
         Watcher watcher;
-        
+        System.out.println("..checkWaitingTasks..");
+
         for (PluginInfo plugin : plgs) {
             
             //cria watch para ser adicionado no znode que contém as tarefas escanoladas desse plugin
             if(myLinuxPlugin.getMyInfo().getId().equals(plugin.getId())){
+                System.out.println("checkWaitingTasks : watcher adicionado no plugin "+plugin.getId());
                 watcher = new UpdatePeerData(zkService, this);
             }else{
                 watcher = null;
@@ -419,7 +435,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
             
             for (String task : listTasks) {
                 ObjectMapper mapper = new ObjectMapper();
-                PluginTask pluginTask = mapper.readValue(zkService.getPath().PREFIX_TASK.getFullPath(plugin.getId(), "", task), PluginTask.class);
+                PluginTask pluginTask = mapper.readValue(zkService.getData(zkService.getPath().PREFIX_TASK.getFullPath(plugin.getId(), "", task.substring(5,task.length())), null) , PluginTask.class);
                 
                 waitingTask.put(pluginTask.getJobInfo().getId(), new Pair<PluginInfo, PluginTask>(plugin,pluginTask));
                 if(pluginTask.getState() == PluginTaskState.DONE)
@@ -532,7 +548,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
                 }
             }
         } catch (Exception ex) {
-            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+             java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
         }
     
     }
@@ -610,9 +626,13 @@ public class SchedService extends AbstractBioService implements Service, P2PList
                 List<String> ids = new ArrayList<String>();
                 ids.add(pair.first.getId());
                 file.setPluginId(ids);
+                file.setService(SchedService.class.getSimpleName());
                 zkService.createEphemeralZNode(zkService.getPath().PENDING_SAVE.toString(), file.toString());
             }
             
+            //cria um znode efêmero para exibir jobs finalizados, é efêmero para poder ser apagado quando peer ficar off-line
+            zkService.createEphemeralZNode(pair.second.getPluginTaskPathZk(), pair.second.toString());
+
         } catch (KeeperException ex) {
             java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
@@ -620,7 +640,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
         }
 
         
-        System.out.println("Tempo de execução job: "+task.getTimeExec()/10000+" segundos, minutos: "+task.getTimeExec()/6000);
+        System.out.println("Tempo de execução job: "+task.getTimeExec()+" segundos, minutos: "+task.getTimeExec()/60);
     }
     
     
@@ -727,7 +747,6 @@ public class SchedService extends AbstractBioService implements Service, P2PList
                     }else if(eventType.getPath().contains(zkService.getPath().FILES.toString())){
                             checkFilesPlugin();
                     }else if(eventType.getPath().contains(LATENCY) && (zkService.getZNodeExist(LATENCY+SCHED, false))){
-                            System.out.println("Gerando latencia");    
                             setLatencyPlugins(zkService.getData(LATENCY+SCHED, null));
                             scheduleJobs();
 
@@ -752,7 +771,6 @@ public class SchedService extends AbstractBioService implements Service, P2PList
                 break;
 
                 case NodeDeleted:
-                                            System.out.println("apagou: " + eventType.getPath());
 
                     //Trata o evento de quando o zNode status for apagado, ou seja, quando um peer estiver off-line, deve recuperar os jobs
                     //que haviam sido escalonados para esse peer
@@ -780,7 +798,8 @@ public class SchedService extends AbstractBioService implements Service, P2PList
         temp.removeAll(cloudMap.values());
         for(PluginInfo plugin : temp){
             try {
-                zkService.getData(zkService.getPath().STATUS.getFullPath(plugin.getId(), "", ""), new UpdatePeerData(zkService, this));
+                if(zkService.getZNodeExist(zkService.getPath().STATUS.getFullPath(plugin.getId(), null, null), false))
+                    zkService.getData(zkService.getPath().STATUS.getFullPath(plugin.getId(), "", ""), new UpdatePeerData(zkService, this));
             } catch (KeeperException ex) {
                 java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
             } catch (InterruptedException ex) {
