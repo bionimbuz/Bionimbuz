@@ -60,8 +60,6 @@ public class AcoSched extends SchedPolicy {
      * @return o melhor recurso disponível para executar o job informado
      */
     private PluginInfo scheduleJob(JobInfo jobInfo) {
-
-//        List<PluginInfo> listServices = rankingServices(getBestClouds(jobInfo));
         listPlugin = getExactClouds(jobInfo);
         
         //realiza a chamada do método para a leitura dos dados no servidor zookeeper
@@ -73,9 +71,6 @@ public class AcoSched extends SchedPolicy {
         //inicia o ACO para encontrar melhor PC dentro das nuvens escolhidas para o job
         AlgorithmAco(listPlugin);
        
-        
-//--->  //encontra o melhor PC e retorna o valor
-
         PluginInfo plugin = new PluginInfo();
         plugin.setRanking(Double.MIN_VALUE);
         
@@ -84,8 +79,6 @@ public class AcoSched extends SchedPolicy {
                 plugin = plg;
             }
         }
-        
-        
         //chamada para método que atualiza o valor do feromônio de cada plugin de acordo com o melhor escolhido
         theBestPheromone(listPlugin, plugin.getRanking());
         //armazena as informações utilizadas e atualizadas para o escalonamento no servidor zookeeper
@@ -104,19 +97,15 @@ public class AcoSched extends SchedPolicy {
 
     public List getExactClouds(JobInfo jobInfo) {
         //seleciona as nuvens disponíveis para o tipo informado
-        List cloudList = filterTypeCloud(getCloudMap().values(), 2); //adiciona filtro se opção for apenas para nuvens públicas, opcao 2 para ambas
+        List cloudList = filterTypeCloud(getCloudMap().values(), 2);
 
         //configurar o tipo de serviço requerido
         filterByService(jobInfo.getServiceId(), cloudList);
-
-        //ordena as melhores nuvens que disponibilizam os serviços requeridos
-        // quickSort(0, cloudList.size()-1, rankingServices(cloudList));
 
         return cloudList;
 
     }
 
-    //Método igual do AHPPOLICY
     @Override
     public synchronized List<PluginTask> relocate(Collection<Pair<JobInfo, PluginTask>> taskPairs) {
         List<PluginTask> tasksToCancel = new ArrayList<PluginTask>();
@@ -160,10 +149,6 @@ public class AcoSched extends SchedPolicy {
 
     @Override
     public void jobDone(PluginTask task) {
-        if (blackList.containsKey(task)) {
-            blackList.remove(task);
-        }
-
         String datas = getDatasZookeeper(zk.getPath().PREFIX_PEER.getFullPath(task.getPluginExec(), "", ""), SCHED);
         
         ArrayList<Double> listAcoDatas;
@@ -184,7 +169,6 @@ public class AcoSched extends SchedPolicy {
         } catch (IOException ex) {
             Logger.getLogger(AcoSched.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println("Job " + task.getJobInfo().getId() + ": "+task.getTimeExec() + " segundos");
 
     }
 
@@ -343,9 +327,10 @@ public class AcoSched extends SchedPolicy {
             * array posição 0 para o feronômio
             * array posição 1 para a probabilidade da formiga escolher a VM
             * array posição 2 o valor da heuristica
-            * array posição 3,4,5,6 valores dos reguladores do coeficeinte de controle do feronomio(alfa), da capacidade computacional(beta) e do carregamento balanceado(gama)
+            * array posição 3,4,5,6 valores dos reguladores do coeficeinte de controle do feronomio(alfa), da capacidade computacional(beta), 
+            * do carregamento balanceado(gama) e da capacidade de memória
             * obs:  teste dos coeficientes em alfa = 2, beta = 3, gama = 3, delta = 2 
-            * array posição 7 para o tempo de execução da ultima iteração
+            * array posição 7 para o tempo de execução da última iteração
             * array posição 8 para o tamanho da última tarefa executada no plugin
             * array posição 9 para o tamanho total das tarefas executadas no plugin
             * 
@@ -447,7 +432,6 @@ public class AcoSched extends SchedPolicy {
      * @return
      */
     private Double capacityPlugin(PluginInfo plugin) {
-        
         return (plugin.getNumCores()-plugin.getNumOccupied())==0d ? 0.00001d :  (plugin.getNumCores()-plugin.getNumOccupied()) * plugin.getFrequencyCore() - plugin.getLatency();
 
     }
@@ -479,11 +463,6 @@ public class AcoSched extends SchedPolicy {
      * @return
      */
     private Double timeExpectedExecJob(PluginInfo plugin){
-        /**
-         * Descobrir tamanho das tarefas de um PLUGIN 
-         *
-         *
-         */
         //(total do tamanho das tarefas executadas na VM)/capacidade computacional + tamanho da tarefa executada anteriormente/ latency
         return  (capacityPlugin(plugin)==0d ? 0d : (mapAcoDatas.get(plugin.getId()).get(9) /capacityPlugin(plugin))) + 
                 (plugin.getLatency() == 0d ? 0d : mapAcoDatas.get(plugin.getId()).get(8)/(plugin.getLatency()));
@@ -506,9 +485,6 @@ public class AcoSched extends SchedPolicy {
             
             cont++;
         }
-        
-        
-        
         return  time/cont;
 
     }
@@ -669,48 +645,10 @@ public class AcoSched extends SchedPolicy {
     }
 
     
-    /**
-     * Utilização do algoritmo de ordenação quicksort para ordenar as melhores nuvens para escalonar de acordo com o parâmentro @value passado para os tipos
-     * Integer e Long
-     *
-     * @param value   valor que deve ser utilizado para ordenação da melhor nuvem
-     * @param start   primeira nuvem da lista a considerar
-     * @param end     ultima nuvem da lista a considerar
-     * @param plugins nuvens para ordenadar
-     */
-    private void quickSort(int start, int end, List<PluginInfo> plugins) {
-        PluginInfo pluginTemp;
-        int i = start, f = end;                   // Extremos  
-        int x = start + (end - start) / 2; // Pivô aleatório
-        Double pivo = plugins.get(x).getRanking();                    // evita quadrático 
-
-        while (i <= f) {                    // Não cruzaram 
-
-            while (i < start && (plugins.get(i).getRanking() > pivo)) {// Organiza 1ª metade
-                i++;
-            }
-
-            while (f > end && !(plugins.get(i).getRanking() > pivo)) {// Organiza 2ª metade
-                f--;
-            }
-
-            if (i <= f) {                     // Se ainda não acabou 
-                pluginTemp = plugins.get(f);                     // troca os elementos 
-                plugins.set(f--, plugins.get(i));                // dos dois lados 
-                plugins.set(i++, pluginTemp);                   // da lista
-            }
-
-        }
-        if (start < f) {
-            quickSort(start, f, plugins);
-        }           // Ordena 1ª metade 
-        if (i < end) {
-            quickSort(i, end, plugins);
-        }           // Ordena 2ª metade 
-
-
+    @Override
+    public String getPolicyName() {
+       return "Name: ACOSCHED  -  "+ AcoSched.class.getSimpleName()+" - Número: 0";
     }
-
 
 }
 //2181 porta zookeper

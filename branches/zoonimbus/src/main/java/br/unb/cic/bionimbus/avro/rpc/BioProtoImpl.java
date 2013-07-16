@@ -8,6 +8,7 @@ import br.unb.cic.bionimbus.plugin.*;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import br.unb.cic.bionimbus.services.sched.SchedService;
+import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.services.storage.StorageService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
@@ -188,7 +189,42 @@ public class BioProtoImpl implements BioProto {
         
         return listNameIdService;
     }
-
+    /**
+     * Altera a política de escalonamento para todas os jobs. E retorna a política de escalonamento alterado ou em uso.
+     * @param numPolicy, numero da política de escalonamento desejada.   0- AcoSched (Padrão), 1- AHPPolicy, 2- RRPolicy. 
+     * Quando valor for -1 deve retornar qual a política de escalonamento está sendo utilizada.
+     * @return política de escalonamento
+     */
+    @Override
+    public String schedPolicy(int numPolicy){
+        try {
+            //verifica se escolher informar a política ou identificar qual é a política
+            if(numPolicy==-1){
+                numPolicy = new Integer(zkService.getData(zkService.getPath().JOBS.toString(), null));
+            }else{
+                Integer policy = numPolicy;
+                if(zkService.getZNodeExist(zkService.getPath().JOBS.toString(), false)){
+                    zkService.setData(zkService.getPath().JOBS.toString(), policy.toString());
+                }else{
+                    return "\nNão foi possível alterar  política de escalonamento. Tente mais tarde.";
+                }
+            }
+        } catch (KeeperException ex) {
+            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        StringBuilder politicys = new StringBuilder();
+        List<SchedPolicy> listPolicy = SchedPolicy.getInstances();
+        for(SchedPolicy policy:listPolicy){
+            politicys.append("\n    ").append(policy.getPolicyName());
+        }
+        
+        
+        return "Política Atual: "+listPolicy.get(numPolicy).getPolicyName()+"\nPolíticas Disponíveis: "+politicys;
+    }
+    
     @Override
     public String startJobName(String param) throws AvroRemoteException {
         final String path = "/jobs/job_";

@@ -27,9 +27,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -52,12 +54,13 @@ public class StorageService extends AbstractBioService {
             .namingPattern("StorageService-%d").build());
     private Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
     private Map<String, PluginFile> savedFiles = new ConcurrentHashMap<String, PluginFile>();
+//    private Set<String> pendingSaveFiles = new HashSet<String>();
     private P2PService p2p = null;
     private File dataFolder = new File("data-folder"); //TODO: remover hard-coded e colocar em node.yaml e injetar em StorageService
     private Double MAXCAPACITY = 0.9;
     private int PORT = 8080;
     private int REPLICATIONFACTOR = 2;
-    List<String> listFile = new ArrayList<String>();
+    private List<String> listFile = new ArrayList<String>();
 
     @Inject
     public StorageService(final ZooKeeperService service, MetricRegistry metricRegistry) {
@@ -153,7 +156,7 @@ public class StorageService extends AbstractBioService {
     public void checkFiles() {
         try {
             if (!dataFolder.exists()) {
-                System.out.println(" (CheckFiles) dataFolder " + dataFolder + " doesn't exists, creating...");
+//                System.out.println(" (CheckFiles) dataFolder " + dataFolder + " doesn't exists, creating...");
                 dataFolder.mkdirs();
             }
             zkService.getChildren(zkService.getPath().FILES.getFullPath(p2p.getConfig().getId(), "", ""), new UpdatePeerData(zkService, this));
@@ -227,7 +230,7 @@ public class StorageService extends AbstractBioService {
      */
     private boolean existReplication(String fileName) throws IOException {
         int cont = 0;
-        System.out.println("(existReplication)Verificando se o arquivo: "+fileName+" está replicado!");
+//        System.out.println("(existReplication)Verificando se o arquivo: "+fileName+" está replicado!");
         for (Collection<String> collection : getFiles().values()) {
             for (Iterator<String> it = collection.iterator(); it.hasNext();) {
                 String fileNamePlugin = it.next();
@@ -237,7 +240,7 @@ public class StorageService extends AbstractBioService {
                
             }
         }
-        System.out.println("(existReplication) Arquivo: "+fileName+" contém: "+ cont+" replicas!");
+//        System.out.println("(existReplication) Arquivo: "+fileName+" contém: "+ cont+" replicas!");
         if (cont < REPLICATIONFACTOR) {
             return false;
         }
@@ -444,11 +447,13 @@ public class StorageService extends AbstractBioService {
      * Metodo que checa os znodes filhos da pending_save, para replica-lós
      */
     public void checkingPendingSave() throws IOException{
+                
         try {
             ObjectMapper mapper = new ObjectMapper();
             int cont = 0;
-            List<String> pendingsave = zkService.getChildren(zkService.getPath().PENDING_SAVE.toString(), null);
-            for(String files: pendingsave){
+            List<String> pendingSave = zkService.getChildren(zkService.getPath().PENDING_SAVE.toString(), null);
+//            pendingSaveFiles.addAll(pendingSave);
+            for(String files: pendingSave){
                 try {
                     String data = zkService.getData(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", files.substring(13, files.length()), ""), null);
                     //verifica se arquivo existe

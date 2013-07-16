@@ -269,7 +269,9 @@ protocol BioProto {
 
   string startJob(array<JobInfo> listJob);
 
+  string schedPolicy(int numPolicy);
   string statusJob(string jobId);
+  string statusAllJob();
 
 
   string cancelJob(string jobID);

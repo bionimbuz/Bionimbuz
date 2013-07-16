@@ -60,6 +60,8 @@ public class SchedService extends AbstractBioService implements Service, P2PList
 
     private final Map<String, PluginInfo> cancelingJobs = new ConcurrentHashMap<String, PluginInfo>();
     
+    private final Integer policy = 0;
+    
     private P2PService p2p = null;
     
     private  String idPlugin;
@@ -90,11 +92,28 @@ public class SchedService extends AbstractBioService implements Service, P2PList
 
     public synchronized SchedPolicy getPolicy() {
         if (schedPolicy == null) {
-            schedPolicy = SchedPolicy.getInstance();
+            schedPolicy = SchedPolicy.getInstance(policy,cloudMap);
         }
 
         schedPolicy.setCloudMap(cloudMap);
         return schedPolicy;
+    }
+    
+
+    /**
+     * Altera a política de escalonamento para executar os jobs.
+     */
+    private void setPolicy(){
+        try {
+            String dataPolicy =  zkService.getData(JOBS, null);
+            if(dataPolicy!=null && !dataPolicy.isEmpty()){
+                schedPolicy = SchedPolicy.getInstance(new Integer(dataPolicy),cloudMap);
+            }
+        } catch (KeeperException ex) {
+            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -113,7 +132,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
         //inicia o valor do zk na politica de escalonamento
         getPolicy().schedule(null, zkService);
         
-        zkService.createPersistentZNode(JOBS, null);
+        zkService.createPersistentZNode(JOBS, policy.toString());
         zkService.createPersistentZNode(zkService.getPath().SCHED.getFullPath(idPlugin, "", ""), null);
         zkService.createPersistentZNode(zkService.getPath().TASKS.getFullPath(idPlugin, "", ""), null);
         zkService.createPersistentZNode(zkService.getPath().SIZE_JOBS.getFullPath(idPlugin, "", ""), null);
@@ -124,6 +143,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
         try {
             //adicona watchers para receber um alerta quando um novo job for criado para ser escalonado, e uma nova requisição de latência existir
             zkService.getChildren(JOBS, new UpdatePeerData(zkService, this));
+            zkService.getData(JOBS, new UpdatePeerData(zkService, this));
             zkService.getChildren(ROOT_PEER, new UpdatePeerData(zkService, this));
             zkService.getChildren(LATENCY, new UpdatePeerData(zkService, this));
 
@@ -204,7 +224,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
             try {
                 for(PluginInfo plugin : getPeers().values() ){
                     plugin.setLatency(Ping.calculo(plugin.getHost().getAddress()));
-                    zkService.setData(zkService.getPath().PREFIX_PEER.getFullPath(idPlugin, "", ""), plugin.toString());
+                    zkService.setData(zkService.getPath().PREFIX_PEER.getFullPath(plugin.getId(), "", ""), plugin.toString());
                 }
 
                 zkService.delete(LATENCY+SCHED);
@@ -439,7 +459,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
                 
                 waitingTask.put(pluginTask.getJobInfo().getId(), new Pair<PluginInfo, PluginTask>(plugin,pluginTask));
                 if(pluginTask.getState() == PluginTaskState.DONE)
-                    finishedTask(pluginTask);
+                    finalizeTask(pluginTask);
                 
             }
 
@@ -544,7 +564,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
                             executeTasks(pair.second);
                     }
                     if(pair.second.getState()==PluginTaskState.DONE)
-                        finishedTask(pair.second);
+                        finalizeTask(pair.second);
                 }
             }
         } catch (Exception ex) {
@@ -613,26 +633,29 @@ public class SchedService extends AbstractBioService implements Service, P2PList
      * Realiza a chamada dos métodos para a finalização da execução do job.
      * @param pathTask endereço do znode, task executada.
      */
-    private void finishedTask(PluginTask task){
-        Pair<PluginInfo, PluginTask> pair  = waitingTask.remove(task.getJobInfo().getId());
+    private void finalizeTask(PluginTask task){
+        if(waitingTask.containsKey(task.getJobInfo().getId())){
+            waitingTask.remove(task.getJobInfo().getId());
+        }
 
         try {
-            schedPolicy.jobDone(pair.second);
-            zkService.delete(pair.second.getPluginTaskPathZk());
-            for(String fileName : pair.second.getJobInfo().getOutputs()){
+            getPolicy().jobDone(task);
+            zkService.delete(task.getPluginTaskPathZk());
+            for(String fileName : task.getJobInfo().getOutputs()){
                 PluginFile file =  new PluginFile();
                 file.setId(fileName);
                 file.setName(fileName);
                 List<String> ids = new ArrayList<String>();
-                ids.add(pair.first.getId());
+                ids.add(task.getPluginExec());
                 file.setPluginId(ids);
                 file.setService(SchedService.class.getSimpleName());
-                zkService.createEphemeralZNode(zkService.getPath().PENDING_SAVE.toString(), file.toString());
+                zkService.createEphemeralZNode(zkService.getPath().PENDING_SAVE.getFullPath(idPlugin, fileName, STATUS), file.toString());
             }
-            
             //cria um znode efêmero para exibir jobs finalizados, é efêmero para poder ser apagado quando peer ficar off-line
-            zkService.createEphemeralZNode(pair.second.getPluginTaskPathZk(), pair.second.toString());
+            zkService.createEphemeralZNode(task.getPluginTaskPathZk(), task.toString());
 
+            System.out.println("Job " + task.getJobInfo().getId() + ": "+task.getTimeExec() + " segundos");
+    
         } catch (KeeperException ex) {
             java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
@@ -659,24 +682,9 @@ public class SchedService extends AbstractBioService implements Service, P2PList
                 listFiles = zkService.getChildren(plugin.getPath_zk()+zkService.getPath().FILES.toString(),null);
                 for(String checkfile : listFiles){
                   
-                    
-                    
-                    
-                    
                     //atualizar
                     
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    String idfile=checkfile.substring(checkfile.indexOf(zkService.getPath().UNDERSCORE.toString())+1);
+                    String idfile=checkfile.substring(5,checkfile.length());
                     if(file.equals(idfile)){
                         return plugin.getHost().getAddress();
                     }
@@ -758,7 +766,9 @@ public class SchedService extends AbstractBioService implements Service, P2PList
 
                     break;
                 case NodeDataChanged:
-                    if(zkService.getZNodeExist(eventType.getPath(),false)){
+                    if(eventType.getPath().contains(JOBS)&&!eventType.getPath().contains(PREFIX_JOB)){
+                        setPolicy();
+                    }else if(zkService.getZNodeExist(eventType.getPath(),false)){
                         datas = zkService.getData(eventType.getPath(), null);
                         PluginTask pluginTask= (PluginTask)convertString(PluginTask.class, datas);
 
@@ -766,7 +776,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
                         if(pluginTask.getState() == PluginTaskState.RUNNING)
                             System.out.println("Task está rodando: " + pluginTask.getPluginTaskPathZk());
                         if(pluginTask.getState() == PluginTaskState.DONE)
-                            finishedTask(pluginTask);
+                            finalizeTask(pluginTask);
                     }
                 break;
 
@@ -822,11 +832,6 @@ public class SchedService extends AbstractBioService implements Service, P2PList
         
     }
 
-
-//    private synchronized Queue<PluginTask> getRunningJobs() {
-//        return runningJobs;
-//    }
-
     public synchronized Map<String, JobInfo> getPendingJobs() {
         return pendingJobs;
     }
@@ -840,103 +845,6 @@ public class SchedService extends AbstractBioService implements Service, P2PList
     }
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    //Retirar tudo abaixo
-    
-    
-    /**
-     * PASSOS DO ESCALONADOR *
-     */
-    /* Prepara as rotinas de escalonamento */
-//    private void onSchedEvent() {
-//        if (isScheduling)
-//            return;
-//        if (isAcquiringStatus > 0)
-//            return;
-//        isScheduling = true;
-//
-//        // Atualiza os estados das tarefas.
-//        while (isAcquiringStatus > 0) {
-//            try {
-//                Thread.sleep(100);
-//            } catch (Exception ex) {
-//
-//            }
-//        }
-//
-//        // Antes de escalonar verifica o tamanho dos arquivos.
-//        //TO DO porque?
-//        sendListReqEvent(p2p.getPeerNode());
-//    }
-//
-//    //TO DO para que serve esse método?
-//    /* Recebe a resposta da requisicao da lista de arquivos */
-//    private void onListRespEvent(PeerNode sender, PeerNode receiver,
-//                                 ListRespMessage listResp) {
-//        fillJobFileSize(listResp.values());
-//
-//        // Com os arquivos preenchidos, executa o escalonador.
-////        scheduleJobs(sender, receiver);
-//    }
-//
-//    /* Preenche cada job com o tamanho dos arquivos associados */
-//    private void fillJobFileSize(Collection<PluginFile> pluginFiles) {
-//        for (JobInfo job : getPendingJobs().values()) {
-//            List<Pair<String, Long>> pairList = new ArrayList<Pair<String, Long>>(
-//                    job.getInputs());
-//            for (Pair<String, Long> pair : pairList) {
-//                String fileId = pair.first;
-//                PluginFile file = getFileById(fileId, pluginFiles);
-//
-//                if (file != null) {
-//                    job.addInput(file.getId(), file.getSize());
-//                } else {
-//                    LOG.debug("File returned null.");
-//                }
-//            }
-//        }
-//    }
-//    
-//    /**
-//     * Realiza a atualização de finalização da tarefa enviando pedido de atualização do status no zookeeper e
-//     * removendo o job da lista de tarefas na fila para execução.
-//     * @param task, tarefa que foi executada.
-//     */
-//    private synchronized void finalizeJob(PluginTask task) {
-//        Pair<PluginInfo, PluginTask> pair = getRunningJobs().get(task.getId());
-//
-//        JobInfo job = pair.second.getJobInfo();
-//        float timeExec = (((float) System.currentTimeMillis() - job.getTimestamp()) / 1000);
-//
-//        task.setTimeExec(timeExec);
-//        task.setPluginExec(pair.first.getId());
-//        
-//        //atualiza o status do job no zookeeper.
-//        updateJobStatus(task,PluginTaskState.DONE);
-//        //retira o job da lista
-//        getRunningJobs().remove(task.getId());
-//        getPolicy().jobDone(task);
-//        
-//        
-        
-        // p2p.sendMessage(new EndJobMessage(job));
-//    }
-    //TO DO retirar serviço P2P?
     @Override
     public void shutdown() {
         p2p.remove(this);
@@ -948,147 +856,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
         // TODO Auto-generated method stub
 
     }
-    //TO DO não sei o faz esse método, faz tudo?
     @Override
     public synchronized void onEvent(P2PEvent event) {
-//        if (!event.getType().equals(P2PEventType.MESSAGE))
-//            return;
-//
-//        P2PMessageEvent msgEvent = (P2PMessageEvent) event;
-//        Message msg = msgEvent.getMessage();
-//        if (msg == null)
-//            return;
-//
-//        PeerNode sender = p2p.getPeerNode();
-//        PeerNode receiver = null;
-//        if (msg instanceof AbstractMessage) {
-//            receiver = ((AbstractMessage) msg).getPeer();
-//        }
-//
-//        switch (P2PMessageType.of(msg.getType())) {
-//            case CLOUDRESP:
-//                CloudRespMessage cloudMsg = (CloudRespMessage) msg;
-//                for (PluginInfo info : cloudMsg.values())
-//                    cloudMap.put(info.getId(), info);
-//                break;
-//            case JOBREQ:
-//                JobReqMessage jobMsg = (JobReqMessage) msg;
-//                for (JobInfo jobInfo : jobMsg.values()) {
-//                    jobInfo.setId(UUID.randomUUID().toString());
-//                    jobInfo.setTimestamp(System.currentTimeMillis());
-//                    getPendingJobs().put(jobInfo.getId(), jobInfo);
-//                }
-//                break;
-//            case STARTRESP:
-//                StartRespMessage respMsg = (StartRespMessage) msg;
-//                sendJobResp(sender, receiver, respMsg.getJobId(),
-//                        respMsg.getPluginTask());
-//                break;
-//            case STATUSRESP:
-//                StatusRespMessage status = (StatusRespMessage) msg;
-//                updateJobStatus(status.getPluginTask());
-//                break;
-//            case JOBCANCELREQ:
-//                JobCancelReqMessage cancel = (JobCancelReqMessage) msg;
-////                cancelJob(cancel.getPeerNode().getHost(), cancel.getJobId());
-//                break;
-//            case CANCELRESP:
-//                CancelRespMessage cancelResp = (CancelRespMessage) msg;
-////                Pair<String, Host> pair = getCancelingJobs().get(
-////                        cancelResp.getPluginTask().getId());
-////                p2p.sendMessage(pair.second,
-////                        new JobCancelRespMessage(p2p.getPeerNode(), pair.first));
-////                finishCancelJob(cancelResp.getPluginTask());
-//                break;
-//            case LISTRESP:
-//                ListRespMessage listResp = (ListRespMessage) msg;
-//                onListRespEvent(sender, receiver, listResp);
-//                break;
-//            case END:
-//                EndMessage end = (EndMessage) msg;
-//                finalizeJob(end.getTask());
-//                break;
-//            case ERROR:
-//                ErrorMessage errMsg = (ErrorMessage) msg;
-//                LOG.warn("SCHED ERROR: type=" + errMsg.getErrorType().toString()
-//                        + ";msg=" + errMsg.getError());
-//                break;
-//        }
     }
-//    private synchronized void sendStatusReq(PeerNode sender, String taskId) {
-//        isAcquiringStatus++;
-//        StatusReqMessage msg = new StatusReqMessage(sender, taskId);
-//        p2p.broadcast(msg); // TODO: isto é realmente um broadcast?
-//    }
-      //não há necessidade de realizar requisição de informação do job, zookeeper coordena essas informações
-//    private synchronized void checkRunningJobs() {
-//        PeerNode peer = p2p.getPeerNode();
-//        for (String taskId : getRunningJobs().keySet()) {
-//            sendStatusReq(peer, taskId);
-//        }
-//        
-//    }
-    
-    /* Faz a requisicao de listagem de arquivos e seus tamanhos */
-//    private void sendListReqEvent(PeerNode sender) {
-//        ListReqMessage listReqMsg = new ListReqMessage(sender);
-//        p2p.broadcast(listReqMsg);
-//    }
-
-    //TO DO NÃO É NECESSÁRIO ESSE MÉTODO JÁ QUE QUANDO A TAREFA FOR INICIADA A EXECUÇÃO O STATUS DO PREFIX_JOB SERA ALTERADO NO
-    // ZOOKEEPER E TODOS OS OUVINTES DO PREFIX_JOB SERÃO INFORMADOS.
-    /* Envia resposta de inicio de job */
-//    private synchronized void sendJobResp(PeerNode sender, PeerNode receiver,
-//                                          String jobId, PluginTask task) {
-//
-//        // Remove jobs da lista de jobs a serem escalonados.
-//        JobInfo jobInfo = getPendingJobs().remove(jobId);
-//
-//        if (task == null) {
-//            // Jobs que nao possuem servico.
-//            // TODO: Sao simplesmente ignorados pelo escalonador por enquanto
-//            // Eh simples readiciona-los na rotina de escalonamento sempre que o
-//            // escalonador for
-//            // requisitado. Mas nao farei isso por enquanto, para evitar
-//            // possiveis
-//            // erros.
-//            getJobsWithNoService().put(jobInfo.getId(), jobInfo);
-//
-//            // Cria e envia a mensagem de resposta.
-//            JobRespMessage jobRespMsg = new JobRespMessage(sender, null);
-//            p2p.broadcast(jobRespMsg);
-//        } else {
-//            // Adiciona job na lista de jobs "rodando" (ou seja, enviados para o
-//            // hadoop)
-////            getRunningJobs().put(task.getJobInfo().getId(),new Pair<JobInfo, PluginTask>(jobInfo, task));
-//
-//            // Cria e envia a mensagem de resposta.
-//            JobRespMessage jobRespMsg = new JobRespMessage(sender, jobInfo);
-//            p2p.broadcast(jobRespMsg);
-//        }
-//
-//        // Define que o escalonamento acabou somente se todas os jobs ja foram
-//        // escalonados.
-//        isPending--;
-//        System.out.println("isPending: " + isPending);
-//        if (isPending == 0) {
-//            isScheduling = false;
-//        }
-//    }
-/**
-     * Realiza o início do pedido de execução de um Job no recurso escanolado.
-     * @param sender TO DO para que usar esse sender???
-     * @param dest, endereço host do plugin de destino para execução.
-     * @param jobInfo, job que será executado no plugin.
-     */
-//    private void sendStartReq(PeerNode sender, Host dest, JobInfo jobInfo) {
-//        isPending++;
-        
-        //criar chamada para método de chamada de requisição de execução do job
-        
-//        StartReqMessage startMsg = new StartReqMessage(sender, jobInfo);
-//        p2p.sendMessage(dest, startMsg);
-        
-//    }
-
 }

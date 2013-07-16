@@ -46,6 +46,7 @@ public final class SimpleShell {
         commandMap.put(ListServices.NAME, new ListServices(this));
         commandMap.put(ListPeersCommand.NAME, new ListServices(this));
 
+        commandMap.put(SchedulingPolicy.NAME, new SchedulingPolicy(this));
         commandMap.put(JobStart.NAME, new JobStart(this));
         commandMap.put(JobStatus.NAME, new JobStatus(this));
 
