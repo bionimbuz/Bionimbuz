@@ -32,6 +32,7 @@ public class AHPPolicy extends SchedPolicy {
 
         HashMap<JobInfo, PluginInfo> jobMap = new HashMap<JobInfo, PluginInfo>();
         JobInfo biggerJob = getBiggerJob(new ArrayList<JobInfo>(jobInfos));
+        biggerJob.setTimestamp(System.currentTimeMillis());
         jobMap.put(biggerJob, this.scheduleJob(biggerJob));
         return jobMap;
     }
@@ -319,5 +320,10 @@ public class AHPPolicy extends SchedPolicy {
     public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, ZooKeeperService zk) {
         
         return schedule(jobInfos);
+    }
+
+    @Override
+    public String getPolicyName() {
+        return "Name: DynamicAHP  -  "+ AHPPolicy.class.getSimpleName()+" - Número: 1";
     }
 }

@@ -25,6 +25,7 @@ public class RRPolicy extends SchedPolicy {
 
     public PluginInfo scheduleJob(JobInfo jobInfo) {
         List<PluginInfo> plugins = filterByService(jobInfo.getServiceId(), filterByUsed());
+        jobInfo.setTimestamp(System.currentTimeMillis());
         if (plugins.size() == 0) {
             return null;
         }
@@ -36,6 +37,7 @@ public class RRPolicy extends SchedPolicy {
         HashMap<JobInfo, PluginInfo> schedMap = new HashMap<JobInfo, PluginInfo>();
 
         for (JobInfo jobInfo : jobInfos) {
+            jobInfo.setTimestamp(System.currentTimeMillis());
             PluginInfo resource = this.scheduleJob(jobInfo);
             schedMap.put(jobInfo, resource);
             usedResources.add(resource);
@@ -91,6 +93,11 @@ public class RRPolicy extends SchedPolicy {
 
     @Override
     public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, ZooKeeperService zk) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return schedule(jobInfos);
+    }
+    
+    @Override
+    public String getPolicyName() {
+        return "Name: Round Robin Policy  -  "+ RRPolicy.class.getSimpleName()+" - Número: 2";
     }
 }

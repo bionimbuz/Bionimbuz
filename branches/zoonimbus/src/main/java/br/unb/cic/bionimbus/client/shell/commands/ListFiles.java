@@ -1,4 +1,4 @@
-package br.unb.cic.bionimbus.client.shell.commands;
+    package br.unb.cic.bionimbus.client.shell.commands;
 
 import br.unb.cic.bionimbus.avro.gen.BioProto;
 import br.unb.cic.bionimbus.client.shell.Command;

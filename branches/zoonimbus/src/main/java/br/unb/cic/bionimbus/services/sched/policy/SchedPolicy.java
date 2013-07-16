@@ -6,7 +6,9 @@ import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.sched.policy.impl.AHPPolicy;
 import br.unb.cic.bionimbus.services.sched.policy.impl.AcoSched;
+import br.unb.cic.bionimbus.services.sched.policy.impl.RRPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -24,18 +26,31 @@ public abstract class SchedPolicy {
         return this.cloudMap;
     }
 
-    public static SchedPolicy getInstance() {
-//        SchedPolicy policy = new AcoSched();
-        SchedPolicy policy = new AHPPolicy();
+    /**
+     * Retorna uma lista de política de escalonamento disponível.
+     * @return lista com as políticas.
+     */
+    public static List<SchedPolicy> getInstances() {
+        List<SchedPolicy> listPolicys= new ArrayList<SchedPolicy>();
+        listPolicys.add(0,new AcoSched());
+        listPolicys.add(1,new AHPPolicy());
+        listPolicys.add(2,new RRPolicy());
 
-        return policy;
+        return listPolicys;
         
         
     }
 
-    public static SchedPolicy getInstance(ConcurrentHashMap<String, PluginInfo> cloudMap, ZooKeeperService zk) {
-//        SchedPolicy policy = new AcoSched();
-        SchedPolicy policy = new AHPPolicy();
+    /**
+     * Retorna qual o tipo de escalonador desejado com o mapa das nuvens disponíveis.
+     * 0- AcoSched (Padrão)
+     * 1- AHPPolicy
+     * 2- RRPolicy
+     * @param cloudMap
+     * @return 
+     */
+    public static SchedPolicy getInstance(int numPolicy, ConcurrentHashMap<String, PluginInfo> cloudMap) {
+        SchedPolicy policy = getInstances().get(numPolicy);
         policy.setCloudMap(cloudMap);
         return policy;
     }
@@ -49,4 +64,6 @@ public abstract class SchedPolicy {
     public abstract void cancelJobEvent(PluginTask task);
 
     public abstract void jobDone(PluginTask task);
+    
+    public abstract String getPolicyName();
 }

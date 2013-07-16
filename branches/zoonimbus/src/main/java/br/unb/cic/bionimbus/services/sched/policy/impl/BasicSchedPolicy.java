@@ -83,4 +83,8 @@ public class BasicSchedPolicy extends SchedPolicy {
     public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, ZooKeeperService zk) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+    @Override
+    public String getPolicyName() {
+        return "Name: Política de escalonamento Básica  -  "+ BasicSchedPolicy.class.getSimpleName();
+    }
 }

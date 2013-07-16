@@ -1,1 +1,1 @@
-{"id": 1113, "name": "genome2interval", "arguments": ["%I1 %I2 %O1"], "input": ["inputFile"], "output": ["outputFile"], "info": "genome2interval tool", "path": "./programs/genome2interval.sh"}
+{"id": 1113, "name": "genome2interval", "arguments": ["%I1 %I2 %O1"], "input": ["inputFile"], "output": ["outputFile"], "info": "genome2interval tool | Comando: start 1113 %I1N%O1 -i [human.genome] -o [saída_com_intervalos] (N = tamanho do intervalo do histograma, Ex:. 10000)", "path": "./programs/genome2interval.sh"}

@@ -37,6 +37,8 @@ public class MonitoringService extends AbstractBioService implements Service, P2
     private final ScheduledExecutorService schedExecService = Executors.newScheduledThreadPool(1, new BasicThreadFactory.Builder().namingPattern("MonitorService-%d").build());
     private final Map<String, PluginTask> waitingTask = new ConcurrentHashMap<String, PluginTask>();
     private final List<String> waitingJobs = new ArrayList<String>();
+    private final List<String> waitingFiles = new ArrayList<String>();
+    
     private final Collection<String> plugins = new ArrayList<String>();
     private P2PService p2p = null;
     private static final String ROOT_PEER = "/peers";
@@ -56,6 +58,7 @@ public class MonitoringService extends AbstractBioService implements Service, P2
     public void run() {
         checkPeersStatus();
         checkJobsTasks();
+        checkPendingSave();
     }
 
     @Override
@@ -218,23 +221,48 @@ public void shutdown() {
         }
     }
 
-    /**
-     *
-     * private void checkPendingSave(){ try { List<String> listFiles =
-     * zkService.getChildren(zkService.getPath().PENDING_SAVE.toString(), null);
-     * for (String fileId : listFiles){
-     * if(zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath("",
-     * fileId, ""), false)){ //Começar aqui amanha verificar se 2 arquivos na
-     * rede // zkService.getData(JOBS, )
-     *
-     * }
-     * }
-     * } catch (KeeperException ex) {
-     * Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE,
-     * null, ex); } catch (InterruptedException ex) {
-     * Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE,
-     * null, ex); } }
-     */
+    
+     /**
+      * Verifica se algum arquivo está pendente há algum tempo(duas vezes o tempo de execução da monitoring), e se estiver
+      * apaga e cria novamente o arquivo para que os seus watcher informem sua existência.
+      */
+      private void checkPendingSave(){ 
+          try { 
+                List<String> listPendingSaves= zkService.getChildren(zkService.getPath().PENDING_SAVE.getFullPath("", "", ""), null);
+                if(listPendingSaves!=null && !listPendingSaves.isEmpty()){
+                    
+                    for (String filePending : listPendingSaves) {
+                        String datas =  zkService.getData(zkService.getPath().PENDING_SAVE.getFullPath("", filePending.substring(13, filePending.length()), ""), null);
+                        
+                        if(datas!=null && datas.isEmpty()){
+
+                            //verifica se o arquivo já estava na lista, recupera e lança novamente os dados para disparar watchers
+                            if (waitingFiles.contains(filePending)) {
+                                PluginInfo pluginInfo = new ObjectMapper().readValue(datas, PluginInfo.class);
+                                //condição para verificar se arquivo na pending ainda existe
+                                if(zkService.getZNodeExist(zkService.getPath().PENDING_SAVE.getFullPath("", filePending.substring(13, filePending.length()), ""), false)){
+                                    zkService.delete(zkService.getPath().PENDING_SAVE.getFullPath("", filePending.substring(13, filePending.length()),""));
+                                    zkService.createPersistentZNode(zkService.getPath().PENDING_SAVE.getFullPath("", filePending.substring(13, filePending.length()),""), pluginInfo.toString());
+                                }
+                                waitingFiles.remove(filePending);
+                            } else {
+                                waitingFiles.add(filePending);
+                            }
+                        }
+                        
+                    }
+                    
+                }
+            } catch (KeeperException ex) {
+              Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex); 
+            } catch (IOException ex) {
+              Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex); 
+            } catch (InterruptedException ex) {
+              Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex); 
+            } 
+      
+      }
+     
     /**
      * Incia o processo de recuperação dos peers caso ainda não tenho sido
      * iniciado e adiciona um watcher nos peer on-lines.
