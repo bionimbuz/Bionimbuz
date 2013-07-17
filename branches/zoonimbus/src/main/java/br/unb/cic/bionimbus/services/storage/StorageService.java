@@ -58,7 +58,7 @@ public class StorageService extends AbstractBioService {
     private P2PService p2p = null;
     private File dataFolder = new File("data-folder"); //TODO: remover hard-coded e colocar em node.yaml e injetar em StorageService
     private Double MAXCAPACITY = 0.9;
-    private int PORT = 9999;
+    private int PORT = 8080;
     private int REPLICATIONFACTOR = 2;
     private List<String> listFile = new ArrayList<String>();
 
@@ -259,8 +259,8 @@ public class StorageService extends AbstractBioService {
         List<String> listFiles;
         checkFiles();
         try {
-            for (PluginInfo plugin : getPeers().values()) {
-                listFiles = new ArrayList<String>();
+             for (PluginInfo plugin : getPeers().values()) {
+                 listFiles = new ArrayList<String>();
                 for (String file : zkService.getChildren(plugin.getPath_zk() + zkService.getPath().FILES.toString(), new UpdatePeerData(zkService, this))) {
                     listFiles.add(file.substring(5, file.length()));
                 }
@@ -529,7 +529,9 @@ public class StorageService extends AbstractBioService {
         System.out.println("(replication) Replicando o arquivo de nome: "+filename+" do peer: "+address);
         List<NodeInfo> pluginList = new ArrayList<NodeInfo>();
         List<String> idsPluginsFile = new ArrayList<String>();
-        File file = new File(System.getProperty("user.dir")+"/data-folder/" + filename);
+        String pathHome = System.getProperty("user.dir");
+        String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
+        File file = new File(path+ filename);
         
 
         int filesreplicated = 1;
@@ -749,7 +751,7 @@ public class StorageService extends AbstractBioService {
                             for (PluginFile fileExcluded : getFilesPeer(peerId)) {
                                 String idPluginExcluded = null;
                                 for (String idPlugin : fileExcluded.getPluginId()) {
-                                    if (peerId.equals(idPlugin)) {fileExcluded.getPluginId().remove(idPluginExcluded);
+                                    if (peerId.equals(idPlugin)) {
                                         idPluginExcluded = idPlugin;
                                         break;
                                     }
