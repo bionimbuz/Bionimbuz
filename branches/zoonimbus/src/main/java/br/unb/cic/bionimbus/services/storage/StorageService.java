@@ -480,7 +480,13 @@ public class StorageService extends AbstractBioService {
                             rpcClient.getProxy().notifyReply(fileplugin.getName(), address);
                             try {
                                 rpcClient.close();
-                                cont++;
+                                if(existReplication(fileplugin.getName())){
+                                    zkService.delete(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileplugin.getId(),""));
+                                    break;
+                                }
+                                else{
+                                    cont++;
+                                }
                             } catch (Exception ex) {
                                 Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
                             }
@@ -494,7 +500,13 @@ public class StorageService extends AbstractBioService {
                             } catch (SftpException ex) {
                                 Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
                             }
+                        if(existReplication(fileplugin.getName())){
+                            zkService.delete(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileplugin.getId(),""));
+                            break;
+                        }
+                        else{
                         cont++;
+                        }
                         }
                     }
                 } catch (IOException ex) {
