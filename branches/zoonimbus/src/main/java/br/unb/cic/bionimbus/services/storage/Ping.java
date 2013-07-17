@@ -5,6 +5,8 @@
 package br.unb.cic.bionimbus.services.storage;
 
 import java.io.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,34 +40,49 @@ public class Ping {
         /*
          * Para uma latência mais exata preferimos pingar 3 pacotes no IP e pegar a média.
          */
-        while ((teste = in.readLine()) != null && times < 4) {
-            if (times == 0) {
-                matcher = patternBand.matcher(teste);
-                while (matcher.find()) {
-                    sizerequest = Float.parseFloat(matcher.group());
-                    found = true;
+        if(in.ready()){
+            while ((teste = in.readLine()) != null && times < 4) {
+                if (times == 0) {
+                    matcher = patternBand.matcher(teste);
+                    while (matcher.find()) {
+                        sizerequest = Float.parseFloat(matcher.group());
+                        found = true;
+                    }
+                    if (!found) {
+                        System.out.println("I didn't found the text");
+                    }
+                } else {
+                    float taxadetransferencia = 0;
+                    matcher = pattern.matcher(teste);
+                    while (matcher.find()) {
+                        temporesp = Float.parseFloat(matcher.group());
+                        taxadetransferencia = sizerequest / ((temporesp / 1000));
+                        avg += Float.parseFloat(matcher.group());
+                        found = true;
+                    }
+                    if (!found) {
+                        System.out.println("I didn't found the text");
+                    }
                 }
-                if (!found) {
-                    System.out.println("I didn't found the text");
-                }
-            } else {
-                float taxadetransferencia = 0;
-                matcher = pattern.matcher(teste);
-                while (matcher.find()) {
-                    temporesp = Float.parseFloat(matcher.group());
-                    taxadetransferencia = sizerequest / ((temporesp / 1000));
-                    avg += Float.parseFloat(matcher.group());
-                    found = true;
-                }
-                if (!found) {
-                    System.out.println("I didn't found the text");
-                }
+                times += 1;
             }
-            times += 1;
         }
+        else{
+            p.destroy();
+            return Double.MAX_VALUE;
+        }
+        p.destroy();
         double avglatency = avg / (times - 1);
 
         return avglatency;
+    }
+    public static void main(String[] args) {
+        try {
+           double abg= Ping.calculo("www.google.com");
+            System.out.println("avg lat"+abg);
+        } catch (IOException ex) {
+            Logger.getLogger(Ping.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
 

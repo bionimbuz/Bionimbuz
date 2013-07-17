@@ -1,6 +1,5 @@
 package br.unb.cic.bionimbus.avro.rpc;
 
-
 import br.unb.cic.bionimbus.avro.gen.BioProto;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
@@ -23,10 +22,8 @@ public class AvroServer implements RpcServer {
     private static Server httpServer;
     private final String transport;
     private final int port;
-
     @Inject
     private BioProto bioProto;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(AvroServer.class);
 
     public AvroServer() {
@@ -41,10 +38,9 @@ public class AvroServer implements RpcServer {
 
     @Override
     public void start() throws Exception {
-        if ("netty".equalsIgnoreCase(transport)){
+        if ("netty".equalsIgnoreCase(transport)) {
             startNettyServer(port);
-        }
-        else {
+        } else {
             startHTTPServer(port);
         }
     }
@@ -58,9 +54,9 @@ public class AvroServer implements RpcServer {
 
     // HTTP Transport
     private Server createHttpServer(int port,
-                                    String name,
-                                    int maxThreads,
-                                    int maxIdleTimeMs) throws BioNimbusException {
+            String name,
+            int maxThreads,
+            int maxIdleTimeMs) throws BioNimbusException {
         try {
             SpecificResponder responder = new SpecificResponder(BioProto.class, bioProto);
             Server httpServer = new Server(port);
@@ -93,5 +89,4 @@ public class AvroServer implements RpcServer {
         String config = "http";
         new AvroServer(config, 8080).start();
     }
-
 }
