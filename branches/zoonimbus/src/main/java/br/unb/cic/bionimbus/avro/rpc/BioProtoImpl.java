@@ -168,6 +168,7 @@ public class BioProtoImpl implements BioProto {
                 file.setPath(fileInfo.getPath());
                 file.setPluginId(fileInfo.getPluginId());
                 file.setSize(fileInfo.getSize());
+                if(!listFile.contains(file))
                 listFile.add(file);
             }    
         }
