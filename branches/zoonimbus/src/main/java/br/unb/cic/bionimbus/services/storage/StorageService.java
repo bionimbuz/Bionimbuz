@@ -58,7 +58,7 @@ public class StorageService extends AbstractBioService {
     private P2PService p2p = null;
     private File dataFolder = new File("data-folder"); //TODO: remover hard-coded e colocar em node.yaml e injetar em StorageService
     private Double MAXCAPACITY = 0.9;
-    private int PORT = 8080;
+    private int PORT = 9999;
     private int REPLICATIONFACTOR = 2;
     private List<String> listFile = new ArrayList<String>();
 
@@ -671,9 +671,9 @@ public class StorageService extends AbstractBioService {
             children = zkService.getChildren(zkService.getPath().FILES.getFullPath(pluginId, "", ""), null);
             for (String fileId : children) {
                 String fileName = fileId.substring(5, fileId.length());
-                if (savedFiles.containsKey(fileName)) {
-                    filesPeerSelected.add(savedFiles.get(fileName));
-                }
+                ObjectMapper mapper = new ObjectMapper();
+                PluginFile file = mapper.readValue(zkService.getData(zkService.getPath().PREFIX_FILE.getFullPath(pluginId, fileName, ""), null), PluginFile.class);
+                filesPeerSelected.add(file);
             }
         } catch (KeeperException ex) {
             Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
