@@ -76,14 +76,6 @@ public class Ping {
 
         return avglatency;
     }
-    public static void main(String[] args) {
-        try {
-           double abg= Ping.calculo("www.google.com");
-            System.out.println("avg lat"+abg);
-        } catch (IOException ex) {
-            Logger.getLogger(Ping.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
 }
 
 
