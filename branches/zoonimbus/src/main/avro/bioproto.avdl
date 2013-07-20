@@ -259,7 +259,7 @@ protocol BioProto {
   array<string> listFilesName();
 
   /** Procurar em qual Ip está o arquivo file */    
-  string listFilesIp(string file);
+  string getIpFile(string file);
 
   array<string> listServices();
 
