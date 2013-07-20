@@ -106,6 +106,7 @@ public class StorageService extends AbstractBioService {
             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+        //NECESSARIO atualizar a lista de arquivo local , a lista do zookeeper com os arquivos locais.
         checkFiles();
         checkPeers();
         try {
@@ -211,8 +212,8 @@ public class StorageService extends AbstractBioService {
                      * Caso não exista um número de cópias igual a REPLICATIONFACTOR inicia as cópias,
                      * enviando uma RPC para o peer que possui o arquivo, para que ele replique.
                      */
-                    String ipPluginFile = getFilesIP(fileNamePlugin);
-                    if (!ipPluginFile.equals(p2p.getConfig().getAddress())) {
+                    String ipPluginFile = getIpContainsFile(fileNamePlugin);
+                    if (!ipPluginFile.isEmpty() && !ipPluginFile.equals(p2p.getConfig().getAddress())) {
                         RpcClient rpcClient = new AvroClient("http", ipPluginFile, PORT);
                         rpcClient.getProxy().notifyReply(fileNamePlugin, ipPluginFile);
                         rpcClient.close();
@@ -278,15 +279,18 @@ public class StorageService extends AbstractBioService {
     }
 
     /**
-     * Metodo para pegar o Ip de cada peer na federação e verificar se um
-     * arquivo está com este peer, se o arquivo for encontrado retorna o Ip do
+     * Metodo para pegar o Ip de cada peer na federação e verificar em qual peer o
+     * arquivo está, se o arquivo for encontrado retorna o Ip do
      * peer, caso contrário retorna null.
      *
      * @param file
      * @return Ip que possui o arquivo ou null
      */
-    public String getFilesIP(String file) throws IOException {
+    public String getIpContainsFile(String file) throws IOException {
         List<String> listFiles;
+        //NECESSARIO atualizar a lista de arquivo local , a lista do zookeeper com os arquivos locais. Não é feito em nenhum momento
+        //caso não seja chamado a checkFiles();
+        checkFiles();
         try {
             for (Iterator<PluginInfo> it = getPeers().values().iterator(); it.hasNext();) {
                 PluginInfo plugin = it.next();
@@ -306,7 +310,7 @@ public class StorageService extends AbstractBioService {
             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        return null;
+        return "";
 
     }
 
@@ -349,7 +353,6 @@ public class StorageService extends AbstractBioService {
         List<NodeInfo> plugins;
         cloudMap = getPeers();
         for (NodeInfo node : list) {
-            System.out.println("" + cloudMap.get(node.getPeerId()));
             cloudMap.get(node.getPeerId()).setLatency(node.getLatency());
             cloudMap.get(node.getPeerId()).setFsFreeSize(node.getFreesize());
         }
@@ -401,7 +404,7 @@ public class StorageService extends AbstractBioService {
         if (zkService.getZNodeExist(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileuploaded.getId(), ""), false)) {
            
             String ipPluginFile;
-            ipPluginFile = getFilesIP(fileuploaded.getName());
+            ipPluginFile = getIpContainsFile(fileuploaded.getName());
             FileInfo file = new FileInfo();
             file.setFileId(fileuploaded.getId());
             file.setName(fileuploaded.getName());
@@ -475,8 +478,8 @@ public class StorageService extends AbstractBioService {
                             zkService.delete(zkService.getPath().PENDING_SAVE.getFullPath("", fileplugin.getId(), ""));
                             break;
                         }
-                        String address = getFilesIP(fileplugin.getName());
-                        if(!address.equals(p2p.getConfig().getAddress())){
+                        String address = getIpContainsFile(fileplugin.getName());
+                        if(!address.isEmpty() && !address.equals(p2p.getConfig().getAddress())){
                             RpcClient rpcClient = new AvroClient("http", address, PORT);
                             rpcClient.getProxy().notifyReply(fileplugin.getName(), address);
                             try {
@@ -683,6 +686,8 @@ public class StorageService extends AbstractBioService {
     public List<PluginFile> getFilesPeer(String pluginId) {
         List<String> children;
         List<PluginFile> filesPeerSelected = new ArrayList<PluginFile>();
+        //NECESSARIO atualizar a lista de arquivo local , a lista do zookeeper com os arquivos locais. Não é feito em nenhum momento
+        //caso não seja chamado a checkFiles();
         checkFiles();
         try {
             children = zkService.getChildren(zkService.getPath().FILES.getFullPath(pluginId, "", ""), null);

@@ -173,7 +173,8 @@ public class AcoSched extends SchedPolicy {
     }
 
     /**
-     * Retorna o job com o maior arquivo de entrada. Todo os arquivos de entrada são considerados.
+     * Retorna o job com o maior arquivo de entrada e o arquivo mais antigo.
+     * Todo os arquivos de entrada são considerados.
      * @param jobInfos
      * @return 
      */
@@ -183,12 +184,14 @@ public class AcoSched extends SchedPolicy {
 
         JobInfo bigger = null;
         long biggerTotal = 0L;
+        long timestamp = 0L;
         for (JobInfo jobInfo : jobInfos) {
             long total = getTotalSizeOfJobsFiles(jobInfo);
             if (bigger == null) {
                 bigger = jobInfo;
                 biggerTotal = total;
-            }else if(getTotalSizeOfJobsFiles(jobInfo) > biggerTotal) {
+                timestamp = jobInfo.getTimestamp();
+            }else if(getTotalSizeOfJobsFiles(jobInfo) > biggerTotal || ((System.currentTimeMillis()-timestamp) - (System.currentTimeMillis() - jobInfo.getTimestamp())>5)) {
                     bigger = jobInfo;
                     biggerTotal = total;
             }
@@ -271,7 +274,6 @@ public class AcoSched extends SchedPolicy {
     private void AlgorithmAco(List<PluginInfo> plugins){
         //Laço para define o feronômio de cada plugin(VM)
         for (PluginInfo plugin : plugins) {
-            System.out.println("Valores do plugin:" +plugin.toString());
 
             pheromone(plugin);
         }
@@ -319,7 +321,7 @@ public class AcoSched extends SchedPolicy {
 
             pheronome = (1 - p) * pheronome + (1 / smallerProbability);
             mapAcoDatas.get(plugin.getId()).set(0, pheronome);
-        }else{
+        }else{ 
             ArrayList<Double> datas = new ArrayList<Double>();
             pheronome = capacityPlugin(plugin);
             /*
@@ -407,7 +409,6 @@ public class AcoSched extends SchedPolicy {
      */
     private Double multiplicationDatasPlugin(PluginInfo  plugin){
         ArrayList<Double> datas = mapAcoDatas.get(plugin.getId());
-        System.out.println("Dados aco plugin: "+plugin.toString());
 
         //feronomio elevado a potencia alfa(valor da variavel de controle)
         Double pheromone = (Math.pow(datas.get(0), datas.get(3)));

@@ -48,7 +48,10 @@ public class Upload implements Command {
              * Pega uma lista com todos os peers para calcular a latencia entre o cliente 
              * e os servidores.
              */
-            if (shell.getRpcClient().getProxy().listFilesIp(info.getName()).equals("") && shell.getRpcClient().getProxy().checkFileSize(info.getName()) != info.getSize()){
+//            if (shell.getRpcClient().getProxy().listFilesIp(info.getName()).equals("") && shell.getRpcClient().getProxy().checkFileSize(info.getName()) != info.getSize()){
+             
+            //verifica se existi o arquivo, e se existir vefica se é do mesmo tamanho
+            if (shell.getProxy().getIpFile(info.getName()).isEmpty() || shell.getProxy().checkFileSize(info.getName()) != info.getSize()){
                 System.out.println("\n Calculando Latencia.....");
                 pluginList = shell.getRpcClient().getProxy().getPeersNode();
                 shell.getRpcClient().getProxy().setFileInfo(info,"upload!");

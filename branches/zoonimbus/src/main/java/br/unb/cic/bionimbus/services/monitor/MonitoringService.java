@@ -232,7 +232,7 @@ public void shutdown() {
                 if(listPendingSaves!=null && !listPendingSaves.isEmpty()){
                     
                     for (String filePending : listPendingSaves) {
-                        String datas =  zkService.getData(zkService.getPath().PENDING_SAVE.getFullPath("", filePending.substring(13, filePending.length()), ""), null);
+                        String datas =  zkService.getData(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", filePending.substring(13, filePending.length()), ""), null);
                         
                         if(datas!=null && datas.isEmpty()){
 
