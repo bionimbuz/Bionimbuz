@@ -32,14 +32,14 @@ public class Download implements Command {
          * destino irá receber o IP onde o arquivo se encontra
          * 
          */
-        destino = shell.getRpcClient().getProxy().listFilesIp(filerequest);
+        destino = shell.getRpcClient().getProxy().getIpFile(filerequest);
 
         Get conexao = new Get();
         /*
          * Tenta se conectar ao destino para baixar o arquivo.
          * Caso sucesso, irá retornar true.
          */
-        if (!conexao.startSession(filerequest, destino)) {
+        if (destino.isEmpty() || !conexao.startSession(filerequest, destino)) {
             return "Arquivo não encontrado !!";
         }
 

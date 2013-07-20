@@ -175,6 +175,26 @@ public class BioProtoImpl implements BioProto {
         return listFile;
     }
     
+    /**
+     * Retorna o ip que contém o arquivo informado @param file.
+     * Se não encontrar o arquivo retorna null
+     * @param file - Nome do arquivo requisitado 
+     * @return - Ip de onde o arquivo se encontra, ou caso não encontre retorna null;
+     * @throws AvroRemoteException
+     */
+    @Override
+    public String getIpFile(String file){
+        
+        String destino="";    
+        try {
+            destino =   storageService.getIpContainsFile(file);
+        } catch (IOException ex) {
+            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return destino;
+    }
+    
     @Override
     public List<String> listServices() throws AvroRemoteException {
         Collection<PluginInfo> list = this.discoveryService.getPeers().values();
@@ -384,27 +404,6 @@ public class BioProtoImpl implements BioProto {
     }
 
 
-    /**
-     * Metodo irá chamar a storage service passando o nome do arquivo solicitado para download,
-     * caso a storage service encontre o arquivo irá retornar o Ip de onde aquele arquivo se encontra,
-     * se não encontra retorna a string "Arquivo nao encontrado"
-     * @param file - Nome do arquivo requisitado para download.
-     * @return - Ip de onde o arquivo se encontra ou "Arquivo nao encontrado"
-     * @throws AvroRemoteException
-     */
-    @Override
-    public String listFilesIp(String file){
-        
-        String destino=null;    
-        try {
-            destino = storageService.getFilesIP(file);
-        } catch (IOException ex) {
-            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        return destino;
-    }
-    
     /**
      * Método que notifica o peer para fazer a replicação
      * @param filename nome do arquivo a ser replicado

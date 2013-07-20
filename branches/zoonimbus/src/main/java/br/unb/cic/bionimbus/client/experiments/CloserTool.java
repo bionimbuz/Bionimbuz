@@ -116,7 +116,9 @@ public class CloserTool {
                 info.setName(file.getName());
                 info.setSize(file.length());
 
-            if (rpcClient.getProxy().listFilesIp(info.getName()).equals("") && rpcClient.getProxy().checkFileSize(info.getName()) != info.getSize()){
+                //verifica se existi, e se existir vefica se é do mesmo tamanho
+            if (rpcClient.getProxy().getIpFile(info.getName()).isEmpty() || (!rpcClient.getProxy().getIpFile(info.getName()).isEmpty()
+                    && rpcClient.getProxy().checkFileSize(info.getName()) != info.getSize())){
                     System.out.println("\n Calculando Latencia.....");
                     pluginList = rpcClient.getProxy().getPeersNode();
                     rpcClient.getProxy().setFileInfo(info,"upload!");
