@@ -17,7 +17,8 @@ import com.jcraft.jsch.SftpException;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.avro.AvroRemoteException;
 import org.apache.zookeeper.KeeperException;
 
@@ -31,6 +32,9 @@ public class BioProtoImpl implements BioProto {
     private final StorageService storageService;
     private final SchedService schedService;
     private final ZooKeeperService zkService;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SchedService.class.getSimpleName());
+
     
     private Map<String, NodeInfo> nodes = new HashMap<String, NodeInfo>();
 
@@ -74,11 +78,11 @@ public class BioProtoImpl implements BioProto {
                     
             }
         } catch (KeeperException ex) {
-            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
-            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
         return "Job "+jobId+" não encontrado!";
     }
@@ -119,11 +123,11 @@ public class BioProtoImpl implements BioProto {
             }
                     
         } catch (KeeperException ex) {
-            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
-            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         return  allJobs.toString().isEmpty() ? "Não existem jobs." : "Jobs :\n "+allJobs;
@@ -145,7 +149,7 @@ public class BioProtoImpl implements BioProto {
                 listFile.addAll(collection);
             }
         } catch (IOException ex) {
-            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         return listFile;
@@ -189,7 +193,7 @@ public class BioProtoImpl implements BioProto {
         try {
             destino =   storageService.getIpContainsFile(file);
         } catch (IOException ex) {
-            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         return destino;
@@ -231,9 +235,9 @@ public class BioProtoImpl implements BioProto {
                 }
             }
         } catch (KeeperException ex) {
-            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
-            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         StringBuilder politicys = new StringBuilder();
@@ -278,11 +282,11 @@ public class BioProtoImpl implements BioProto {
                 }
             }
         }
-        
+        LOGGER.info("Tempo de inicio do job -"+ job.getOutputs()+"- MileSegundos: " + job.getTimestamp());
         //inclusão do job para ser escalonado
         zkService.createPersistentZNode(path+job.getId(), job.toString());
-
-        return "Job Escalonado, Id : "+job.getId()+".\nAguardando execução...";
+        
+        return "Job enviado para o escalonamento, Id : "+job.getId()+".\nAguarde...";
     }
 
     @Override
@@ -290,10 +294,12 @@ public class BioProtoImpl implements BioProto {
         //inclusão do job para ser escalonado
         
         for (br.unb.cic.bionimbus.avro.gen.JobInfo job: listJob){
+            job.setTimestamp(System.currentTimeMillis());
             zkService.createPersistentZNode(zkService.getPath().PREFIX_JOB.getFullPath("", "", job.getId()) , job.toString());
+            LOGGER.info("Tempo de inicio do job -"+ job.getOutputs()+"- MileSegundos: " + job.getTimestamp());
         }
-        
-        return "Jobs Escalonados.\n Aguardando execução...";
+
+        return "Job enviado para o escalonamento. Aguarde...";
     }
     
     private br.unb.cic.bionimbus.avro.gen.PluginFile getPluginFile(String fileName){
@@ -303,7 +309,7 @@ public class BioProtoImpl implements BioProto {
                     return file;
             }
         } catch (AvroRemoteException ex) {
-            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         return null;
@@ -395,11 +401,11 @@ public class BioProtoImpl implements BioProto {
         try {
             storageService.fileUploaded(file);
         } catch (KeeperException ex) {
-            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
-            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -414,11 +420,11 @@ public class BioProtoImpl implements BioProto {
         try {
             storageService.replication(filename,address);
         } catch (IOException ex) {
-            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         } catch (JSchException ex) {
-            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SftpException ex) {
-            Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     

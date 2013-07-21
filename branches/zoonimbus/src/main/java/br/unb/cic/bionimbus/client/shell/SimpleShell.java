@@ -9,6 +9,8 @@ import br.unb.cic.bionimbus.avro.gen.BioProto;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.client.shell.commands.*;
 import br.unb.cic.bionimbus.utils.Pair;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A simple shell to interface with BioNimbus. Lacking features: No up arrow
@@ -24,7 +26,6 @@ public final class SimpleShell {
 
     static {
         commandMap.put(DateTime.NAME, new DateTime());
-        commandMap.put(Quit.NAME, new Quit());
         commandMap.put(Help.NAME, new Help(commandMap));
         commandMap.put(History.NAME, history);
         commandMap.put(Echo.NAME, new Echo());
@@ -45,6 +46,7 @@ public final class SimpleShell {
         commandMap.put(ListFiles.NAME, new ListFiles(this));
         commandMap.put(ListServices.NAME, new ListServices(this));
         commandMap.put(ListPeersCommand.NAME, new ListServices(this));
+        commandMap.put(Quit.NAME, new Quit(this));
 
         commandMap.put(SchedulingPolicy.NAME, new SchedulingPolicy(this));
         commandMap.put(JobStart.NAME, new JobStart(this));
@@ -152,5 +154,12 @@ public final class SimpleShell {
 
     public BioProto getProxy() throws IOException {
         return rpcClient.getProxy();
+    }
+    public void close() throws IOException {
+        try {
+            rpcClient.close();
+        } catch (Exception ex) {
+            Logger.getLogger(SimpleShell.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

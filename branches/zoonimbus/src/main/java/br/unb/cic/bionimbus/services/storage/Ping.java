@@ -5,6 +5,7 @@
 package br.unb.cic.bionimbus.services.storage;
 
 import java.io.*;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -37,9 +38,15 @@ public class Ping {
         BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
         Pattern pattern = Pattern.compile("(?<=time=).*.(?= )");
         Pattern patternBand = Pattern.compile("(?<=\\) ).*.(?=\\()");
-        /*
-         * Para uma latência mais exata preferimos pingar 3 pacotes no IP e pegar a média.
-         */
+        try {
+            /*
+             * Para uma latência mais exata preferimos pingar 3 pacotes no IP e pegar a média.
+             */
+            TimeUnit.MILLISECONDS.sleep(3);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Ping.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         if(in.ready()){
             while ((teste = in.readLine()) != null && times < 4) {
                 if (times == 0) {

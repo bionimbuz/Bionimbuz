@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.zookeeper.KeeperException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author gabriel
@@ -32,6 +33,8 @@ public class AcoSched extends SchedPolicy {
     private static final String DIR_SIZEALLJOBS ="/size_jobs";
     private static final String SCHED ="/sched";
     private ZooKeeperService zk;
+    
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AcoSched.class.getSimpleName()); 
    
     @Override
     public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, ZooKeeperService zk) {
@@ -295,7 +298,6 @@ public class AcoSched extends SchedPolicy {
         while(nAnts>i){
             ArrayList datas = mapAcoDatas.get(plugins.get((Integer)listNumberPlugin.get(i)).getId());
             datas.set(1, probabilityNextPlugin( ((Integer)listNumberPlugin.get(i)) , plugins));
-            //errado ->  datas.set(1, multiplicationFeronomioHeuristic(plugins.get((Integer)listNumberPlugin.get(i)))/sumFeronomioHeuristic(plugins));
             if (((Double) datas.get(1)) < smallerProbability) {
                 smallerProbability = (Double) datas.get(1);
             }
@@ -359,9 +361,7 @@ public class AcoSched extends SchedPolicy {
         Double p = 0.01;
         
         for(PluginInfo plugin : listPlugin){
-            System.out.println(mapAcoDatas.get(plugin.getId().toString()));
-                
-                
+            LOGGER.debug("\n\nAntes do theBestPheromone peer:("+plugin.getId()+") - "+mapAcoDatas.get(plugin.getId().toString()) );
             Double pheronome = mapAcoDatas.get(plugin.getId()).get(0);
             //Altera somente os valores dos feromonios já calculados
             if(pheronome != null && pheronome!=0d){
@@ -370,7 +370,7 @@ public class AcoSched extends SchedPolicy {
                 mapAcoDatas.get(plugin.getId()).set(0,pheronome);
                 setDatasZookeeper(plugin.getPath_zk(), SCHED, mapAcoDatas.get(plugin.getId()).toString());
             }
-            System.out.println(mapAcoDatas.get(plugin.getId().toString()));
+            LOGGER.debug("\nDepois do theBestPheromone peer:("+plugin.getId()+") - "+mapAcoDatas.get(plugin.getId().toString()) +"\n");
         }
         
     }
@@ -421,6 +421,9 @@ public class AcoSched extends SchedPolicy {
         //((Double)Math.pow(((Float)datas.get(2)).doubleValue(), ((Float)datas.get(5)).doubleValue() )).floatValue()
 
 //        return (new Float(formatDecimal.format(pheromone)).floatValue()* new Float(formatDecimal.format(capacityComputing)).floatValue()* new Float(formatDecimal.format(loadBalacing)).floatValue());
+//        LOGGER.debug("\nValores do multiplication: pheromone = " +pheromone+" capacityComputing= "+capacityComputing+" loadBalacing= "+loadBalacing
+//                +" capacityMemory= "+capacityMemory+"\n");
+        
         return pheromone*capacityComputing*loadBalacing*capacityMemory;    
         
     }
@@ -559,6 +562,7 @@ public class AcoSched extends SchedPolicy {
      */
     private void setMapAcoDatasZooKeeper(List<PluginInfo> listClouds){
         for (PluginInfo plugin : listClouds) {
+            LOGGER.debug("\nValores do AcoSched - "+mapAcoDatas.get(plugin.getId()).toString()+"\n");
             setDatasZookeeper(plugin.getPath_zk(), SCHED, mapAcoDatas.get(plugin.getId()).toString());
         }
     }
@@ -572,14 +576,13 @@ public class AcoSched extends SchedPolicy {
     private String getDatasZookeeper(String zkPath, String dir){
         String datas = "";
         try {
-            datas = zk.getData(zkPath+dir, null);
+            if(zk.getZNodeExist(zkPath+dir, false))
+                datas = zk.getData(zkPath+dir, null);
         } catch (KeeperException ex) {
             Logger.getLogger(AcoSched.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
             Logger.getLogger(AcoSched.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        
         
         return datas;
     }
@@ -591,53 +594,15 @@ public class AcoSched extends SchedPolicy {
      */
     private void setDatasZookeeper(String zkPath, String dir, String datas){
         try {
-            zk.setData(zkPath+dir, datas);
+            if(zk.getZNodeExist(zkPath+dir,false)){
+                zk.setData(zkPath+dir, datas);
+            }
         } catch (KeeperException ex) {
             Logger.getLogger(AcoSched.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
             Logger.getLogger(AcoSched.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        
-        //como deve ser tratado caso o diretorio nao exista???
-        
-    }
-    /**
-     * Verifica se o pluginInfo está disponível.
-     * @param plugin identificação do plugin solicitado
-     * @return true se o plugin estiver disponível
-     */
-    private Boolean getStatusCloudZookeeper(PluginInfo plugin, boolean watch){
-        try {
-            
-            return zk.getZNodeExist(plugin.getPath_zk()+"/STATUS",watch);
-            
-        } catch (KeeperException ex) {
-            Logger.getLogger(AcoSched.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(AcoSched.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        return false;
-    }
-    
-     /**
-     * Retorna uma array de object de acordo com os datas passados por parâmetro, realizando a divição da string de acordo com as
-     * vígurlas.
-     * @param datas
-     * @return 
-     */
-    private ArrayList<Double> getListDouble(String datas){
-        ArrayList list = new ArrayList<Double>();
-        int i=0,cont=0;
-        while(datas.length()>0){
-            Double value = new Double(datas.substring(i, (datas.indexOf(",")==-1) ? datas.length() : datas.indexOf(",")));
-            list.add(cont, value);
-            datas = datas.substring((datas.length()==1) ? datas.length() : datas.indexOf(",")+1, datas.length());
-            cont++;
-        }
-        
-        return list;
     }
 
     @Override

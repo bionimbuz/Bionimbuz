@@ -26,7 +26,7 @@ public class MscPipeline implements Pipeline {
         // bowtie
         JobInfo job = new JobInfo();
         job.setArgs("%I1%I2%O1");
-        job.setTimestamp(System.currentTimeMillis());
+        job.setTimestamp(0l);
 //        job.setId(null);
         job.setServiceId(1111);
         job.addInput(input.getId(), input.getSize());
@@ -38,7 +38,7 @@ public class MscPipeline implements Pipeline {
         // sam2bed
         job = new JobInfo();
         job.setArgs("%I1%O1");
-        job.setTimestamp(System.currentTimeMillis());
+        job.setTimestamp(0l);
 //        job.setId(null);
         job.setServiceId(1112);
         job.addOutput(outputFiles.get(1));
@@ -47,7 +47,7 @@ public class MscPipeline implements Pipeline {
         // genome2interval
         job = new JobInfo();
         job.setArgs("%I110000%O1");
-        job.setTimestamp(System.currentTimeMillis());
+        job.setTimestamp(0l);
 //        job.setId(null);
         job.setServiceId(1113);
         // AQUI VOCE TEM QUE COLOCAR O ID DO ARQUIVO human.genome
@@ -58,7 +58,7 @@ public class MscPipeline implements Pipeline {
         // coverageBed
         job = new JobInfo();
         job.setArgs("%I1%I2%O1");
-        job.setTimestamp(System.currentTimeMillis());
+        job.setTimestamp(0l);
 //        job.setId(null);
         job.setServiceId(1114);
         job.addOutput(outputFiles.get(3));

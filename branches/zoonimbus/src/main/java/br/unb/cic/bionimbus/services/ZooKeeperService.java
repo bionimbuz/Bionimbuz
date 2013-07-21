@@ -94,7 +94,7 @@ public class ZooKeeperService {
     }   
     
     public ZooKeeperService() {
-        System.out.println("Criando ZK service...");  
+       LOGGER.info("Criando ZK service...");  
     }
     
     public Path getPath(){       
@@ -106,7 +106,7 @@ public class ZooKeeperService {
     }
     
     public synchronized void reconnect() throws IOException, InterruptedException {
-        System.out.println("Reconectando em hosts " + hosts);
+        LOGGER.info("Reconectando em hosts " + hosts);
         status = Status.NO_CONNECTED;
         connect(hosts);
     }
@@ -120,18 +120,17 @@ public class ZooKeeperService {
 
         status = Status.CONNECTING;
 
-        System.out.println("Conectando ao ZK...");
+        LOGGER.info("Conectando ao ZK...");
         zk = new ZooKeeper(hosts, SESSION_TIMEOUT, new Watcher() {
             @Override
             public void process(WatchedEvent event) {
 
                 // Evento que indica conexão ao ensemble
                 if (event.getState() == Event.KeeperState.SyncConnected) {
-                    System.out.println("Conectado ao ZK!");
+                    LOGGER.info("Conectado ao ZK!");
                     status = Status.CONNECTED;
                     countDownLatch.countDown();
                 }
-                System.out.println(event);
             }
         });
         
@@ -152,14 +151,15 @@ public class ZooKeeperService {
             try {
                 Stat s = zk.exists(root, false);
                 if (s == null) {
-                    System.out.println(String.format("znode %s não existe ... criando", root));
+//                    System.out.println(String.format("znode %s não existe ... criando", root));
                     peer = zk.create(root
                             , (data == null) ? new byte[0] : data.getBytes()
                             , ZooDefs.Ids.OPEN_ACL_UNSAFE // sem segurança
                             , CreateMode.PERSISTENT);
                 } else {
-                    System.out.println(String.format("znode %s existente", root));
+//                    System.out.println(String.format("znode %s existente", root));
                 }
+                
             } catch (KeeperException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {
@@ -181,13 +181,13 @@ public class ZooKeeperService {
             try {
                 Stat s = zk.exists(root, false);
                 if (s == null) {
-                    System.out.println(String.format("znode %s não existe ... criando", root));
+//                    System.out.println(String.format("znode %s não existe ... criando", root));
                     peer = zk.create(root
                             , (data == null) ? new byte[0] : data.getBytes()
                             , ZooDefs.Ids.OPEN_ACL_UNSAFE // sem segurança
                             , CreateMode.PERSISTENT_SEQUENTIAL);
                 } else {
-                    System.out.println(String.format("znode %s existente", root));
+//                    System.out.println(String.format("znode %s existente", root));
                 }
             } catch (KeeperException e) {
                 e.printStackTrace();
@@ -213,9 +213,9 @@ public class ZooKeeperService {
                     , buf
                     , ZooDefs.Ids.OPEN_ACL_UNSAFE
                     , CreateMode.EPHEMERAL);
-                System.out.println(String.format("znode %s criado", path));
+//                System.out.println(String.format("znode %s criado", path));
             } else {
-                System.out.println(String.format("znode %s existente", path));
+//                System.out.println(String.format("znode %s existente", path));
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -242,7 +242,7 @@ public class ZooKeeperService {
                     , ZooDefs.Ids.OPEN_ACL_UNSAFE
                     , CreateMode.EPHEMERAL_SEQUENTIAL);
             } else {
-                System.out.println(String.format("znode %s existente", path));
+//                System.out.println(String.format("znode %s existente", path));
             }
         } catch (InterruptedException e) {
             e.printStackTrace();

@@ -19,7 +19,7 @@ public class AvroClient implements RpcClient {
     private final String transport;
     private NettyTransceiver nettyClient;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AvroClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AvroClient.class); 
 
     public AvroClient(String transport, String address, int port) {
         this.port = port;
