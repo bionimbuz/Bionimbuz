@@ -38,13 +38,12 @@ public class Nmap {
         BufferedReader in = new BufferedReader(new  InputStreamReader(p.getInputStream()));
         Pattern pattern = Pattern.compile("(?<=\\().*.(?=s latency)");
         
-        TimeUnit.MILLISECONDS.sleep(50);
+        TimeUnit.MILLISECONDS.sleep(500);
         if(in.ready()){
             while ((teste = in.readLine()) != null && times < 4) {
                 if (times == 3) {
                     matcher = pattern.matcher(teste);
                     while (matcher.find()) {
-                        System.out.println(""+matcher.group());
                         sizerequest = Float.parseFloat(matcher.group());
                         found = true;
                         p.destroy();
