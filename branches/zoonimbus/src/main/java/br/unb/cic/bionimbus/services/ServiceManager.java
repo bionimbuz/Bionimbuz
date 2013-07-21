@@ -71,23 +71,23 @@ public class ServiceManager {
      */
     private void clearZookeeper(){
         List<String> peers;
-        boolean existPeer=false;
+//        boolean existPeer=false;
         try {
             if((zkService.getStatus() == ZooKeeperService.Status.CONNECTED) && zkService.getZNodeExist(ROOT_PEER, false)){
                 peers = zkService.getChildren(ROOT_PEER, null);
                 if(!(peers==null) && !peers.isEmpty()){
                     for(String peer : peers){
                         if(zkService.getZNodeExist(ROOT_PEER+SEPARATOR+peer+SEPARATOR+STATUS, false))
-                            existPeer=true;
+                            return;
                     }
                 }
-                if(!existPeer){
-                    //apaga os znodes que haviam no servidor
-                    zkService.delete(ROOT_PEER);
-                    zkService.delete(LATENCY);
-                    zkService.delete(zkService.getPath().PENDING_SAVE.toString());
-                    zkService.delete(zkService.getPath().JOBS.toString());
-                }
+//                if(!existPeer){
+//                    //apaga os znodes que haviam no servidor
+//                    zkService.delete(ROOT_PEER);
+//                    zkService.delete(LATENCY);
+//                    zkService.delete(zkService.getPath().PENDING_SAVE.toString());
+//                    zkService.delete(zkService.getPath().JOBS.toString());
+//                }
             }
         } catch (KeeperException ex) {
             Logger.getLogger(ServiceManager.class.getName()).log(Level.SEVERE, null, ex);
