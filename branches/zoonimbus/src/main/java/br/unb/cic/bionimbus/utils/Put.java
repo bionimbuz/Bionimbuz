@@ -39,8 +39,7 @@ public class Put {
      * @throws SftpException
      */
     public boolean startSession() throws JSchException, SftpException {
-        String pathHome = System.getProperty("user.dir");
-        String pathDest =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
+        String pathDest = "/home/zoonimbus/zoonimbusProject/data-folder/";
         try {
 
             session = jsch.getSession(USER, address, PORT);
