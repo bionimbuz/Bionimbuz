@@ -212,7 +212,7 @@ public class StorageService extends AbstractBioService {
                      * Caso não exista um número de cópias igual a REPLICATIONFACTOR inicia as cópias,
                      * enviando uma RPC para o peer que possui o arquivo, para que ele replique.
                      */
-                    String ipPluginFile = getIpContainsFile(fileNamePlugin);
+                        String ipPluginFile = getIpContainsFile(fileNamePlugin);
                     if (!ipPluginFile.isEmpty() && !ipPluginFile.equals(p2p.getConfig().getAddress())) {
                         RpcClient rpcClient = new AvroClient("http", ipPluginFile, PORT);
                         rpcClient.getProxy().notifyReply(fileNamePlugin, ipPluginFile);
@@ -412,14 +412,14 @@ public class StorageService extends AbstractBioService {
             if (!p2p.getConfig().getAddress().equals(ipPluginFile)){
        
                 RpcClient rpcClient = new AvroClient("http", ipPluginFile, PORT);
-                if (rpcClient.getProxy().verifyFile(file, fileuploaded.getPluginId())&&zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(fileuploaded.getPluginId().iterator().next(), fileuploaded.getId(), ""), false)) {
-                    try {                        
-                        rpcClient.getProxy().notifyReply(fileuploaded.getName(), ipPluginFile);
-                        rpcClient.close();
-                        zkService.delete(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileuploaded.getId(), "")); 
-                    } catch (Exception ex) {
-                        Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                try {                        
+                    if (rpcClient.getProxy().verifyFile(file, fileuploaded.getPluginId())&&zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(fileuploaded.getPluginId().iterator().next(), fileuploaded.getId(), ""), false)) {
+                            rpcClient.getProxy().notifyReply(fileuploaded.getName(), ipPluginFile);
+                            zkService.delete(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileuploaded.getId(), "")); 
                     }
+                    rpcClient.close();
+                } catch (Exception ex) {
+                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }else {
                 if (checkFilePeer(fileuploaded)) {

@@ -9,6 +9,8 @@ import java.util.concurrent.Callable;
 
 import br.unb.cic.bionimbus.utils.Pair;
 import java.io.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PluginTaskRunner implements Callable<PluginTask> {
 
@@ -18,6 +20,8 @@ public class PluginTaskRunner implements Callable<PluginTask> {
     private final String path;
     private final ZooKeeperService zkService;
     private final String PATHFILES="data-folder/";
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluginTaskRunner.class.getSimpleName());
+
 
     public PluginTaskRunner(AbstractPlugin plugin, PluginTask task,
                             PluginService service, String path,ZooKeeperService zk) {
@@ -69,11 +73,15 @@ public class PluginTaskRunner implements Callable<PluginTask> {
                 
             }
             while ((line = saidaErro.readLine()) != null) {
-                System.out.println("Job "+task.getJobInfo().getId()+". Erro: "+line);
+                LOGGER.error("ERRO job ID:" + task.getJobInfo().getId()+"-  Arquivo de saída: "+task.getJobInfo().getOutputs()+", Resposta :"+line);
+
             }
             
             if(p.waitFor()==0){
-                task.setTimeExec(((float) (System.currentTimeMillis() - task.getJobInfo().getTimestamp()) / 1000));
+                long time =System.currentTimeMillis();
+                task.setTimeExec(((float) (time - task.getJobInfo().getTimestamp()) / 1000));
+                LOGGER.info("Tempo final do job de saída: "+task.getJobInfo().getOutputs()+" - MileSegundos: " + time);
+
                 task.setState(PluginTaskState.DONE);
             }else {
                 task.setTimeExec(((float) (System.currentTimeMillis() - task.getJobInfo().getTimestamp()) / 1000));
