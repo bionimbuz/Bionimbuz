@@ -391,7 +391,7 @@ public class BioProtoImpl implements BioProto {
         file.setPluginId(dest);
         String pathHome = System.getProperty("user.dir");
         String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
-        file.setPath(pathHome+path+file.getName());
+        file.setPath(path+file.getName());
         try {
             storageService.fileUploaded(file);
         } catch (KeeperException ex) {
@@ -441,5 +441,7 @@ public class BioProtoImpl implements BioProto {
     public void setWatcher(String idPlugin) {
 //        storageService.starWatchers(idPlugin);
     }
+
+ 
 
 }
