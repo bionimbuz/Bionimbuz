@@ -80,13 +80,13 @@ public class ServiceManager {
                         if(zkService.getZNodeExist(ROOT_PEER+SEPARATOR+peer+SEPARATOR+STATUS, false))
                             return;
                     }
+                    zkService.delete(ROOT_PEER);
+                    zkService.delete(LATENCY);
+                    zkService.delete(zkService.getPath().PENDING_SAVE.toString());
+                    zkService.delete(zkService.getPath().JOBS.toString());
                 }
 //                if(!existPeer){
 //                    //apaga os znodes que haviam no servidor
-//                    zkService.delete(ROOT_PEER);
-//                    zkService.delete(LATENCY);
-//                    zkService.delete(zkService.getPath().PENDING_SAVE.toString());
-//                    zkService.delete(zkService.getPath().JOBS.toString());
 //                }
             }
         } catch (KeeperException ex) {
