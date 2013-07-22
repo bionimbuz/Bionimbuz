@@ -409,6 +409,7 @@ public class StorageService extends AbstractBioService {
             file.setFileId(fileuploaded.getId());
             file.setName(fileuploaded.getName());
             file.setSize(fileuploaded.getSize());
+            
             if (!p2p.getConfig().getAddress().equals(ipPluginFile)){
        
                 RpcClient rpcClient = new AvroClient("http", ipPluginFile, PORT);
@@ -566,7 +567,7 @@ public class StorageService extends AbstractBioService {
              * PLuginList ira receber a lista dos Peers disponiveis na federação
              * e que possuem espaço em disco para receber o arquivo a ser replicado
              */
-
+            pluginFile.setPath("data-folder/"+info.getName());
             NodeInfo no = null;
 
             /*

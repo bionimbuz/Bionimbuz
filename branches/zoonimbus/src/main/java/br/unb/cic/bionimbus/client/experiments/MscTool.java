@@ -205,7 +205,7 @@ public class MscTool {
             PluginFile file = new PluginFile();
             file.setId(info.getId());
             file.setName(info.getName());
-            file.setPath(info.getPath());
+            file.setPath("data-folder/"+info.getPath());
             file.setPluginId(info.getPluginId());
             file.setSize(info.getSize());
             collection.add(file);
