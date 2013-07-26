@@ -14,6 +14,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import org.codehaus.jackson.map.ObjectMapper;
 
 public class LinuxGetInfo implements Callable<PluginInfo> {
@@ -59,7 +60,7 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
         pluginInfo.setNumNodes(1);
         pluginInfo.setNumOccupied(getCoresOccupied(nCpus));
         String cpuInfo = execCommand(CPUMHz);
-        pluginInfo.setFrequencyCore((new Double(cpuInfo.substring(cpuInfo.indexOf(":") + 1, cpuInfo.length()).trim())) / 1000);
+        pluginInfo.setFrequencyCore((new Double(cpuInfo.substring(cpuInfo.indexOf(":") + 1, cpuInfo.length()).trim())) / 10000);
     }
 
     /**
@@ -67,86 +68,62 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
      * @return número de cores ocupados
      */
     private int getCoresOccupied(int numCpu){
-//        ArrayList<String> lines= new ArrayList();
-//        String line;
-//        InputStreamReader read;
-//        int nCores =0,indexCPU=0,i=4,cpuUsage,cpuUsageMax=80;
-//        try {
-//            read = new InputStreamReader(Runtime.getRuntime().exec(CORES).getInputStream());
-//            TimeUnit.SECONDS.sleep(3);
-//
-//            BufferedReader buffer = new BufferedReader(read);
-//            while((line = buffer.readLine())!=null){
-//                lines.add(line.trim());
-//                if(line.contains("%usr")){
-//                    indexCPU = line.indexOf("%usr");
-//                }
-//            }
-//            while(lines.size()>i){
-//                cpuUsage = new Integer(lines.get(i).substring(indexCPU-1, indexCPU+5).substring(0,2));
-//                if(cpuUsage>cpuUsageMax){
-//                    nCores++;
-//                }
-//                i++;
-//            }
-//        } catch (Exception ex) {
-//            Logger.getLogger(LinuxGetInfo.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-            int nCpuOccupied=0;
-            try {
-                InputStreamReader read ;
-                BufferedReader buffer ;
-                List<Integer> linesCPU= new ArrayList<Integer>(numCpu);
-                String[] columns,lines;
-                String line;
-                int count=0,i=0;
-                
-                Process p = Runtime.getRuntime().exec("dstat -cf");
-                read = new InputStreamReader(p.getInputStream());
-                buffer = new BufferedReader(read);
-                while((line = buffer.readLine())!=null && count<(numCpu+4)){
-                    if(count>=3){
-                        columns = line.trim().split(":");
-                        for(int j=0; j<numCpu;j++){
-                            lines = columns[j].trim().split(" ");
-                            if(i!=0){
-                                linesCPU.set(j,new Integer(lines[0])+linesCPU.get(j));
-                            }else{
-                                linesCPU.add(j,new Integer(lines[0]));
+        int nCpuOccupied=0;
+        try {
+            InputStreamReader read ;
+            BufferedReader buffer ;
+            List<Integer> linesCPU= new ArrayList<Integer>(numCpu);
+            String[] columns,lines;
+            String line;
+            int count=0,i=0;
 
-                            }
+            Process p = Runtime.getRuntime().exec("dstat -cf");
+            read = new InputStreamReader(p.getInputStream());
+            buffer = new BufferedReader(read);
+            
+            while((line = buffer.readLine())!=null && count<(numCpu+4)){
+                if(count>=3){
+                    columns = line.trim().split(":");
+                    for(int j=0; j<numCpu;j++){
+                        lines = columns[j].trim().split(" ");
+                        if(i!=0){
+                            linesCPU.set(j,new Integer(lines[0])+linesCPU.get(j));
+                        }else{
+                            linesCPU.add(j,new Integer(lines[0]));
 
                         }
-                    i++;
-                    }
-                    count++;
-                }
-                //finaliza a execução
-                p.destroy();
 
-                for(i=0; i<numCpu;i++){
-                    if((linesCPU.get(i)/3)>80){
-                        nCpuOccupied++;
                     }
+                i++;
                 }
-            
-            } catch (IOException ex) {
-                Logger.getLogger(LinuxGetInfo.class.getName()).log(Level.SEVERE, null, ex);
+                count++;
             }
-        
-        
+            //finaliza a execução
+            p.destroy();
+
+            for(i=0; i<numCpu;i++){
+                if((linesCPU.get(i)/3)>80){
+                    nCpuOccupied++;
+                }
+            }
+
+        } catch (IOException ex) {
+            Logger.getLogger(LinuxGetInfo.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+
         return nCpuOccupied;
     }
     
     /**
      * Obtem as informações da memória RAM do recurso e realiza o setter dessa informações na classe pluginInfo.
-     * Memória total e memória livre em MegaBytes.
+     * Memória total e memória livre em GigaBytes(Retorno da eexcução em KB / 1024²).
      */
     private void getMemoryInfo() {
         String mem = execCommand(MemTotal);
-        pluginInfo.setMemoryTotal((new Double(mem.substring(mem.indexOf(":") + 1, mem.length() - 2).trim()) / 1024));
+        pluginInfo.setMemoryTotal((new Double(mem.substring(mem.indexOf(":") + 1, mem.length() - 2).trim()) / 1048576));
         mem = execCommand(MemFree);
-        pluginInfo.setMemoryFree((new Double(mem.substring(mem.indexOf(":") + 1, mem.length() - 2).trim()) / 1024));
+        pluginInfo.setMemoryFree((new Double(mem.substring(mem.indexOf(":") + 1, mem.length() - 2).trim()) / 1048576));
     }
 
     /**
