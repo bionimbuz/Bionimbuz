@@ -361,7 +361,7 @@ public class AcoSched extends SchedPolicy {
         Double p = 0.01;
         
         for(PluginInfo plugin : listPlugin){
-            LOGGER.debug("\n\nAntes do theBestPheromone peer:("+plugin.getId()+") - "+mapAcoDatas.get(plugin.getId().toString()) );
+            LOGGER.info("\n\nAntes do theBestPheromone peer:("+plugin.getId()+") - "+mapAcoDatas.get(plugin.getId().toString()) );
             Double pheronome = mapAcoDatas.get(plugin.getId()).get(0);
             //Altera somente os valores dos feromonios já calculados
             if(pheronome != null && pheronome!=0d){
@@ -370,7 +370,7 @@ public class AcoSched extends SchedPolicy {
                 mapAcoDatas.get(plugin.getId()).set(0,pheronome);
                 setDatasZookeeper(plugin.getPath_zk(), SCHED, mapAcoDatas.get(plugin.getId()).toString());
             }
-            LOGGER.debug("\nDepois do theBestPheromone peer:("+plugin.getId()+") - "+mapAcoDatas.get(plugin.getId().toString()) +"\n");
+            LOGGER.info("\nDepois do theBestPheromone peer:("+plugin.getId()+") - "+mapAcoDatas.get(plugin.getId().toString()) +"\n");
         }
         
     }
@@ -415,7 +415,7 @@ public class AcoSched extends SchedPolicy {
         Double capacityComputing = (Math.pow( capacityPlugin(plugin),datas.get(4)) );
         Double loadBalacing = Math.pow( loadBalancingPlugin(plugin),datas.get(5));
 
-        Double capacityMemory = (Math.pow( (plugin.getMemoryTotal()),datas.get(6)));
+        Double capacityMemory = (Math.pow( (plugin.getMemoryFree()),datas.get(6)));
 
 //        Double capacityMemory = getRound(Math.pow( getRound(plugin.getMemoryFree()),datas.get(6)));
         //((Double)Math.pow(((Float)datas.get(2)).doubleValue(), ((Float)datas.get(5)).doubleValue() )).floatValue()
@@ -447,10 +447,14 @@ public class AcoSched extends SchedPolicy {
      * @return
      */
     private Double loadBalancingPlugin(PluginInfo plugin){
-        Double temp = timeExpectedExecJob(plugin)+timeLastAverageJob();
+        Double timeExpected = timeExpectedExecJob(plugin);
+        Double timeAverage = timeLastAverageJob();
+        Double temp1 = (timeExpected-timeAverage<0 ? (-(timeExpected-timeAverage)) : (timeExpected-timeAverage));
+        Double temp2 = timeExpectedExecJob(plugin)+timeLastAverageJob();
         Double um = 1d;
-        if(temp != 0d && !temp.isNaN()){
-            return  um - (timeExpectedExecJob(plugin)-timeLastAverageJob()) / temp;
+        
+        if(temp2 != 0d && !temp2.isNaN()){
+            return  um - (temp1 / temp2);
             
         }else{
             return um;
@@ -460,7 +464,7 @@ public class AcoSched extends SchedPolicy {
     }
 
     /**
-     * Define o tempo de execução esperado para a tarefapasta 
+     * Define o tempo de execução esperado para a tarefa.
      *
      * @param plugin
      * @param job
@@ -474,7 +478,7 @@ public class AcoSched extends SchedPolicy {
     }
 
     /**
-     * Define o tempo médio de execução da última iteração nas VMS
+     * Define o tempo médio de execução da última iteração nas VMS.
      *
      * @param plugin
      * @return tempo
@@ -562,7 +566,7 @@ public class AcoSched extends SchedPolicy {
      */
     private void setMapAcoDatasZooKeeper(List<PluginInfo> listClouds){
         for (PluginInfo plugin : listClouds) {
-            LOGGER.debug("\nValores do AcoSched - "+mapAcoDatas.get(plugin.getId()).toString()+"\n");
+//            LOGGER.info("\nValores do AcoSched - "+mapAcoDatas.get(plugin.getId()).toString()+"\n");
             setDatasZookeeper(plugin.getPath_zk(), SCHED, mapAcoDatas.get(plugin.getId()).toString());
         }
     }
