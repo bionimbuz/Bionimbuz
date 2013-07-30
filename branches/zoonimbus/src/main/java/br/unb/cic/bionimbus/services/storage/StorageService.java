@@ -388,6 +388,7 @@ public class StorageService extends AbstractBioService {
             }
             return true;
         }
+        System.out.println("\n\n arquivo nao encontrado no peer"+p2p.getConfig().getId());
         return false;
     }
 
@@ -772,21 +773,23 @@ public class StorageService extends AbstractBioService {
                             StringBuilder info = new StringBuilder(zkService.getData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), null));
 
                             //verifica se recurso já foi recuperado ou está sendo recuperado por outro recurso
-                            if (!info.toString().contains("S") && !info.toString().contains("L")) {
+                            if (!info.toString().contains("S") /*&& !info.toString().contains("L")*/) {
 
                             //bloqueio para recuperar tarefas sem que outros recursos realizem a mesma operação
-                            zkService.setData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), info.append("L").toString());
+                           // zkService.setData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), info.append("L").toString());
 
                                 //Verificar pluginid para gravar
                                 for (PluginFile fileExcluded : getFilesPeer(peerId)) {
                                     String idPluginExcluded = null;
                                     for (String idPlugin : fileExcluded.getPluginId()) {
-                                        if (peerId.equals(idPlugin)) {
+                                        if (peerId.equals(idPlugin)&&!idPlugin.equals(p2p.getConfig().getId())) {
                                             idPluginExcluded = idPlugin;
                                             break;
                                         }
                                     }
-                                    fileExcluded.getPluginId().remove(idPluginExcluded);
+                                    
+                                     if (fileExcluded.getPluginId().size()>1) 
+                                        fileExcluded.getPluginId().remove(idPluginExcluded);
 
                                     setPendingFile(fileExcluded);
                                     fileExcluded.setService("storagePeerDown");
@@ -794,7 +797,7 @@ public class StorageService extends AbstractBioService {
                                 }
 
                                 //retira bloqueio de uso e adiciona marcação de recuperação
-                                info.deleteCharAt(info.indexOf("L"));
+                            //    info.deleteCharAt(info.indexOf("L"));
                                 info.append("S");
                                 zkService.setData(zkService.getPath().STATUSWAITING.getFullPath(peerId, "", ""), info.toString());
 
