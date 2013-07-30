@@ -409,12 +409,17 @@ public class StorageService extends AbstractBioService {
             file.setFileId(fileuploaded.getId());
             file.setName(fileuploaded.getName());
             file.setSize(fileuploaded.getSize());
-            
+            String idPluginFile=null;
+            for(String idPlugin : fileuploaded.getPluginId()){
+                idPluginFile=idPlugin;
+                break;
+            }
+            System.out.println("(FileUploaded)IdPluginFile: "+idPluginFile);
             if (!p2p.getConfig().getAddress().equals(ipPluginFile)){
        
                 RpcClient rpcClient = new AvroClient("http", ipPluginFile, PORT);
                 try {                        
-                    if (rpcClient.getProxy().verifyFile(file, fileuploaded.getPluginId())&&zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(fileuploaded.getPluginId().iterator().next(), fileuploaded.getId(), ""), false)) {
+                    if (rpcClient.getProxy().verifyFile(file, fileuploaded.getPluginId())&&zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(idPluginFile,fileuploaded.getId(), ""), false)) {
                             rpcClient.getProxy().notifyReply(fileuploaded.getName(), ipPluginFile);
                             zkService.delete(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileuploaded.getId(), "")); 
                     }
@@ -424,7 +429,7 @@ public class StorageService extends AbstractBioService {
                 }
             }else {
                 if (checkFilePeer(fileuploaded)) {
-                    if (zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(fileuploaded.getPluginId().iterator().next(), fileuploaded.getId(), ""), true)&&!existReplication(file.getName())){
+                    if (zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(idPluginFile, fileuploaded.getId(), ""), true)&&!existReplication(file.getName())){
                         try {
                                  replication(file.getName(), p2p.getConfig().getAddress());
                                  if(existReplication(file.getName())){
@@ -662,6 +667,8 @@ public class StorageService extends AbstractBioService {
                     nodesdisp.add(node);
                 }
             } catch (IOException ex) {
+                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InterruptedException ex) {
                 Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
