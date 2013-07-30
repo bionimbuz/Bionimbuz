@@ -10,6 +10,7 @@ import java.io.File;
 import br.unb.cic.bionimbus.client.shell.Command;
 import br.unb.cic.bionimbus.client.shell.SimpleShell;
 import br.unb.cic.bionimbus.services.storage.Ping;
+import br.unb.cic.bionimbus.utils.Nmap;
 import br.unb.cic.bionimbus.utils.Put;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -62,7 +63,10 @@ public class Upload implements Command {
                      * espaço livre para receber o arquivo
                      */
                     if ((long) (plugin.getFreesize() * MAXCAPACITY) > info.getSize()) {
+
                         plugin.setLatency(Ping.calculo(plugin.getAddress()));
+                        if(plugin.getLatency().equals(Double.MAX_VALUE))
+                           plugin.setLatency(Nmap.nmap(plugin.getAddress()));
                         nodesdisp.add(plugin);
                     }
                 }
