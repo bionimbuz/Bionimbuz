@@ -132,7 +132,6 @@ public class SchedService extends AbstractBioService implements Service, P2PList
             zkService.getChildren(JOBS, new UpdatePeerData(zkService, this));
             zkService.getData(JOBS, new UpdatePeerData(zkService, this));
             zkService.getChildren(ROOT_PEER, new UpdatePeerData(zkService, this));
-            zkService.getChildren(LATENCY, new UpdatePeerData(zkService, this));
 
 
             checkMyPlugin();
@@ -195,6 +194,8 @@ public class SchedService extends AbstractBioService implements Service, P2PList
                     LOGGER.info("JobID: " + jobInfo.getId() + " não escalonado");
                 }
             }
+            //chamada recursiva para escalonar todos os jobs enviados, só é chamada após um
+//            scheduleJobs();
         }
     }
 
@@ -204,38 +205,34 @@ public class SchedService extends AbstractBioService implements Service, P2PList
      * @param ip informado, se esse ip for correspondente ao plugin atual.
      * @param ip que deve calcular a latência
      */
-    private void setLatencyPlugins(String ip) {
-        if (myLinuxPlugin.getMyInfo().getHost().getAddress().equals(ip)) {
-            try {
-                for (PluginInfo plugin : getPeers().values()) {
-                    plugin.setLatency(Ping.calculo(plugin.getHost().getAddress()));
-                    
-                    zkService.setData(zkService.getPath().PREFIX_PEER.getFullPath(plugin.getId(), "", ""), plugin.toString());
-                }
-
-                zkService.delete(LATENCY + SCHED);
-            } catch (KeeperException ex) {
-                java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InterruptedException ex) {
-                java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
-                java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-
-    private void requestLatency(String ip) {
+    public void setLatencyPlugins(JobInfo job) {
+        
+        HashMap<String,Double> pluginIdLatency = new  HashMap<String,Double>();
         try {
-            while (zkService.getZNodeExist(LATENCY + SCHED, false)) {
-                TimeUnit.SECONDS.sleep(2);
+            for (PluginInfo plugin : getPeers().values()) {
+                //calcula a latencia e regula para segundos
+                pluginIdLatency.put(plugin.getId(),Ping.calculo(plugin.getHost().getAddress())/1000);
+
             }
-            zkService.createEphemeralZNode(LATENCY + SCHED, ip);
-        } catch (KeeperException ex) {
-            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
+            zkService.createPersistentZNode(zkService.getPath().PREFIX_JOB.getFullPath("", "", job.getId())+LATENCY, new ObjectMapper().writeValueAsString(pluginIdLatency));
+
+        } catch (IOException ex) {
             java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+//    private void requestLatency(String ip) {
+//        try {
+//            while (zkService.getZNodeExist(LATENCY + SCHED, false)) {
+//                TimeUnit.SECONDS.sleep(2);
+//            }
+//            zkService.createEphemeralZNode(LATENCY + SCHED, ip);
+//        } catch (KeeperException ex) {
+//            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (InterruptedException ex) {
+//            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//    }
 
     /**
      * Rotinas para auxiliar escalonamento,chamado caso seja necessário cancelar
@@ -572,9 +569,9 @@ public class SchedService extends AbstractBioService implements Service, P2PList
      */
     private void checkTasks() {
         try {
-            if (!waitingTask.isEmpty()) {
+            if (waitingTask!=null && !waitingTask.isEmpty()) {
                 for (Pair<PluginInfo, PluginTask> pair : waitingTask.values()) {
-                    if (pair.first.equals(myLinuxPlugin.getMyInfo())) {
+                    if (pair.first.getHost().getAddress().equals(myLinuxPlugin.getMyInfo().getHost().getAddress())) {
                         if (pair.second.getState() == PluginTaskState.WAITING) {
                             executeTasks(pair.second);
                         }
@@ -583,6 +580,15 @@ public class SchedService extends AbstractBioService implements Service, P2PList
                         finalizeTask(pair.second);
                     }
                 }
+            }
+            if(pendingJobs!=null &&  !pendingJobs.isEmpty()){
+                System.out.println("(checkTasks)>>Tamanho da lista de JOBS para execução :  "+getPendingJobs().size());
+                for(JobInfo job : pendingJobs.values()){
+                    if(!zkService.getZNodeExist(JOBS+PREFIX_JOB+job.getId()+LATENCY, true)){
+                        setLatencyPlugins(job);
+                    }
+                }
+                scheduleJobs();
             }
         } catch (Exception ex) {
             java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
@@ -596,13 +602,15 @@ public class SchedService extends AbstractBioService implements Service, P2PList
      * @param task
      */
     private void executeTasks(PluginTask task) throws Exception {
+        System.out.println("Recebimento do pedido de execução da tarefa!");
         //TODO otimiza chamada de checage dos arquivos
         checkFilesPlugin();
         //verifica se o arquivo existe no plugin se não cria a solicitação de transfêrencia do arquivo
         if (!existFilesCloud(task.getJobInfo().getInputs())) {
-            if (task.getState() == PluginTaskState.PENDING) {
-                task.setState(PluginTaskState.WAITING);
-            }
+//            if (task.getState() == PluginTaskState.PENDING) {
+//                task.setState(PluginTaskState.WAITING);
+//            }
+            task.setState(PluginTaskState.ERRO);
             return;
         }
         if (!existFiles(task.getJobInfo().getInputs())) {
@@ -733,8 +741,9 @@ public class SchedService extends AbstractBioService implements Service, P2PList
                 case NodeChildrenChanged:
 
                     String datas;
+                    //reconhece um alerta de um novo job
                     if (eventType.getPath().contains(JOBS)) {
-
+                        System.out.println(">>>>>>Recebimento de um alerta para um job, NodeChildrenChanged<<<<<");
                         List<String> children;
                         children = zkService.getChildren(eventType.getPath(), null);
                         if (!children.isEmpty()) {
@@ -743,23 +752,29 @@ public class SchedService extends AbstractBioService implements Service, P2PList
                                 datas = zkService.getData(eventType.getPath() + "/" + child, null);
                                 JobInfo job = mapper.readValue(datas, JobInfo.class);
 
-                                //rotina para criar bloqueio para que nenhuma outra máquina selecione o job para escalonar
-                                if (!zkService.getZNodeExist(zkService.getPath().LOCK_JOB.getFullPath("", "", job.getId()), true)) {
-                                    String result = zkService.createEphemeralZNode(zkService.getPath().LOCK_JOB.getFullPath("", "", job.getId()), "");
-                                    if (result != null) {
+                                //rotina para criar bloqueio para que nenhuma outra máquina selecione o job para escalonar       ->>>comentado para verificar problema de concorrência
+//                                if (!zkService.getZNodeExist(zkService.getPath().LOCK_JOB.getFullPath("", "", job.getId()), true)) {
+                                if(job.getLocalId().equals(myLinuxPlugin.getMyInfo().getHost().getAddress())){
+//                                    String result = zkService.createEphemeralZNode(zkService.getPath().LOCK_JOB.getFullPath("", "", job.getId()), "");
+                                    setLatencyPlugins(job);
+//                                    if (result != null) {
                                         if (!getPendingJobs().containsKey(job.getId())) {
                                             getPendingJobs().put(job.getId(), job);
+                                            System.out.println("(NodeChildrenChanged)>>Tamanho da lista de JOBS para execução :  "+getPendingJobs().size());
                                         }
-                                    }
+//                                    }
                                 }
                             }
                             if (!getPendingJobs().isEmpty()) {
-                                requestLatency(getFilesIP(AcoSched.getBiggerInputJob(AcoSched.getBiggerJob(getPendingJobs().values()))));
+                                scheduleJobs();
                             }
 
                         }
 
                     } else if (eventType.getPath().contains(SCHED + TASKS)) {
+                            System.out.println(">>>>>>Recebimento de um alerta para uma TAREFA, NodeChildrenChanged<<<<<");
+
+                        
                         //verifica qual foi o job colocado para ser executado 
                         PluginTask pluginTask = getNewTask(eventType.getPath());
                         //verifica se um existe algum novo pluginTask
@@ -768,25 +783,25 @@ public class SchedService extends AbstractBioService implements Service, P2PList
                                 executeTasks(pluginTask);
                             }
                         } else if (!waitingTask.isEmpty()) {
-                            checkStatusTask();
+                                checkStatusTask();
                         }
 
                     } else if (eventType.getPath().contains(zkService.getPath().FILES.toString())) {
                             checkFilesPlugin();
-                    } else if (eventType.getPath().contains(LATENCY) && (zkService.getZNodeExist(LATENCY + SCHED, false))) {
-                                setLatencyPlugins(zkService.getData(LATENCY + SCHED, null));
-                                scheduleJobs();
 
                     } else if (eventType.getPath().equals(ROOT_PEER)) {
-                        if (cloudMap.size() < getPeers().size()) {
-                            verifyPlugins();
-                        }
+                            if (cloudMap.size() < getPeers().size()) {
+                                verifyPlugins();
+                            }
                     }
 
                     break;
                 case NodeDataChanged:
+                    //reconhece o alerta como uma mudança na política de escalonamento
                     if (eventType.getPath().contains(JOBS) && !eventType.getPath().contains(PREFIX_JOB)) {
                         setPolicy();
+                    
+                        //reconhece a mudança no estado da tarefa
                     } else if (zkService.getZNodeExist(eventType.getPath(), false)) {
                         datas = zkService.getData(eventType.getPath(), null);
                         PluginTask pluginTask = (PluginTask) convertString(PluginTask.class, datas);

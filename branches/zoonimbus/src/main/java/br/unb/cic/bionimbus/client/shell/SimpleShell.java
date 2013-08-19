@@ -32,6 +32,7 @@ public final class SimpleShell {
     }
     private boolean connected = false;
     private BioProto proxy;
+    private String ip;
 
     public SimpleShell() {
         //whereami - prints the host it's connected to
@@ -125,6 +126,13 @@ public final class SimpleShell {
         }
     }
 
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+    public String getIp() {
+        return this.ip;
+    }
+    
     public void setConnected(boolean connected) {
         this.connected = connected;
     }

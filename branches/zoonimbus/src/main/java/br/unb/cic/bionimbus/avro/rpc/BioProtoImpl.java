@@ -16,6 +16,7 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,6 +96,7 @@ public class BioProtoImpl implements BioProto {
     @Override
     public String statusAllJob() throws AvroRemoteException {
         StringBuilder allJobs = new StringBuilder();
+        int i=1;
         try {
             //verificação dos jobs ainda não escalonados
             List<String> jobs = zkService.getChildren(zkService.getPath().JOBS.getFullPath("", "", ""), null);
@@ -104,8 +106,9 @@ public class BioProtoImpl implements BioProto {
                         String jobData = zkService.getData(zkService.getPath().PREFIX_JOB.getFullPath("","",job.substring(4,job.length())),null);
                         if(jobData!=null){
                             JobInfo jobInfo = mapper.readValue(jobData, JobInfo.class);
-                                allJobs.append("Job ").append(jobInfo.getId()).append(" Ainda não escalonado.\n ");
+                                allJobs.append(i).append(" - Job ").append(jobInfo.getId()).append(" Ainda não escalonado.\n ");
                         }
+                        i++;
                     }
                 
             }
@@ -117,8 +120,9 @@ public class BioProtoImpl implements BioProto {
                     datasTask = zkService.getData(zkService.getPath().PREFIX_TASK.getFullPath(plugin.getId(),"",task.substring(5, task.length())),null);
                     if(datasTask!=null){
                         PluginTask pluginTask = mapper.readValue(datasTask, PluginTask.class);
-                        allJobs.append("Job ").append(pluginTask.getJobInfo().getId().toString()).append(" : ").append(pluginTask.getState().toString()).append("\n ");
+                        allJobs.append(i).append(" - Job ").append(pluginTask.getJobInfo().getId().toString()).append(" : ").append(pluginTask.getState().toString()).append("\n ");
                     }
+                    i++;
                 }
             }
                     
@@ -251,11 +255,11 @@ public class BioProtoImpl implements BioProto {
         }
         
         
-        return "Política Atual: "+listPolicy.get(numPolicy).getPolicyName()+"\nPolíticas Disponíveis: "+politicys;
+        return "\nPolítica Atual: "+listPolicy.get(numPolicy).getPolicyName()+"\n\nPolíticas Disponíveis: "+politicys;
     }
     
     @Override
-    public String startJobName(String param) throws AvroRemoteException {
+    public String startJobName(String param, String ip) throws AvroRemoteException {
         final String path = "/jobs/job_";
         JobInfo job = new JobInfo();
         String params[] = param.split(" ");
@@ -263,6 +267,7 @@ public class BioProtoImpl implements BioProto {
         int i=1;
             
         job.setServiceId(Long.parseLong(jobId));
+        job.setLocalId(ip);
         job.setTimestamp(System.currentTimeMillis());
         while (i < params.length) {
             if (i == 1) {
@@ -294,13 +299,20 @@ public class BioProtoImpl implements BioProto {
     }
 
     @Override
-    public String startJob(List<br.unb.cic.bionimbus.avro.gen.JobInfo> listJob) throws AvroRemoteException {
+    public String startJob(List<br.unb.cic.bionimbus.avro.gen.JobInfo> listJob, String ip) throws AvroRemoteException {
         //inclusão do job para ser escalonado
         
         for (br.unb.cic.bionimbus.avro.gen.JobInfo job: listJob){
             job.setTimestamp(System.currentTimeMillis());
             zkService.createPersistentZNode(zkService.getPath().PREFIX_JOB.getFullPath("", "", job.getId()) , job.toString());
             LOGGER.info("Tempo de inicio do job -"+ job.getOutputs()+"- MileSegundos: " + job.getTimestamp());
+            //tempo adicionado para latencia poder ser calculada
+            try {
+                TimeUnit.SECONDS.sleep(10);
+            } catch (InterruptedException ex) {
+                java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
         }
 
         return "Job enviado para o escalonamento. Aguarde...";

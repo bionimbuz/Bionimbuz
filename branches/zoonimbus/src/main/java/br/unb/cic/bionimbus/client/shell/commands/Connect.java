@@ -33,6 +33,7 @@ public class Connect implements Command {
         
         if(rpcClient.getProxy().ping()){
             shell.print("Client is true");
+            shell.setIp(hostname);
         }
         
         shell.setRpcClient(rpcClient);

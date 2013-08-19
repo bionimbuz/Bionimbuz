@@ -27,7 +27,7 @@ public class JobStart implements Command {
         }
         
         BioProto proxy = shell.getProxy();
-        return proxy.startJobName(param.toString());
+        return proxy.startJobName(param.toString(), shell.getIp());
 
 /*        if (!shell.isConnected())
             throw new IllegalStateException(

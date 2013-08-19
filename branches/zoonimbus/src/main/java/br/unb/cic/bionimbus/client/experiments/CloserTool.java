@@ -227,7 +227,7 @@ public class CloserTool {
 
         LOG.info("Enviando " + jobList.size() + " jobs.");
 //        comm.sendReq(new JobReqMessage(p2p.getPeerNode(), jobList), P2PMessageType.JOBRESP);
-        String saida = rpcClient.getProxy().startJob(jobList);
+        String saida = rpcClient.getProxy().startJob(jobList,"");
         
         LOG.info("Job " + saida + " started succesfully");
     }

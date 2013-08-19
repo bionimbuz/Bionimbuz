@@ -22,7 +22,6 @@ public class ServiceManager {
     private final RpcServer rpcServer;
     
     private static final String ROOT_PEER = "/peers";
-    private static final String LATENCY = "/latency";
 
     private static final String SEPARATOR = "/";
     private static final String PREFIX_PEERS = ROOT_PEER+SEPARATOR+"peer_";
@@ -53,9 +52,7 @@ public class ServiceManager {
     public void createZnodeZK(String id) throws IOException, InterruptedException, KeeperException {
         if (zkService.getStatus() == ZooKeeperService.Status.CONNECTED) {
            
-            zkService.createPersistentZNode(ROOT_PEER, null);
-            
-            zkService.createPersistentZNode(LATENCY, null);
+            zkService.createPersistentZNode(ROOT_PEER, "10");
             
            //criando zNode persistente para cada novo peer
            zkService.createPersistentZNode(PREFIX_PEERS+ id, null);
@@ -81,7 +78,6 @@ public class ServiceManager {
                             return;
                     }
                     zkService.delete(ROOT_PEER);
-                    zkService.delete(LATENCY);
                     zkService.delete(zkService.getPath().PENDING_SAVE.toString());
                     zkService.delete(zkService.getPath().JOBS.toString());
                 }
