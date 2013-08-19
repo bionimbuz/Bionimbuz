@@ -324,6 +324,6 @@ public class AHPPolicy extends SchedPolicy {
 
     @Override
     public String getPolicyName() {
-        return "Name: DynamicAHP  -  "+ AHPPolicy.class.getSimpleName()+" - Número: 1";
+        return "Name: "+ AHPPolicy.class.getSimpleName()+" - Número: 1";
     }
 }

@@ -60,7 +60,7 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
         pluginInfo.setNumNodes(1);
         pluginInfo.setNumOccupied(getCoresOccupied(nCpus));
         String cpuInfo = execCommand(CPUMHz);
-        pluginInfo.setFrequencyCore((new Double(cpuInfo.substring(cpuInfo.indexOf(":") + 1, cpuInfo.length()).trim())) / 10000);
+        pluginInfo.setFrequencyCore((new Double(cpuInfo.substring(cpuInfo.indexOf(":") + 1, cpuInfo.length()).trim())) / 100000);
     }
 
     /**

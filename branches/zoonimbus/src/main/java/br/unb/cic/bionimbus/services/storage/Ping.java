@@ -42,7 +42,7 @@ public class Ping {
             /*
              * Para uma latência mais exata preferimos pingar 3 pacotes no IP e pegar a média.
              */
-            TimeUnit.MILLISECONDS.sleep(3);
+            TimeUnit.MILLISECONDS.sleep(10);
         } catch (InterruptedException ex) {
             Logger.getLogger(Ping.class.getName()).log(Level.SEVERE, null, ex);
         }

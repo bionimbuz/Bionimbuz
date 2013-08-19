@@ -27,7 +27,8 @@ public class MscTool {
     private static final Logger LOG = LoggerFactory.getLogger(MscTool.class);
 //    private static StringBuilder result = new  StringBuilder();
 
-    RpcClient rpcClient;
+    private RpcClient rpcClient;
+    private BioNimbusConfig config ;
 
     public MscTool() {
         initCommunication();
@@ -35,7 +36,6 @@ public class MscTool {
 
     private void initCommunication() {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        BioNimbusConfig config ;
         
         try {
 
@@ -221,7 +221,7 @@ public class MscTool {
             br.unb.cic.bionimbus.avro.gen.JobInfo job = new br.unb.cic.bionimbus.avro.gen.JobInfo();
             job.setArgs(jobInfo.getArgs());
             job.setId(jobInfo.getId());
-            job.setLocalId("");
+            job.setLocalId(config.getHost().getAddress());
             job.setServiceId(jobInfo.getServiceId());
             job.setTimestamp(jobInfo.getTimestamp());
             List<Pair> listPair =  new ArrayList<Pair>();
@@ -237,7 +237,7 @@ public class MscTool {
             listjob.add(job);
         }
 
-        rpcClient.getProxy().startJob(listjob);
+        rpcClient.getProxy().startJob(listjob, "");
     }
 
     public void printResult() {

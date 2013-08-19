@@ -18,7 +18,7 @@ public class MscPipeline implements Pipeline {
 
     public MscPipeline(PluginFile file) {
         input = file;
-        outputFiles.add(input.getName() + "-align.sam");
+        outputFiles.add(input.getName() + "-align-1.sam");
         outputFiles.add(input.getName() + "-align.bed");
         outputFiles.add(input.getName() + "-interv.out");
         outputFiles.add(input.getName() + "-coverage.out");
@@ -35,6 +35,18 @@ public class MscPipeline implements Pipeline {
         job.addOutput(outputFiles.get(0));
         jobs.add(job);
 
+        // bowtie 2
+//        job = new JobInfo();
+//        job.setArgs("%I1%I2%O1");
+//        job.setTimestamp(0l);
+////        job.setId(null);
+//        job.setServiceId(1111);
+//        job.addInput(input.getId(), input.getSize());
+//        // AQUI VOCE TEM QUE COLOCAR O ID DO ARQUIVO s1.fa
+//        job.addInput("s1.fa", new Long(114503237));
+//        job.addOutput(outputFiles.get(1));
+//        jobs.add(job);
+        
         // sam2bed
         job = new JobInfo();
         job.setArgs("%I1%O1");
@@ -43,6 +55,7 @@ public class MscPipeline implements Pipeline {
         job.setServiceId(1112);
         job.addOutput(outputFiles.get(1));
         jobs.add(job);
+      
 
         // genome2interval
         job = new JobInfo();

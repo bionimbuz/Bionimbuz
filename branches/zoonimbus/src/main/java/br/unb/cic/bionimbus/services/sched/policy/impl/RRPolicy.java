@@ -98,6 +98,6 @@ public class RRPolicy extends SchedPolicy {
     
     @Override
     public String getPolicyName() {
-        return "Name: Round Robin Policy  -  "+ RRPolicy.class.getSimpleName()+" - Número: 2";
+        return "Name: "+ RRPolicy.class.getSimpleName()+" - Número: 2";
     }
 }
