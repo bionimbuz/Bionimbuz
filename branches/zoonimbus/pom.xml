@@ -347,7 +347,6 @@
             <artifactId>metrics-servlets</artifactId>
             <version>${metrics.version}</version>
         </dependency>
-        
         <dependency>
 		  <groupId>org.xerial.snappy</groupId>
 		  <artifactId>snappy-java</artifactId>
@@ -355,6 +354,5 @@
 		  <type>jar</type>
 		  <scope>compile</scope>
 		</dependency>
-
     </dependencies>
 </project>
