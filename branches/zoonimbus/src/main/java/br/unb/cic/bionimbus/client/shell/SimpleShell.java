@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  */
 public final class SimpleShell {
 
-    private static final String GREETINGS = "Welcome to BioNimbus shell\nversion 0.0.2";
+    private static final String GREETINGS = "Welcome to BioNimbus shell\nversion 0.0.3";
     private static final String PROMPT = "[@bionimbus]$ ";
     private static final Map<String, Command> commandMap = new HashMap<String, Command>();
     public static History history = new History(10);
@@ -59,6 +59,8 @@ public final class SimpleShell {
         commandMap.put("script", new ScriptRunner(this));
         commandMap.put(Upload.NAME, new Upload(this));
         commandMap.put(Download.NAME, new Download(this));
+        commandMap.put(CreateInstance.NAME, new CreateInstance(this));
+        commandMap.put(ListInstances.NAME, new ListInstances(this));
     }
 
     public void registerCommand(Command command) {
