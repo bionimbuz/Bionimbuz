@@ -2,6 +2,8 @@ package br.unb.cic.bionimbus.services.files;
 
 import br.unb.cic.bionimbus.services.storage.file.FileService;
 import junit.framework.TestCase;
+
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -12,6 +14,7 @@ import java.io.IOException;
  * User: edward
  * To change this template use File | Settings | File Templates.
  */
+@Ignore //These tests cannot run in the Continuous Integration Enviroment
 public class FileServiceTest extends TestCase {
 
     @Test
