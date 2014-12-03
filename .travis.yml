@@ -9,5 +9,4 @@ env:
 - TERM=dumb
 
 after_success:
-- mvn jacocoTestReport coveralls
-- mvn cobertura coveralls
+- mvn clean cobertura:cobertura org.eluder.coveralls:coveralls-maven-plugin:report
