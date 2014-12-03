@@ -5,3 +5,6 @@
 /target/
 
 biofoco.log
+/bin/
+
+.classpath
