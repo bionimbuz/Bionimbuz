@@ -5,3 +5,78 @@ image:https://travis-ci.org/bionimbuz/Bionimbuz.svg?branch=master["Build Status"
 image:http://img.shields.io/coveralls/bionimbuz/Bionimbuz/master.svg["Coverage Status", link="https://coveralls.io/r/bionimbuz/Bionimbuz?branch=master"]
 
 Plataforma de Federação de Nuvens
+
+--Configurar a amazon para acessar ssh sem a pem--
+
+1- acessar a maquina na amazon
+ssh -i zoonimbuskey.pem ubuntu@54.213.0.109
+
+2-sudo su , com o root acesse o arquivo sshd_conf
+nano /etc/ssh/sshd_config 
+e adicione a linha na parte de Authentification 
+
+PasswordAuthentication yes
+comentar as linhas
+#RSAAuthentication yes
+#PubkeyAuthentication yes
+
+ctrl+o, enter, ctrl+x
+
+3- sudo /etc/init.d/ssh restart
+
+criar usuário zoonimbus, senha: 
+Adicionar o usuario zoonimbus
+sudo adduser zoonimbus sudo
+liberar as portas : 2181,9999,80,8080,9191,22
+
+Ordem dos comandos de instalação
+
+--Java--
+sudo add-apt-repository ppa:webupd8team/java	
+sudo apt-get update
+sudo apt-get install oracle-jdk7-installer
+
+--dstat--
+sudo apt-get install dstat
+
+--GCC--
+sudo apt-get install gcc
+
+--BOWTIE--
+sudo apt-get install bowtie
+
+--BEDTOOLS--
+sudo apt-get install bedtools
+
+--UNZIP--
+sudo apt-get install unzip
+
+--CRIANDO PASTA DO PROJETO----
+mkdir /home/zoonimbus/zoonimbusProject 
+
+---Compacte os arquivos a seguir e envie via sftp---
+scp zoonimbus@10.0.0.1:/path/to/file.txt localfile.txt
+
+-----Configurar Zoonimbus -------
+	
+OB: COLOCAR TODOS OS ARQUIVOS LISTADOS NA PASTA zoonimbusProject/
+
+enviar as pastas exported-folders
+enviar as pastas data-folder
+enviar as pastas pipeline
+enviar as pastas services
+enviar as pastas programs
+enviar as pastas conf
+enviar bionimbus-1.0-SNAPSHOT-bundle.jar gerado na target
+
+
+
+***********
+Para executar o Zoonimbus, o servidor zookeeper deve ser inciado.
+
+1- Alterar conf/node.yaml com as configurações de ip do servidor zookeer, ip, etc
+2- Estar na pasta zoonimbusProject/
+3- Servidor: executar o comando "sh exported-folders/bin/server.sh"
+4- Cliente: executar o comando "sh exported-folders/bin/client.sh"
+5- Pipeline: executar o comando "sh exported-folders/bin/client-pipeline.sh"
+***********
