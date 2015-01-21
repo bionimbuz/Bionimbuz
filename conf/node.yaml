@@ -5,14 +5,14 @@ rpc_port: 8080
 rpc_protocol: http
 # ZooKeeper connection string (comma separated)
 
-zookeeper_hosts: 164.41.209.101:2181
+zookeeper_hosts: 192.168.1.110:2181
 # old params
 client: false
 plugin: linux
 server-path: /home/brenokx/NetBeansProjects/Bionimbuz/branches/zoonimbus
-address: 164.41.209.101
+address: 192.168.1.110
 #private_cloud: 1
 cost_per_giga: 0
 #id: 3943483403afb
-host: {"address": "164.41.209.101", "port":8080}
+host: {"address": "192.168.1.110", "port":8080}
 

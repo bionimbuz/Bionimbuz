@@ -417,17 +417,17 @@
             <artifactId>aspectjweaver</artifactId>
             <version>1.6.0</version>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>freemarker</groupId>
             <artifactId>freemarker</artifactId>
             <version>2.3.18</version>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>javax.mail-api</artifactId>
             <version>1.4.6</version>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>springframework</groupId>
             <artifactId>spring-beans</artifactId>
             <version>3.0.7</version>
@@ -441,6 +441,13 @@
             <groupId>springframework</groupId>
             <artifactId>spring-core</artifactId>
             <version>3.0.7</version>
+        </dependency-->
+        <dependency>
+            <groupId>org.choco-solver</groupId>
+            <artifactId>choco-solver</artifactId>
+            <version>3.3.0</version>
+            <type>jar</type>
         </dependency>
+
     </dependencies>
 </project>
