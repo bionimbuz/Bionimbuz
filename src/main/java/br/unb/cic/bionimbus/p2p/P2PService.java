@@ -21,12 +21,11 @@ import br.unb.cic.bionimbus.services.messaging.MessageListener;
 import br.unb.cic.bionimbus.services.messaging.MessageService;
 import br.unb.cic.bionimbus.p2p.messages.PingReqMessage;
 import br.unb.cic.bionimbus.p2p.messages.PingRespMessage;
-import br.unb.cic.bionimbus.plugin.PluginInfo;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
-public class P2PService implements MessageListener, FileListener {
+public class P2PService implements MessageListener {
 
     private final MessageService msgService;
     private final List<P2PListener> listeners;
@@ -61,8 +60,7 @@ public class P2PService implements MessageListener, FileListener {
             types.add(enumType.code());
 
         msgService.bind(new InetSocketAddress(config.getHost().getAddress(), config.getHost().getPort()));
-        msgService.addListener(this, types);
-        msgService.addFileListener(this);
+        //msgService.addFileListener(this);
         msgService.start(new P2PMessageFactory(), this.config);
 
         ThreadFactory threadFactory = new ThreadFactoryBuilder().setDaemon(true).setNameFormat("chord").build();
@@ -115,7 +113,7 @@ public class P2PService implements MessageListener, FileListener {
         msgService.getFile(new InetSocketAddress(host.getAddress(), host.getPort()), fileName, parms);
     }
 
-    @Override
+//    @Override
     public void onFileReceived(File file, Map<String, String> parameters) {
         for (P2PListener listener : listeners) {
             P2PEvent event = new P2PFileEvent(file, parameters);
