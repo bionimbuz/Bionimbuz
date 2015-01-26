@@ -16,59 +16,56 @@
 
 package br.unb.cic.bionimbus.p2p;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.ComparisonChain;
+public final class HostEndPoint {// implements Comparable<HostEndPoint> {
 
-public final class HostEndPoint implements Comparable<HostEndPoint> {
+//    private final String address;
+//    private final int port;
 
-    private final String address;
-    private final int port;
+//    public HostEndPoint(String address, int port) {
+//        this.address = address.trim();
+//        this.port = port;
+//    }
+//
+//    public String getAddress() {
+//        return address;
+//    }
+//
+//    public int getPort() {
+//        return port;
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return Objects.hashCode(address, port);
+//    }
+//
+//    @Override
+//    public boolean equals(Object obj) {
+//        if (this == obj)
+//            return true;
+//
+//        if (!(obj instanceof HostEndPoint))
+//            return false;
+//
+//        HostEndPoint other = (HostEndPoint) obj;
+//
+//        return address.equals(other.address) && (port == other.port);
+//    }
 
-    public HostEndPoint(String address, int port) {
-        this.address = address.trim();
-        this.port = port;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(address, port);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-
-        if (!(obj instanceof HostEndPoint))
-            return false;
-
-        HostEndPoint other = (HostEndPoint) obj;
-
-        return address.equals(other.address) && (port == other.port);
-    }
-
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this)
-                .add("address", address)
-                .add("port", port)
-                .toString();
-    }
-
-    @Override
-    public int compareTo(HostEndPoint o) {
-        return ComparisonChain.start()
-                .compare(address, o.address)
-                .compare(port, o.port)
-                .result();
-    }
+//    @Override
+//    public String toString() {
+//        return Objects.toStringHelper(this)
+//                .add("address", address)
+//                .add("port", port)
+//                .toString();
+//    }
+//
+//    @Override
+//    public int compareTo(HostEndPoint o) {
+//        return ComparisonChain.start()
+//                .compare(address, o.address)
+//                .compare(port, o.port)
+//                .result();
+//    }
 
 }

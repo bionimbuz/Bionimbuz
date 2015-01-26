@@ -1,49 +1,38 @@
 package br.unb.cic.bionimbus.p2p;
 
-import java.io.File;
-import java.util.Collection;
-import java.util.Map;
+public abstract class P2PAbstractListener {
 
-import br.unb.cic.bionimbus.client.FileInfo;
-import br.unb.cic.bionimbus.client.JobInfo;
-import br.unb.cic.bionimbus.services.messaging.Message;
-import br.unb.cic.bionimbus.plugin.PluginFile;
-import br.unb.cic.bionimbus.plugin.PluginInfo;
-import br.unb.cic.bionimbus.plugin.PluginTask;
+//    private final P2PService p2p;
+//
+//    public P2PAbstractListener(P2PService p2p) {
+//        this.p2p = p2p;
+//        if (p2p != null)
+//            p2p.addListener(this);
+//    }
+//
+//    protected P2PService getP2P() {
+//        return p2p;
+//    }
 
-public abstract class P2PAbstractListener implements P2PListener {
+//    @Override
+//    public void onEvent(P2PEvent event) {
+//        if (event.getType().equals(P2PEventType.FILE)) {
+//            processFile((P2PFileEvent) event);
+//        } else if (event.getType().equals(P2PEventType.MESSAGE)) {
+//            processMessage((P2PMessageEvent) event);
+//        }
+//    }
 
-    private final P2PService p2p;
-
-    public P2PAbstractListener(P2PService p2p) {
-        this.p2p = p2p;
-        if (p2p != null)
-            p2p.addListener(this);
-    }
-
-    protected P2PService getP2P() {
-        return p2p;
-    }
-
-    @Override
-    public void onEvent(P2PEvent event) {
-        if (event.getType().equals(P2PEventType.FILE)) {
-            processFile((P2PFileEvent) event);
-        } else if (event.getType().equals(P2PEventType.MESSAGE)) {
-            processMessage((P2PMessageEvent) event);
-        }
-    }
-
-    private void processFile(P2PFileEvent event) {
-        recvFile(event.getFile(), event.getParms());
-    }
-
-    private void processMessage(P2PMessageEvent event) {
-        Message message = event.getMessage();
-        if (message == null)
-            return;
-
-        PeerNode peer = null;
+//    private void processFile(P2PFileEvent event) {
+//        recvFile(event.getFile(), event.getParms());
+//    }
+//
+//    private void processMessage(P2PMessageEvent event) {
+//        Message message = event.getMessage();
+//        if (message == null)
+//            return;
+//
+//        PeerNode peer = null;
 //        if (message instanceof AbstractMessage) {
 //            peer = ((AbstractMessage) message).getPeer();
 //        }
@@ -115,65 +104,65 @@ public abstract class P2PAbstractListener implements P2PListener {
 //        } else if (message instanceof JobCancelRespMessage) {
 //            recvJobCancelResp(peer.getHost(), ((JobCancelRespMessage) message).getJobId());
 //        }
-    }
+//    }
 
-    protected abstract void recvFile(File file, Map<String, String> parms);
-
-    protected abstract void recvInfoReq(Host origin);
-
-    protected abstract void recvInfoResp(Host origin, PluginInfo info);
-
-    protected abstract void recvStartReq(Host origin, JobInfo job);
-
-    protected abstract void recvStartResp(Host origin, String jobId, PluginTask task);
-
-    protected abstract void recvEnd(Host origin, PluginTask task);
-
-    protected abstract void recvStatusReq(Host origin, String taskId);
-
-    protected abstract void recvStatusResp(Host origin, PluginTask task);
-
-    protected abstract void recvStoreReq(Host origin, FileInfo file, String taskId);
-
-    protected abstract void recvStoreResp(Host origin, PluginInfo plugin, FileInfo file, String taskId);
-
-    protected abstract void recvStoreAck(Host origin, PluginFile file);
-
-    protected abstract void recvGetReq(Host origin, String fileId, String taskId);
-
-    protected abstract void recvGetResp(Host origin, PluginInfo plugin, PluginFile file, String taskId);
-
-    protected abstract void recvCloudReq(Host origin);
-
-    protected abstract void recvCloudResp(Host origin, Collection<PluginInfo> plugins);
-
-    protected abstract void recvSchedReq(Host origin, Collection<JobInfo> job);
-
-    protected abstract void recvSchedResp(Host origin, String jobId, PluginInfo plugin);
-
-    protected abstract void recvJobReq(Host origin, Collection<JobInfo> job);
-
-    protected abstract void recvJobResp(Host origin, JobInfo job);
-
-    protected abstract void recvError(Host origin, String error);
-
-    protected abstract void recvPingReq(Host origin, long timestamp);
-
-    protected abstract void recvPingResp(Host origin, long timestamp);
-
-    protected abstract void recvListReq(Host origin);
-
-    protected abstract void recvListResp(Host origin, Collection<PluginFile> files);
-
-    protected abstract void recvPrepReq(Host origin, PluginFile file, String taskId);
-
-    protected abstract void recvPrepResp(Host origin, PluginInfo plugin, PluginFile file, String taskId);
-
-    protected abstract void recvCancelReq(Host origin, String taskId);
-
-    protected abstract void recvCancelResp(Host origin, PluginTask task);
-
-    protected abstract void recvJobCancelReq(Host origin, String jobId);
-
-    protected abstract void recvJobCancelResp(Host origin, String jobId);
+//    protected abstract void recvFile(File file, Map<String, String> parms);
+//
+//    protected abstract void recvInfoReq(Host origin);
+//
+//    protected abstract void recvInfoResp(Host origin, PluginInfo info);
+//
+//    protected abstract void recvStartReq(Host origin, JobInfo job);
+//
+//    protected abstract void recvStartResp(Host origin, String jobId, PluginTask task);
+//
+//    protected abstract void recvEnd(Host origin, PluginTask task);
+//
+//    protected abstract void recvStatusReq(Host origin, String taskId);
+//
+//    protected abstract void recvStatusResp(Host origin, PluginTask task);
+//
+//    protected abstract void recvStoreReq(Host origin, FileInfo file, String taskId);
+//
+//    protected abstract void recvStoreResp(Host origin, PluginInfo plugin, FileInfo file, String taskId);
+//
+//    protected abstract void recvStoreAck(Host origin, PluginFile file);
+//
+//    protected abstract void recvGetReq(Host origin, String fileId, String taskId);
+//
+//    protected abstract void recvGetResp(Host origin, PluginInfo plugin, PluginFile file, String taskId);
+//
+//    protected abstract void recvCloudReq(Host origin);
+//
+//    protected abstract void recvCloudResp(Host origin, Collection<PluginInfo> plugins);
+//
+//    protected abstract void recvSchedReq(Host origin, Collection<JobInfo> job);
+//
+//    protected abstract void recvSchedResp(Host origin, String jobId, PluginInfo plugin);
+//
+//    protected abstract void recvJobReq(Host origin, Collection<JobInfo> job);
+//
+//    protected abstract void recvJobResp(Host origin, JobInfo job);
+//
+//    protected abstract void recvError(Host origin, String error);
+//
+//    protected abstract void recvPingReq(Host origin, long timestamp);
+//
+//    protected abstract void recvPingResp(Host origin, long timestamp);
+//
+//    protected abstract void recvListReq(Host origin);
+//
+//    protected abstract void recvListResp(Host origin, Collection<PluginFile> files);
+//
+//    protected abstract void recvPrepReq(Host origin, PluginFile file, String taskId);
+//
+//    protected abstract void recvPrepResp(Host origin, PluginInfo plugin, PluginFile file, String taskId);
+//
+//    protected abstract void recvCancelReq(Host origin, String taskId);
+//
+//    protected abstract void recvCancelResp(Host origin, PluginTask task);
+//
+//    protected abstract void recvJobCancelReq(Host origin, String jobId);
+//
+//    protected abstract void recvJobCancelResp(Host origin, String jobId);
 }

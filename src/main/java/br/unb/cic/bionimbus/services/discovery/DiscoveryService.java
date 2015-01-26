@@ -1,8 +1,6 @@
 package br.unb.cic.bionimbus.services.discovery;
 
-import br.unb.cic.bionimbus.p2p.P2PEvent;
 import br.unb.cic.bionimbus.p2p.P2PService;
-import br.unb.cic.bionimbus.p2p.PeerNode;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxGetInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
@@ -112,7 +110,10 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
                 LinuxPlugin linuxPlugin = new LinuxPlugin(p2p);
 
                 infopc.setHost(p2p.getConfig().getHost());
-                infopc.setUptime(p2p.getPeerNode().uptime());
+                
+// Update uptime information to origin from zookeeper ---------------------------------------------------------------------------
+                //infopc.setUptime(p2p.getPeerNode().uptime());
+                
                 infopc.setPrivateCloud(p2p.getConfig().getPrivateCloud());
 
                 //definindo myInfo após a primeira leitura dos dados
@@ -143,7 +144,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
         }
     }
 
-//    @Override
+    @Override
     public void start(final P2PService p2p) {
         try {
             Preconditions.checkNotNull(p2p);
@@ -174,8 +175,8 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
          }
 
     
-    @Override
-    public void onEvent(final P2PEvent event) {
+//    @Override
+//    public void onEvent(final P2PEvent event) {
 //		if (!event.getType().equals(P2PEventType.MESSAGE))
 //			return;
 //
@@ -207,7 +208,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 //					+ errMsg.getError());
 //			break;
 //		}
-    }
+//    }
 
 //    private void sendRequestMessage(final PeerNode sender, final PeerNode receiver) {
 //        CloudRespMessage cloudMsg = new CloudRespMessage(sender, infoCache.asMap().values());
