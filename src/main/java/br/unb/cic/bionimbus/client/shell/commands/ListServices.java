@@ -3,12 +3,6 @@ package br.unb.cic.bionimbus.client.shell.commands;
 import br.unb.cic.bionimbus.avro.gen.BioProto;
 import br.unb.cic.bionimbus.client.shell.Command;
 import br.unb.cic.bionimbus.client.shell.SimpleShell;
-import br.unb.cic.bionimbus.p2p.P2PMessageType;
-import br.unb.cic.bionimbus.p2p.P2PService;
-import br.unb.cic.bionimbus.p2p.messages.CloudReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.CloudRespMessage;
-import br.unb.cic.bionimbus.plugin.PluginInfo;
-import br.unb.cic.bionimbus.plugin.PluginService;
 import com.google.common.base.Joiner;
 
 public class ListServices implements Command {

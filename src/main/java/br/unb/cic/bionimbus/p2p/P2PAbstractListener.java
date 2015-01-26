@@ -7,36 +7,6 @@ import java.util.Map;
 import br.unb.cic.bionimbus.client.FileInfo;
 import br.unb.cic.bionimbus.client.JobInfo;
 import br.unb.cic.bionimbus.services.messaging.Message;
-import br.unb.cic.bionimbus.p2p.messages.AbstractMessage;
-import br.unb.cic.bionimbus.p2p.messages.CancelReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.CancelRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.CloudReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.CloudRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.EndMessage;
-import br.unb.cic.bionimbus.p2p.messages.ErrorMessage;
-import br.unb.cic.bionimbus.p2p.messages.GetReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.GetRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.InfoReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.InfoRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.JobCancelReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.JobCancelRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.JobReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.JobRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.ListReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.ListRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.PingReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.PingRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.PrepReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.PrepRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.SchedReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.SchedRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.StartReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.StartRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.StatusReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.StatusRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.StoreAckMessage;
-import br.unb.cic.bionimbus.p2p.messages.StoreReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.StoreRespMessage;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
@@ -74,77 +44,77 @@ public abstract class P2PAbstractListener implements P2PListener {
             return;
 
         PeerNode peer = null;
-        if (message instanceof AbstractMessage) {
-            peer = ((AbstractMessage) message).getPeer();
-        }
+//        if (message instanceof AbstractMessage) {
+//            peer = ((AbstractMessage) message).getPeer();
+//        }
 
-        if (message instanceof InfoReqMessage) {
-            recvInfoReq(peer.getHost());
-        } else if (message instanceof InfoRespMessage) {
-            recvInfoResp(peer.getHost(), ((InfoRespMessage) message).getPluginInfo());
-        } else if (message instanceof StartReqMessage) {
-            recvStartReq(peer.getHost(), ((StartReqMessage) message).getJobInfo());
-        } else if (message instanceof StartRespMessage) {
-            recvStartResp(peer.getHost(), ((StartRespMessage) message).getJobId(),
-                    ((StartRespMessage) message).getPluginTask());
-        } else if (message instanceof EndMessage) {
-            recvEnd(peer.getHost(), ((EndMessage) message).getTask());
-        } else if (message instanceof StatusReqMessage) {
-            recvStatusReq(peer.getHost(), ((StatusReqMessage) message).getTaskId());
-        } else if (message instanceof StatusRespMessage) {
-            recvStatusResp(peer.getHost(), ((StatusRespMessage) message).getPluginTask());
-        } else if (message instanceof StoreReqMessage) {
-            recvStoreReq(peer.getHost(), ((StoreReqMessage) message).getFileInfo(),
-                    ((StoreReqMessage) message).getTaskId());
-        } else if (message instanceof StoreRespMessage) {
-            recvStoreResp(peer.getHost(), ((StoreRespMessage) message).getPluginInfo(),
-                    ((StoreRespMessage) message).getFileInfo(), ((StoreRespMessage) message).getTaskId());
-        } else if (message instanceof StoreAckMessage) {
-            recvStoreAck(peer.getHost(), ((StoreAckMessage) message).getPluginFile());
-        } else if (message instanceof GetReqMessage) {
-            recvGetReq(peer.getHost(), ((GetReqMessage) message).getFileId(),
-                    ((GetReqMessage) message).getTaskId());
-        } else if (message instanceof GetRespMessage) {
-            recvGetResp(peer.getHost(), ((GetRespMessage) message).getPluginInfo(),
-                    ((GetRespMessage) message).getPluginFile(), ((GetRespMessage) message).getTaskId());
-        } else if (message instanceof CloudReqMessage) {
-            recvCloudReq(peer.getHost());
-        } else if (message instanceof CloudRespMessage) {
-            recvCloudResp(peer.getHost(), ((CloudRespMessage) message).values());
-        } else if (message instanceof SchedReqMessage) {
-            recvSchedReq(peer.getHost(), ((SchedReqMessage) message).values());
-        } else if (message instanceof SchedRespMessage) {
-            recvSchedResp(peer.getHost(), ((SchedRespMessage) message).getJobId(),
-                    ((SchedRespMessage) message).getPluginInfo());
-        } else if (message instanceof JobReqMessage) {
-            recvJobReq(peer.getHost(), ((JobReqMessage) message).values());
-        } else if (message instanceof JobRespMessage) {
-            recvJobResp(peer.getHost(), ((JobRespMessage) message).getJobInfo());
-        } else if (message instanceof ErrorMessage) {
-            recvError(null, ((ErrorMessage) message).getError());
-        } else if (message instanceof PingReqMessage) {
-            recvPingReq(peer.getHost(), ((PingReqMessage) message).getTimestamp());
-        } else if (message instanceof PingRespMessage) {
-            recvPingResp(peer.getHost(), ((PingRespMessage) message).getTimestamp());
-        } else if (message instanceof ListReqMessage) {
-            recvListReq(peer.getHost());
-        } else if (message instanceof ListRespMessage) {
-            recvListResp(peer.getHost(), ((ListRespMessage) message).values());
-        } else if (message instanceof PrepReqMessage) {
-            recvPrepReq(peer.getHost(), ((PrepReqMessage) message).getPluginFile(),
-                    ((PrepReqMessage) message).getTaskId());
-        } else if (message instanceof PrepRespMessage) {
-            recvPrepResp(peer.getHost(), ((PrepRespMessage) message).getPluginInfo(),
-                    ((PrepRespMessage) message).getPluginFile(), ((PrepRespMessage) message).getTaskId());
-        } else if (message instanceof CancelReqMessage) {
-            recvCancelReq(peer.getHost(), ((CancelReqMessage) message).getTaskId());
-        } else if (message instanceof CancelRespMessage) {
-            recvCancelResp(peer.getHost(), ((CancelRespMessage) message).getPluginTask());
-        } else if (message instanceof JobCancelReqMessage) {
-            recvJobCancelReq(peer.getHost(), ((JobCancelReqMessage) message).getJobId());
-        } else if (message instanceof JobCancelRespMessage) {
-            recvJobCancelResp(peer.getHost(), ((JobCancelRespMessage) message).getJobId());
-        }
+//        if (message instanceof InfoReqMessage) {
+//            recvInfoReq(peer.getHost());
+//        } else if (message instanceof InfoRespMessage) {
+//            recvInfoResp(peer.getHost(), ((InfoRespMessage) message).getPluginInfo());
+//        } else if (message instanceof StartReqMessage) {
+//            recvStartReq(peer.getHost(), ((StartReqMessage) message).getJobInfo());
+//        } else if (message instanceof StartRespMessage) {
+//            recvStartResp(peer.getHost(), ((StartRespMessage) message).getJobId(),
+//                    ((StartRespMessage) message).getPluginTask());
+//        } else if (message instanceof EndMessage) {
+//            recvEnd(peer.getHost(), ((EndMessage) message).getTask());
+//        } else if (message instanceof StatusReqMessage) {
+//            recvStatusReq(peer.getHost(), ((StatusReqMessage) message).getTaskId());
+//        } else if (message instanceof StatusRespMessage) {
+//            recvStatusResp(peer.getHost(), ((StatusRespMessage) message).getPluginTask());
+//        } else if (message instanceof StoreReqMessage) {
+//            recvStoreReq(peer.getHost(), ((StoreReqMessage) message).getFileInfo(),
+//                    ((StoreReqMessage) message).getTaskId());
+//        } else if (message instanceof StoreRespMessage) {
+//            recvStoreResp(peer.getHost(), ((StoreRespMessage) message).getPluginInfo(),
+//                    ((StoreRespMessage) message).getFileInfo(), ((StoreRespMessage) message).getTaskId());
+//        } else if (message instanceof StoreAckMessage) {
+//            recvStoreAck(peer.getHost(), ((StoreAckMessage) message).getPluginFile());
+//        } else if (message instanceof GetReqMessage) {
+//            recvGetReq(peer.getHost(), ((GetReqMessage) message).getFileId(),
+//                    ((GetReqMessage) message).getTaskId());
+//        } else if (message instanceof GetRespMessage) {
+//            recvGetResp(peer.getHost(), ((GetRespMessage) message).getPluginInfo(),
+//                    ((GetRespMessage) message).getPluginFile(), ((GetRespMessage) message).getTaskId());
+//        } else if (message instanceof CloudReqMessage) {
+//            recvCloudReq(peer.getHost());
+//        } else if (message instanceof CloudRespMessage) {
+//            recvCloudResp(peer.getHost(), ((CloudRespMessage) message).values());
+//        } else if (message instanceof SchedReqMessage) {
+//            recvSchedReq(peer.getHost(), ((SchedReqMessage) message).values());
+//        } else if (message instanceof SchedRespMessage) {
+//            recvSchedResp(peer.getHost(), ((SchedRespMessage) message).getJobId(),
+//                    ((SchedRespMessage) message).getPluginInfo());
+//        } else if (message instanceof JobReqMessage) {
+//            recvJobReq(peer.getHost(), ((JobReqMessage) message).values());
+//        } else if (message instanceof JobRespMessage) {
+//            recvJobResp(peer.getHost(), ((JobRespMessage) message).getJobInfo());
+//        } else if (message instanceof ErrorMessage) {
+//            recvError(null, ((ErrorMessage) message).getError());
+//        } else if (message instanceof PingReqMessage) {
+//            recvPingReq(peer.getHost(), ((PingReqMessage) message).getTimestamp());
+//        } else if (message instanceof PingRespMessage) {
+//            recvPingResp(peer.getHost(), ((PingRespMessage) message).getTimestamp());
+//        } else if (message instanceof ListReqMessage) {
+//            recvListReq(peer.getHost());
+//        } else if (message instanceof ListRespMessage) {
+//            recvListResp(peer.getHost(), ((ListRespMessage) message).values());
+//        } else if (message instanceof PrepReqMessage) {
+//            recvPrepReq(peer.getHost(), ((PrepReqMessage) message).getPluginFile(),
+//                    ((PrepReqMessage) message).getTaskId());
+//        } else if (message instanceof PrepRespMessage) {
+//            recvPrepResp(peer.getHost(), ((PrepRespMessage) message).getPluginInfo(),
+//                    ((PrepRespMessage) message).getPluginFile(), ((PrepRespMessage) message).getTaskId());
+//        } else if (message instanceof CancelReqMessage) {
+//            recvCancelReq(peer.getHost(), ((CancelReqMessage) message).getTaskId());
+//        } else if (message instanceof CancelRespMessage) {
+//            recvCancelResp(peer.getHost(), ((CancelRespMessage) message).getPluginTask());
+//        } else if (message instanceof JobCancelReqMessage) {
+//            recvJobCancelReq(peer.getHost(), ((JobCancelReqMessage) message).getJobId());
+//        } else if (message instanceof JobCancelRespMessage) {
+//            recvJobCancelResp(peer.getHost(), ((JobCancelRespMessage) message).getJobId());
+//        }
     }
 
     protected abstract void recvFile(File file, Map<String, String> parms);
