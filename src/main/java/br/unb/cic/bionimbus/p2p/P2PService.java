@@ -15,9 +15,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
-import br.unb.cic.bionimbus.services.messaging.FileListener;
 import br.unb.cic.bionimbus.services.messaging.Message;
-import br.unb.cic.bionimbus.services.messaging.MessageListener;
 import br.unb.cic.bionimbus.services.messaging.MessageService;
 import br.unb.cic.bionimbus.p2p.messages.PingReqMessage;
 import br.unb.cic.bionimbus.p2p.messages.PingRespMessage;
@@ -25,7 +23,7 @@ import br.unb.cic.bionimbus.p2p.messages.PingRespMessage;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
-public class P2PService implements MessageListener {
+public class P2PService {
 
     private final MessageService msgService;
     private final List<P2PListener> listeners;
@@ -132,7 +130,6 @@ public class P2PService implements MessageListener {
         listeners.remove(listener);
     }
 
-    @Override
     public void onEvent(Message message) {
 
         if (message instanceof PingReqMessage) {
