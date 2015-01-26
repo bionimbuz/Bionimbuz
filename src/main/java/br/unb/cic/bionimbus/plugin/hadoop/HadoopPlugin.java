@@ -1,7 +1,6 @@
 package br.unb.cic.bionimbus.plugin.hadoop;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -19,13 +18,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import br.unb.cic.bionimbus.client.FileInfo;
 import br.unb.cic.bionimbus.client.JobInfo;
-import br.unb.cic.bionimbus.services.messaging.Message;
-import br.unb.cic.bionimbus.p2p.P2PEvent;
-import br.unb.cic.bionimbus.p2p.P2PEventType;
-import br.unb.cic.bionimbus.p2p.P2PFileEvent;
-import br.unb.cic.bionimbus.p2p.P2PListener;
-import br.unb.cic.bionimbus.p2p.P2PMessageEvent;
-import br.unb.cic.bionimbus.p2p.P2PMessageType;
 import br.unb.cic.bionimbus.p2p.P2PService;
 import br.unb.cic.bionimbus.p2p.PeerNode;
 import br.unb.cic.bionimbus.plugin.Plugin;
@@ -33,11 +25,10 @@ import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.plugin.PluginTask;
-import br.unb.cic.bionimbus.plugin.PluginTaskState;
 import br.unb.cic.bionimbus.utils.Pair;
 import java.util.ArrayList;
 
-public class HadoopPlugin implements Plugin, P2PListener, Runnable {
+public class HadoopPlugin implements Plugin, Runnable {
 //public class HadoopPlugin extends AbstractBioService implements Plugin, P2PListener, Runnable {
     
     private String id = UUID.randomUUID().toString();
@@ -144,12 +135,12 @@ public class HadoopPlugin implements Plugin, P2PListener, Runnable {
         }
     }
 
-    private Message buildFinishedGetInfoMsg(PluginInfo info) {
-//        if (info == null)
-//            return new InfoErrorMessage(p2p.getPeerNode(), id, errorString);
-//        return new InfoRespMessage(p2p.getPeerNode(), info);
-        return null;
-    }
+//    private Message buildFinishedGetInfoMsg(PluginInfo info) {
+////        if (info == null)
+////            return new InfoErrorMessage(p2p.getPeerNode(), id, errorString);
+////        return new InfoRespMessage(p2p.getPeerNode(), info);
+//        return null;
+//    }
 
     private void checkGetInfo() {
         myCount++;
@@ -166,7 +157,10 @@ public class HadoopPlugin implements Plugin, P2PListener, Runnable {
             try {
                 PluginInfo newInfo = fInfo.get();
                 newInfo.setId(id);
-                newInfo.setHost(p2p.getPeerNode().getHost());
+                
+// need to get host info form somewhere else ------------------------------------------------------------------------------------------------------------------------------
+                //newInfo.setHost(p2p.getPeerNode().getHost());
+                
                 myInfo = newInfo;
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.writeValue(new File("plugininfo.json"), myInfo);
@@ -179,33 +173,33 @@ public class HadoopPlugin implements Plugin, P2PListener, Runnable {
         }
     }
 
-    private void checkTaskStatus(PeerNode receiver, String taskId) {
-        PluginTask task = null;
-
-        if (pendingTasks.containsKey(taskId)) {
-            task = pendingTasks.get(taskId).first;
-            task.setState(PluginTaskState.PENDING);
-        } else if (executingTasks.containsKey(taskId)) {
-            task = executingTasks.get(taskId).first;
-            try {
-                HadoopGetInfo.getTaskInfo(task);
-            } catch (Exception ex) {
-                //TODO: O que fazer no erro?
-                // Por enquanto printa erro no servidor.
-                ex.printStackTrace();
-            }
-
-        } else if (endingTasks.containsKey(taskId)) {
-            task = endingTasks.get(taskId).first;
-            task.setState(PluginTaskState.DONE);
-        }
-
-        if (task != null) {
-            System.out.println(task.getJobInfo().getId() + "(" + task.getId() + "|" + task.getJobInfo().getLocalId() + ") : " + task.getState());
-//            StatusRespMessage msg = new StatusRespMessage(p2p.getPeerNode(), task);
-//            p2p.sendMessage(receiver.getHost(), msg);
-        }
-    }
+//    private void checkTaskStatus(PeerNode receiver, String taskId) {
+//        PluginTask task = null;
+//
+//        if (pendingTasks.containsKey(taskId)) {
+//            task = pendingTasks.get(taskId).first;
+//            task.setState(PluginTaskState.PENDING);
+//        } else if (executingTasks.containsKey(taskId)) {
+//            task = executingTasks.get(taskId).first;
+//            try {
+//                HadoopGetInfo.getTaskInfo(task);
+//            } catch (Exception ex) {
+//                //TODO: O que fazer no erro?
+//                // Por enquanto printa erro no servidor.
+//                ex.printStackTrace();
+//            }
+//
+//        } else if (endingTasks.containsKey(taskId)) {
+//            task = endingTasks.get(taskId).first;
+//            task.setState(PluginTaskState.DONE);
+//        }
+//
+//        if (task != null) {
+//            System.out.println(task.getJobInfo().getId() + "(" + task.getId() + "|" + task.getJobInfo().getLocalId() + ") : " + task.getState());
+////            StatusRespMessage msg = new StatusRespMessage(p2p.getPeerNode(), task);
+////            p2p.sendMessage(receiver.getHost(), msg);
+//        }
+//    }
 
     private void checkPendingSaves() {
         for (Future<PluginFile> f : pendingSaves) {
@@ -244,49 +238,49 @@ public class HadoopPlugin implements Plugin, P2PListener, Runnable {
         }
     }
 
-    private void storeFile(File file, Map<String, String> parms) {
-        if (parms.isEmpty()) {
-            System.out.println("recebi arquivo " + file.getPath());
-            Future<PluginFile> f = executorService.submit(new HadoopSaveFile(file.getPath()));
-            pendingSaves.add(f);
-            return;
-        }
+//    private void storeFile(File file, Map<String, String> parms) {
+//        if (parms.isEmpty()) {
+//            System.out.println("recebi arquivo " + file.getPath());
+//            Future<PluginFile> f = executorService.submit(new HadoopSaveFile(file.getPath()));
+//            pendingSaves.add(f);
+//            return;
+//        }
+//
+//        String fileId = parms.get("fileId");
+//        String fileName = parms.get("fileName");
+//        Pair<String, Integer> inputFile = inputFiles.get(fileId);
+//        int count = 0;
+//        if (inputFile != null)
+//            count = inputFile.second;
+//        count++;
+//        inputFiles.put(fileId, new Pair<String, Integer>(fileName, count));
+//
+//
+//        String taskId = parms.get("taskId");
+//        Pair<PluginTask, Integer> pair = pendingTasks.get(taskId);
+//        if (pair == null)
+//            return;
+//
+//        count = pair.second;
+//        if (--count == 0) {
+//            pendingTasks.remove(taskId);
+//            startTask(pair.first);
+//            return;
+//        }
+//
+//        Pair<PluginTask, Integer> newPair = new Pair<PluginTask, Integer>(pair.first, count);
+//        pendingTasks.put(taskId, newPair);
+//    }
 
-        String fileId = parms.get("fileId");
-        String fileName = parms.get("fileName");
-        Pair<String, Integer> inputFile = inputFiles.get(fileId);
-        int count = 0;
-        if (inputFile != null)
-            count = inputFile.second;
-        count++;
-        inputFiles.put(fileId, new Pair<String, Integer>(fileName, count));
+//    private void storeFile(P2PEvent event) {
+//        P2PFileEvent fileEvent = (P2PFileEvent) event;
+//        storeFile(fileEvent.getFile(), fileEvent.getParms());
+//    }
 
-
-        String taskId = parms.get("taskId");
-        Pair<PluginTask, Integer> pair = pendingTasks.get(taskId);
-        if (pair == null)
-            return;
-
-        count = pair.second;
-        if (--count == 0) {
-            pendingTasks.remove(taskId);
-            startTask(pair.first);
-            return;
-        }
-
-        Pair<PluginTask, Integer> newPair = new Pair<PluginTask, Integer>(pair.first, count);
-        pendingTasks.put(taskId, newPair);
-    }
-
-    private void storeFile(P2PEvent event) {
-        P2PFileEvent fileEvent = (P2PFileEvent) event;
-        storeFile(fileEvent.getFile(), fileEvent.getParms());
-    }
-
-    private void getFileFromHadoop(PluginFile file, String taskId, PeerNode receiver) {
-        Future<HadoopGetFile> f = executorService.submit(new HadoopGetFile(file, taskId, receiver, p2p.getConfig().getServerPath()));
-        pendingGets.add(f);
-    }
+//    private void getFileFromHadoop(PluginFile file, String taskId, PeerNode receiver) {
+//        Future<HadoopGetFile> f = executorService.submit(new HadoopGetFile(file, taskId, receiver, p2p.getConfig().getServerPath()));
+//        pendingGets.add(f);
+//    }
 
     @Override
     public void start() {
@@ -298,34 +292,34 @@ public class HadoopPlugin implements Plugin, P2PListener, Runnable {
     public void shutdown() {
         executorService.shutdownNow();
         schedExecutorService.shutdownNow();
-        p2p.remove(this);
+//        p2p.remove(this);
     }
 
-    @Override
-    public void setP2P(P2PService p2p) {
-        if (this.p2p != null)
-            this.p2p.remove(this);
+//    @Override
+//    public void setP2P(P2PService p2p) {
+//        if (this.p2p != null)
+//            this.p2p.remove(this);
+//
+//        this.p2p = p2p;
+//
+//        if (this.p2p != null)
+//            this.p2p.addListener(this);
+//    }
 
-        this.p2p = p2p;
-
-        if (this.p2p != null)
-            this.p2p.addListener(this);
-    }
-
-    @Override
-    public void onEvent(P2PEvent event) {
-        if (event.getType().equals(P2PEventType.FILE)) {
-            storeFile(event);
-            return;
-        } else if (!event.getType().equals(P2PEventType.MESSAGE))
-            return;
-
-        P2PMessageEvent msgEvent = (P2PMessageEvent) event;
-        Message msg = msgEvent.getMessage();
-        if (msg == null)
-            return;
-
-        PeerNode receiver = null;
+//    @Override
+//    public void onEvent(P2PEvent event) {
+//        if (event.getType().equals(P2PEventType.FILE)) {
+//            storeFile(event);
+//            return;
+//        } else if (!event.getType().equals(P2PEventType.MESSAGE))
+//            return;
+//
+//        P2PMessageEvent msgEvent = (P2PMessageEvent) event;
+//        Message msg = msgEvent.getMessage();
+//        if (msg == null)
+//            return;
+//
+//        PeerNode receiver = null;
 //        if (msg instanceof AbstractMessage) {
 //            receiver = ((AbstractMessage) msg).getPeer();
 //        }
@@ -374,7 +368,7 @@ public class HadoopPlugin implements Plugin, P2PListener, Runnable {
 //                cancelTask(receiver, cancelMsg.getTaskId());
 //                break;
 //        }
-    }
+//    }
 
     private PluginTask prepareTask(JobInfo job) {
         PluginService service = myInfo.getService(job.getServiceId());

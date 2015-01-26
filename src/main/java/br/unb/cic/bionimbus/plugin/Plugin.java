@@ -10,5 +10,5 @@ public interface Plugin {
 
     public void shutdown();
 
-    public void setP2P(P2PService p2p);
+//    public void setP2P(P2PService p2p);
 }

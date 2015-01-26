@@ -1,15 +1,5 @@
 package br.unb.cic.bionimbus.p2p.plugin.proxy;
 
-import java.io.File;
-import java.util.*;
-import java.util.concurrent.*;
-
-import javax.servlet.http.HttpServlet;
-
-import br.unb.cic.bionimbus.services.HttpServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class ProxyServerStub {
 
 //    private volatile boolean running;

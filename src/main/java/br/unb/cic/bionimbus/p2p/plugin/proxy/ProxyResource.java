@@ -1,17 +1,7 @@
 package br.unb.cic.bionimbus.p2p.plugin.proxy;
 
-import br.unb.cic.bionimbus.plugin.PluginInfo;
-import br.unb.cic.bionimbus.utils.JsonCodec;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.xml.ws.Response;
-import java.io.IOException;
-import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -23,7 +13,7 @@ import java.util.List;
 @Path("/proxy")
 public class ProxyResource {
 
-    private ProxyServerStub server;
+//    private ProxyServerStub server;
 
 //    public ProxyResource() {
 //        server = ProxyServerStub.getInstance();
@@ -51,8 +41,8 @@ public class ProxyResource {
 //        return null;
 //    }
 
-    String serialize(Object obj) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(obj);
-    }
+//    String serialize(Object obj) throws IOException {
+//        ObjectMapper mapper = new ObjectMapper();
+//        return mapper.writeValueAsString(obj);
+//    }
 }

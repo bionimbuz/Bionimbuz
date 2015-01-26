@@ -3,8 +3,6 @@ package br.unb.cic.bionimbus.services.sched;
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.client.JobInfo;
-import br.unb.cic.bionimbus.p2p.P2PEvent;
-import br.unb.cic.bionimbus.p2p.P2PListener;
 import br.unb.cic.bionimbus.p2p.P2PService;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
@@ -16,7 +14,6 @@ import br.unb.cic.bionimbus.services.Service;
 import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
-import br.unb.cic.bionimbus.services.sched.policy.impl.AcoSched;
 import br.unb.cic.bionimbus.services.storage.Ping;
 import br.unb.cic.bionimbus.utils.Get;
 import br.unb.cic.bionimbus.utils.Pair;
@@ -38,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class SchedService extends AbstractBioService implements Service, P2PListener, Runnable {
+public class SchedService extends AbstractBioService implements Service, Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SchedService.class.getSimpleName());
     private final ConcurrentHashMap<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
@@ -893,7 +890,7 @@ public class SchedService extends AbstractBioService implements Service, P2PList
         // TODO Auto-generated method stub
     }
 
-    @Override
-    public synchronized void onEvent(P2PEvent event) {
-    }
+//    @Override
+//    public synchronized void onEvent(P2PEvent event) {
+//    }
 }

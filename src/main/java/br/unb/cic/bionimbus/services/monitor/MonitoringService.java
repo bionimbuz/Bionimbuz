@@ -1,9 +1,5 @@
 package br.unb.cic.bionimbus.services.monitor;
 
-import br.unb.cic.bionimbus.avro.rpc.AvroClient;
-import br.unb.cic.bionimbus.avro.rpc.RpcClient;
-import br.unb.cic.bionimbus.p2p.P2PEvent;
-import br.unb.cic.bionimbus.p2p.P2PListener;
 import br.unb.cic.bionimbus.p2p.P2PService;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
@@ -29,10 +25,9 @@ import java.util.logging.Logger;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
-import org.hsqldb.lib.Storage;
 
 @Singleton
-public class MonitoringService extends AbstractBioService implements Service, P2PListener, Runnable {
+public class MonitoringService extends AbstractBioService implements Service, Runnable {
 
     private final ScheduledExecutorService schedExecService = Executors.newScheduledThreadPool(1, new BasicThreadFactory.Builder().namingPattern("MonitorService-%d").build());
     private final Map<String, PluginTask> waitingTask = new ConcurrentHashMap<String, PluginTask>();
@@ -301,8 +296,8 @@ public void shutdown() {
         }
     }
 
-    @Override
-    public void onEvent(P2PEvent event) {
+//    @Override
+//    public void onEvent(P2PEvent event) {
 //        if (!event.getType().equals(P2PEventType.MESSAGE))
 //            return;
 //
@@ -347,7 +342,7 @@ public void shutdown() {
 //                        + errMsg.getError());
 //                break;
 //        }
-    }
+//    }
 //    private void sendSchedReq(PeerNode sender, Collection<JobInfo> jobList) {
 //        for (JobInfo jobInfo : jobList) {
 //            jobInfo.setId(UUID.randomUUID().toString());
