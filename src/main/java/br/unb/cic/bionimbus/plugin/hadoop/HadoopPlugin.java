@@ -28,24 +28,6 @@ import br.unb.cic.bionimbus.p2p.P2PMessageEvent;
 import br.unb.cic.bionimbus.p2p.P2PMessageType;
 import br.unb.cic.bionimbus.p2p.P2PService;
 import br.unb.cic.bionimbus.p2p.PeerNode;
-import br.unb.cic.bionimbus.p2p.messages.AbstractMessage;
-import br.unb.cic.bionimbus.p2p.messages.CancelReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.CancelRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.EndMessage;
-import br.unb.cic.bionimbus.p2p.messages.GetReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.GetRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.InfoErrorMessage;
-import br.unb.cic.bionimbus.p2p.messages.InfoRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.PrepReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.PrepRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.StartReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.StartRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.StatusReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.StatusRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.StoreAckMessage;
-import br.unb.cic.bionimbus.p2p.messages.StoreReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.StoreRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.TaskErrorMessage;
 import br.unb.cic.bionimbus.plugin.Plugin;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
@@ -134,8 +116,9 @@ public class HadoopPlugin implements Plugin, P2PListener, Runnable {
                     task = fTask.get();
                 } catch (Exception e) {
                     task = pair.first;
-                    Message msg = new TaskErrorMessage(p2p.getPeerNode(), id, task.getId(), e.getMessage());
-                    p2p.broadcast(msg);
+                    // TODO: resolver envio de erros
+//                    Message msg = new TaskErrorMessage(p2p.getPeerNode(), id, task.getId(), e.getMessage());
+//                    p2p.broadcast(msg);
                     continue;
                 }
 
@@ -148,23 +131,24 @@ public class HadoopPlugin implements Plugin, P2PListener, Runnable {
                         FileInfo info = new FileInfo();
                         info.setName(p2p.getConfig().getServerPath() + "/" + output);
                         info.setSize(file.length());
-                        StoreReqMessage msg = new StoreReqMessage(p2p.getPeerNode(), info, task.getId());
-                        p2p.broadcast(msg);
+//                        StoreReqMessage msg = new StoreReqMessage(p2p.getPeerNode(), info, task.getId());
+//                        p2p.broadcast(msg);
                         count++;
                     }
                     endingTasks.put(task.getId(), new Pair<PluginTask, Integer>(task, count));
                 } else {
-                    EndMessage endMsg = new EndMessage(p2p.getPeerNode(), task);
-                    p2p.broadcast(endMsg);
+//                    EndMessage endMsg = new EndMessage(p2p.getPeerNode(), task);
+//                    p2p.broadcast(endMsg);
                 }
             }
         }
     }
 
     private Message buildFinishedGetInfoMsg(PluginInfo info) {
-        if (info == null)
-            return new InfoErrorMessage(p2p.getPeerNode(), id, errorString);
-        return new InfoRespMessage(p2p.getPeerNode(), info);
+//        if (info == null)
+//            return new InfoErrorMessage(p2p.getPeerNode(), id, errorString);
+//        return new InfoRespMessage(p2p.getPeerNode(), info);
+        return null;
     }
 
     private void checkGetInfo() {
@@ -218,8 +202,8 @@ public class HadoopPlugin implements Plugin, P2PListener, Runnable {
 
         if (task != null) {
             System.out.println(task.getJobInfo().getId() + "(" + task.getId() + "|" + task.getJobInfo().getLocalId() + ") : " + task.getState());
-            StatusRespMessage msg = new StatusRespMessage(p2p.getPeerNode(), task);
-            p2p.sendMessage(receiver.getHost(), msg);
+//            StatusRespMessage msg = new StatusRespMessage(p2p.getPeerNode(), task);
+//            p2p.sendMessage(receiver.getHost(), msg);
         }
     }
 
@@ -234,8 +218,8 @@ public class HadoopPlugin implements Plugin, P2PListener, Runnable {
                     file.setPluginId(pluginsIds);
                     pendingSaves.remove(f);
                     pluginFiles.put(file.getId(), file);
-                    StoreAckMessage msg = new StoreAckMessage(p2p.getPeerNode(), file);
-                    p2p.broadcast(msg);
+//                    StoreAckMessage msg = new StoreAckMessage(p2p.getPeerNode(), file);
+//                    p2p.broadcast(msg);
                 } catch (Exception e) {
                     e.printStackTrace();
                     //TODO criar mensagem de erro?
@@ -250,8 +234,8 @@ public class HadoopPlugin implements Plugin, P2PListener, Runnable {
                 try {
                     HadoopGetFile get = f.get();
                     pendingGets.remove(f);
-                    Message msg = new PrepRespMessage(p2p.getPeerNode(), myInfo, get.getPluginFile(), get.getTaskId());
-                    p2p.sendMessage(get.getReceiver().getHost(), msg);
+//                    Message msg = new PrepRespMessage(p2p.getPeerNode(), myInfo, get.getPluginFile(), get.getTaskId());
+//                    p2p.sendMessage(get.getReceiver().getHost(), msg);
                 } catch (Exception e) {
                     // TODO criar mensagem de erro?
                     e.printStackTrace();
@@ -342,54 +326,54 @@ public class HadoopPlugin implements Plugin, P2PListener, Runnable {
             return;
 
         PeerNode receiver = null;
-        if (msg instanceof AbstractMessage) {
-            receiver = ((AbstractMessage) msg).getPeer();
-        }
+//        if (msg instanceof AbstractMessage) {
+//            receiver = ((AbstractMessage) msg).getPeer();
+//        }
 
-        switch (P2PMessageType.of(msg.getType())) {
-            case INFOREQ:
-                Message infoMsg = buildFinishedGetInfoMsg(myInfo);
-                p2p.sendMessage(receiver.getHost(), infoMsg);
-                break;
-            case STARTREQ:
-                JobInfo job = ((StartReqMessage) msg).getJobInfo();
-                StartRespMessage resp = new StartRespMessage(p2p.getPeerNode(), job.getId(), prepareTask(job));
-                p2p.sendMessage(receiver.getHost(), resp);
-                break;
-            case STATUSREQ:
-                StatusReqMessage reqMsg = (StatusReqMessage) msg;
-                checkTaskStatus(receiver, reqMsg.getTaskId());
-                break;
-            case PREPREQ:
-                PrepReqMessage prepMsg = (PrepReqMessage) msg;
-                getFileFromHadoop(prepMsg.getPluginFile(), prepMsg.getTaskId(), receiver);
-                break;
-            case GETRESP:
-                GetRespMessage getMsg = (GetRespMessage) msg;
-                p2p.sendMessage(getMsg.getPluginInfo().getHost(), new PrepReqMessage(p2p.getPeerNode(), getMsg.getPluginFile(), getMsg.getTaskId()));
-                break;
-            case PREPRESP:
-                PrepRespMessage respMsg = (PrepRespMessage) msg;
-                Map<String, String> parms = new HashMap<String, String>();
-                parms.put("taskId", respMsg.getTaskId());
-                parms.put("fileId", respMsg.getPluginFile().getId());
-                parms.put("fileName", respMsg.getPluginFile().getPath());
-
-                if (respMsg.getPluginInfo().equals(myInfo)) {
-                    storeFile(new File(respMsg.getPluginFile().getPath()), parms);
-                } else {
-                    p2p.getFile(respMsg.getPluginInfo().getHost(), respMsg.getPluginFile().getPath(), parms);
-                }
-                break;
-            case STORERESP:
-                StoreRespMessage storeMsg = (StoreRespMessage) msg;
-                endTask(storeMsg.getTaskId(), storeMsg.getPluginInfo(), storeMsg.getFileInfo());
-                break;
-            case CANCELREQ:
-                CancelReqMessage cancelMsg = (CancelReqMessage) msg;
-                cancelTask(receiver, cancelMsg.getTaskId());
-                break;
-        }
+//        switch (P2PMessageType.of(msg.getType())) {
+//            case INFOREQ:
+//                Message infoMsg = buildFinishedGetInfoMsg(myInfo);
+//                p2p.sendMessage(receiver.getHost(), infoMsg);
+//                break;
+//            case STARTREQ:
+//                JobInfo job = ((StartReqMessage) msg).getJobInfo();
+//                StartRespMessage resp = new StartRespMessage(p2p.getPeerNode(), job.getId(), prepareTask(job));
+//                p2p.sendMessage(receiver.getHost(), resp);
+//                break;
+//            case STATUSREQ:
+//                StatusReqMessage reqMsg = (StatusReqMessage) msg;
+//                checkTaskStatus(receiver, reqMsg.getTaskId());
+//                break;
+//            case PREPREQ:
+//                PrepReqMessage prepMsg = (PrepReqMessage) msg;
+//                getFileFromHadoop(prepMsg.getPluginFile(), prepMsg.getTaskId(), receiver);
+//                break;
+//            case GETRESP:
+//                GetRespMessage getMsg = (GetRespMessage) msg;
+//                p2p.sendMessage(getMsg.getPluginInfo().getHost(), new PrepReqMessage(p2p.getPeerNode(), getMsg.getPluginFile(), getMsg.getTaskId()));
+//                break;
+//            case PREPRESP:
+//                PrepRespMessage respMsg = (PrepRespMessage) msg;
+//                Map<String, String> parms = new HashMap<String, String>();
+//                parms.put("taskId", respMsg.getTaskId());
+//                parms.put("fileId", respMsg.getPluginFile().getId());
+//                parms.put("fileName", respMsg.getPluginFile().getPath());
+//
+//                if (respMsg.getPluginInfo().equals(myInfo)) {
+//                    storeFile(new File(respMsg.getPluginFile().getPath()), parms);
+//                } else {
+//                    p2p.getFile(respMsg.getPluginInfo().getHost(), respMsg.getPluginFile().getPath(), parms);
+//                }
+//                break;
+//            case STORERESP:
+//                StoreRespMessage storeMsg = (StoreRespMessage) msg;
+//                endTask(storeMsg.getTaskId(), storeMsg.getPluginInfo(), storeMsg.getFileInfo());
+//                break;
+//            case CANCELREQ:
+//                CancelReqMessage cancelMsg = (CancelReqMessage) msg;
+//                cancelTask(receiver, cancelMsg.getTaskId());
+//                break;
+//        }
     }
 
     private PluginTask prepareTask(JobInfo job) {
@@ -403,7 +387,7 @@ public class HadoopPlugin implements Plugin, P2PListener, Runnable {
             pendingTasks.put(task.getId(), new Pair<PluginTask, Integer>(task, job.getInputs().size()));
             for (Pair<String, Long> pair : job.getInputs()) {
                 String fileId = pair.first;
-                p2p.broadcast(new GetReqMessage(p2p.getPeerNode(), fileId, task.getId()));
+//                p2p.broadcast(new GetReqMessage(p2p.getPeerNode(), fileId, task.getId()));
             }
         } else {
             task = startTask(task);
@@ -445,8 +429,8 @@ public class HadoopPlugin implements Plugin, P2PListener, Runnable {
 
         if (count == 0) {
             endingTasks.remove(taskId);
-            EndMessage endMsg = new EndMessage(p2p.getPeerNode(), pair.first);
-            p2p.broadcast(endMsg);
+//            EndMessage endMsg = new EndMessage(p2p.getPeerNode(), pair.first);
+//            p2p.broadcast(endMsg);
         } else {
             Pair<PluginTask, Integer> newPair = new Pair<PluginTask, Integer>(pair.first, count);
             endingTasks.put(taskId, newPair);
@@ -474,8 +458,8 @@ public class HadoopPlugin implements Plugin, P2PListener, Runnable {
             task = endingTasks.remove(taskId).first;
         }
 
-        CancelRespMessage msg = new CancelRespMessage(p2p.getPeerNode(), task);
-        p2p.sendMessage(receiver.getHost(), msg);
+//        CancelRespMessage msg = new CancelRespMessage(p2p.getPeerNode(), task);
+//        p2p.sendMessage(receiver.getHost(), msg);
     }
 
 }

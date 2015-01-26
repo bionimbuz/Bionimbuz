@@ -3,10 +3,6 @@ package br.unb.cic.bionimbus.client.shell.commands;
 import br.unb.cic.bionimbus.avro.gen.BioProto;
 import br.unb.cic.bionimbus.client.shell.Command;
 import br.unb.cic.bionimbus.client.shell.SimpleShell;
-import br.unb.cic.bionimbus.p2p.P2PMessageType;
-import br.unb.cic.bionimbus.p2p.P2PService;
-import br.unb.cic.bionimbus.p2p.messages.JobCancelReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.JobCancelRespMessage;
 
 public class JobCancel implements Command {
 

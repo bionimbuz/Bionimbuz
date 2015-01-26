@@ -3,7 +3,6 @@ package br.unb.cic.bionimbus.services.discovery;
 import br.unb.cic.bionimbus.p2p.P2PEvent;
 import br.unb.cic.bionimbus.p2p.P2PService;
 import br.unb.cic.bionimbus.p2p.PeerNode;
-import br.unb.cic.bionimbus.p2p.messages.InfoRespMessage;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxGetInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
@@ -215,13 +214,13 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 //        if (receiver != null)
 //            p2p.sendMessage(receiver.getHost(), cloudMsg);
 //    }
-    private void insertResponseIntoInfoMap(PeerNode receiver, InfoRespMessage infoMsg) {
-        PluginInfo info = infoMsg.getPluginInfo();
-        info.setUptime(receiver.uptime());
-        info.setLatency(Double.longBitsToDouble(receiver.getLatency()));
-        info.setTimestamp(System.currentTimeMillis());
-//        infoCache.put(info.getId(), info);
-    }
+//    private void insertResponseIntoInfoMap(PeerNode receiver, InfoRespMessage infoMsg) {
+//        PluginInfo info = infoMsg.getPluginInfo();
+//        info.setUptime(receiver.uptime());
+//        info.setLatency(Double.longBitsToDouble(receiver.getLatency()));
+//        info.setTimestamp(System.currentTimeMillis());
+////        infoCache.put(info.getId(), info);
+//    }
 
     @Override
     public void onRemoval(RemovalNotification rn) {

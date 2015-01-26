@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -15,7 +14,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import br.unb.cic.bionimbus.client.FileInfo;
 import br.unb.cic.bionimbus.client.JobInfo;
@@ -23,24 +21,14 @@ import br.unb.cic.bionimbus.services.messaging.Message;
 import br.unb.cic.bionimbus.p2p.Host;
 import br.unb.cic.bionimbus.p2p.P2PAbstractListener;
 import br.unb.cic.bionimbus.p2p.P2PService;
-import br.unb.cic.bionimbus.p2p.messages.CancelRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.EndMessage;
-import br.unb.cic.bionimbus.p2p.messages.GetReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.InfoErrorMessage;
-import br.unb.cic.bionimbus.p2p.messages.InfoRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.PrepReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.PrepRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.StartRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.StatusRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.StoreAckMessage;
-import br.unb.cic.bionimbus.p2p.messages.StoreReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.TaskErrorMessage;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
-import br.unb.cic.bionimbus.utils.GetIpMac;
 import br.unb.cic.bionimbus.utils.Pair;
 import com.google.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
+
+error!
+// resolver mensagens p2p comentadas
 
 public abstract class AbstractPlugin extends P2PAbstractListener implements Plugin, Runnable {
 
@@ -211,8 +199,8 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
                 task = futureTask.get();
             } catch (Exception e) {
                 task = pair.first;
-                Message msg = new TaskErrorMessage(p2p.getPeerNode(), getId(), task.getId(), e.getMessage());
-                p2p.broadcast(msg);
+//                Message msg = new TaskErrorMessage(p2p.getPeerNode(), getId(), task.getId(), e.getMessage());
+//                p2p.broadcast(msg);
                 continue;
             }
 
@@ -225,14 +213,14 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
                     FileInfo info = new FileInfo();
                     info.setName(p2p.getConfig().getServerPath() + "/" + output);
                     info.setSize(file.length());
-                    StoreReqMessage msg = new StoreReqMessage(p2p.getPeerNode(), info, task.getId());
-                    p2p.broadcast(msg);
+//                    StoreReqMessage msg = new StoreReqMessage(p2p.getPeerNode(), info, task.getId());
+//                    p2p.broadcast(msg);
                     count++;
                 }
                 endingTasks.put(task.getId(), new Pair<PluginTask, Integer>(task, count));
             } else {
-                EndMessage endMsg = new EndMessage(p2p.getPeerNode(), task);
-                p2p.broadcast(endMsg);
+//                EndMessage endMsg = new EndMessage(p2p.getPeerNode(), task);
+//                p2p.broadcast(endMsg);
             }
         }
     }
@@ -252,8 +240,8 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
                 file.setPluginId(pluginIds);
                 pendingSaves.remove(f);
                 pluginFiles.put(file.getId(), file);
-                StoreAckMessage msg = new StoreAckMessage(p2p.getPeerNode(), file);
-                p2p.broadcast(msg);
+//                StoreAckMessage msg = new StoreAckMessage(p2p.getPeerNode(), file);
+//                p2p.broadcast(msg);
             } catch (Exception e) {
                 e.printStackTrace();
                 //TODO criar mensagem de erro?
@@ -272,8 +260,8 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
             try {
                 PluginGetFile get = f.get();
                 pendingGets.remove(f);
-                Message msg = new PrepRespMessage(p2p.getPeerNode(), getMyInfo(), get.getPluginFile(), get.getTaskId());
-                p2p.sendMessage(get.getPeer(), msg);
+//                Message msg = new PrepRespMessage(p2p.getPeerNode(), getMyInfo(), get.getPluginFile(), get.getTaskId());
+//                p2p.sendMessage(get.getPeer(), msg);
             } catch (Exception e) {
                 e.printStackTrace();
                 // TODO criar mensagem de erro?
@@ -319,12 +307,12 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
         Message message;
         P2PService p2p = getP2P();
 
-        if (getMyInfo() == null)
-            message = new InfoErrorMessage(p2p.getPeerNode(), getId(), getErrorString());
-        else
-            message = new InfoRespMessage(p2p.getPeerNode(), getMyInfo());
-
-        p2p.sendMessage(origin, message);
+//        if (getMyInfo() == null)
+//            message = new InfoErrorMessage(p2p.getPeerNode(), getId(), getErrorString());
+//        else
+//            message = new InfoRespMessage(p2p.getPeerNode(), getMyInfo());
+//
+//        p2p.sendMessage(origin, message);
     }
 
     @Override
@@ -344,7 +332,7 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
             pendingTasks.put(task.getId(), new Pair<PluginTask, Integer>(task, job.getInputs().size()));
             for (Pair<String, Long> pair : job.getInputs()) {
                 String fileId = pair.first;
-                p2p.broadcast(new GetReqMessage(p2p.getPeerNode(), fileId, task.getId()));
+//                p2p.broadcast(new GetReqMessage(p2p.getPeerNode(), fileId, task.getId()));
             }
         } else {
             Future<PluginTask> futureTask = startTask(task,null);
@@ -380,8 +368,8 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
         }
 
         if (task != null) {
-            StatusRespMessage msg = new StatusRespMessage(p2p.getPeerNode(), task);
-            p2p.sendMessage(origin, msg);
+//            StatusRespMessage msg = new StatusRespMessage(p2p.getPeerNode(), task);
+//            p2p.sendMessage(origin, msg);
         }
     }
 
@@ -412,8 +400,8 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
 
         if (count == 0) {
             endingTasks.remove(taskId);
-            EndMessage endMsg = new EndMessage(p2p.getPeerNode(), pair.first);
-            p2p.broadcast(endMsg);
+//            EndMessage endMsg = new EndMessage(p2p.getPeerNode(), pair.first);
+//            p2p.broadcast(endMsg);
         } else {
             Pair<PluginTask, Integer> newPair = new Pair<PluginTask, Integer>(pair.first, count);
             endingTasks.put(taskId, newPair);
@@ -431,8 +419,8 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
     @Override
     protected void recvGetResp(Host origin, PluginInfo plugin, PluginFile file, String taskId) {
         P2PService p2p = getP2P();
-        Message msg = new PrepReqMessage(p2p.getPeerNode(), file, taskId);
-        p2p.sendMessage(plugin.getHost(), msg);
+//        Message msg = new PrepReqMessage(p2p.getPeerNode(), file, taskId);
+//        p2p.sendMessage(plugin.getHost(), msg);
     }
 
     @Override
@@ -514,8 +502,8 @@ public abstract class AbstractPlugin extends P2PAbstractListener implements Plug
             task = endingTasks.remove(taskId).first;
         }
 
-        CancelRespMessage msg = new CancelRespMessage(p2p.getPeerNode(), task);
-        p2p.sendMessage(origin, msg);
+//        CancelRespMessage msg = new CancelRespMessage(p2p.getPeerNode(), task);
+//        p2p.sendMessage(origin, msg);
     }
 
     @Override

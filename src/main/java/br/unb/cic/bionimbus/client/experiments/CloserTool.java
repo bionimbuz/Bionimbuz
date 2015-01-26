@@ -17,16 +17,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import br.unb.cic.bionimbus.client.FileInfo;
-import br.unb.cic.bionimbus.client.shell.commands.SyncCommunication;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
-import br.unb.cic.bionimbus.config.BioNimbusConfigLoader;
-import br.unb.cic.bionimbus.p2p.P2PMessageType;
-import br.unb.cic.bionimbus.p2p.P2PService;
-import br.unb.cic.bionimbus.p2p.messages.JobRespMessage;
-import br.unb.cic.bionimbus.p2p.messages.StoreReqMessage;
-import br.unb.cic.bionimbus.p2p.messages.StoreRespMessage;
-import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.storage.Ping;
 import br.unb.cic.bionimbus.utils.Put;
 import com.fasterxml.jackson.databind.ObjectMapper;
