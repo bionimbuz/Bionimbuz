@@ -58,7 +58,7 @@ public class P2PService {
             types.add(enumType.code());
 
         msgService.bind(new InetSocketAddress(config.getHost().getAddress(), config.getHost().getPort()));
-        //msgService.addFileListener(this);
+        msgService.addFileListener(this);
         msgService.start(new P2PMessageFactory(), this.config);
 
         ThreadFactory threadFactory = new ThreadFactoryBuilder().setDaemon(true).setNameFormat("chord").build();
