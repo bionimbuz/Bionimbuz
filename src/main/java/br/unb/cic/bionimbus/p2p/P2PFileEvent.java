@@ -1,7 +1,7 @@
 package br.unb.cic.bionimbus.p2p;
 
-public class P2PFileEvent implements P2PEvent {
-
+//public class P2PFileEvent implements P2PEvent {
+public class P2PFileEvent {
 //    private File file;
 //
 //    private Map<String, String> parms;

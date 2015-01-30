@@ -1,11 +1,12 @@
 package br.unb.cic.bionimbus.services.discovery;
 
-import br.unb.cic.bionimbus.p2p.P2PService;
+import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxGetInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
+import br.unb.cic.bionimbus.toSort.Listeners;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.RemovalListener;
@@ -15,6 +16,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -31,7 +33,6 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 //	private final ConcurrentMap<String, PluginInfo> infoMap;
 //    private final Cache<String, PluginInfo> infoCache;
     private final ScheduledExecutorService schedExecService;
-    private P2PService p2p;
 //    private BioNimbusConfig config;
 //    private static final String ROOT_PEER = "/peers";
     private static final String SEPARATOR = "/";
@@ -104,17 +105,17 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
             LinuxGetInfo getinfo=new LinuxGetInfo();
             PluginInfo infopc= getinfo.call();
             
-            infopc.setId(p2p.getConfig().getId());
+            infopc.setId(config.getId());
             
             if(start){
-                LinuxPlugin linuxPlugin = new LinuxPlugin(p2p);
+                LinuxPlugin linuxPlugin = new LinuxPlugin(config);
 
-                infopc.setHost(p2p.getConfig().getHost());
+                infopc.setHost(config.getHost());
                 
 // Update uptime information to origin from zookeeper ---------------------------------------------------------------------------
                 //infopc.setUptime(p2p.getPeerNode().uptime());
                 
-                infopc.setPrivateCloud(p2p.getConfig().getPrivateCloud());
+                infopc.setPrivateCloud(config.getPrivateCloud());
 
                 //definindo myInfo após a primeira leitura dos dados
                 linuxPlugin.setMyInfo(infopc);
@@ -145,14 +146,14 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
     }
 
     @Override
-    public void start(final P2PService p2p) {
+    public void start(BioNimbusConfig config, List<Listeners> listeners) {
         try {
-            Preconditions.checkNotNull(p2p);
-            this.p2p = p2p;
+            Preconditions.checkNotNull(listeners);
+            this.listeners = listeners;
             
             setDatasPluginInfo(true);
             
-            p2p.addListener(this);
+            listeners.add(this);
           
             schedExecService.scheduleAtFixedRate(this, 0, PERIOD_SECS, TimeUnit.SECONDS);
         } catch (Exception ex) {

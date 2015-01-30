@@ -1,7 +1,8 @@
 package br.unb.cic.bionimbus.services;
 
 import br.unb.cic.bionimbus.avro.rpc.RpcServer;
-import br.unb.cic.bionimbus.p2p.P2PService;
+import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import br.unb.cic.bionimbus.toSort.Listeners;
 import com.codahale.metrics.MetricRegistry;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -98,16 +99,16 @@ public class ServiceManager {
         services.add(service);
     }
 
-    public void startAll(P2PService p2p) {
+    public void startAll(BioNimbusConfig config, List<Listeners> listeners) {
         try {
             rpcServer.start();
             httpServer.start();
-            connectZK(p2p.getConfig().getZkHosts());
+            connectZK(config.getZkHosts());
             //limpando o servicor zookeeper caso não tenha peer on-line ao inciar servidor zooNimbus
             clearZookeeper();
-            createZnodeZK(p2p.getConfig().getId());
+            createZnodeZK(config.getId());
             for (Service service : services) {
-                service.start(p2p);
+                service.start(config, listeners);
             }
 
         } catch (Exception e) {
