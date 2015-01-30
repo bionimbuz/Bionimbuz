@@ -265,9 +265,9 @@ protocol BioProto {
 
   array<PluginFile> listFiles();
 
-  string startJobName(string jobID);
+  string startJobName(string jobID, string ip);
 
-  string startJob(array<JobInfo> listJob);
+  string startJob(array<JobInfo> listJob, string ip);
 
   string schedPolicy(int numPolicy);
   string statusJob(string jobId);

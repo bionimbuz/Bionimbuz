@@ -26,6 +26,12 @@ import org.apache.zookeeper.KeeperException;
 /**
  * Classe de Implementação dos métodos criados na bioproto.avdl, rpc
  * @author zoonimbus
+ * 
+ * OBSERVAÇÃO: Não esquecer de passar todas atualizações feitas aqui
+ * para o arquivo bioproto.avdl
+ * 
+ * Caso isso não seja feito a geração do BioProto.java estará errada e 
+ * o sistema não compilará no futuro.
  */
 public class BioProtoImpl implements BioProto {
 
