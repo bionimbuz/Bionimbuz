@@ -5,8 +5,10 @@
 package br.unb.cic.bionimbus.services;
 
 
+import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
+import br.unb.cic.bionimbus.toSort.Listeners;
 import com.google.inject.Singleton;
 import java.io.IOException;
 import java.util.List;
@@ -21,11 +23,12 @@ import org.codehaus.jackson.map.ObjectMapper;
  * @author biocloud1
  */
 @Singleton
-public abstract class AbstractBioService implements Service, Runnable {
+public abstract class AbstractBioService implements Service, Runnable, Listeners {
 
     protected ZooKeeperService zkService;
-    private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
-    
+    protected List<Listeners> listeners;
+    protected BioNimbusConfig config;
+    private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();    
     
     /**
      * Método que resgata os peers do zookeeper, que retorna um mapa com os valores dos plugins;

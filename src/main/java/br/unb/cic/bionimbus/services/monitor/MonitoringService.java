@@ -1,13 +1,13 @@
 package br.unb.cic.bionimbus.services.monitor;
 
-import br.unb.cic.bionimbus.p2p.P2PService;
+import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskState;
 import br.unb.cic.bionimbus.services.AbstractBioService;
-import br.unb.cic.bionimbus.services.Service;
 import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
+import br.unb.cic.bionimbus.toSort.Listeners;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -27,7 +27,7 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 
 @Singleton
-public class MonitoringService extends AbstractBioService implements Service, Runnable {
+public class MonitoringService extends AbstractBioService implements Runnable {
 
     private final ScheduledExecutorService schedExecService = Executors.newScheduledThreadPool(1, new BasicThreadFactory.Builder().namingPattern("MonitorService-%d").build());
     private final Map<String, PluginTask> waitingTask = new ConcurrentHashMap<String, PluginTask>();
@@ -35,7 +35,6 @@ public class MonitoringService extends AbstractBioService implements Service, Ru
     private final List<String> waitingFiles = new ArrayList<String>();
     
     private final Collection<String> plugins = new ArrayList<String>();
-    private P2PService p2p = null;
     private static final String ROOT_PEER = "/peers";
     private static final String TASKS = "/tasks";
     private static final String SCHED = "/sched";
@@ -57,22 +56,24 @@ public class MonitoringService extends AbstractBioService implements Service, Ru
     }
 
     @Override
-    public void start(P2PService p2p) {
+    public void start(BioNimbusConfig config, List<Listeners> listeners) {
         try {
             checkPeers();
 //            checkPendingSave();
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        this.p2p = p2p;
-//        if (p2p != null)
-//            p2p.addListener(this);
+        this.config = config;
+        this.listeners = listeners;
+        if (listeners != null)
+            listeners.add(this);
         schedExecService.scheduleAtFixedRate(this, 0, 1, TimeUnit.MINUTES);
     }
 
     @Override
 public void shutdown() {
-        p2p.remove(this);
+        listeners.remove(this);
+//        p2p.remove(this);
         schedExecService.shutdownNow();
     }
 

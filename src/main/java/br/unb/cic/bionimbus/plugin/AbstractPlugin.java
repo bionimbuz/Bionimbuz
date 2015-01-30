@@ -1,8 +1,6 @@
 package br.unb.cic.bionimbus.plugin;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,22 +14,21 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
 import br.unb.cic.bionimbus.client.FileInfo;
-import br.unb.cic.bionimbus.client.JobInfo;
-import br.unb.cic.bionimbus.services.messaging.Message;
+import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.p2p.Host;
-import br.unb.cic.bionimbus.p2p.P2PService;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
+import br.unb.cic.bionimbus.toSort.Listeners;
 import br.unb.cic.bionimbus.utils.Pair;
 import com.google.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 
-error!
-// resolver mensagens p2p comentadas
 
-public abstract class AbstractPlugin implements Plugin, Runnable {
+public abstract class AbstractPlugin implements Plugin, Runnable, Listeners {
 
     private String id;
+    
+    private BioNimbusConfig config;
 
     private Future<PluginInfo> futureInfo = null;
 
@@ -56,28 +53,14 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
     private final ConcurrentMap<String, Pair<String, Integer>> inputFiles = new ConcurrentHashMap<String, Pair<String, Integer>>();
 
     private final ConcurrentMap<String, PluginFile> pluginFiles = new ConcurrentHashMap<String, PluginFile>();
-    
-    
-    
-    
-    // to remove
-    private P2PService service;
-
-    public P2PService getP2P() {
-        return service;
-    }
-
-    public void setP2P(P2PService service) {
-        this.service = service;
-    }
-    
-    
+        
     @Inject
-    public AbstractPlugin(final P2PService p2p) throws IOException {
+    public AbstractPlugin(final BioNimbusConfig config) throws IOException {
 //        super(p2p);
         
         //id provisório
-        id = p2p.getConfig().getId();
+        this.config = config;
+        id = config.getId();
        //id=GetIpMac.getMac();
 //        id = UUID.randomUUID().toString();
 //        File infoFile = new File("plugininfo.json");
@@ -109,6 +92,10 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
     public String getId() {
         
         return id;
+    }
+    
+    public BioNimbusConfig getConfig() {
+        return config;
     }
 
     private Future<PluginInfo> getFutureInfo() {
@@ -159,7 +146,7 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
     @Override
     public void shutdown() {
         schedExecutorService.shutdown();
-        service.remove(this);
+//        service.remove(this);
     }
 
     @Override
@@ -201,7 +188,7 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
     }
 
     private void checkFinishedTasks() {
-        P2PService p2p = service;
+//        P2PService p2p = service;
         Future<PluginTask> futureTask;
         PluginTask task;
 
@@ -225,9 +212,9 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
             if (task.getJobInfo().getOutputs().size() > 0) {
                 int count = 0;
                 for (String output : task.getJobInfo().getOutputs()) {
-                    File file = new File(p2p.getConfig().getServerPath() + "/" + output);
+                    File file = new File(config.getServerPath() + "/" + output);
                     FileInfo info = new FileInfo();
-                    info.setName(p2p.getConfig().getServerPath() + "/" + output);
+                    info.setName(config.getServerPath() + "/" + output);
                     info.setSize(file.length());
 //                    StoreReqMessage msg = new StoreReqMessage(p2p.getPeerNode(), info, task.getId());
 //                    p2p.broadcast(msg);
@@ -242,7 +229,7 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
     }
 
     private void checkPendingSaves() {
-        P2PService p2p = service;
+//        P2PService p2p = service;
 
         for (Future<PluginFile> f : pendingSaves) {
 
@@ -266,7 +253,7 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
     }
 
     private void checkPendingGets() {
-        P2PService p2p = service;
+//        P2PService p2p = service;
 
         for (Future<PluginGetFile> f : pendingGets) {
 

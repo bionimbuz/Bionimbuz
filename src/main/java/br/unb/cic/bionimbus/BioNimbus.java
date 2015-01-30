@@ -3,7 +3,6 @@ package br.unb.cic.bionimbus;
 import java.io.IOException;
 
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
-import br.unb.cic.bionimbus.p2p.P2PService;
 import br.unb.cic.bionimbus.plugin.Plugin;
 import br.unb.cic.bionimbus.services.ServiceManager;
 import br.unb.cic.bionimbus.services.ServiceModule;
@@ -14,8 +13,10 @@ import org.slf4j.LoggerFactory;
 
 import static br.unb.cic.bionimbus.config.BioNimbusConfigLoader.*;
 import static br.unb.cic.bionimbus.plugin.PluginFactory.getPlugin;
+import br.unb.cic.bionimbus.toSort.Listeners;
 
 import static com.google.inject.Guice.createInjector;
+import java.util.List;
 import java.util.UUID;
 
 public class BioNimbus {
@@ -35,21 +36,22 @@ public class BioNimbus {
     public BioNimbus(BioNimbusConfig config) throws IOException, InterruptedException {
 
         config.setId(UUID.randomUUID().toString());
-        final P2PService p2p = new P2PService(config);
+        //final P2PService p2p = new P2PService(config);
+        List<Listeners> listeners = null;
 //        p2p.start();
 
         if (!config.isClient()) {
-            final Plugin plugin = getPlugin(config.getInfra(), p2p);
+            final Plugin plugin = getPlugin(config.getInfra(), config);
             plugin.start();
-            plugin.setP2P(p2p);
+//            plugin.setP2P(p2p);
         }
 
         final Injector injector = createInjector(new ServiceModule());
 
-        if (p2p.isMaster()) {
+//        if (p2p.isMaster()) {
             ServiceManager manager = injector.getInstance(ServiceManager.class);
-            manager.startAll(p2p);
-        }
+            manager.startAll(config, listeners);
+//        }
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {

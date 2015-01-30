@@ -1,5 +1,6 @@
 package br.unb.cic.bionimbus.plugin.sge;
 
+import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -7,7 +8,6 @@ import java.util.concurrent.Future;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
 import br.unb.cic.bionimbus.p2p.Host;
-import br.unb.cic.bionimbus.p2p.P2PService;
 import br.unb.cic.bionimbus.plugin.AbstractPlugin;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginGetFile;
@@ -27,8 +27,8 @@ public class SGEPlugin extends AbstractPlugin {
             .newCachedThreadPool(new BasicThreadFactory.Builder()
                     .namingPattern("SGEPlugin-workers-%d").build());
 
-    public SGEPlugin(P2PService p2p) throws IOException {
-        super(p2p);
+    public SGEPlugin(BioNimbusConfig config) throws IOException {
+        super(config);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class SGEPlugin extends AbstractPlugin {
         if (service == null)
             return null;
 
-        return executorService.submit(new PluginTaskRunner(this, task, service, getP2P().getConfig().getServerPath(),zk));
+        return executorService.submit(new PluginTaskRunner(this, task, service, getConfig().getServerPath(),zk));
     }
 
     @Override

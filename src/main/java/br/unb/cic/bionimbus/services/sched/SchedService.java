@@ -3,18 +3,18 @@ package br.unb.cic.bionimbus.services.sched;
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.client.JobInfo;
-import br.unb.cic.bionimbus.p2p.P2PService;
+import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskState;
 import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
 import br.unb.cic.bionimbus.services.AbstractBioService;
-import br.unb.cic.bionimbus.services.Service;
 import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.services.storage.Ping;
+import br.unb.cic.bionimbus.toSort.Listeners;
 import br.unb.cic.bionimbus.utils.Get;
 import br.unb.cic.bionimbus.utils.Pair;
 import com.google.common.base.Preconditions;
@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class SchedService extends AbstractBioService implements Service, Runnable {
+public class SchedService extends AbstractBioService implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SchedService.class.getSimpleName());
     private final ConcurrentHashMap<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
@@ -52,7 +52,6 @@ public class SchedService extends AbstractBioService implements Service, Runnabl
     private RpcClient rpcClient;
 
     private final Integer policy = 0;
-    private P2PService p2p = null;
     private String idPlugin;
     private LinuxPlugin myLinuxPlugin;
     private SchedPolicy schedPolicy;
@@ -108,12 +107,13 @@ public class SchedService extends AbstractBioService implements Service, Runnabl
     // TO DO retirar serviço P2P?
 
     @Override
-    public void start(P2PService p2p) {
-        this.p2p = p2p;
-        if (p2p != null) {
-            p2p.addListener(this);
+    public void start(BioNimbusConfig config, List<Listeners> listeners) {
+        this.config = config;
+        this.listeners = listeners;
+        if (listeners != null) {
+            listeners.add(this);
         }
-        idPlugin = this.p2p.getConfig().getId();
+        idPlugin = this.config.getId();
 
         //inicia o valor do zk na politica de escalonamento
         getPolicy().schedule(null, zkService);
@@ -381,8 +381,7 @@ public class SchedService extends AbstractBioService implements Service, Runnabl
      * Verifica qual é o Plugin referente ao mesmo do recurso.
      */
     private void checkMyPlugin() {
-        List<P2PListener> listeners = p2p.getListener();
-        for (P2PListener listener : listeners) {
+        for (Listeners listener : listeners) {
             if (listener instanceof LinuxPlugin) {
                 this.myLinuxPlugin = (LinuxPlugin) listener;
             }
@@ -505,7 +504,7 @@ public class SchedService extends AbstractBioService implements Service, Runnabl
     private void checkFilesPlugin() {
         try {
             //realiza uma chama rpc para atualizar a lista de arquivos no zookeeper
-            rpcClient = new AvroClient(p2p.getConfig().getRpcProtocol(), myLinuxPlugin.getMyInfo().getHost().getAddress(), myLinuxPlugin.getMyInfo().getHost().getPort());
+            rpcClient = new AvroClient(config.getRpcProtocol(), myLinuxPlugin.getMyInfo().getHost().getAddress(), myLinuxPlugin.getMyInfo().getHost().getPort());
             rpcClient.getProxy().listFilesName();
             rpcClient.close();
             if (zkService.getZNodeExist(myLinuxPlugin.getMyInfo().getPath_zk() + zkService.getPath().FILES.toString(), false)) {
@@ -881,7 +880,7 @@ public class SchedService extends AbstractBioService implements Service, Runnabl
 
     @Override
     public void shutdown() {
-        p2p.remove(this);
+        listeners.remove(this);
         schedExecService.shutdownNow();
     }
 

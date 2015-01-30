@@ -1,10 +1,9 @@
 package br.unb.cic.bionimbus.client;
 
-import br.unb.cic.bionimbus.p2p.P2PService;
 
 public class Client {// implements P2PListener {
 
-    private P2PService p2p;
+//    private P2PService p2p;
 
 //    public void setP2P(P2PService p2p) {
 //        this.p2p = p2p;

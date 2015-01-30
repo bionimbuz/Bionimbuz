@@ -1,11 +1,13 @@
 package br.unb.cic.bionimbus.services;
 
-import br.unb.cic.bionimbus.p2p.P2PService;
+import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import br.unb.cic.bionimbus.toSort.Listeners;
+import java.util.List;
 import org.apache.zookeeper.WatchedEvent;
 
 public interface Service {
 
-    public void start(P2PService p2p);
+    public void start(BioNimbusConfig config, List<Listeners> listeners);
 
     public void shutdown();
 

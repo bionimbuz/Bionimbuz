@@ -18,7 +18,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import br.unb.cic.bionimbus.client.FileInfo;
 import br.unb.cic.bionimbus.client.JobInfo;
-import br.unb.cic.bionimbus.p2p.P2PService;
 import br.unb.cic.bionimbus.p2p.PeerNode;
 import br.unb.cic.bionimbus.plugin.Plugin;
 import br.unb.cic.bionimbus.plugin.PluginFile;
@@ -27,6 +26,12 @@ import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.utils.Pair;
 import java.util.ArrayList;
+
+/**
+ * P2P foi removido sem correção
+ * Provavelmente este modulo não está mais funcionando
+ * Quem o escreveu/for corrigir, favor resolver sem o uso de P2P
+ */
 
 public class HadoopPlugin implements Plugin, Runnable {
 //public class HadoopPlugin extends AbstractBioService implements Plugin, P2PListener, Runnable {
@@ -61,7 +66,7 @@ public class HadoopPlugin implements Plugin, Runnable {
 
     private final ConcurrentMap<String, Pair<String, Integer>> inputFiles = new ConcurrentHashMap<String, Pair<String, Integer>>();
 
-    private P2PService p2p;
+//    private P2PService p2p;
 
 //    @Inject
 //    public HadoopPlugin(final ZooKeeperService zk) {
@@ -118,9 +123,9 @@ public class HadoopPlugin implements Plugin, Runnable {
                 if (!task.getJobInfo().getOutputs().isEmpty()) {
                     int count = 0;
                     for (String output : task.getJobInfo().getOutputs()) {
-                        File file = new File(p2p.getConfig().getServerPath() + "/" + output);
+                        File file = null;//new File(p2p.getConfig().getServerPath() + "/" + output);
                         FileInfo info = new FileInfo();
-                        info.setName(p2p.getConfig().getServerPath() + "/" + output);
+                        info.setName("");//p2p.getConfig().getServerPath() + "/" + output);
                         info.setSize(file.length());
 //                        StoreReqMessage msg = new StoreReqMessage(p2p.getPeerNode(), info, task.getId());
 //                        p2p.broadcast(msg);
@@ -395,7 +400,7 @@ public class HadoopPlugin implements Plugin, Runnable {
         if (service == null)
             return null;
 
-        Future<PluginTask> fTask = executorService.submit(new HadoopTask(this, task, service, p2p.getConfig().getServerPath()));
+        Future<PluginTask> fTask = executorService.submit(new HadoopTask(this, task, service, null));//p2p.getConfig().getServerPath()));
         Pair<PluginTask, Future<PluginTask>> pair = Pair.of(task, fTask);
         executingTasks.put(task.getId(), pair);
 
@@ -415,7 +420,7 @@ public class HadoopPlugin implements Plugin, Runnable {
             Future<PluginFile> f = executorService.submit(new HadoopSaveFile(file.getName()));
             pendingSaves.add(f);
         } else {
-            p2p.sendFile(plugin.getHost(), file.getName());
+//            p2p.sendFile(plugin.getHost(), file.getName());
         }
 
         int count = pair.second;

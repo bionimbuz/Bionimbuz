@@ -4,7 +4,7 @@ import br.unb.cic.bionimbus.avro.gen.FileInfo;
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
-import br.unb.cic.bionimbus.p2p.P2PService;
+import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.AbstractBioService;
@@ -13,6 +13,7 @@ import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import br.unb.cic.bionimbus.services.monitor.MonitoringService;
 import br.unb.cic.bionimbus.services.sched.SchedService;
+import br.unb.cic.bionimbus.toSort.Listeners;
 import br.unb.cic.bionimbus.utils.Nmap;
 import br.unb.cic.bionimbus.utils.Put;
 import com.codahale.metrics.Counter;
@@ -53,7 +54,6 @@ public class StorageService extends AbstractBioService {
     private Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
     private Map<String, PluginFile> savedFiles = new ConcurrentHashMap<String, PluginFile>();
 //    private Set<String> pendingSaveFiles = new HashSet<String>();
-    private P2PService p2p = null;
     private File dataFolder = new File("data-folder"); //TODO: remover hard-coded e colocar em node.yaml e injetar em StorageService
     private Double MAXCAPACITY = 0.9;
     private int PORT = 8080;
@@ -79,17 +79,20 @@ public class StorageService extends AbstractBioService {
 
     /**
      * Método que inicia a storage
+     * @param config
+     * @param listeners
      * @param p2p
      */
     @Override
-    public void start(P2PService p2p) {
-        this.p2p = p2p;
-        if (p2p != null) {
-            p2p.addListener(this);
+    public void start(BioNimbusConfig config, List<Listeners> listeners) {
+        this.config = config;
+        this.listeners = listeners;
+        if (listeners != null) {
+            listeners.add(this);
         }
         //Criando pastas zookeeper para o módulo de armazenamento
         zkService.createPersistentZNode(zkService.getPath().PENDING_SAVE.toString(), null);
-        zkService.createPersistentZNode(zkService.getPath().FILES.getFullPath(p2p.getConfig().getId(), "", ""), "");
+        zkService.createPersistentZNode(zkService.getPath().FILES.getFullPath(config.getId(), "", ""), "");
         try {
             //watcher para verificar se um pending_save foi lançado
             zkService.getChildren(zkService.getPath().PENDING_SAVE.getFullPath("", "", ""), new UpdatePeerData(zkService, this));
@@ -118,7 +121,8 @@ public class StorageService extends AbstractBioService {
 
     @Override
     public void shutdown() {
-        p2p.remove(this);
+        listeners.remove(this);
+//        p2p.remove(this);
         executorService.shutdownNow();
     }
 
@@ -158,7 +162,7 @@ public class StorageService extends AbstractBioService {
 //                System.out.println(" (CheckFiles) dataFolder " + dataFolder + " doesn't exists, creating...");
                 dataFolder.mkdirs();
             }
-            zkService.getChildren(zkService.getPath().FILES.getFullPath(p2p.getConfig().getId(), "", ""), new UpdatePeerData(zkService, this));
+            zkService.getChildren(zkService.getPath().FILES.getFullPath(config.getId(), "", ""), new UpdatePeerData(zkService, this));
             for (File file : dataFolder.listFiles()) {
                 if (!savedFiles.containsKey(file.getName())) {
 
@@ -168,13 +172,13 @@ public class StorageService extends AbstractBioService {
                     pluginFile.setPath(file.getPath());
 
                     List<String> listIds = new ArrayList<String>();
-                    listIds.add(p2p.getConfig().getId());
+                    listIds.add(config.getId());
 
                     pluginFile.setPluginId(listIds);
                     pluginFile.setSize(file.length());
                     //cria um novo znode para o arquivo e adiciona o watcher
-                    zkService.createPersistentZNode(zkService.getPath().PREFIX_FILE.getFullPath(p2p.getConfig().getId(), pluginFile.getId(), ""), pluginFile.toString());
-                    zkService.getData(zkService.getPath().PREFIX_FILE.getFullPath(p2p.getConfig().getId(), pluginFile.getId(), ""), new UpdatePeerData(zkService, this));
+                    zkService.createPersistentZNode(zkService.getPath().PREFIX_FILE.getFullPath(config.getId(), pluginFile.getId(), ""), pluginFile.toString());
+                    zkService.getData(zkService.getPath().PREFIX_FILE.getFullPath(config.getId(), pluginFile.getId(), ""), new UpdatePeerData(zkService, this));
 
                     savedFiles.put(pluginFile.getName(), pluginFile);
                 }
@@ -210,7 +214,7 @@ public class StorageService extends AbstractBioService {
                      * enviando uma RPC para o peer que possui o arquivo, para que ele replique.
                      */
                         String ipPluginFile = getIpContainsFile(fileNamePlugin);
-                    if (!ipPluginFile.isEmpty() && !ipPluginFile.equals(p2p.getConfig().getAddress())) {
+                    if (!ipPluginFile.isEmpty() && !ipPluginFile.equals(config.getAddress())) {
                         RpcClient rpcClient = new AvroClient("http", ipPluginFile, PORT);
                         rpcClient.getProxy().notifyReply(fileNamePlugin, ipPluginFile);
                         rpcClient.close();
@@ -375,9 +379,9 @@ public class StorageService extends AbstractBioService {
         File localFile = new File(path + file.getName());
        
         if (localFile.exists()) {
-            zkService.createPersistentZNode(zkService.getPath().PREFIX_FILE.getFullPath(p2p.getConfig().getId(), file.getId(), ""), file.toString());
+            zkService.createPersistentZNode(zkService.getPath().PREFIX_FILE.getFullPath(config.getId(), file.getId(), ""), file.toString());
             try {
-                zkService.getData(zkService.getPath().PREFIX_FILE.getFullPath(p2p.getConfig().getId(), file.getId(), ""), new UpdatePeerData(zkService, this));
+                zkService.getData(zkService.getPath().PREFIX_FILE.getFullPath(config.getId(), file.getId(), ""), new UpdatePeerData(zkService, this));
             } catch (KeeperException ex) {
                 Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
             } catch (InterruptedException ex) {
@@ -385,7 +389,7 @@ public class StorageService extends AbstractBioService {
             }
             return true;
         }
-        System.out.println("\n\n arquivo nao encontrado no peer"+p2p.getConfig().getId());
+        System.out.println("\n\n arquivo nao encontrado no peer"+config.getId());
         return false;
     }
 
@@ -413,7 +417,7 @@ public class StorageService extends AbstractBioService {
                 break;
             }
             System.out.println("(FileUploaded)IdPluginFile: "+idPluginFile);
-            if (!p2p.getConfig().getAddress().equals(ipPluginFile)){
+            if (!config.getAddress().equals(ipPluginFile)){
        
                 RpcClient rpcClient = new AvroClient("http", ipPluginFile, PORT);
                 try {                        
@@ -429,7 +433,7 @@ public class StorageService extends AbstractBioService {
                 if (checkFilePeer(fileuploaded)) {
                     if (zkService.getZNodeExist(zkService.getPath().PREFIX_FILE.getFullPath(idPluginFile, fileuploaded.getId(), ""), true)&&!existReplication(file.getName())){
                         try {
-                                 replication(file.getName(), p2p.getConfig().getAddress());
+                                 replication(file.getName(), config.getAddress());
                                  if(existReplication(file.getName())){
                                  zkService.delete(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", fileuploaded.getId(),""));
                                  }
@@ -472,7 +476,7 @@ public class StorageService extends AbstractBioService {
                     PluginFile fileplugin = mapper.readValue(data, PluginFile.class);
                     
                     //verifica se é um arquivo de saída de uma execução e se o arquivo foi gerado nesse recurso
-                    if(fileplugin.getService()!=null && fileplugin.getService().equals(SchedService.class.getSimpleName()) && fileplugin.getPluginId().get(0).equals(p2p.getConfig().getId())){
+                    if(fileplugin.getService()!=null && fileplugin.getService().equals(SchedService.class.getSimpleName()) && fileplugin.getPluginId().get(0).equals(config.getId())){
                         //adiciona o arquivo a lista do zookeeper
                         checkFiles();
                     }
@@ -483,7 +487,7 @@ public class StorageService extends AbstractBioService {
                             break;
                         }
                         String address = getIpContainsFile(fileplugin.getName());
-                        if(!address.isEmpty() && !address.equals(p2p.getConfig().getAddress())){
+                        if(!address.isEmpty() && !address.equals(config.getAddress())){
                             RpcClient rpcClient = new AvroClient("http", address, PORT);
                             rpcClient.getProxy().notifyReply(fileplugin.getName(), address);
                             try {
@@ -586,7 +590,7 @@ public class StorageService extends AbstractBioService {
             }
             if(no!=null){
                 pluginList.remove(no);
-                idsPluginsFile.add(p2p.getConfig().getId());
+                idsPluginsFile.add(config.getId());
                 pluginList = new ArrayList<NodeInfo>(bestNode(pluginList));
                 for (NodeInfo curr : pluginList){
                     if (no.getAddress().equals(curr.getAddress())){
@@ -655,7 +659,7 @@ public class StorageService extends AbstractBioService {
             try {
                 NodeInfo node = new NodeInfo();
 
-                if ((long) (plugin.getFsFreeSize() * MAXCAPACITY) > lengthFile && plugin.getId().equals(p2p.getConfig().getId())) {
+                if ((long) (plugin.getFsFreeSize() * MAXCAPACITY) > lengthFile && plugin.getId().equals(config.getId())) {
                     node.setLatency(Ping.calculo(plugin.getHost().getAddress()));
                     if(node.getLatency().equals(Double.MAX_VALUE))
                         node.setLatency(Nmap.nmap(plugin.getHost().getAddress()));
@@ -779,7 +783,7 @@ public class StorageService extends AbstractBioService {
                                 for (PluginFile fileExcluded : getFilesPeer(peerId)) {
                                     String idPluginExcluded = null;
                                     for (String idPlugin : fileExcluded.getPluginId()) {
-                                        if (peerId.equals(idPlugin)&&!idPlugin.equals(p2p.getConfig().getId())) {
+                                        if (peerId.equals(idPlugin)&&!idPlugin.equals(config.getId())) {
                                             idPluginExcluded = idPlugin;
                                             break;
                                         }
