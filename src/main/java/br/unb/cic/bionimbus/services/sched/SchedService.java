@@ -104,15 +104,14 @@ public class SchedService extends AbstractBioService implements Runnable {
 
         checkTasks();
     }
-    // TO DO retirar serviço P2P?
 
     @Override
     public void start(BioNimbusConfig config, List<Listeners> listeners) {
         this.config = config;
         this.listeners = listeners;
-        if (listeners != null) {
+//        if (listeners != null) {
             listeners.add(this);
-        }
+//        }
         idPlugin = this.config.getId();
 
         //inicia o valor do zk na politica de escalonamento
@@ -381,7 +380,9 @@ public class SchedService extends AbstractBioService implements Runnable {
      * Verifica qual é o Plugin referente ao mesmo do recurso.
      */
     private void checkMyPlugin() {
+        System.out.println("Listeners:");
         for (Listeners listener : listeners) {
+            System.out.println(listener.toString());
             if (listener instanceof LinuxPlugin) {
                 this.myLinuxPlugin = (LinuxPlugin) listener;
             }
@@ -435,7 +436,8 @@ public class SchedService extends AbstractBioService implements Runnable {
         System.out.println("..checkWaitingTasks..");
 
         for (PluginInfo plugin : plgs) {
-
+            
+            System.out.println(myLinuxPlugin.getMyInfo().getId());
             //cria watch para ser adicionado no znode que contém as tarefas escanoladas desse plugin
             if (myLinuxPlugin.getMyInfo().getId().equals(plugin.getId())) {
                 System.out.println("checkWaitingTasks : watcher adicionado no plugin " + plugin.getId());

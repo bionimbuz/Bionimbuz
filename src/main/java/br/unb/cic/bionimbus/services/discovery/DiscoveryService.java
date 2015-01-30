@@ -119,6 +119,8 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 
                 //definindo myInfo após a primeira leitura dos dados
                 linuxPlugin.setMyInfo(infopc);
+                System.out.println(linuxPlugin.getMyInfo().toString());
+                System.out.println("");
             }else{
                 String data = zkService.getData(infopc.getPath_zk(), null);
                 if (data == null || data.trim().isEmpty()){
@@ -149,6 +151,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
     public void start(BioNimbusConfig config, List<Listeners> listeners) {
         try {
             Preconditions.checkNotNull(listeners);
+            this.config = config;
             this.listeners = listeners;
             
             setDatasPluginInfo(true);
