@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 
-public abstract class AbstractPlugin implements Plugin, Runnable, Listeners {
+public abstract class AbstractPlugin implements Plugin, Runnable {
 
     private String id;
     

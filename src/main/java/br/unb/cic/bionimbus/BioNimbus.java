@@ -16,8 +16,10 @@ import static br.unb.cic.bionimbus.plugin.PluginFactory.getPlugin;
 import br.unb.cic.bionimbus.toSort.Listeners;
 
 import static com.google.inject.Guice.createInjector;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class BioNimbus {
 
@@ -37,12 +39,13 @@ public class BioNimbus {
 
         config.setId(UUID.randomUUID().toString());
         //final P2PService p2p = new P2PService(config);
-        List<Listeners> listeners = null;
+        List<Listeners> listeners = new CopyOnWriteArrayList<Listeners>();
 //        p2p.start();
 
         if (!config.isClient()) {
             final Plugin plugin = getPlugin(config.getInfra(), config);
             plugin.start();
+            listeners.add(plugin);
 //            plugin.setP2P(p2p);
         }
 
