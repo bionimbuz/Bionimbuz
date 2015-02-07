@@ -102,12 +102,15 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
      }
     public void setDatasPluginInfo(boolean start) {
         try {
+            
             LinuxGetInfo getinfo=new LinuxGetInfo();
             PluginInfo infopc= getinfo.call();
             
             infopc.setId(config.getId());
             
             if(start){
+            // LinuxPlugin está contido nesse metodo, e deveria ser mandado 
+            // para o linuxplugin Bionimbus.java
                 LinuxPlugin linuxPlugin = new LinuxPlugin(config);
 
                 infopc.setHost(config.getHost());
