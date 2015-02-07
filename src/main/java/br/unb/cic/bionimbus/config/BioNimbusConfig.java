@@ -23,9 +23,9 @@ public class BioNimbusConfig {
     @JsonIgnore
     private String plugin;
     
-    
+    //retirar seeds
     @JsonIgnore
-    private Set<Host> seeds = new HashSet<Host>();
+   private Set<Host> seeds = new HashSet<Host>();
     
     @JsonIgnore
     private boolean client = false;
@@ -44,7 +44,7 @@ public class BioNimbusConfig {
     
     @JsonProperty("zookeeper_hosts")
     private String zkHosts;
-    
+    //retirar Host
     private Host host;
     
     @JsonProperty("server-path")
