@@ -53,6 +53,7 @@ public class SchedService extends AbstractBioService implements Runnable {
 
     private final Integer policy = 0;
     private String idPlugin;
+    
     private LinuxPlugin myLinuxPlugin;
     private SchedPolicy schedPolicy;
     private static final String STATUS = "/STATUS";
@@ -434,6 +435,8 @@ public class SchedService extends AbstractBioService implements Runnable {
         List<String> listTasks;
         Watcher watcher;
         System.out.println("..checkWaitingTasks..");
+        
+        System.out.println("myLinuxPlugin.getMyInfo(): " + myLinuxPlugin.getMyInfo());
 
         for (PluginInfo plugin : plgs) {
             
