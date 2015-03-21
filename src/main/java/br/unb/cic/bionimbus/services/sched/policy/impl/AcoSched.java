@@ -82,6 +82,7 @@ public class AcoSched extends SchedPolicy {
         //inicia o ACO para encontrar melhor PC dentro das nuvens escolhidas para o job
         AlgorithmAco(listPlugin);
 
+        System.out.println("AcoSched");
         PluginInfo plugin = new PluginInfo();
         plugin.setRanking(Double.MIN_VALUE);
 
