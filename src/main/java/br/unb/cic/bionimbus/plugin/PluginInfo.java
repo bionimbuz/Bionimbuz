@@ -45,6 +45,12 @@ public class PluginInfo implements PluginOps {
     private Double frequencyCore;
 
     private List<PluginService> services;
+
+    public PluginInfo() {
+        System.out.println("Default Host and Address - 127.0.0.1:8080. Reason: not configured (solucao paleativa)");
+        host =  new Host("127.0.0.1", 8080);
+    }
+    
     
 
     public String getId() {

@@ -34,6 +34,12 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
 
     private final PluginInfo pluginInfo = new PluginInfo();
 
+    public LinuxGetInfo() {
+        System.out.println("LinuxGetInfo");
+    }
+    
+    
+
     @Override
     public PluginInfo call() {
         

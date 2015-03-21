@@ -25,10 +25,11 @@ public final class Host implements Comparable<Host> {
     private int port;
 
     // o json decoder precisa deste construtor vazio
-    Host() {
+    Host() {   
     }
 
     public Host(String address, int port) {
+        System.out.println("Host and Address configured to " + address + ":" + port);
         this.address = address.trim();
         this.port = port;
     }
