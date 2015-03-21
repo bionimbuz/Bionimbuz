@@ -63,7 +63,6 @@
     </repositories>
 	<build>
         <finalName>zoonimbus</finalName>
-        <pluginManagement>
 	        <plugins>
 	            <plugin>
 	                <groupId>org.apache.maven.plugins</groupId>
@@ -214,7 +213,6 @@
 				    </executions>
 				</plugin>
 	        </plugins>
-		</pluginManagement>
     </build>
     <dependencies>
         <dependency>
@@ -442,12 +440,5 @@
             <artifactId>spring-core</artifactId>
             <version>3.0.7</version>
         </dependency-->
-        <dependency>
-            <groupId>org.choco-solver</groupId>
-            <artifactId>choco-solver</artifactId>
-            <version>3.3.0</version>
-            <type>jar</type>
-        </dependency>
-
     </dependencies>
 </project>
