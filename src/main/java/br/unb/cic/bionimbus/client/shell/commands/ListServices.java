@@ -22,28 +22,7 @@ public class ListServices implements Command {
 
         BioProto proxy = shell.getProxy();
         return Joiner.on("\n").join(proxy.listServices());
-/*
-        P2PService p2p = shell.getP2P();
-        SyncCommunication comm = new SyncCommunication(p2p);
 
-        shell.print("Listing services...");
-
-        comm.sendReq(new CloudReqMessage(p2p.getPeerNode()), P2PMessageType.CLOUDRESP);
-        CloudRespMessage cloudMsg = (CloudRespMessage) comm.getResp();
-
-        String list = "";
-        if (!cloudMsg.values().isEmpty()) {
-            for (PluginInfo info : cloudMsg.values()) {
-                for (PluginService service : info.getServices()) {
-                    list += "ID: " + service.getId() + "; NAME: " + service.getName() + "\n";
-                }
-            }
-        } else {
-            list = "0 services found.\n";
-        }
-        list += "\n";
-
-        return list;*/
     }
 
     @Override

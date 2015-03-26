@@ -28,51 +28,6 @@ public class JobStart implements Command {
         
         BioProto proxy = shell.getProxy();
         return proxy.startJobName(param.toString(), shell.getIp());
-
-/*        if (!shell.isConnected())
-            throw new IllegalStateException(
-                    "This command should be used with an active connection!");
-
-        P2PService p2p = shell.getP2P();
-        SyncCommunication comm = new SyncCommunication(p2p);
-        int i = 0;
-
-        shell.print("Starting job...");
-
-        JobInfo job = new JobInfo();
-        job.setId(null);
-        job.setServiceId(Long.parseLong(params[0]));
-        i++;
-
-        while (i < params.length) {
-            if (i == 1) {
-                job.setArgs(params[i]);
-                i++;
-            } else if (params[i].equals("-i")) {
-                i++;
-                while (i < params.length && !params[i].equals("-o")) {
-                    job.addInput(params[i], Long.valueOf(0));
-                    i++;
-                }
-            } else if (params[i].equals("-o")) {
-                i++;
-                while (i < params.length) {
-                    job.addOutput(params[i]);
-                    i++;
-                }
-            }
-        }
-
-        ArrayList<JobInfo> jobList = new ArrayList<JobInfo>();
-        jobList.add(job);
-        comm.sendReq(new JobReqMessage(p2p.getPeerNode(), jobList), P2PMessageType.JOBRESP);
-        JobRespMessage resp = (JobRespMessage) comm.getResp();
-
-        if (resp.getJobInfo() == null) {
-            return "Unavailable service for job.";
-        }
-
-        return "Job " + resp.getJobInfo().getId() + " started succesfully";*/
     }
 
     @Override

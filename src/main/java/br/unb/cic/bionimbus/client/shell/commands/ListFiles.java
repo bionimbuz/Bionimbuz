@@ -23,38 +23,6 @@ public class ListFiles implements Command {
         BioProto proxy = shell.getProxy();
        
        return Joiner.on("\n").join(proxy.listFilesName());
-
-/*
-        }
-
-        P2PService p2p = shell.getP2P();
-        
-        SyncCommunication comm = new SyncCommunication(p2p);
-
-        shell.print("Listing files...");
-
-        //Implementar o for para enviar para todos os arquivos
-         ListRespMessage resp = new ListRespMessage();
-        for (PeerNode node : chord.peers()) {
-                    
-        comm.sendReq(new ListReqMessage(p2p.getPeerNode()),
-                P2PMessageType.LISTRESP);
-        resp = (ListRespMessage) comm.getResp();
-
-        }
-        
-        String list = "";
-        if (!resp.values().isEmpty()) {
-            for (PluginFile file : resp.values()) {
-                list += "ID: " + file.getId() + "; NAME: " + file.getPath() + "; SIZE: " + file.getSize() + "\n";
-            }
-            list += resp.values().size() + " files found.\n";
-        } else {
-            list = "0 files found.\n";
-        }
-        list += "\n";
-
-        return list;*/
     }
 
     @Override

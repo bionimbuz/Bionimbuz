@@ -69,18 +69,6 @@ public class CloserTool {
         w2.close();
     }
 
-//    private void sendFile(P2PService p2p, SyncCommunication comm, File file) throws Exception {
-//        FileInfo info = new FileInfo();
-//        info.setName(file.getName());
-//        info.setSize(file.length());
-//        LOG.info("Enviando arquivo " + info.getName() + " de tamanho " + info.getSize() + " bytes.");
-//
-//        comm.sendReq(new StoreReqMessage(p2p.getPeerNode(), info, ""), P2PMessageType.STORERESP);
-//        StoreRespMessage resp = (StoreRespMessage) comm.getResp();
-//        PluginInfo pluginInfo = resp.getPluginInfo();
-//        p2p.sendFile(pluginInfo.getHost(), resp.getFileInfo().getName());
-//    }
-
     public void uploadFiles(String filename) throws Exception {
         List<NodeInfo> pluginList;
         List<NodeInfo> nodesdisp = new ArrayList<NodeInfo>();
