@@ -2,7 +2,6 @@ package br.unb.cic.bionimbus.plugin;
 
 import java.util.List;
 
-import com.google.common.base.Objects;
 import com.google.common.primitives.Longs;
 
 public class PluginService {

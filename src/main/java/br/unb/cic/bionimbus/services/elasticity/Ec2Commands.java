@@ -80,7 +80,7 @@ public static void setup () throws IOException,IllegalArgumentException{
             System.out.println(instanceId+" "+is.getName());
            }
            try {
-       		Thread.currentThread().sleep(3000);
+       		       Thread.sleep(3000);
        	} catch (InterruptedException e) {
        		// TODO Auto-generated catch block
        		e.printStackTrace();
@@ -162,7 +162,7 @@ public static void setup () throws IOException,IllegalArgumentException{
     
     System.out.println("waiting");
     try {
-		Thread.currentThread().sleep(50000);
+		Thread.sleep(50000);
 	} catch (InterruptedException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
@@ -182,7 +182,7 @@ public static void setup () throws IOException,IllegalArgumentException{
     }
     
     try {
-   		Thread.currentThread().sleep(3000);
+   		   Thread.sleep(3000);
    	} catch (InterruptedException e) {
    		// TODO Auto-generated catch block
    		e.printStackTrace();
@@ -217,7 +217,7 @@ public static void setup () throws IOException,IllegalArgumentException{
         System.out.println("Stopping instance "+instanceid);
         
         try {
-       		Thread.currentThread().sleep(3000);
+       		       Thread.sleep(3000);
        	} catch (InterruptedException e) {
        		// TODO Auto-generated catch block
        		e.printStackTrace();
@@ -253,7 +253,7 @@ public static void setup () throws IOException,IllegalArgumentException{
         System.out.println("Starting instance "+instanceid);
                
         try {
-       		Thread.currentThread().sleep(3000);
+       		       Thread.sleep(3000);
        	} catch (InterruptedException e) {
        		// TODO Auto-generated catch block
        		e.printStackTrace();
@@ -285,7 +285,7 @@ public static void setup () throws IOException,IllegalArgumentException{
         System.out.println("Terminating the instance : "+instanceid);
         
         try {
-       		Thread.currentThread().sleep(3000);
+       		       Thread.sleep(3000);
        	} catch (InterruptedException e) {
        		// TODO Auto-generated catch block
        		e.printStackTrace();
@@ -317,7 +317,7 @@ public static void setup () throws IOException,IllegalArgumentException{
 			
 				
 		  try {
-	       		Thread.currentThread().sleep(3000);
+	       		       Thread.sleep(3000);
 	       	} catch (InterruptedException e) {
 	       		// TODO Auto-generated catch block
 	       		e.printStackTrace();
@@ -349,7 +349,7 @@ public static void setup () throws IOException,IllegalArgumentException{
 		System.out.println("The imageid of the newly created AMI is "+imageid);
 		
 		try {
-       		Thread.currentThread().sleep(3000);
+       		       Thread.sleep(3000);
        	} catch (InterruptedException e) {
        		// TODO Auto-generated catch block
        		e.printStackTrace();
