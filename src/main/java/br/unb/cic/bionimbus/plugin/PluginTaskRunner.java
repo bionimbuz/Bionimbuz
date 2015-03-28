@@ -2,13 +2,11 @@ package br.unb.cic.bionimbus.plugin;
 
 import br.unb.cic.bionimbus.services.ZooKeeperService;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import br.unb.cic.bionimbus.utils.Pair;
-import java.io.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

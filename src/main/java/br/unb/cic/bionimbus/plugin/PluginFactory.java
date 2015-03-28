@@ -2,7 +2,6 @@ package br.unb.cic.bionimbus.plugin;
 
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
-import br.unb.cic.bionimbus.plugin.sge.SGEPlugin;
 import java.io.IOException;
 
 public class PluginFactory {
@@ -19,9 +18,9 @@ public class PluginFactory {
 //            else 
             if (pluginType.equals("linux"))
                 REF = new LinuxPlugin(config);
-            else if (pluginType.equals("sge")) {
-                REF = new SGEPlugin(config);
-            }
+//            else if (pluginType.equals("sge")) {
+//                REF = new SGEPlugin(config);
+//            }
         }
         return REF;
     }

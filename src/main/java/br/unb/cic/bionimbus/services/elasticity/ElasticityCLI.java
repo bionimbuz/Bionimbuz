@@ -6,7 +6,6 @@
 
 package br.unb.cic.bionimbus.services.elasticity;
 
-import br.unb.cic.bionimbus.services.elasticity.Ec2Commands;
 import java.io.IOException;
 import java.util.Scanner;
 

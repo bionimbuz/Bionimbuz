@@ -1,14 +1,8 @@
 package br.unb.cic.bionimbus.services;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
 import javax.servlet.http.HttpServlet;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.health.HealthCheckRegistry;
 import com.codahale.metrics.servlets.AdminServlet;
-import com.codahale.metrics.servlets.HealthCheckServlet;
-import com.codahale.metrics.servlets.MetricsServlet;
 import com.google.inject.Inject;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
@@ -16,7 +10,6 @@ import org.mortbay.jetty.servlet.ServletHolder;
 
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 
-import java.util.EventListener;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 

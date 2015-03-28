@@ -35,17 +35,17 @@ public class LinuxPlugin extends AbstractPlugin{
         
         return executorService.submit(new LinuxGetInfo());
     }
-
-    @Override
-    protected Future<PluginFile> saveFile(String filename) {
-        return executorService.submit(new LinuxSaveFile(filename));
-    }
-
-    @Override
-    protected Future<PluginGetFile> getFile(Host origin, PluginFile file, String taskId, String savePath) {
-        return executorService.submit(new LinuxGetFile(file, taskId, origin, savePath));
-    }
-
+//
+//    @Override
+//    protected Future<PluginFile> saveFile(String filename) {
+//        return executorService.submit(new LinuxSaveFile(filename));
+//    }
+//
+//    @Override
+//    protected Future<PluginGetFile> getFile(Host origin, PluginFile file, String taskId, String savePath) {
+//        return executorService.submit(new LinuxGetFile(file, taskId, origin, savePath));
+//    }
+//
     @Override
     public Future<PluginTask> startTask(PluginTask task, ZooKeeperService zk) {
         PluginService service = getMyInfo().getService(task.getJobInfo().getServiceId());
