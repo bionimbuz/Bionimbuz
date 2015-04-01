@@ -78,6 +78,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 
                 //definindo myInfo após a primeira leitura dos dados
                 linuxPlugin.setMyInfo(infopc);
+                listeners.add(linuxPlugin);
                 System.out.println(linuxPlugin.getMyInfo().toString());
                 System.out.println("");
             }else{

@@ -65,7 +65,7 @@ public class BioNimbus {
                 ((LinuxPlugin)plugin).setMyInfo(infopc);
             }
             plugin.start();
-            listeners.add(plugin);
+          //  listeners.add(plugin);
 //            plugin.setP2P(p2p);
         }
 
