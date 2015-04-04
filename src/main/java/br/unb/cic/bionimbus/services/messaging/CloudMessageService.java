@@ -6,12 +6,27 @@
  */
 package br.unb.cic.bionimbus.services.messaging;
 
+import java.util.List;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.Watcher;
+
 /**
  *
  * @author willian
  */
 public interface CloudMessageService {
     
-    public void createPersistentZNode(String node, String desc);
+    public void createZNode(CreateMode cm, String node, String desc);
     
+    public Boolean getZNodeExist(String path, boolean watch);
+    
+    public List<String> getChildren(String path, Watcher watcher);
+    
+    public String getData(String path, Watcher watcher);
+    
+    public void setData(String path, String data);
+    
+    public void delete(String path);
+    
+    public void close();
 }
