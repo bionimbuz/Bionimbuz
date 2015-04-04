@@ -2,7 +2,6 @@ package br.unb.cic.bionimbus.plugin.linux;
 
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginService;
-import com.twitter.common.quantity.Time;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -11,10 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 import org.codehaus.jackson.map.ObjectMapper;
 
 public class LinuxGetInfo implements Callable<PluginInfo> {

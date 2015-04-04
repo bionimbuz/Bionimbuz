@@ -1,13 +1,14 @@
 /*
- * To change this template, choose Tools | Templates
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 package br.unb.cic.bionimbus.utils;
 
 import br.unb.cic.bionimbus.plugin.PluginFile;
-import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
-import java.io.File;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
@@ -19,13 +20,12 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
-import org.apache.zookeeper.server.ZKDatabase;
 
 /**
  *
- * @author biocloud2
+ * @author willian
  */
-public class Teste implements Watcher{
+public class TesteCurator implements Watcher{
     private static final int SESSION_TIMEOUT = 5000;
     private ZooKeeper zk;
     private CountDownLatch connectedSignal = new CountDownLatch(1);
@@ -56,20 +56,18 @@ public class Teste implements Watcher{
 //         String content =
      }
     public static void main(String[] args) throws IOException {
-       ZooKeeperService zk =new ZooKeeperService();
+        CloudMessageService cms = new CuratorMessageService("192.168.1.121:2181");
+        
         PluginFile file = new PluginFile();
         file.setId("abc.pdf");
         file.setName("abc.pdf");
         file.setSize(154L);
         
-        try {
-            zk.connect("192.168.1.121");
-            zk.createPersistentZNode("/pending_save","");
-//            zk.getData("/pending_save", );
-            zk.createPersistentZNode("/pending_save/files", file.toString());
+//        zk.connect("192.168.1.111");
+        cms.createPersistentZNode("/pending_save3","");
+
+//        zk.getData("/pending_save", );
+        cms.createPersistentZNode("/pending_save3/files", file.toString());
             
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Teste.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 }

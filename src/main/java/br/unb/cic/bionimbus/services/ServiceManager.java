@@ -2,6 +2,8 @@ package br.unb.cic.bionimbus.services;
 
 import br.unb.cic.bionimbus.avro.rpc.RpcServer;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import com.codahale.metrics.MetricRegistry;
 import com.google.inject.Inject;
@@ -19,6 +21,7 @@ public class ServiceManager {
 
     private final Set<Service> services = new LinkedHashSet<Service> ();
     private final ZooKeeperService zkService;
+    private CloudMessageService cms;
 
     private final RpcServer rpcServer;
     
@@ -107,6 +110,10 @@ public class ServiceManager {
             //limpando o servicor zookeeper caso não tenha peer on-line ao inciar servidor zooNimbus
             clearZookeeper();
             createZnodeZK(config.getId());
+            
+            // cria um cliente curator conectado com o zookeeper
+            cms = new CuratorMessageService(config.getZkHosts());
+            
             for (Service service : services) {
                 service.start(config, listeners);
             }
