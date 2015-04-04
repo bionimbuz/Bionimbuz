@@ -64,10 +64,10 @@ public class TesteCurator implements Watcher{
         file.setSize(154L);
         
 //        zk.connect("192.168.1.111");
-        cms.createPersistentZNode("/pending_save3","");
+        cms.createZNode(CreateMode.PERSISTENT, "/pending_save3","");
 
 //        zk.getData("/pending_save", );
-        cms.createPersistentZNode("/pending_save3/files", file.toString());
+        cms.createZNode(CreateMode.PERSISTENT, "/pending_save3/files", file.toString());
             
     }
 }
