@@ -87,8 +87,10 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
                     System.out.println("znode vazio para path " + infopc.getPath_zk());
                     return;
                 }
+               
                     
                 PluginInfo plugin = new ObjectMapper().readValue(data, PluginInfo.class);
+                 System.out.println("INFORMAÇÕES DO PLUGIN MAPPER"+plugin.toString());
                 plugin.setFsFreeSize(infopc.getFsFreeSize());
                 plugin.setMemoryFree(infopc.getMemoryFree());
                 plugin.setNumOccupied(infopc.getNumOccupied());
