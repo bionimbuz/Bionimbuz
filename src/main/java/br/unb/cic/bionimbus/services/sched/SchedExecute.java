@@ -35,14 +35,6 @@ public class SchedExecute extends Thread{
     } 
     
     
-    
-//    cria a thread de execução dos jobs
-//         new Thread(new Runnable() {
-//           public void run() {
-//                         
-//           } 
-//        }).start();
-
         @Override
         public void run() {
             while (true) {

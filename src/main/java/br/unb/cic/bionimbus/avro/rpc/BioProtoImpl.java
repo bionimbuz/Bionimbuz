@@ -198,7 +198,6 @@ public class BioProtoImpl implements BioProto {
      * Se não encontrar o arquivo retorna null
      * @param file - Nome do arquivo requisitado 
      * @return - Ip de onde o arquivo se encontra, ou caso não encontre retorna null;
-     * @throws AvroRemoteException
      */
     @Override
     public String getIpFile(String file){
@@ -371,6 +370,7 @@ public class BioProtoImpl implements BioProto {
 
     /**
      * Passa PluginList para StorageService aqui
+     * @param list
      * @return bestnodes lista do tipo NodeInfo, retornando os melhores nós da federação
      * @throws AvroRemoteException 
      */
@@ -384,8 +384,7 @@ public class BioProtoImpl implements BioProto {
     /**
      * Método que cria o znode do arquivo no diretório /pending_save/file_"id_do arquivo" com as informações de arquivos que clientes querem enviar;
      * @param file informações do arquivo:id,nome e tamanho
-     * @param kindString Tipo de serviço que está requisitando o arquivo
-     * @throws AvroRemoteException 
+     * @param kindString Tipo de serviço que está requisitando o arquivo 
      */  
     @Override
     public void setFileInfo(FileInfo file, String kindString) {

@@ -77,20 +77,9 @@ public class HttpServer {
         if (servlet != null)
             context.addServlet(new ServletHolder(servlet), "/file");
 
-/*        final HealthCheckRegistry hr = new HealthCheckRegistry();
-        hr.register("a", new HealthCheck() {
-            @Override
-            protected Result check() throws Exception {
-                return Result.healthy();
-            }
-        });
-        */
-
         // Coda Hale Metrics
         context.addServlet(new ServletHolder(new AdminServlet()), "/admin/*");
 
-//            for (int i=0; i < 10; i++)
-//                pendingJobs.inc();
     }
 
     public static void main(String[] args) throws Exception {

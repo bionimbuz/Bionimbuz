@@ -16,6 +16,7 @@ public class GetIpMac {
 
     /**
      * @return the Mac
+     * @throws java.io.IOException
      */
     public static String getMac() throws IOException {
         String[] cmd = {
@@ -44,6 +45,7 @@ public class GetIpMac {
 
     /**
      * @return the Ip
+     * @throws java.io.IOException
      */
     public static String getIp() throws IOException {
            String[] cmd = {

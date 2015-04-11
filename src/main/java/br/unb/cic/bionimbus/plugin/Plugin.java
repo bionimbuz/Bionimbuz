@@ -10,5 +10,4 @@ public interface Plugin extends Listeners {
 
     public void shutdown();
 
-//    public void setP2P(P2PService p2p);
 }
