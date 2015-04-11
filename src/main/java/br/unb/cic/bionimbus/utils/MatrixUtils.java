@@ -8,7 +8,7 @@ public class MatrixUtils {
 
         for (int i = 0; i < matrix.getColumnDimension(); ++i) {
             for (int j = 0; j < matrix.getRowDimension(); j++) {
-                sb.append(matrix.get(i, j) + " ");
+                sb.append(matrix.get(i, j)).append(" ");
             }
             sb.append("\n");
         }

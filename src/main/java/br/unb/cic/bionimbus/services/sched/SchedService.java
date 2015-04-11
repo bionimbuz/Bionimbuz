@@ -195,12 +195,10 @@ public class SchedService extends AbstractBioService implements Runnable {
 //            scheduleJobs();
         }
     }
-
+    
     /**
-     * Realiza a definição dos valor da latência dos plugins em relação ao
-     *
-     * @param ip informado, se esse ip for correspondente ao plugin atual.
-     * @param ip que deve calcular a latência
+     * 
+     * @param job 
      */
     public void setLatencyPlugins(JobInfo job) {
         
@@ -217,19 +215,6 @@ public class SchedService extends AbstractBioService implements Runnable {
             java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
-//    private void requestLatency(String ip) {
-//        try {
-//            while (zkService.getZNodeExist(LATENCY + SCHED, false)) {
-//                TimeUnit.SECONDS.sleep(2);
-//            }
-//            zkService.createEphemeralZNode(LATENCY + SCHED, ip);
-//        } catch (KeeperException ex) {
-//            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//    }
 
     /**
      * Rotinas para auxiliar escalonamento,chamado caso seja necessário cancelar
@@ -291,9 +276,6 @@ public class SchedService extends AbstractBioService implements Runnable {
                 } catch (SftpException ex) {
                     java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
                 }
-
-
-                //zkService.createPersistentZNode(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", pair.first, ""), pluginFile.toString());
             }
 
         }
@@ -315,8 +297,6 @@ public class SchedService extends AbstractBioService implements Runnable {
                 zkService.createPersistentZNode(JOBS + PREFIX_JOB + task.getJobInfo().getId(), task.getJobInfo().toString());
 
             } catch (Exception ex) {
-
-//                zkService.getData(zkService.getPath().PREFIX_TASK.getFullPath(task.getPluginExec(), "", task.getId()), null);
                 StringBuilder datas = new StringBuilder(zkService.getData(zkService.getPath().STATUSWAITING.getFullPath(task.getPluginExec(), "", ""), null));
                 zkService.setData(zkService.getPath().STATUSWAITING.getFullPath(task.getPluginExec(), "", ""), datas.append("E").toString());
                 tasks.add(task);
@@ -344,7 +324,7 @@ public class SchedService extends AbstractBioService implements Runnable {
             }
 
             dataStatus.append(zkService.getData(peerPath + STATUSWAITING, null));
-
+            //Verifica
             //verifica se recurso já foi recuperado ou está sendo recuperado por outro recurso
             if (dataStatus.toString().contains("E") || dataStatus.toString().contains("B")) {
                 return;
@@ -381,7 +361,6 @@ public class SchedService extends AbstractBioService implements Runnable {
      * Verifica qual é o Plugin referente ao mesmo do recurso.
      */
     private void checkMyPlugin() {
-        System.out.println("Listeners:");
         for (Listeners listener : listeners) {
             System.out.println(listener.toString());
             if (listener instanceof LinuxPlugin) {
@@ -436,8 +415,6 @@ public class SchedService extends AbstractBioService implements Runnable {
         Watcher watcher;
         System.out.println("..checkWaitingTasks..");
         
-        System.out.println("myLinuxPlugin.getMyInfo(): " + myLinuxPlugin.getMyInfo());
-
         for (PluginInfo plugin : plgs) {
             
             System.out.println(myLinuxPlugin.getMyInfo().getId());
@@ -894,7 +871,5 @@ public class SchedService extends AbstractBioService implements Runnable {
         // TODO Auto-generated method stub
     }
 
-//    @Override
-//    public synchronized void onEvent(P2PEvent event) {
-//    }
+
 }

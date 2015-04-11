@@ -35,21 +35,10 @@ public class Ec2Commands {
 	public static KeyPair keyPair;
 	public static int count  = 1;
 	
-//	public static void main(String[] args) throws IOException,IllegalArgumentException {
-//	
-//		PropertiesCredentials credentials = new PropertiesCredentials(Ec2Commands.class.getResourceAsStream("AwsCredentials.properties"));
-//		EC2 = new AmazonEC2Client(credentials);
-//		EC2.setEndpoint("ec2.us-west-2.amazonaws.com");
-//		
-////		Ec2Commands.enteroption();
-//		
-//	}
-	
 public static void setup () throws IOException,IllegalArgumentException{
 	PropertiesCredentials credentials = new PropertiesCredentials(Ec2Commands.class.getResourceAsStream("/AwsCredentials.properties"));
 	EC2 = new AmazonEC2Client(credentials);
 	EC2.setEndpoint("ec2.us-west-2.amazonaws.com");
-	
 }
 		
 	public static void shutdown() throws IOException {

@@ -91,10 +91,7 @@ public class PluginTask implements PluginOps {
         return id.hashCode();
     }
 
-//    @Override
-//    public String toString() {
-//        return id + ":" + state;
-//    }
+
     @Override
     public String toString() {
         try {

@@ -81,7 +81,6 @@ public class StorageService extends AbstractBioService {
      * Método que inicia a storage
      * @param config
      * @param listeners
-     * @param p2p
      */
     @Override
     public void start(BioNimbusConfig config, List<Listeners> listeners) {
@@ -286,6 +285,7 @@ public class StorageService extends AbstractBioService {
      *
      * @param file
      * @return Ip que possui o arquivo ou null
+     * @throws java.io.IOException
      */
     public String getIpContainsFile(String file) throws IOException {
         List<String> listFiles;

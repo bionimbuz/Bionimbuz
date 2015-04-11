@@ -9,8 +9,6 @@ import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
@@ -27,7 +25,7 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 
 @Singleton
-public class DiscoveryService extends AbstractBioService implements RemovalListener<Object, Object> {
+public class DiscoveryService extends AbstractBioService {
 
     private static final int PERIOD_SECS = 10;
     private final ScheduledExecutorService schedExecService;
@@ -79,8 +77,7 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
                 //definindo myInfo após a primeira leitura dos dados
                 linuxPlugin.setMyInfo(infopc);
                 listeners.add(linuxPlugin);
-                System.out.println(linuxPlugin.getMyInfo().toString());
-                System.out.println("");
+
             }else{
                 String data = zkService.getData(infopc.getPath_zk(), null);
                 if (data == null || data.trim().isEmpty()){
@@ -90,7 +87,6 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
                
                     
                 PluginInfo plugin = new ObjectMapper().readValue(data, PluginInfo.class);
-                 System.out.println("INFORMAÇÕES DO PLUGIN MAPPER"+plugin.toString());
                 plugin.setFsFreeSize(infopc.getFsFreeSize());
                 plugin.setMemoryFree(infopc.getMemoryFree());
                 plugin.setNumOccupied(infopc.getNumOccupied());
@@ -129,7 +125,6 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
     @Override
     public void getStatus() {
     }
-
     
     /**
      * Trata os watchers enviados da implementação da classe Watcher que recebe uma notificação do zookeeper
@@ -140,10 +135,6 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
         
          }
 
-    @Override
-    public void onRemoval(RemovalNotification rn) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public void shutdown() {

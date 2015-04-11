@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.zookeeper.KeeperException;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 /**
@@ -29,16 +27,18 @@ import org.codehaus.jackson.map.ObjectMapper;
  */
 public class StoragePolicy {
 
-    private double peso_latency = 0.5;
-    private double peso_space = 0.2;
-    private double peso_uptime = 0.3;
-    private List<NodeInfo> nodes = new ArrayList<NodeInfo>();
+    private final double peso_latency = 0.5;
+    private final double peso_space = 0.2;
+    private final double peso_uptime = 0.3;
+    private final List<NodeInfo> nodes = new ArrayList<NodeInfo>();
     Collection<PluginInfo> best = new ArrayList<PluginInfo>();
 
     /**
      * Calcular o custo de armazenamento de uma nuvem //ta passando so 1 plugin
      *
+     * @param zkService
      * @param pluginList
+     * @return 
      */
     public List<NodeInfo> calcBestCost(ZooKeeperService zkService, Collection<PluginInfo> pluginList) {
 
@@ -104,8 +104,6 @@ public class StoragePolicy {
             node.setPeerId(plug.getId());
             nodes.add(node);
         }
-
-
         return nodes;
 
     }

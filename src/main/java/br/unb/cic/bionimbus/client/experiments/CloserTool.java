@@ -147,12 +147,7 @@ public class CloserTool {
                     LOG.info("\n\n Já existe o arquivo"+ file.getName()+"com mesmo nome e tamanho na federação !!!");
                 }   
             }
-
         }
-        
-        
-
-        
     }
 
     public void startJobs(int numJobs, String idFull, String idMedium, String idSmall) throws Exception {
@@ -171,11 +166,8 @@ public class CloserTool {
             java.util.logging.Logger.getLogger(MscTool.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-//        P2PService p2p = new P2PService(config);
-//        p2p.start();
         TimeUnit.SECONDS.sleep(40);
          
-//        SyncCommunication comm = new SyncCommunication(p2p);
 
         List<JobInfo> jobList = new ArrayList<JobInfo>();
         for (int i = 0; i < numJobs; i++) {
@@ -205,7 +197,6 @@ public class CloserTool {
         }
 
         LOG.info("Enviando " + jobList.size() + " jobs.");
-//        comm.sendReq(new JobReqMessage(p2p.getPeerNode(), jobList), P2PMessageType.JOBRESP);
         String saida = rpcClient.getProxy().startJob(jobList,"");
         
         LOG.info("Job " + saida + " started succesfully");

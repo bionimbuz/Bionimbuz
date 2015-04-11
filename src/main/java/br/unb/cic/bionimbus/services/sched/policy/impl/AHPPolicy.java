@@ -153,31 +153,6 @@ public class AHPPolicy extends SchedPolicy {
         }
 
         return valueA / valueB;
-
-        //System.out.println(attribute + ": " + valueA + " , " + valueB);
-        /*
-		double result;
-		if (valueA == 0.0 && valueB == 0.0) {
-			return 1;
-		} else if (valueA == 0.0) {
-			return 1;
-		} else if (valueB == 0.0) {
-			return 9;
-		} else {
-			result = valueA / valueB;
-		}
-		
-		if (result == 0.0) {
-			return 1;
-		} else if (result < 1.0) {
-			return (float) 1 / Math.round(Math.ceil(valueB / valueA));
-		} else if (result > 9) {
-			return 9;
-		} else {
-			//return Math.ceil
-			return Math.round(Math.ceil(result));
-		}
-		*/
     }
 
     public static Matrix generateComparisonMatrix(List<PluginInfo> pluginInfos,

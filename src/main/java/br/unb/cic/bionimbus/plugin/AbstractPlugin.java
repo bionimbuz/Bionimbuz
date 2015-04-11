@@ -15,13 +15,12 @@ import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
 import br.unb.cic.bionimbus.client.FileInfo;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
-import br.unb.cic.bionimbus.p2p.Host;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
-import br.unb.cic.bionimbus.toSort.Listeners;
 import br.unb.cic.bionimbus.utils.Pair;
 import com.google.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 
 public abstract class AbstractPlugin implements Plugin, Runnable {
@@ -67,10 +66,6 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
 
     protected abstract Future<PluginInfo> startGetInfo();
 
-//    protected abstract Future<PluginFile> saveFile(String filename);
-
-//    protected abstract Future<PluginGetFile> getFile(Host origin, PluginFile file, String taskId, String savePath);
-
     public abstract Future<PluginTask> startTask(PluginTask task,ZooKeeperService zk);
 
 //    private String getId() {
@@ -100,19 +95,11 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
 
     }
 
-//    private String getErrorString() {
-//        return errorString;
-//    }
 
     private void setErrorString(String errorString) {
         this.errorString = errorString;
     }
-    //não esta setando a p2p é isso mesmo?
-//    @Override
-//    public void setP2P(P2PService p2p) {
-//        // TODO Auto-generated method stub
-//
-//    }
+
 
     @Override
     public void start() {
@@ -140,7 +127,7 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
             return;
         myCount = 0;
 
-        Future<PluginInfo> futureInfo = getFutureInfo();
+        Future<PluginInfo> futureinfo= getFutureInfo();
         if (futureInfo == null) {
             setFutureInfo(startGetInfo());
             return;
@@ -152,11 +139,12 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
         try {
             PluginInfo newInfo = futureInfo.get();
             newInfo.setId(getId());
-            
-// need to find another host info source --------------------------------------------------------------------------------------------------------------------------------------------
-            //newInfo.setHost(service.getPeerNode().getHost());
+
             setMyInfo(newInfo);
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
+            setErrorString(e.getMessage());
+            setMyInfo(null);
+        } catch (ExecutionException e) {
             setErrorString(e.getMessage());
             setMyInfo(null);
         }
@@ -165,7 +153,6 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
     }
 
     private void checkFinishedTasks() {
-//        P2PService p2p = service;
         Future<PluginTask> futureTask;
         PluginTask task;
 
@@ -177,7 +164,10 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
 
             try {
                 task = futureTask.get();
-            } catch (Exception e) {
+            } catch (InterruptedException e) {
+                task = pair.first;
+                continue;
+            } catch (ExecutionException e) {
                 task = pair.first;
                 continue;
             }
@@ -194,15 +184,11 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
                     count++;
                 }
                 endingTasks.put(task.getId(), new Pair<PluginTask, Integer>(task, count));
-            } else {
-//                EndMessage endMsg = new EndMessage(p2p.getPeerNode(), task);
-//                p2p.broadcast(endMsg);
-            }
+            } 
         }
     }
 
     private void checkPendingSaves() {
-//        P2PService p2p = service;
 
         for (Future<PluginFile> f : pendingSaves) {
 
@@ -216,7 +202,10 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
                 file.setPluginId(pluginIds);
                 pendingSaves.remove(f);
                 pluginFiles.put(file.getId(), file);
-            } catch (Exception e) {
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                //TODO criar mensagem de erro?
+            } catch (ExecutionException e) {
                 e.printStackTrace();
                 //TODO criar mensagem de erro?
             }
@@ -224,7 +213,6 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
     }
 
     private void checkPendingGets() {
-//        P2PService p2p = service;
 
         for (Future<PluginGetFile> f : pendingGets) {
 
@@ -234,9 +222,10 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
             try {
                 PluginGetFile get = f.get();
                 pendingGets.remove(f);
-//                Message msg = new PrepRespMessage(p2p.getPeerNode(), getMyInfo(), get.getPluginFile(), get.getTaskId());
-//                p2p.sendMessage(get.getPeer(), msg);
-            } catch (Exception e) {
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                // TODO criar mensagem de erro?
+            } catch (ExecutionException e) {
                 e.printStackTrace();
                 // TODO criar mensagem de erro?
             }

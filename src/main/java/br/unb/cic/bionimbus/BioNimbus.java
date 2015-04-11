@@ -40,11 +40,8 @@ public class BioNimbus {
     public BioNimbus(BioNimbusConfig config) throws IOException, InterruptedException {
 
         config.setId(UUID.randomUUID().toString());
-        //final P2PService p2p = new P2PService(config);
         List<Listeners> listeners = new CopyOnWriteArrayList<Listeners>();
         
-//        p2p.start();
-
         if (!config.isClient()) {
             LinuxGetInfo getinfo = new LinuxGetInfo();
             PluginInfo infopc = getinfo.call();
@@ -52,12 +49,7 @@ public class BioNimbus {
             infopc.setId(config.getId());
 
             infopc.setHost(config.getHost());
-
-// Update uptime information to origin from zookeeper ---------------------------------------------------------------------------
-                //infopc.setUptime(p2p.getPeerNode().uptime());
-                infopc.setPrivateCloud(config.getPrivateCloud());
-
-                //definindo myInfo após a primeira leitura dos dados
+            infopc.setPrivateCloud(config.getPrivateCloud());
                 
                 
             final Plugin plugin = getPlugin(config.getInfra(), config);
@@ -65,16 +57,13 @@ public class BioNimbus {
                 ((LinuxPlugin)plugin).setMyInfo(infopc);
             }
             plugin.start();
-          //  listeners.add(plugin);
-//            plugin.setP2P(p2p);
+
         }
 
         final Injector injector = createInjector(new ServiceModule());
 
-//        if (p2p.isMaster()) {
             ServiceManager manager = injector.getInstance(ServiceManager.class);
             manager.startAll(config, listeners);
-//        }
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {

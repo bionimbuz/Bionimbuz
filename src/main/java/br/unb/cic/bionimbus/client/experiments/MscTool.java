@@ -82,8 +82,7 @@ public class MscTool {
 
         List<NodeInfo> pluginList = rpcClient.getProxy().getPeersNode();
         rpcClient.getProxy().setFileInfo(info,"uploadTesteMscTool");
-        for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
-            NodeInfo plugin = it.next();
+        for (NodeInfo plugin : pluginList) {
             Float prioridade = plugin.getFreesize()*new Float("0,9");
             if (prioridade>info.getSize()){
                 plugin.setLatency(Ping.calculo(plugin.getAddress()));
