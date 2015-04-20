@@ -25,7 +25,7 @@ import org.apache.zookeeper.ZooKeeper;
 public class Teste implements Watcher{
     private static final int SESSION_TIMEOUT = 5000;
     private ZooKeeper zk;
-    private CountDownLatch connectedSignal = new CountDownLatch(1);
+    private final CountDownLatch connectedSignal = new CountDownLatch(1);
     
     public void connect(String hosts) throws IOException, InterruptedException {
         zk = new ZooKeeper(hosts, SESSION_TIMEOUT, this);

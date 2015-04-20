@@ -5,33 +5,46 @@
 */
 package br.unb.cic.bionimbus.services.messaging;
 
-import br.unb.cic.bionimbus.services.ZooKeeperService;
+import com.google.inject.Singleton;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.api.CuratorWatcher;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.Stat;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manages the ZooKeeper connection, ZNodes, reconnection... Uses Curator Framework
  * @author willian
  */
+@Singleton
 public class CuratorMessageService implements CloudMessageService {
     
     CuratorFramework client;
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(CuratorMessageService.class);
+    private volatile Path path = CuratorMessageService.Path.ROOT;
     
-    public CuratorMessageService(String connectionString) {
+    public CuratorMessageService() {
+        LOGGER.info("Criando Curator service...");  
+    }
+    
+    @Override
+    public synchronized void connect(String connectionString) {
         ExponentialBackoffRetry retryPolicy = new ExponentialBackoffRetry(1000, 3);
         
         client = CuratorFrameworkFactory.newClient(connectionString, retryPolicy);
         client.start();
+    }
+    
+    @Override
+    public Path getPath() {
+        return path;
     }
     
     /**
@@ -98,13 +111,12 @@ public class CuratorMessageService implements CloudMessageService {
     @Override
     public void createZNode(CreateMode cm, String node, String desc) {
         try {
-            Stat s = client.checkExists().forPath(node);
             if (!getZNodeExist(node, true)) {
                 client.create().withMode(cm).
                                 withACL(ZooDefs.Ids.OPEN_ACL_UNSAFE).
                                 forPath(node, (desc == null) ? new byte[0] : desc.getBytes());
             } else {
-                Logger.getLogger(CuratorMessageService.class.getName()).log(Level.SEVERE, "Existent node {0}", node);
+                Logger.getLogger(CuratorMessageService.class.getName()).log(Level.SEVERE, "Existent node {0}" + Arrays.toString(Thread.currentThread().getStackTrace()), node);
             }
         } catch (Exception ex) {
             Logger.getLogger(CuratorMessageService.class.getName()).log(Level.SEVERE, null, ex);
@@ -175,7 +187,7 @@ public class CuratorMessageService implements CloudMessageService {
     @Override
     public void setData(String path, String data) {
         try {
-            client.setData().forPath(data);
+            client.setData().forPath(path, data.getBytes());
         } catch (Exception ex) {
             Logger.getLogger(CuratorMessageService.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -6,13 +6,10 @@
 package br.unb.cic.bionimbus.utils;
 
 import br.unb.cic.bionimbus.plugin.PluginFile;
-import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
@@ -28,7 +25,7 @@ import org.apache.zookeeper.ZooKeeper;
 public class TesteCurator implements Watcher{
     private static final int SESSION_TIMEOUT = 5000;
     private ZooKeeper zk;
-    private CountDownLatch connectedSignal = new CountDownLatch(1);
+    private final CountDownLatch connectedSignal = new CountDownLatch(1);
     
     public void connect(String hosts) throws IOException, InterruptedException {
         zk = new ZooKeeper(hosts, SESSION_TIMEOUT, this);
@@ -56,7 +53,8 @@ public class TesteCurator implements Watcher{
 //         String content =
      }
     public static void main(String[] args) throws IOException {
-        CloudMessageService cms = new CuratorMessageService("192.168.1.121:2181");
+        CloudMessageService cms = new CuratorMessageService();
+        cms.connect("192.168.1.121:2181");
         
         PluginFile file = new PluginFile();
         file.setId("abc.pdf");

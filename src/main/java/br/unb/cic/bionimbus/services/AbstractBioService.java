@@ -8,6 +8,7 @@ package br.unb.cic.bionimbus.services;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import com.google.inject.Singleton;
 import java.io.IOException;
@@ -16,7 +17,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.zookeeper.KeeperException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 /**
@@ -25,7 +25,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 @Singleton
 public abstract class AbstractBioService implements Service, Runnable, Listeners {
 
-    protected ZooKeeperService zkService;
+    protected CloudMessageService cms;
     protected List<Listeners> listeners;
     protected BioNimbusConfig config;
     private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();    
@@ -38,23 +38,23 @@ public abstract class AbstractBioService implements Service, Runnable, Listeners
         List<String> children;
         cloudMap.clear();
         try {
-            children = zkService.getChildren(zkService.getPath().PEERS.getFullPath("", "", ""), null);
+            children = cms.getChildren(cms.getPath().PEERS.getFullPath("", "", ""), null);
             for (String pluginId : children) {
                 ObjectMapper mapper = new ObjectMapper();
-                String id=pluginId.substring(pluginId.indexOf(zkService.getPath().UNDERSCORE.toString())+1);
-                String datas = zkService.getData(zkService.getPath().PREFIX_PEER.getFullPath(id, "", ""), null);
+                String id=pluginId.substring(pluginId.indexOf(cms.getPath().UNDERSCORE.toString())+1);
+                String datas = cms.getData(cms.getPath().PREFIX_PEER.getFullPath(id, "", ""), null);
                 if (datas != null && !datas.trim().isEmpty()){
                     PluginInfo myInfo = mapper.readValue(datas, PluginInfo.class);
                     
-                    if(zkService.getZNodeExist(zkService.getPath().STATUS.getFullPath(id, "", ""), false)){ 
+                    if(cms.getZNodeExist(cms.getPath().STATUS.getFullPath(id, "", ""), false)){ 
                        cloudMap.put(myInfo.getId(), myInfo);
                     }
                 }
             }
-        } catch (KeeperException ex) {
-            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (KeeperException ex) {
+//            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (InterruptedException ex) {
+//            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -12,7 +12,7 @@ import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskRunner;
-import br.unb.cic.bionimbus.services.ZooKeeperService;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import java.io.IOException;
 
 public class LinuxPlugin extends AbstractPlugin{
@@ -34,7 +34,7 @@ public class LinuxPlugin extends AbstractPlugin{
     }
 
     @Override
-    public Future<PluginTask> startTask(PluginTask task, ZooKeeperService zk) {
+    public Future<PluginTask> startTask(PluginTask task, CloudMessageService zk) {
         PluginService service = getMyInfo().getService(task.getJobInfo().getServiceId());
         if (service == null)
             return null;

@@ -5,8 +5,8 @@ import br.unb.cic.bionimbus.avro.gen.FileInfo;
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.client.JobInfo;
 import br.unb.cic.bionimbus.plugin.*;
-import br.unb.cic.bionimbus.services.ZooKeeperService;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.sched.SchedService;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.services.storage.StorageService;
@@ -21,6 +21,7 @@ import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.avro.AvroRemoteException;
+import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 
 /**
@@ -38,7 +39,7 @@ public class BioProtoImpl implements BioProto {
     private final DiscoveryService discoveryService;
     private final StorageService storageService;
     private final SchedService schedService;
-    private final ZooKeeperService zkService;
+    private final CloudMessageService cms;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SchedService.class.getSimpleName());
 
@@ -46,11 +47,11 @@ public class BioProtoImpl implements BioProto {
     private Map<String, NodeInfo> nodes = new HashMap<String, NodeInfo>();
 
     @Inject
-    public BioProtoImpl(DiscoveryService discoveryService, StorageService storageService, SchedService schedService, ZooKeeperService zkservice) {
+    public BioProtoImpl(DiscoveryService discoveryService, StorageService storageService, SchedService schedService, CloudMessageService cms) {
         this.discoveryService = discoveryService;
         this.storageService = storageService;
         this.schedService = schedService;
-        this.zkService =  zkservice;
+        this.cms =  cms;
     }
 
     @Override
@@ -67,14 +68,14 @@ public class BioProtoImpl implements BioProto {
     @Override
     public String statusJob(String jobId) throws AvroRemoteException {
         try {
-            if(zkService.getChildren(zkService.getPath().JOBS.getFullPath("", "", ""), null).contains("job_"+jobId)){
+            if(cms.getChildren(cms.getPath().JOBS.getFullPath("", "", ""), null).contains("job_"+jobId)){
                 return  "Job "+jobId+" ainda não foi escalonado";
             }else {
                 String datas =null;
                 ObjectMapper mapper = new ObjectMapper();
                 for(PluginInfo plugin : storageService.getPeers().values()){
-                    for(String task : zkService.getChildren(zkService.getPath().TASKS.getFullPath(plugin.getId(), "", ""), null)){
-                        datas = zkService.getData(zkService.getPath().PREFIX_TASK.getFullPath(plugin.getId(),"",task.substring(5, task.length())),null);
+                    for(String task : cms.getChildren(cms.getPath().TASKS.getFullPath(plugin.getId(), "", ""), null)){
+                        datas = cms.getData(cms.getPath().PREFIX_TASK.getFullPath(plugin.getId(),"",task.substring(5, task.length())),null);
                         if(datas!=null){
                             PluginTask pluginTask = mapper.readValue(datas, PluginTask.class);
                             if(pluginTask.getJobInfo().getId().equals(jobId))
@@ -84,10 +85,10 @@ public class BioProtoImpl implements BioProto {
                 }
                     
             }
-        } catch (KeeperException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (KeeperException ex) {
+//            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (InterruptedException ex) {
+//            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -105,11 +106,11 @@ public class BioProtoImpl implements BioProto {
         int i=1;
         try {
             //verificação dos jobs ainda não escalonados
-            List<String> jobs = zkService.getChildren(zkService.getPath().JOBS.getFullPath("", "", ""), null);
+            List<String> jobs = cms.getChildren(cms.getPath().JOBS.getFullPath("", "", ""), null);
             ObjectMapper mapper = new ObjectMapper();
             if(jobs!=null && !jobs.isEmpty()){
                 for(String job : jobs){
-                        String jobData = zkService.getData(zkService.getPath().PREFIX_JOB.getFullPath("","",job.substring(4,job.length())),null);
+                        String jobData = cms.getData(cms.getPath().PREFIX_JOB.getFullPath("","",job.substring(4,job.length())),null);
                         if(jobData!=null){
                             JobInfo jobInfo = mapper.readValue(jobData, JobInfo.class);
                                 allJobs.append(i).append(" - Job ").append(jobInfo.getId()).append(" Ainda não escalonado.\n ");
@@ -122,8 +123,8 @@ public class BioProtoImpl implements BioProto {
             
             String datasTask =null;
             for(PluginInfo plugin : storageService.getPeers().values()){
-                for(String task : zkService.getChildren(zkService.getPath().TASKS.getFullPath(plugin.getId(), "", ""), null)){
-                    datasTask = zkService.getData(zkService.getPath().PREFIX_TASK.getFullPath(plugin.getId(),"",task.substring(5, task.length())),null);
+                for(String task : cms.getChildren(cms.getPath().TASKS.getFullPath(plugin.getId(), "", ""), null)){
+                    datasTask = cms.getData(cms.getPath().PREFIX_TASK.getFullPath(plugin.getId(),"",task.substring(5, task.length())),null);
                     if(datasTask!=null){
                         PluginTask pluginTask = mapper.readValue(datasTask, PluginTask.class);
                         allJobs.append(i).append(" - Job ").append(pluginTask.getJobInfo().getId().toString()).append(" : ").append(pluginTask.getState().toString()).append("\n ");
@@ -132,10 +133,10 @@ public class BioProtoImpl implements BioProto {
                 }
             }
                     
-        } catch (KeeperException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (KeeperException ex) {
+//            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (InterruptedException ex) {
+//            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -235,23 +236,23 @@ public class BioProtoImpl implements BioProto {
      */
     @Override
     public String schedPolicy(int numPolicy){
-        try {
+//        try {
             //verifica se escolher informar a política ou identificar qual é a política
             if(numPolicy==-1){
-                numPolicy = new Integer(zkService.getData(zkService.getPath().JOBS.toString(), null));
+                numPolicy = new Integer(cms.getData(cms.getPath().JOBS.toString(), null));
             }else{
                 Integer policy = numPolicy;
-                if(zkService.getZNodeExist(zkService.getPath().JOBS.toString(), false)){
-                    zkService.setData(zkService.getPath().JOBS.toString(), policy.toString());
+                if(cms.getZNodeExist(cms.getPath().JOBS.toString(), false)){
+                    cms.setData(cms.getPath().JOBS.toString(), policy.toString());
                 }else{
                     return "\nNão foi possível alterar  política de escalonamento. Tente mais tarde.";
                 }
             }
-        } catch (KeeperException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        } catch (KeeperException ex) {
+//            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (InterruptedException ex) {
+//            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+//        }
         
         StringBuilder politicys = new StringBuilder();
         List<SchedPolicy> listPolicy = SchedPolicy.getInstances();
@@ -298,7 +299,7 @@ public class BioProtoImpl implements BioProto {
         }
         LOGGER.info("Tempo de inicio do job -"+ job.getOutputs()+"- MileSegundos: " + job.getTimestamp());
         //inclusão do job para ser escalonado
-        zkService.createPersistentZNode(path+job.getId(), job.toString());
+        cms.createZNode(CreateMode.PERSISTENT, path+job.getId(), job.toString());
         
         return "Job enviado para o escalonamento, Id : "+job.getId()+".\nAguarde...";
     }
@@ -309,7 +310,7 @@ public class BioProtoImpl implements BioProto {
         
         for (br.unb.cic.bionimbus.avro.gen.JobInfo job: listJob){
             job.setTimestamp(System.currentTimeMillis());
-            zkService.createPersistentZNode(zkService.getPath().PREFIX_JOB.getFullPath("", "", job.getId()) , job.toString());
+            cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_JOB.getFullPath("", "", job.getId()) , job.toString());
             LOGGER.info("Tempo de inicio do job -"+ job.getOutputs()+"- MileSegundos: " + job.getTimestamp());
             //tempo adicionado para latencia poder ser calculada
             try {

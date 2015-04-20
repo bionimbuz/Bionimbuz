@@ -16,6 +16,10 @@ import org.apache.zookeeper.Watcher;
  */
 public interface CloudMessageService {
     
+    public void connect(String connectionString);
+    
+    public CuratorMessageService.Path getPath();
+    
     public void createZNode(CreateMode cm, String node, String desc);
     
     public Boolean getZNodeExist(String path, boolean watch);

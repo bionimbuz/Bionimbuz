@@ -188,9 +188,7 @@ public class ZooKeeperService {
                 } else {
 //                    System.out.println(String.format("znode %s existente", root));
                 }
-            } catch (KeeperException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

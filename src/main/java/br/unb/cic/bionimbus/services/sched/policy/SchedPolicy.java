@@ -3,7 +3,7 @@ package br.unb.cic.bionimbus.services.sched.policy;
 import br.unb.cic.bionimbus.client.JobInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
-import br.unb.cic.bionimbus.services.ZooKeeperService;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.sched.policy.impl.AHPPolicy;
 import br.unb.cic.bionimbus.services.sched.policy.impl.AcoSched;
 import br.unb.cic.bionimbus.services.sched.policy.impl.RRPolicy;
@@ -57,7 +57,7 @@ public abstract class SchedPolicy {
 
     public abstract HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos);
     
-    public abstract HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, ZooKeeperService zk);
+    public abstract HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, CloudMessageService cms);
 
     public abstract List<PluginTask> relocate(Collection<Pair<JobInfo, PluginTask>> taskPairs);
 
