@@ -16,8 +16,7 @@ import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import br.unb.cic.bionimbus.client.FileInfo;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.p2p.Host;
-import br.unb.cic.bionimbus.services.ZooKeeperService;
-import br.unb.cic.bionimbus.toSort.Listeners;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.utils.Pair;
 import com.google.inject.Inject;
 import java.io.IOException;
@@ -86,7 +85,7 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
 
     protected abstract Future<PluginGetFile> getFile(Host origin, PluginFile file, String taskId, String savePath);
 
-    public abstract Future<PluginTask> startTask(PluginTask task,ZooKeeperService zk);
+    public abstract Future<PluginTask> startTask(PluginTask task, CloudMessageService cms);
 
 //    private String getId() {
     public String getId() {

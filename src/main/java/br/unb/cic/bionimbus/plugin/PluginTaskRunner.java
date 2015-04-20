@@ -1,14 +1,12 @@
 package br.unb.cic.bionimbus.plugin;
 
-import br.unb.cic.bionimbus.services.ZooKeeperService;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import br.unb.cic.bionimbus.utils.Pair;
-import java.io.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,18 +16,19 @@ public class PluginTaskRunner implements Callable<PluginTask> {
     private final PluginTask task;
     private final PluginService service;
     private final String path;
-    private final ZooKeeperService zkService;
+//    private final ZooKeeperService cms;
+    private final CloudMessageService cms;
     private final String PATHFILES="data-folder/";
     private static final Logger LOGGER = LoggerFactory.getLogger(PluginTaskRunner.class.getSimpleName());
 
 
     public PluginTaskRunner(AbstractPlugin plugin, PluginTask task,
-                            PluginService service, String path,ZooKeeperService zk) {
+                            PluginService service, String path,CloudMessageService cms) {
         this.plugin = plugin;
         this.service = service;
         this.task = task;
         this.path = path;
-        this.zkService = zk;
+        this.cms = cms;
     }
 
     
@@ -60,8 +59,8 @@ public class PluginTaskRunner implements Callable<PluginTask> {
 
             task.setState(PluginTaskState.RUNNING);
            
-            if(zkService!=null)
-                zkService.setData(task.getPluginTaskPathZk(), task.toString());
+            if(cms!=null)
+                cms.setData(task.getPluginTaskPathZk(), task.toString());
             
             BufferedReader saidaSucesso = new BufferedReader(new InputStreamReader(p.getInputStream()));
             BufferedReader saidaErro = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -88,8 +87,8 @@ public class PluginTaskRunner implements Callable<PluginTask> {
                 task.setState(PluginTaskState.ERRO);
             }   
 
-            if(zkService!=null)
-                zkService.setData(task.getPluginTaskPathZk(), task.toString());
+            if(cms!=null)
+                cms.setData(task.getPluginTaskPathZk(), task.toString());
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -4,10 +4,7 @@
  */
 package br.unb.cic.bionimbus.services;
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.zookeeper.KeeperException;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 
@@ -17,11 +14,12 @@ import org.apache.zookeeper.Watcher;
  */
 public class UpdatePeerData implements Watcher  {
 
-    private ZooKeeperService zkService;
-    private Service service;
+//    private ZooKeeperService cms;
+    private final CloudMessageService cms;
+    private final Service service;
     
-    public UpdatePeerData(ZooKeeperService zkService, Service service) {
-        this.zkService = zkService;
+    public UpdatePeerData(CloudMessageService cms, Service service) {
+        this.cms = cms;
         this.service = service;
     }
 
@@ -36,26 +34,26 @@ public class UpdatePeerData implements Watcher  {
         service.event(event);
         
         //Realiza a solicitação para um novo observer
-        try {
+//        try {
             switch(event.getType()){
             
                 case NodeChildrenChanged:
-                    if(zkService.getZNodeExist(event.getPath(), false))
-                        zkService.getChildren(event.getPath(), this);
+                    if(cms.getZNodeExist(event.getPath(), false))
+                        cms.getChildren(event.getPath(), this);
                 break;
                 case NodeDataChanged:
-                    if(zkService.getZNodeExist(event.getPath(), false))
-                        zkService.getData(event.getPath(), this);
+                    if(cms.getZNodeExist(event.getPath(), false))
+                        cms.getData(event.getPath(), this);
                 break;
             
             }
-        } catch (KeeperException ex) {
-            Logger.getLogger(UpdatePeerData.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(UpdatePeerData.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(UpdatePeerData.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        } catch (KeeperException ex) {
+//            Logger.getLogger(UpdatePeerData.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (InterruptedException ex) {
+//            Logger.getLogger(UpdatePeerData.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (IOException ex) {
+//            Logger.getLogger(UpdatePeerData.class.getName()).log(Level.SEVERE, null, ex);
+//        }
     } 
         
 }

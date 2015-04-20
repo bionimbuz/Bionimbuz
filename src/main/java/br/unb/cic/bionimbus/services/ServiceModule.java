@@ -6,6 +6,8 @@ import br.unb.cic.bionimbus.avro.rpc.AvroServer;
 import br.unb.cic.bionimbus.avro.rpc.BioProtoImpl;
 import br.unb.cic.bionimbus.avro.rpc.RpcServer;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import br.unb.cic.bionimbus.services.monitor.MonitoringService;
 import br.unb.cic.bionimbus.services.sched.SchedService;
 import br.unb.cic.bionimbus.services.storage.StorageService;
@@ -31,6 +33,7 @@ public class ServiceModule extends AbstractModule {
         serviceBinder.addBinding().to(StorageService.class);
         serviceBinder.addBinding().to(SchedService.class);
         serviceBinder.addBinding().to(MonitoringService.class);
+        bind(CloudMessageService.class).to(CuratorMessageService.class);
     }
 
 }

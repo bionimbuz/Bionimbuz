@@ -6,7 +6,7 @@ import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskState;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.UpdatePeerData;
-import br.unb.cic.bionimbus.services.ZooKeeperService;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
@@ -23,12 +23,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 
 @Singleton
 public class MonitoringService extends AbstractBioService implements Runnable {
-
+    
     private final ScheduledExecutorService schedExecService = Executors.newScheduledThreadPool(1, new BasicThreadFactory.Builder().namingPattern("MonitorService-%d").build());
     private final Map<String, PluginTask> waitingTask = new ConcurrentHashMap<String, PluginTask>();
     private final List<String> waitingJobs = new ArrayList<String>();
@@ -42,19 +43,19 @@ public class MonitoringService extends AbstractBioService implements Runnable {
     private static final String STATUSWAITING = "/STATUSWAITING";
     private static final String SEPARATOR = "/";
     private static final int PORT = 8080;
-
+    
     @Inject
-    public MonitoringService(final ZooKeeperService zKService) {
-        this.zkService = zKService;
+    public MonitoringService(final CloudMessageService cms) {
+        this.cms = cms;
     }
-
-//    @Override
+    
+    @Override
     public void run() {
         checkPeersStatus();
         checkJobsTasks();
         checkPendingSave();
     }
-
+    
     @Override
     public void start(BioNimbusConfig config, List<Listeners> listeners) {
         try {
@@ -69,34 +70,34 @@ public class MonitoringService extends AbstractBioService implements Runnable {
             listeners.add(this);
         schedExecService.scheduleAtFixedRate(this, 0, 1, TimeUnit.MINUTES);
     }
-
+    
     @Override
-public void shutdown() {
+    public void shutdown() {
         listeners.remove(this);
 //        p2p.remove(this);
         schedExecService.shutdownNow();
     }
-
+    
     @Override
     public void getStatus() {
         // TODO Auto-generated method stub
     }
-
+    
     @Override
     public void event(WatchedEvent eventType) {
         String path = eventType.getPath();
         try {
             switch (eventType.getType()) {
-
+                
                 case NodeCreated:
-
+                    
                     System.out.print(path + "= NodeCreated");
                     break;
                 case NodeChildrenChanged:
-                        if(eventType.getPath().equals(ROOT_PEER))
-                            if(plugins.size()<getPeers().size()){
-                                verifyPlugins();
-                            }
+                    if(eventType.getPath().equals(ROOT_PEER))
+                        if(plugins.size()<getPeers().size()){
+                            verifyPlugins();
+                        }
                     System.out.print(path + "= NodeChildrenChanged");
                     break;
                 case NodeDeleted:
@@ -120,51 +121,51 @@ public void shutdown() {
         Collection<PluginInfo> temp  = getPeers().values();
         temp.removeAll(plugins);
         for(PluginInfo plugin : temp){
-            try {
-                if(zkService.getZNodeExist(zkService.getPath().STATUS.getFullPath(plugin.getId(), null, null), false))
-                    zkService.getData(zkService.getPath().STATUS.getFullPath(plugin.getId(), "", ""), new UpdatePeerData(zkService, this));
-            } catch (KeeperException ex) {
-                java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InterruptedException ex) {
-                java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        } 
+//            try {
+            if(cms.getZNodeExist(cms.getPath().STATUS.getFullPath(plugin.getId(), null, null), false))
+                cms.getData(cms.getPath().STATUS.getFullPath(plugin.getId(), "", ""), new UpdatePeerData(cms, this));
+//            } catch (KeeperException ex) {
+//                java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+//            } catch (InterruptedException ex) {
+//                java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+        }
     }
-
+    
     /**
      * Verifica se os jobs que estava aguardando escalonamento e as tarefas que
      * já foram escalonadas ainda estão com o mesmo status da última leitura.
      */
     private void checkJobsTasks() {
         try {
-
-            for (String job : zkService.getChildren(zkService.getPath().JOBS.toString(), null)) {
+            
+            for (String job : cms.getChildren(cms.getPath().JOBS.toString(), null)) {
                 //verifica se o job já estava na lista, recupera e lança novamente os dados para disparar watchers
                 if (waitingJobs.contains(job)) {
-                    String datas = zkService.getData(zkService.getPath().JOBS.toString() + SEPARATOR + job, null);
+                    String datas = cms.getData(cms.getPath().JOBS.toString() + SEPARATOR + job, null);
                     // remove e cria task novamente para que os watchers sejam disparados e execute essa tarefa
-                    zkService.delete(zkService.getPath().JOBS.toString() + SEPARATOR + job);
-                    zkService.createPersistentZNode(zkService.getPath().JOBS.toString() + SEPARATOR + job, datas);
+                    cms.delete(cms.getPath().JOBS.toString() + SEPARATOR + job);
+                    cms.createZNode(CreateMode.EPHEMERAL, cms.getPath().JOBS.toString() + SEPARATOR + job, datas);
                     waitingJobs.remove(job);
                 } else {
                     waitingJobs.add(job);
                 }
-
+                
             }
-
+            
             for (PluginInfo peer : getPeers().values()) {
-                for (String task : zkService.getChildren(zkService.getPath().TASKS.getFullPath(peer.getId(), "", ""), null)) {
-                    String datas =  zkService.getData(zkService.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())), null);
-                        
+                for (String task : cms.getChildren(cms.getPath().TASKS.getFullPath(peer.getId(), "", ""), null)) {
+                    String datas =  cms.getData(cms.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())), null);
+                    
                     if(datas!=null && datas.isEmpty()){
                         PluginTask pluginTask = new ObjectMapper().readValue(datas, PluginTask.class);
                         //verifica se o job já estava na lista, recupera e lança novamente os dados para disparar watchers                    if(count ==1){
                         if (pluginTask.getState() == PluginTaskState.PENDING) {
                             if (waitingTask.containsKey(task)) {
                                 //condição para verificar se a tarefa está sendo utilizada
-                                if(zkService.getZNodeExist(zkService.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())), false)){
-                                    zkService.delete(zkService.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())));
-                                    zkService.createPersistentZNode(zkService.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())), pluginTask.toString());
+                                if(cms.getZNodeExist(cms.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())), false)){
+                                    cms.delete(cms.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())));
+                                    cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())), pluginTask.toString());
                                 }
                                 waitingJobs.remove(task);
                             } else {
@@ -174,16 +175,16 @@ public void shutdown() {
                     }
                 }
             }
-        } catch (KeeperException ex) {
-            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (KeeperException ex) {
+//            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (InterruptedException ex) {
+//            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        
     }
-
+    
     /**
      * Realiza a verificação dos peers existentes identificando se existe algum
      * peer aguardando recuperação, se o peer estiver off-line e a recuperação
@@ -192,73 +193,73 @@ public void shutdown() {
      */
     private void checkPeersStatus() {
         try {
-            List<String> listPeers = zkService.getChildren(zkService.getPath().PEERS.toString(), new UpdatePeerData(zkService, this));
+            List<String> listPeers = cms.getChildren(cms.getPath().PEERS.toString(), new UpdatePeerData(cms, this));
             for (String peerPath : listPeers) {
 //                if(!plugins.contains(peerPath)){
 //                    plugins.add(peerPath);
 //                    RpcClient rpcClient = new AvroClient("http", plugin.getHost().getAddress(), PORT);
 //                    rpcClient.getProxy().setWatcher(plugin.getId());
 //                    rpcClient.close();
-
-                    if (zkService.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, false)) {
-                        //TO DO descomentar linha abaixo caso o storage estiver fazendo a recuperação do peer 
-                        if (zkService.getData(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, null).contains("S") && zkService.getData(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, null).contains("E")) {
-                            deletePeer(ROOT_PEER + SEPARATOR + peerPath);
-                        }
+                
+                if (cms.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, false)) {
+                    //TO DO descomentar linha abaixo caso o storage estiver fazendo a recuperação do peer
+                    if (cms.getData(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, null).contains("S") && cms.getData(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, null).contains("E")) {
+                        deletePeer(ROOT_PEER + SEPARATOR + peerPath);
                     }
+                }
 //                }
             }
         } catch (KeeperException ex) {
             Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
             Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (IOException ex) {
+//            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
     
-     /**
-      * Verifica se algum arquivo está pendente há algum tempo(duas vezes o tempo de execução da monitoring), e se estiver
-      * apaga e cria novamente o arquivo para que os seus watcher informem sua existência.
-      */
-      private void checkPendingSave(){ 
-          try { 
-                List<String> listPendingSaves= zkService.getChildren(zkService.getPath().PENDING_SAVE.getFullPath("", "", ""), null);
-                if(listPendingSaves!=null && !listPendingSaves.isEmpty()){
+    
+    /**
+     * Verifica se algum arquivo está pendente há algum tempo(duas vezes o tempo de execução da monitoring), e se estiver
+     * apaga e cria novamente o arquivo para que os seus watcher informem sua existência.
+     */
+    private void checkPendingSave(){
+        try {
+            List<String> listPendingSaves= cms.getChildren(cms.getPath().PENDING_SAVE.getFullPath("", "", ""), null);
+            if(listPendingSaves!=null && !listPendingSaves.isEmpty()){
+                
+                for (String filePending : listPendingSaves) {
+                    String datas =  cms.getData(cms.getPath().PREFIX_PENDING_FILE.getFullPath("", filePending.substring(13, filePending.length()), ""), null);
                     
-                    for (String filePending : listPendingSaves) {
-                        String datas =  zkService.getData(zkService.getPath().PREFIX_PENDING_FILE.getFullPath("", filePending.substring(13, filePending.length()), ""), null);
+                    if(datas!=null && datas.isEmpty()){
                         
-                        if(datas!=null && datas.isEmpty()){
-
-                            //verifica se o arquivo já estava na lista, recupera e lança novamente os dados para disparar watchers
-                            if (waitingFiles.contains(filePending)) {
-                                PluginInfo pluginInfo = new ObjectMapper().readValue(datas, PluginInfo.class);
-                                //condição para verificar se arquivo na pending ainda existe
-                                if(zkService.getZNodeExist(zkService.getPath().PENDING_SAVE.getFullPath("", filePending.substring(13, filePending.length()), ""), false)){
-                                    zkService.delete(zkService.getPath().PENDING_SAVE.getFullPath("", filePending.substring(13, filePending.length()),""));
-                                    zkService.createPersistentZNode(zkService.getPath().PENDING_SAVE.getFullPath("", filePending.substring(13, filePending.length()),""), pluginInfo.toString());
-                                }
-                                waitingFiles.remove(filePending);
-                            } else {
-                                waitingFiles.add(filePending);
+                        //verifica se o arquivo já estava na lista, recupera e lança novamente os dados para disparar watchers
+                        if (waitingFiles.contains(filePending)) {
+                            PluginInfo pluginInfo = new ObjectMapper().readValue(datas, PluginInfo.class);
+                            //condição para verificar se arquivo na pending ainda existe
+                            if(cms.getZNodeExist(cms.getPath().PENDING_SAVE.getFullPath("", filePending.substring(13, filePending.length()), ""), false)){
+                                cms.delete(cms.getPath().PENDING_SAVE.getFullPath("", filePending.substring(13, filePending.length()),""));
+                                cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PENDING_SAVE.getFullPath("", filePending.substring(13, filePending.length()),""), pluginInfo.toString());
                             }
+                            waitingFiles.remove(filePending);
+                        } else {
+                            waitingFiles.add(filePending);
                         }
-                        
                     }
                     
                 }
-            } catch (KeeperException ex) {
-              Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex); 
-            } catch (IOException ex) {
-              Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex); 
-            } catch (InterruptedException ex) {
-              Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex); 
-            } 
-      
-      }
-     
+                
+            }
+//            } catch (KeeperException ex) {
+//              Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+//            } catch (InterruptedException ex) {
+//              Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+    
     /**
      * Incia o processo de recuperação dos peers caso ainda não tenho sido
      * iniciado e adiciona um watcher nos peer on-lines.
@@ -266,37 +267,37 @@ public void shutdown() {
     private void checkPeers() {
         try {
             //executa a verificação inicial para ver se os peers estão on-line, adiciona um watcher para avisar quando o peer ficar off-line
-            List<String> listPeers = zkService.getChildren(ROOT_PEER, null);
+            List<String> listPeers = cms.getChildren(ROOT_PEER, null);
             for (String peerPath : listPeers) {
-                    if (zkService.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUS, false)) {
-                        //adicionando wacth
-                        zkService.getData(ROOT_PEER + SEPARATOR + peerPath + STATUS, new UpdatePeerData(zkService, this));
-
-                    }
-                    //verifica se algum plugin havia ficado off e não foi realizado sua recuperação
-                    if (!zkService.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUS, false)
-                            && !zkService.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, false)) {
-                        zkService.createPersistentZNode(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, "");
-                        zkService.getData(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, new UpdatePeerData(zkService, this));
-                    }
-                    plugins.add(peerPath);
+                if (cms.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUS, false)) {
+                    //adicionando wacth
+                    cms.getData(ROOT_PEER + SEPARATOR + peerPath + STATUS, new UpdatePeerData(cms, this));
+                    
+                }
+                //verifica se algum plugin havia ficado off e não foi realizado sua recuperação
+                if (!cms.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUS, false)
+                        && !cms.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, false)) {
+                    cms.createZNode(CreateMode.PERSISTENT, ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, "");
+                    cms.getData(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, new UpdatePeerData(cms, this));
+                }
+                plugins.add(peerPath);
             }
-        } catch (KeeperException ex) {
-            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (KeeperException ex) {
+//            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (InterruptedException ex) {
+//            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
             Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        
     }
-
+    
     private void deletePeer(String peerPath) throws InterruptedException, KeeperException {
-        if (!zkService.getZNodeExist(peerPath + STATUS, false) && zkService.getZNodeExist(peerPath + STATUSWAITING, false)) {
-            zkService.delete(peerPath);
+        if (!cms.getZNodeExist(peerPath + STATUS, false) && cms.getZNodeExist(peerPath + STATUSWAITING, false)) {
+            cms.delete(peerPath);
         }
     }
-
+    
 //    @Override
 //    public void onEvent(P2PEvent event) {
 //        if (!event.getType().equals(P2PEventType.MESSAGE))
@@ -373,7 +374,7 @@ public void shutdown() {
 //    private void updateJobStatus(PluginTask task) {
 ////        Pair<JobInfo, PluginTask> pair = runningJobs.get(task.getId());
 ////        JobInfo job = pair.first;
-//        
+//
 ////        runningJobs.put(task.getId(), new Pair<JobInfo, PluginTask>(job, task));
 //    }
 //
@@ -382,5 +383,5 @@ public void shutdown() {
 //    //        JobInfo job = pair.first;
 //        //p2p.sendMessage(new EndJobMessage(job));
 //    }
-
+    
 }

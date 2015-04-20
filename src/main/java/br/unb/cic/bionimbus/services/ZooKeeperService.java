@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import org.apache.zookeeper.KeeperException.ConnectionLossException;
@@ -189,9 +188,7 @@ public class ZooKeeperService {
                 } else {
 //                    System.out.println(String.format("znode %s existente", root));
                 }
-            } catch (KeeperException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

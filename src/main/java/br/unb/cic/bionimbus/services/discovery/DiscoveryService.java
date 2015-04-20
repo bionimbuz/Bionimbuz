@@ -5,7 +5,7 @@ import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxGetInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
 import br.unb.cic.bionimbus.services.AbstractBioService;
-import br.unb.cic.bionimbus.services.ZooKeeperService;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
@@ -23,7 +23,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 
 @Singleton
@@ -41,13 +40,13 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 //    private static final String FILES = "files";
 //    private static final String PREFIX_FILE = "file_";
 //    private String peerName;
-    private ConcurrentMap<String, PluginInfo> map = Maps.newConcurrentMap();
+    private final ConcurrentMap<String, PluginInfo> map = Maps.newConcurrentMap();
 
     @Inject
-    public DiscoveryService(final ZooKeeperService service) {
+    public DiscoveryService(final CloudMessageService cms) {
 
-        Preconditions.checkNotNull(service);
-        this.zkService = service;
+        Preconditions.checkNotNull(cms);
+        this.cms = cms;
 
 //        infoCache = CacheBuilder.newBuilder()
 //                                .initialCapacity(1000)
@@ -72,13 +71,13 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 //                    
 //                    //Apaga znode peer_X apenas quando estiver pronto para ser excluido
 //                   
-//                    if(zkService.getZNodeExist(myInfo.getPath_zk()+SEPARATOR+STATUS, false)){ 
+//                    if(cms.getZNodeExist(myInfo.getPath_zk()+SEPARATOR+STATUS, false)){ 
 //                        map.put(myInfo.getId(), myInfo);
-//                    }else if(zkService.getZNodeExist(myInfo.getPath_zk()+SEPARATOR+STATUS+WAITING, false)){
+//                    }else if(cms.getZNodeExist(myInfo.getPath_zk()+SEPARATOR+STATUS+WAITING, false)){
 //                                map.remove(myInfo.getId());
 //                                
 //                            }else{
-//                                zkService.delete(myInfo.getPath_zk());
+//                                cms.delete(myInfo.getPath_zk());
 //                            }
 //                } catch (KeeperException ex) {
 //                    Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
@@ -122,10 +121,10 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
 
                 //definindo myInfo após a primeira leitura dos dados
                 linuxPlugin.setMyInfo(infopc);
-                System.out.println(linuxPlugin.getMyInfo().toString());
+                System.out.println("starting:\n" + linuxPlugin.getMyInfo().toString());
                 System.out.println("");
             }else{
-                String data = zkService.getData(infopc.getPath_zk(), null);
+                String data = cms.getData(infopc.getPath_zk(), null);
                 if (data == null || data.trim().isEmpty()){
                     System.out.println("znode vazio para path " + infopc.getPath_zk());
                     return;
@@ -139,12 +138,12 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
                 infopc = plugin;
             }
             //armazenando dados do plugin no zookeeper
-            zkService.setData(infopc.getPath_zk(), infopc.toString());
+            cms.setData(infopc.getPath_zk(), infopc.toString());
             
-        } catch (KeeperException ex) {
-            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (KeeperException ex) {
+//            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (InterruptedException ex) {
+//            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
         }

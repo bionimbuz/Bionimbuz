@@ -5,9 +5,7 @@
 package br.unb.cic.bionimbus.utils;
 
 import br.unb.cic.bionimbus.plugin.PluginFile;
-import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.ZooKeeperService;
-import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
@@ -19,7 +17,6 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
-import org.apache.zookeeper.server.ZKDatabase;
 
 /**
  *
@@ -28,7 +25,7 @@ import org.apache.zookeeper.server.ZKDatabase;
 public class Teste implements Watcher{
     private static final int SESSION_TIMEOUT = 5000;
     private ZooKeeper zk;
-    private CountDownLatch connectedSignal = new CountDownLatch(1);
+    private final CountDownLatch connectedSignal = new CountDownLatch(1);
     
     public void connect(String hosts) throws IOException, InterruptedException {
         zk = new ZooKeeper(hosts, SESSION_TIMEOUT, this);

@@ -11,15 +11,15 @@ import br.unb.cic.bionimbus.client.JobInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskState;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
-import br.unb.cic.bionimbus.services.ZooKeeperService;
 
 public class AHPPolicy extends SchedPolicy {
 
     private static final int BLACKLIST_LIMIT = 12;
-    private List<PluginInfo> usedResources = new ArrayList<PluginInfo>();
-    private Map<PluginTask, Integer> blackList = new HashMap<PluginTask, Integer>();
+    private final List<PluginInfo> usedResources = new ArrayList<PluginInfo>();
+    private final Map<PluginTask, Integer> blackList = new HashMap<PluginTask, Integer>();
 
     @Override
     public void cancelJobEvent(PluginTask task) {
@@ -84,14 +84,14 @@ public class AHPPolicy extends SchedPolicy {
     private PluginInfo scheduleJob(JobInfo jobInfo) {
         List<PluginInfo> plugins = filterByService(jobInfo.getServiceId(),
                 getCloudMap().values());
-        if (plugins.size() == 0) {
+        if (plugins.isEmpty()) {
             return null;
         }
         return getBestService(plugins);
     }
 
     public static JobInfo getBiggerJob(List<JobInfo> jobInfos) {
-        if (jobInfos.size() == 0)
+        if (jobInfos.isEmpty())
             return null;
         JobInfo bigger = null;
         long biggerTotal = 0L;
@@ -256,7 +256,7 @@ public class AHPPolicy extends SchedPolicy {
                 plugins.add(pluginInfo);
         }
 
-        if (plugins.size() == 0) {
+        if (plugins.isEmpty()) {
             usedResources.clear();
             return new ArrayList<PluginInfo>(getCloudMap().values());
         }
@@ -317,7 +317,7 @@ public class AHPPolicy extends SchedPolicy {
     }
 
     @Override
-    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, ZooKeeperService zk) {
+    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, CloudMessageService cms) {
         
         return schedule(jobInfos);
     }

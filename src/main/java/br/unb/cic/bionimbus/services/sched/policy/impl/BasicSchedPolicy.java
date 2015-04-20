@@ -8,9 +8,9 @@ import java.util.List;
 import br.unb.cic.bionimbus.client.JobInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
-import br.unb.cic.bionimbus.services.ZooKeeperService;
 
 public class BasicSchedPolicy extends SchedPolicy {
 
@@ -80,7 +80,7 @@ public class BasicSchedPolicy extends SchedPolicy {
     }
 
     @Override
-    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, ZooKeeperService zk) {
+    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, CloudMessageService cms) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
     @Override
