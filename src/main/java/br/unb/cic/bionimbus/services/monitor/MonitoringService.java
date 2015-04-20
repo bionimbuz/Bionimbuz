@@ -120,14 +120,8 @@ public class MonitoringService extends AbstractBioService implements Runnable {
         Collection<PluginInfo> temp  = getPeers().values();
         temp.removeAll(plugins);
         for(PluginInfo plugin : temp){
-//            try {
             if(cms.getZNodeExist(cms.getPath().STATUS.getFullPath(plugin.getId(), null, null), false))
                 cms.getData(cms.getPath().STATUS.getFullPath(plugin.getId(), "", ""), new UpdatePeerData(cms, this));
-//            } catch (KeeperException ex) {
-//                java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
-//            } catch (InterruptedException ex) {
-//                java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
-//            }
         }
     }
     
@@ -174,10 +168,6 @@ public class MonitoringService extends AbstractBioService implements Runnable {
                     }
                 }
             }
-//        } catch (KeeperException ex) {
-//            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -212,8 +202,6 @@ public class MonitoringService extends AbstractBioService implements Runnable {
             Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
             Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (IOException ex) {
-//            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -249,12 +237,8 @@ public class MonitoringService extends AbstractBioService implements Runnable {
                 }
                 
             }
-//            } catch (KeeperException ex) {
-//              Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
-//            } catch (InterruptedException ex) {
-//              Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         }
         
     }
@@ -281,10 +265,6 @@ public class MonitoringService extends AbstractBioService implements Runnable {
                 }
                 plugins.add(peerPath);
             }
-//        } catch (KeeperException ex) {
-//            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
             Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         }

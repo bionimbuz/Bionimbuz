@@ -14,7 +14,6 @@ import org.apache.zookeeper.Watcher;
  */
 public class UpdatePeerData implements Watcher  {
 
-//    private ZooKeeperService cms;
     private final CloudMessageService cms;
     private final Service service;
     
@@ -34,7 +33,6 @@ public class UpdatePeerData implements Watcher  {
         service.event(event);
         
         //Realiza a solicitação para um novo observer
-//        try {
             switch(event.getType()){
             
                 case NodeChildrenChanged:
@@ -47,13 +45,6 @@ public class UpdatePeerData implements Watcher  {
                 break;
             
             }
-//        } catch (KeeperException ex) {
-//            Logger.getLogger(UpdatePeerData.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(UpdatePeerData.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (IOException ex) {
-//            Logger.getLogger(UpdatePeerData.class.getName()).log(Level.SEVERE, null, ex);
-//        }
     } 
         
 }

@@ -33,7 +33,6 @@ public class AcoSched extends SchedPolicy {
     private static final String DIR_SIZEALLJOBS = "/size_jobs";
     private static final String SCHED = "/sched";
     private static final String LATENCY = "/latency";
-//    private ZooKeeperService zk;
     private CloudMessageService cms;
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AcoSched.class.getSimpleName());
     
@@ -673,15 +672,9 @@ public class AcoSched extends SchedPolicy {
      */
     private String getDatasZookeeper(String zkPath, String dir) {
         String datas = "";
-//        try {
         if (cms.getZNodeExist(zkPath + dir, false)) {
             datas = cms.getData(zkPath + dir, null);
         }
-//        } catch (KeeperException ex) {
-//            Logger.getLogger(AcoSched.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(AcoSched.class.getName()).log(Level.SEVERE, null, ex);
-//        }
         
         return datas;
     }
@@ -696,16 +689,9 @@ public class AcoSched extends SchedPolicy {
      * @return dados contidos no diretorio
      */
     private void setDatasZookeeper(String zkPath, String dir, String datas) {
-//        try {
         if (cms.getZNodeExist(zkPath + dir, false)) {
             cms.setData(zkPath + dir, datas);
         }
-//        } catch (KeeperException ex) {
-//            Logger.getLogger(AcoSched.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(AcoSched.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-        
     }
     
     @Override

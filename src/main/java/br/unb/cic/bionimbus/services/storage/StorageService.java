@@ -66,9 +66,6 @@ public class StorageService extends AbstractBioService {
         this.cms = cms;
         
         this.metricRegistry = metricRegistry;
-        // teste
-        Counter c = metricRegistry.counter("teste");
-        c.inc();
     }
     
     @Override
@@ -91,19 +88,11 @@ public class StorageService extends AbstractBioService {
         //Criando pastas zookeeper para o módulo de armazenamento
         cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PENDING_SAVE.toString(), null);
         cms.createZNode(CreateMode.PERSISTENT, cms.getPath().FILES.getFullPath(config.getId(), "", ""), "");
-//        try {
+
         //watcher para verificar se um pending_save foi lançado
         cms.getChildren(cms.getPath().PENDING_SAVE.getFullPath("", "", ""), new UpdatePeerData(cms, this));
         cms.getChildren(cms.getPath().PEERS.getFullPath("", "", ""), new UpdatePeerData(cms, this));
-        
-//        } catch (KeeperException ex) {
-//            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (IOException ex) {
-//            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-        
+
         //NECESSARIO atualizar a lista de arquivo local , a lista do zookeeper com os arquivos locais.
         checkFiles();
         checkPeers();
@@ -120,7 +109,6 @@ public class StorageService extends AbstractBioService {
     @Override
     public void shutdown() {
         listeners.remove(this);
-//        p2p.remove(this);
         executorService.shutdownNow();
     }
     
@@ -129,25 +117,14 @@ public class StorageService extends AbstractBioService {
         // TODO Auto-generated method stub
     }
     
-//    @Override
-//    public void onEvent(P2PEvent event) {
-//    }
-    
     /**
      * Verifica os peers(plugins) existentes e adiciona um observador(watcher)
      * no zNode STATUS de cada plugin.
      */
     public void checkPeers() {
         for (PluginInfo plugin : getPeers().values()) {
-//            try {
             if(cms.getZNodeExist(cms.getPath().STATUS.getFullPath(plugin.getId(), null, null), false))
                 cms.getData(cms.getPath().STATUS.getFullPath(plugin.getId(), null, null), new UpdatePeerData(cms, this));
-//            } catch (KeeperException ex) {
-//                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-//            } catch (InterruptedException ex) {
-//                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-            
         }
     }
     
@@ -182,10 +159,6 @@ public class StorageService extends AbstractBioService {
                 }
                 
             }
-//        } catch (KeeperException ex) {
-//            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -259,7 +232,7 @@ public class StorageService extends AbstractBioService {
         Map<String, List<String>> mapFiles = new HashMap<String, List<String>>();
         List<String> listFiles;
         checkFiles();
-//        try {
+
         for (PluginInfo plugin : getPeers().values()) {
             listFiles = new ArrayList<String>();
             for (String file : cms.getChildren(plugin.getPath_zk() + cms.getPath().FILES.toString(), new UpdatePeerData(cms, this))) {
@@ -267,11 +240,6 @@ public class StorageService extends AbstractBioService {
             }
             mapFiles.put(plugin.getHost().getAddress(), listFiles);
         }
-//        } catch (KeeperException ex) {
-//            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-//        }
         
         return mapFiles;
         
@@ -291,7 +259,7 @@ public class StorageService extends AbstractBioService {
         //NECESSARIO atualizar a lista de arquivo local , a lista do zookeeper com os arquivos locais. Não é feito em nenhum momento
         //caso não seja chamado a checkFiles();
         checkFiles();
-//        try {
+
         for (Iterator<PluginInfo> it = getPeers().values().iterator(); it.hasNext();) {
             PluginInfo plugin = it.next();
             listFiles = cms.getChildren(plugin.getPath_zk() + cms.getPath().FILES.toString(), null);
@@ -304,14 +272,6 @@ public class StorageService extends AbstractBioService {
             }
         }
         return "";
-//        } catch (KeeperException ex) {
-//            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-        
-//        return "";
-        
     }
     
     /**
@@ -329,11 +289,6 @@ public class StorageService extends AbstractBioService {
                 PluginFile files = new ObjectMapper().readValue(cms.getData(cms.getPath().PREFIX_FILE.getFullPath(plugin.getId(), file, ""), null), PluginFile.class);
                 return files.getSize();
             }
-            
-//        } catch (KeeperException ex) {
-//            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -379,13 +334,7 @@ public class StorageService extends AbstractBioService {
         
         if (localFile.exists()) {
             cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_FILE.getFullPath(config.getId(), file.getId(), ""), file.toString());
-//            try {
             cms.getData(cms.getPath().PREFIX_FILE.getFullPath(config.getId(), file.getId(), ""), new UpdatePeerData(cms, this));
-//            } catch (KeeperException ex) {
-//                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-//            } catch (InterruptedException ex) {
-//                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-//            }
             return true;
         }
         System.out.println("\n\n arquivo nao encontrado no peer"+config.getId());
@@ -459,7 +408,6 @@ public class StorageService extends AbstractBioService {
      */
     public void checkingPendingSave() throws IOException{
         
-//        try {
         ObjectMapper mapper = new ObjectMapper();
         int cont = 0;
         List<String> pendingSave = cms.getChildren(cms.getPath().PENDING_SAVE.toString(), null);
@@ -526,15 +474,7 @@ public class StorageService extends AbstractBioService {
             //verifica se exite replicação quando houver mais de um peer
             if (getPeers().size() != 1)
                 existReplication(files);
-            
-            
         }
-//        } catch (KeeperException ex) {
-//            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-        
     }
     
     /**
@@ -618,18 +558,12 @@ public class StorageService extends AbstractBioService {
                         * Com o arquivo enviado, seta os seus dados no Zookeeper
                         */
                         for (String idPlugin : idsPluginsFile) {
-//                            try {
                             if (cms.getZNodeExist(cms.getPath().PREFIX_FILE.getFullPath(idPlugin, filename, ""), true)) {
                                 cms.setData(cms.getPath().PREFIX_FILE.getFullPath(idPlugin, filename, ""), pluginFile.toString());
                             } else {
                                 cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_FILE.getFullPath(idPlugin, filename, ""), pluginFile.toString());
                             }
                             cms.getData(cms.getPath().PREFIX_FILE.getFullPath(idPlugin, filename, ""), new UpdatePeerData(cms, this));
-//                            } catch (KeeperException ex) {
-//                                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-//                            } catch (InterruptedException ex) {
-//                                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-//                            }
                         }
                         filesreplicated++;
                         if(filesreplicated==REPLICATIONFACTOR)
@@ -706,10 +640,6 @@ public class StorageService extends AbstractBioService {
                 PluginFile file = mapper.readValue(cms.getData(cms.getPath().PREFIX_FILE.getFullPath(pluginId, fileName, ""), null), PluginFile.class);
                 filesPeerSelected.add(file);
             }
-//        } catch (KeeperException ex) {
-//            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -725,15 +655,8 @@ public class StorageService extends AbstractBioService {
         Collection<PluginInfo> temp = getPeers().values();
         temp.removeAll(cloudMap.values());
         for (PluginInfo plugin : temp) {
-//            try {
             if(cms.getZNodeExist(cms.getPath().STATUS.getFullPath(plugin.getId(), null, null), false))
                 cms.getData(cms.getPath().STATUS.getFullPath(plugin.getId(), "", ""), new UpdatePeerData(cms, this));
-            
-//            } catch (KeeperException ex) {
-//                java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
-//            } catch (InterruptedException ex) {
-//                java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
-//            }
         }
     }
     /**
