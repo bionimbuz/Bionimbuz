@@ -49,7 +49,6 @@ public class StoragePolicy {
         */
         
         for (PluginInfo plugin : pluginList) {
-//            try {
             String datastring = cms.getData(cms.getPath().PREFIX_PEER.getFullPath(plugin.getId(), "", ""), null);
             try {
                 PluginInfo plugindata = new ObjectMapper().readValue(datastring, PluginInfo.class);
@@ -68,20 +67,7 @@ public class StoragePolicy {
             * Seta o custo de armazenamento no peer
             */
             plugin.setStorageCost(cost);
-//                try {
             cms.setData(plugin.getPath_zk(), plugin.toString());
-//                } catch (KeeperException ex) {
-//                    Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-//                } catch (InterruptedException ex) {
-//                    Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-            
-//            } catch (KeeperException ex) {
-//                Logger.getLogger(StoragePolicy.class.getName()).log(Level.SEVERE, null, ex);
-//            } catch (InterruptedException ex) {
-//                Logger.getLogger(StoragePolicy.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-            
         }
         /*
         * Converte o tipo de list para facilitar o ordenamento dos dados

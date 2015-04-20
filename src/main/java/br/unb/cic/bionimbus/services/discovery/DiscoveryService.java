@@ -140,10 +140,6 @@ public class DiscoveryService extends AbstractBioService implements RemovalListe
             //armazenando dados do plugin no zookeeper
             cms.setData(infopc.getPath_zk(), infopc.toString());
             
-//        } catch (KeeperException ex) {
-//            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
         }

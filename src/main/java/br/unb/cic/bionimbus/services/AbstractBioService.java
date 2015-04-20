@@ -51,10 +51,6 @@ public abstract class AbstractBioService implements Service, Runnable, Listeners
                     }
                 }
             }
-//        } catch (KeeperException ex) {
-//            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
         }

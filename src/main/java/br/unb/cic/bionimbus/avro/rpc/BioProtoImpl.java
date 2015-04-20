@@ -85,10 +85,6 @@ public class BioProtoImpl implements BioProto {
                 }
                     
             }
-//        } catch (KeeperException ex) {
-//            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -132,11 +128,6 @@ public class BioProtoImpl implements BioProto {
                     i++;
                 }
             }
-                    
-//        } catch (KeeperException ex) {
-//            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -237,7 +228,6 @@ public class BioProtoImpl implements BioProto {
      */
     @Override
     public String schedPolicy(int numPolicy){
-//        try {
             //verifica se escolher informar a política ou identificar qual é a política
             if(numPolicy==-1){
                 numPolicy = new Integer(cms.getData(cms.getPath().JOBS.toString(), null));
@@ -249,11 +239,6 @@ public class BioProtoImpl implements BioProto {
                     return "\nNão foi possível alterar  política de escalonamento. Tente mais tarde.";
                 }
             }
-//        } catch (KeeperException ex) {
-//            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-//        }
         
         StringBuilder politicys = new StringBuilder();
         List<SchedPolicy> listPolicy = SchedPolicy.getInstances();
@@ -463,14 +448,10 @@ public class BioProtoImpl implements BioProto {
         fileS.setPluginId(dest);
         return storageService.checkFilePeer(fileS); 
     }
-
-
     
     @Override
     public void setWatcher(String idPlugin) {
 //        storageService.starWatchers(idPlugin);
     }
-
- 
 
 }
