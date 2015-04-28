@@ -277,6 +277,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                 } catch (SftpException ex) {
                     java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
                 }
+
             }
             
         }
@@ -298,6 +299,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                 cms.createZNode(CreateMode.PERSISTENT, JOBS + PREFIX_JOB + task.getJobInfo().getId(), task.getJobInfo().toString());
                 
             } catch (Exception ex) {
+
                 StringBuilder datas = new StringBuilder(cms.getData(cms.getPath().STATUSWAITING.getFullPath(task.getPluginExec(), "", ""), null));
                 cms.setData(cms.getPath().STATUSWAITING.getFullPath(task.getPluginExec(), "", ""), datas.append("E").toString());
                 tasks.add(task);
@@ -323,7 +325,9 @@ public class SchedService extends AbstractBioService implements Runnable {
             if (!cms.getZNodeExist(peerPath + STATUSWAITING, false)) {
                 cms.createZNode(CreateMode.PERSISTENT, peerPath + STATUSWAITING, "");
             }
+            
             dataStatus.append(cms.getData(peerPath + STATUSWAITING, null));
+            
             //verifica se recurso já foi recuperado ou está sendo recuperado por outro recurso
             if (dataStatus.toString().contains("E") || dataStatus.toString().contains("B")) {
                 return;
@@ -750,8 +754,6 @@ public class SchedService extends AbstractBioService implements Runnable {
                         
                     } else if (eventType.getPath().contains(SCHED + TASKS)) {
                         System.out.println(">>>>>>Recebimento de um alerta para uma TAREFA, NodeChildrenChanged<<<<<");
-                        
-                        
                         //verifica qual foi o job colocado para ser executado
                         PluginTask pluginTask = getNewTask(eventType.getPath());
                         //verifica se um existe algum novo pluginTask

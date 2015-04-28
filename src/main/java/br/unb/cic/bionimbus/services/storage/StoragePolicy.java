@@ -88,6 +88,7 @@ public class StoragePolicy {
             node.setPeerId(plug.getId());
             nodes.add(node);
         }
+
         return nodes;
         
     }
