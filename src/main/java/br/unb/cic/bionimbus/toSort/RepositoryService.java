@@ -5,8 +5,15 @@
  */
 package br.unb.cic.bionimbus.toSort;
 
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
+import com.google.inject.Inject;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.NavigableMap;
+import java.util.TreeMap;
+import org.mortbay.log.Log;
 
 /**
  *
@@ -16,6 +23,19 @@ import java.util.List;
  * Dados disponiveis atraves de metodos get
  */
 public class RepositoryService {
+    
+    private final CloudMessageService cms;
+    
+    private static final String ROOT_REPOSITORY = CuratorMessageService.Path.HISTORY.toString();
+    private static final String PREFIX_TASK = ROOT_REPOSITORY + CuratorMessageService.Path.PREFIX_TASK.toString();
+    private static final String SEPARATOR = CuratorMessageService.Path.SEPARATOR.toString();
+    private static final String START = CuratorMessageService.Path.START.toString();
+    private static final String COUNT = CuratorMessageService.Path.COUNT.toString();
+
+    @Inject
+    public RepositoryService(final CloudMessageService cms) {
+        this.cms = cms;
+    }
     
     // TODO: deve haver uma classe basica contendo as informações de instancias
     // pergunta: qual é a nomeclatura para uma instancia de infra que não foi ativada e 
@@ -42,8 +62,31 @@ public class RepositoryService {
     
     // retorna um dos elementos da lista de historicos
     // lista atualizada preguiçosamente
-    public List<Long> getTaskHistory (int taskId) {
-        return Collections.unmodifiableList(null);
+    public List<Long> getTaskHistory (String taskId) {
+        NavigableMap<Long, Long> currentHistory = new TreeMap<Long, Long>();
+        List<Long> maximas = new ArrayList<Long>();
+
+        // check if task is supported
+        if(!cms.getZNodeExist(PREFIX_TASK+taskId, false)) {
+            // problem: task not supported
+            Log.warn("task not suported: task_" + taskId);
+            return null;
+        }
+        
+        // get histogram from task taskId
+        for(String task : cms.getChildren(PREFIX_TASK+taskId, null)) {
+            String count = cms.getData(PREFIX_TASK+taskId+SEPARATOR+task+COUNT, null);
+            String intervalStart = cms.getData(PREFIX_TASK+taskId+SEPARATOR+task+START, null);
+            currentHistory.put(Long.valueOf(intervalStart), Long.valueOf(count));
+        }
+        
+        // apply moving average
+        
+        
+        // get all local maximas
+        
+        
+        return maximas;
     }
     
 }
