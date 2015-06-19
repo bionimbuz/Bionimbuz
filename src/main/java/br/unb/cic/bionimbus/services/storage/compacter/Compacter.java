@@ -1,17 +1,11 @@
-package br.unb.cic.bionimbus.services.storage;
+package br.unb.cic.bionimbus.services.storage.compacter;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
-
-import org.apache.commons.io.IOUtils;
 
 /**
  * 
@@ -26,30 +20,48 @@ public class Compacter {
 	}
 
 	private static final int COMPRESSION_LEVEL_FAST = 1;
-	// private static final int COMPRESSION_LEVEL_SLOW = 5; //Not used by Java
-	// Zip
+	private static final int COMPRESSION_LEVEL_MEDIUM = 4;
+	//private static final int COMPRESSION_LEVEL_SLOW = 5; //Not used by Java GZip
 
 	private static final double COMPRESSION_RATIO_FAST = 0.60;
+	private static final double COMPRESSION_RATIO_MEDIUM = 0.60;
 	private static final double COMPRESSION_RATIO_SLOW = 0.80;
 
 	private static final long TIME_IN_MILIS_PER_MEGA_FAST = 10;
+	private static final long TIME_IN_MILIS_PER_MEGA_MEDIUM = 120;
 	private static final long TIME_IN_MILIS_PER_MEGA_SLOW = 120;
 
 	/*
 	 * O tempo por mega deve ser menor sem comprimir do que comprimindo para
 	 * valer a pena:
 	 * 
-	 * 1/band < ratio/band + time
-	 * 1/band < (ratio + time*band)/band
-	 * 1 < ratio + time*band
-	 * 1 - ratio < time*band
-	 * (1 - ratio)/time < band
+	 * 1/band < (1-0.80)/band + 0.6
+	 * 1/band < ((1 -ratio) + time*band)/band
+	 * 1 < (1-ratio) + time*band
+	 * ratio < time*band
+	 * ratio/time < band
+	 * 
+	 * a banda máxima para valer é de 36.1277215253224 MB/s (usando Zip4J)
+	 * 
+	 * Para trocar entre os compactadores, deve se calcular o tempo de cada um e verificar onde há os cortes no gráfico:
+	 * 
+	 * (1-ratio1)/x + time1 = (1-ratio2)/x +time2
+	 * 
+	 * De maneira ótima, a troca seria:
+	 * 
+	 * Zip4J Level 1 - a partir de 1.39205062775208 até 36.1277215253224 MB/s
+	 * Zip4J Level 2 - a partir de 0.987069232426755 até 1.39205062775208
+	 * Zip4J Level 4 - a partir de 0.160482105353177 até 0.987069232426755
+	 * Java Zip      - a partir de 0.0560584696222452 até 0.160482105353177
+	 * Java GZip     - a partir de 0.0177536044302058 até 0.0560584696222452
+	 * Apache XZ     - abaixo de 0.0177536044302058
+	 * 
 	 * 
 	 * 
 	 */
-	private static final double UPPER_QUOTA_IN_MEGAS_PER_SECOND = (1 - COMPRESSION_RATIO_FAST)
+	private static final double UPPER_QUOTA_IN_MEGAS_PER_SECOND = COMPRESSION_RATIO_FAST
 			/ (TIME_IN_MILIS_PER_MEGA_FAST/1000);
-	private static final double LOWER_QUOTA_IN_MEGAS_PER_SECOND = (1 - COMPRESSION_RATIO_SLOW)
+	private static final double LOWER_QUOTA_IN_MEGAS_PER_SECOND = COMPRESSION_RATIO_SLOW
 			/ (TIME_IN_MILIS_PER_MEGA_SLOW/1000);
 
 	/**
@@ -96,7 +108,7 @@ public class Compacter {
 			return compressFast(in);
 		}
 
-		return compressSlow(in);
+		return compressMedium(in);
 	}
 
 	/**
@@ -109,39 +121,42 @@ public class Compacter {
 	 */
 	private File compressFast(File in) throws IOException {
 
+		return compressZip4J(COMPRESSION_LEVEL_FAST, in);
+	}
+
+	/**
+	 * Compress the file a little slower but more efficient. 
+	 * Uses zip4j, with the medium compression level (5)
+	 * 
+	 * @param in {@link File} to be compressed
+	 * @return compressed {@link File}
+	 * @throws IOException
+	 */
+	private File compressMedium(File in) throws IOException {
+		
+		return compressZip4J(COMPRESSION_LEVEL_MEDIUM, in);
+	}
+	
+	/**
+	 * Compress using Zip4J
+	 * @param level
+	 * @param in
+	 * @return
+	 * @throws IOException
+	 */
+	private File compressZip4J(int level, File in) throws IOException{
 		File out = new File(in.getName() + ".zip4j");
 
 		try {
 
 			ZipFile zipFile = new ZipFile(out.getPath());
 			ZipParameters parametes = new ZipParameters();
-			parametes.setCompressionLevel(COMPRESSION_LEVEL_FAST);
+			parametes.setCompressionLevel(level);
 			zipFile.addFile(in, parametes);
 
 		} catch (ZipException e) {
 			throw new IOException(e);
 		}
-		return out;
-	}
-
-	/**
-	 * Compress the file the fastest possible. Uses java default implementation for Zip.
-	 * 
-	 * @param in {@link File} to be compressed
-	 * @return compressed {@link File}
-	 * @throws IOException
-	 */
-	private File compressSlow(File in) throws IOException {
-		File out = new File(in.getName() + ".zip");
-
-		ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(out));
-
-		ZipEntry entry = new ZipEntry(in.getPath());
-		zip.putNextEntry(entry);
-
-		zip.write(IOUtils.toByteArray(new FileReader(in)));
-
-		IOUtils.closeQuietly(zip);
 		return out;
 	}
 
