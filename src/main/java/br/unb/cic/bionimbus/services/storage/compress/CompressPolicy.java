@@ -50,6 +50,7 @@ public class CompressPolicy {
 	 * 
 	 * (1-ratio1)/x + time1 = (1-ratio2)/x +time2
 	 * 
+	 * 
 	 * De maneira ótima, a troca seria:
 	 * 
 	 * Zip4J Level 1 - a partir de 1.39205062775208 até 36.1277215253224 MB/s
@@ -83,7 +84,7 @@ public class CompressPolicy {
 	 * @param bandwidth Bandwidth in Megabytes per second
 	 * @return {@link Compression} if you should compress at all, very fast, fast, medium, slow, super slow or ultra slow
 	 */
-	public Compression compressionType(double bandwidth) {
+	private Compression compressionType(double bandwidth) {
 
 		if (NO_COMPRESSION_QUOTA < bandwidth ) {
 			return Compression.NO_COMPRESSION;
