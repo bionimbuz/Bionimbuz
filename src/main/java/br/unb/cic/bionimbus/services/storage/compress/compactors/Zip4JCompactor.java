@@ -26,5 +26,20 @@ public class Zip4JCompactor implements Compactor{
 		}
 		return out;
 	}
+	
+	@Override
+	public File descompact(File in) throws IOException{
+		String out = in.getName().replace(".zip4j", "");
+
+		try {
+
+			ZipFile zipFile = new ZipFile(in);
+			zipFile.extractFile(out, ".");
+
+		} catch (ZipException e) {
+			throw new IOException(e);
+		}
+		return new File(out);
+	}
 
 }

@@ -132,5 +132,20 @@ public class CompressPolicy {
 
 		return new ApacheXZCompactor().compact(in, COMPRESSION_LEVEL_ULTRA_SLOW);
 	}
+	
+	public File decompress(File compressed){
+		String name = compressed.getName();
+		
+		if (name.endsWith(".zip4J")){
+			
+		} else if(name.endsWith(".zip")){
+			
+		} else if(name.endsWith(".gzip")){
+			
+		} else if(name.endsWith(".xz")){
+			
+		}
+		return compressed;
+	}
 
 }
