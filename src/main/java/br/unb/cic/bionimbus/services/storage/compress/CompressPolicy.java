@@ -133,17 +133,24 @@ public class CompressPolicy {
 		return new ApacheXZCompactor().compact(in, COMPRESSION_LEVEL_ULTRA_SLOW);
 	}
 	
-	public File decompress(File compressed){
+	/**
+	 * decompress a file based on the extension.
+	 * 
+	 * @param compressed {@link File}
+	 * @return Uncompressed file.
+	 * @throws IOException
+	 */
+	public File decompress(File compressed) throws IOException{
 		String name = compressed.getName();
 		
 		if (name.endsWith(".zip4J")){
-			
+			return new Zip4JCompactor().descompact(compressed);
 		} else if(name.endsWith(".zip")){
-			
+			return new JavaZipCompactor().descompact(compressed);
 		} else if(name.endsWith(".gzip")){
-			
+			return new GZipCompactor().descompact(compressed);
 		} else if(name.endsWith(".xz")){
-			
+			return new ApacheXZCompactor().descompact(compressed);
 		}
 		return compressed;
 	}
