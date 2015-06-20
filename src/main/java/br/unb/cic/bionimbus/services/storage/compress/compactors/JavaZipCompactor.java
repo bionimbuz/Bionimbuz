@@ -17,7 +17,7 @@ public class JavaZipCompactor implements Compactor {
 
 	@Override
 	public File compact(File in, int compressionLevel) throws IOException {
-		File out = new File(in.getName() + ".zip");
+		File out = new File("target/" + in.getName() + ".zip");
 		ZipOutputStream zip;
 		zip = new ZipOutputStream(new FileOutputStream(out));
 
@@ -34,7 +34,7 @@ public class JavaZipCompactor implements Compactor {
 	@Override
 	public File descompact(File compressed) throws IOException {
 		
-		File out = new File(compressed.getName().replace(".zip", ""));
+		File out = new File("target/" + compressed.getName().replace(".zip", ""));
 		FileOutputStream fos = new FileOutputStream(out);
 		byte[] buffer = new byte[(int)compressed.getTotalSpace()];
 		

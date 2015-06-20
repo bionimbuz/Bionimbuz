@@ -17,7 +17,7 @@ public class ApacheXZCompactor implements Compactor{
 	@Override
 	public File compact(File in, int compressionLevel) throws IOException {
 		
-		File out = new File(in.getName() + ".xz");
+		File out = new File("target/" + in.getName() + ".xz");
 		
 		try {
 			ApacheGenericCompactor.compact(in, out, CompressorStreamFactory.XZ);
@@ -31,7 +31,7 @@ public class ApacheXZCompactor implements Compactor{
 	@Override
 	public File descompact(File compressed) throws IOException {
 		
-		String out = compressed.getName().replace(".xz", "");
+		String out = "target/" + compressed.getName().replace(".xz", "");
 		
 		FileInputStream fin = new FileInputStream(compressed);
 		BufferedInputStream in = new BufferedInputStream(fin);

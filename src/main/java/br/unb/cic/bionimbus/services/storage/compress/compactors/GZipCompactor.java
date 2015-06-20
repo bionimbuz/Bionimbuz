@@ -17,7 +17,7 @@ public class GZipCompactor implements Compactor{
 	@Override
 	public File compact(File in, int compressionLevel) throws IOException {
 		
-		File out = new File(in.getName()+ ".gzip");
+		File out = new File("target/" + in.getName()+ ".gzip");
 		GZIPOutputStream gzip;
 		gzip = new GZIPOutputStream( new FileOutputStream(out));
 		gzip.write(IOUtils.toByteArray(new FileReader(in)));
@@ -29,7 +29,7 @@ public class GZipCompactor implements Compactor{
 	@Override
 	public File descompact(File compressed) throws IOException {
 		
-		File out = new File(compressed.getName().replace(".gzip", ""));
+		File out = new File("target/" + compressed.getName().replace(".gzip", ""));
 		FileOutputStream fos = new FileOutputStream(out);
 		byte[] buffer = new byte[(int)compressed.getTotalSpace()];
 		

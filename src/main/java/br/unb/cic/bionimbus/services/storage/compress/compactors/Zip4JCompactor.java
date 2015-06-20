@@ -12,7 +12,7 @@ public class Zip4JCompactor implements Compactor{
 
 	@Override
 	public File compact(File in, int compressionLevel) throws IOException{
-		File out = new File(in.getName() + ".zip4j");
+		File out = new File("target/" + in.getName() + ".zip4j");
 
 		try {
 
@@ -34,12 +34,12 @@ public class Zip4JCompactor implements Compactor{
 		try {
 
 			ZipFile zipFile = new ZipFile(in);
-			zipFile.extractFile(out, ".");
+			zipFile.extractFile(out, "target/");
 
 		} catch (ZipException e) {
 			throw new IOException(e);
 		}
-		return new File(out);
+		return new File("target/" + out);
 	}
 
 }
