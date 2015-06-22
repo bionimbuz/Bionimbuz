@@ -16,27 +16,30 @@ import br.unb.cic.bionimbus.services.storage.compress.Compactor;
 public class JavaZipCompactor implements Compactor {
 
 	@Override
-	public File compact(File in, int compressionLevel) throws IOException {
-		File out = new File("target/" + in.getName() + ".zip");
+	public String compact(String in, int compressionLevel) throws IOException {
+		File out = new File(in + ".zip");
 		ZipOutputStream zip;
 		zip = new ZipOutputStream(new FileOutputStream(out));
 
-		ZipEntry entry = new ZipEntry(in.getPath());
+		ZipEntry entry = new ZipEntry(CompressionUtils.getName(in));
 		zip.putNextEntry(entry);
 
 		zip.write(IOUtils.toByteArray(new FileReader(in)));
 		
 		IOUtils.closeQuietly(zip);
 		
-		return out;
+		return out.getAbsolutePath();
 	}
 	
 	@Override
-	public File descompact(File compressed) throws IOException {
+	public String descompact(String compressed) throws IOException {
 		
-		File out = new File("target/" + compressed.getName().replace(".zip", ""));
+		String name = CompressionUtils.getName(compressed).replace(".zip", "");
+		String folder = CompressionUtils.getParentFolder(compressed);
+		
+		File out = new File(folder + name);
 		FileOutputStream fos = new FileOutputStream(out);
-		byte[] buffer = new byte[(int)compressed.getTotalSpace()];
+		byte[] buffer = new byte[(int)new File(compressed).getTotalSpace()];
 		
 		ZipInputStream zip;
 		zip = new ZipInputStream( new FileInputStream(compressed));
@@ -50,7 +53,7 @@ public class JavaZipCompactor implements Compactor {
 		IOUtils.closeQuietly(zip);
 		IOUtils.closeQuietly(fos);
 		
-		return out;
+		return out.getAbsolutePath();
 	}
 
 }

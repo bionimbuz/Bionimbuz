@@ -10,27 +10,33 @@ import org.junit.Test;
 
 import br.unb.cic.bionimbus.services.storage.compress.compactors.JavaZipCompactor;
 
+import com.google.common.io.Files;
+
 public class JavaZipCompactorTest {
 
 	@Test
 	public void testCompressAndUncompress() throws IOException{
 		
-		File original = new File("src/test/resources/inputFiles/test.txt");
+		String currentDirectory = new File(".").getCanonicalPath();
+		
+		String original =  currentDirectory + "/src/test/resources/inputFiles/test.txt";
 		
 		JavaZipCompactor compactor = new JavaZipCompactor();
 		
-		File compressed = compactor.compact(original, 15);
+		String compressed =  currentDirectory + "/src/test/resources/outputFiles/test.txt.zip";
 		
-		assertTrue("Compression OK", compressed.exists());
+		Files.move(new File(compactor.compact(original, 5)), new File(compressed));
+		
+		assertTrue("Compression OK", new File(compressed).exists());
 		assertFalse("Contents are different", ComparatorUtil.areFilesEqual(original, compressed));
 		
-		File uncompressed = compactor.descompact(compressed);
+		String uncompressed = compactor.descompact(compressed);
 		
-		assertTrue("Compression OK", uncompressed.exists());
+		assertTrue("Compression OK", new File(uncompressed).exists());
 		assertTrue("Contents are equal", ComparatorUtil.areFilesEqual(original, uncompressed));
 		
-		compressed.delete();
-		uncompressed.delete();
+		new File(compressed).delete();
+		new File(uncompressed).delete();
 		
 	}
 }

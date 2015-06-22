@@ -11,35 +11,37 @@ import br.unb.cic.bionimbus.services.storage.compress.Compactor;
 public class Zip4JCompactor implements Compactor{
 
 	@Override
-	public File compact(File in, int compressionLevel) throws IOException{
-		File out = new File("target/" + in.getName() + ".zip4j");
-
+	public String compact(String in, int compressionLevel) throws IOException{
+		
+		File out = new File(in + ".zip4j");
 		try {
 
-			ZipFile zipFile = new ZipFile(out.getPath());
+			ZipFile zipFile = new ZipFile(out.getAbsolutePath());
 			ZipParameters parametes = new ZipParameters();
 			parametes.setCompressionLevel(compressionLevel);
-			zipFile.addFile(in, parametes);
+			zipFile.addFile(new File(in), parametes);
 
 		} catch (ZipException e) {
 			throw new IOException(e);
 		}
-		return out;
+		return out.getAbsolutePath();
 	}
 	
 	@Override
-	public File descompact(File in) throws IOException{
-		String out = in.getName().replace(".zip4j", "");
+	public String descompact(String in) throws IOException{
+		
+		String name = CompressionUtils.getName(in).replace(".zip4j", "");
+		String folder = CompressionUtils.getParentFolder(in);
 
 		try {
 
 			ZipFile zipFile = new ZipFile(in);
-			zipFile.extractFile(out, "target/");
+			zipFile.extractFile(name, folder);
 
 		} catch (ZipException e) {
 			throw new IOException(e);
 		}
-		return new File("target/" + out);
+		return folder + "/" + name;
 	}
 
 }

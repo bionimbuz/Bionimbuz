@@ -15,23 +15,23 @@ import br.unb.cic.bionimbus.services.storage.compress.Compactor;
 public class GZipCompactor implements Compactor{
 
 	@Override
-	public File compact(File in, int compressionLevel) throws IOException {
+	public String compact(String in, int compressionLevel) throws IOException {
 		
-		File out = new File("target/" + in.getName()+ ".gzip");
+		File out = new File(in + ".gzip");
 		GZIPOutputStream gzip;
 		gzip = new GZIPOutputStream( new FileOutputStream(out));
 		gzip.write(IOUtils.toByteArray(new FileReader(in)));
 		IOUtils.closeQuietly(gzip);
 		
-		return out;
+		return out.getAbsolutePath();
 	}
 
 	@Override
-	public File descompact(File compressed) throws IOException {
+	public String descompact(String compressed) throws IOException {
 		
-		File out = new File("target/" + compressed.getName().replace(".gzip", ""));
+		File out = new File(compressed.replace(".gzip", ""));
 		FileOutputStream fos = new FileOutputStream(out);
-		byte[] buffer = new byte[(int)compressed.getTotalSpace()];
+		byte[] buffer = new byte[(int)new File(compressed).getTotalSpace()];
 		
 		GZIPInputStream gzip;
 		gzip = new GZIPInputStream( new FileInputStream(compressed));
@@ -44,7 +44,7 @@ public class GZipCompactor implements Compactor{
 		IOUtils.closeQuietly(gzip);
 		IOUtils.closeQuietly(fos);
 		
-		return out;
+		return out.getAbsolutePath();
 		
 	}
 

@@ -8,6 +8,8 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+import com.google.common.io.Files;
+
 import br.unb.cic.bionimbus.services.storage.compress.compactors.GZipCompactor;
 
 public class GZipCompactorTest {
@@ -15,22 +17,24 @@ public class GZipCompactorTest {
 	@Test
 	public void testCompressAndUncompress() throws IOException{
 		
-		File original = new File("src/test/resources/inputFiles/test.txt");
+		String original = "src/test/resources/inputFiles/test.txt";
 		
 		GZipCompactor compactor = new GZipCompactor();
 		
-		File compressed = compactor.compact(original, 15);
+		String compressed = "src/test/resources/outputFiles/test.txt.gzip";
 		
-		assertTrue("Compression OK", compressed.exists());
+		Files.move(new File(compactor.compact(original, 5)), new File(compressed));
+		
+		assertTrue("Compression OK", new File(compressed).exists());
 		assertFalse("Contents are different", ComparatorUtil.areFilesEqual(original, compressed));
 		
-		File uncompressed = compactor.descompact(compressed);
+		String uncompressed = compactor.descompact(compressed);
 		
-		assertTrue("Compression OK", uncompressed.exists());
+		assertTrue("Compression OK", new File(uncompressed).exists());
 		assertTrue("Contents are equal", ComparatorUtil.areFilesEqual(original, uncompressed));
 		
-		compressed.delete();
-		uncompressed.delete();
+		new File(compressed).delete();
+		new File(uncompressed).delete();
 		
 	}
 	

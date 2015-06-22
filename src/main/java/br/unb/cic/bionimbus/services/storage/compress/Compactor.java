@@ -16,7 +16,7 @@ public interface Compactor {
 	 * @return compressed {@link File}
 	 * @throws IOException
 	 */
-	public File compact(File in, int compressionLevel) throws IOException;
+	public String compact(String in, int compressionLevel) throws IOException;
 
 	/**
 	 * Descompact a {@link File}
@@ -26,5 +26,5 @@ public interface Compactor {
 	 * @return uncompressed {@link File}
 	 * @throws IOException
 	 */
-	public File descompact(File compressed) throws IOException;
+	public String descompact(String compressed) throws IOException;
 }

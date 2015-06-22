@@ -15,29 +15,29 @@ import br.unb.cic.bionimbus.services.storage.compress.Compactor;
 public class ApacheXZCompactor implements Compactor{
 
 	@Override
-	public File compact(File in, int compressionLevel) throws IOException {
+	public String compact(String in, int compressionLevel) throws IOException {
 		
-		File out = new File("target/" + in.getName() + ".xz");
+		File out = new File(in + ".xz");
 		
 		try {
-			ApacheGenericCompactor.compact(in, out, CompressorStreamFactory.XZ);
+			ApacheGenericCompactor.compact(new File(in), out, CompressorStreamFactory.XZ);
 		} catch (CompressorException e) {
 			throw new IOException(e);
 		}
 		
-		return out;
+		return out.getAbsolutePath();
 	}
 
 	@Override
-	public File descompact(File compressed) throws IOException {
+	public String descompact(String compressed) throws IOException {
 		
-		String out = "target/" + compressed.getName().replace(".xz", "");
+		String out = compressed.replace(".xz", "");
 		
 		FileInputStream fin = new FileInputStream(compressed);
 		BufferedInputStream in = new BufferedInputStream(fin);
 		FileOutputStream fos = new FileOutputStream(out);
 		XZCompressorInputStream xzIn = new XZCompressorInputStream(in);
-		final byte[] buffer = new byte[(int)compressed.getTotalSpace()];
+		final byte[] buffer = new byte[(int) new File(compressed).getTotalSpace()];
 		int n = 0;
 		while (-1 != (n = xzIn.read(buffer))) {
 		    fos.write(buffer, 0, n);
@@ -45,7 +45,7 @@ public class ApacheXZCompactor implements Compactor{
 		fos.close();
 		xzIn.close();
 		
-		return new File(out);
+		return out;
 	}
 
 }

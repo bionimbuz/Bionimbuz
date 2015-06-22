@@ -84,7 +84,7 @@ public class CompressPolicy {
 	 * @param bandwidth Bandwidth in Megabytes per second
 	 * @return {@link Compression} if you should compress at all, very fast, fast, medium, slow, super slow or ultra slow
 	 */
-	private Compression compressionType(double bandwidth) {
+	private static Compression compressionType(double bandwidth) {
 
 		if (NO_COMPRESSION_QUOTA < bandwidth ) {
 			return Compression.NO_COMPRESSION;
@@ -108,14 +108,14 @@ public class CompressPolicy {
 	 * 
 	 * @param in
 	 *            {@link File} original file
-	 * @param bandwidth
+	 * @param d
 	 *            Bandwidth in bytes per second (1MB/s -> 1024, for example)
 	 * @return {@link File} file to be sent. probably compressed.
 	 * @throws IOException
 	 */
-	public File verifyAndCompress(File in, long bandwidth) throws IOException {
+	public static String verifyAndCompress(String in, double d) throws IOException {
 
-		Compression c = compressionType(bandwidth);
+		Compression c = compressionType(d);
 		if (c.equals(Compression.NO_COMPRESSION)) {
 			return in;
 		} else if (c.equals(Compression.SUPER_FAST_COMPRESSION)) {
@@ -140,16 +140,15 @@ public class CompressPolicy {
 	 * @return Uncompressed file.
 	 * @throws IOException
 	 */
-	public File decompress(File compressed) throws IOException{
-		String name = compressed.getName();
+	public static String decompress(String compressed) throws IOException{
 		
-		if (name.endsWith(".zip4J")){
+		if (compressed.endsWith(".zip4J")){
 			return new Zip4JCompactor().descompact(compressed);
-		} else if(name.endsWith(".zip")){
+		} else if(compressed.endsWith(".zip")){
 			return new JavaZipCompactor().descompact(compressed);
-		} else if(name.endsWith(".gzip")){
+		} else if(compressed.endsWith(".gzip")){
 			return new GZipCompactor().descompact(compressed);
-		} else if(name.endsWith(".xz")){
+		} else if(compressed.endsWith(".xz")){
 			return new ApacheXZCompactor().descompact(compressed);
 		}
 		return compressed;
