@@ -1,5 +1,10 @@
 package br.unb.cic.bionimbus.utils;
 
+import java.io.IOException;
+
+import br.unb.cic.bionimbus.services.storage.bandwidth.BandwidthCalculatorInterface;
+import br.unb.cic.bionimbus.services.storage.compress.CompressPolicy;
+
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
@@ -54,6 +59,15 @@ public class Put {
             this.channel = session.openChannel("sftp");
             channel.connect();
             ChannelSftp sftpChannel = (ChannelSftp) channel;
+            
+            BandwidthCalculatorInterface bandCalc = null; //TODO: Integrar com a Implementacao do Tarcisio.
+            String toBeSent;
+            try {
+            	System.out.println("\n Compressing file.....\n\n\n");
+				toBeSent = CompressPolicy.verifyAndCompress(path, bandCalc.linkSpeed(address));
+			} catch (IOException e) {
+				toBeSent = path;
+			}
             /*
              * Sem setar nenhuma permissao o arquivo chega trancado no destino, sendo acessado apenas pelo root,
              * portanto preferi dar um 777 antes de enviar o arquivo para que chegue livre ao destino.
@@ -61,9 +75,11 @@ public class Put {
              */
             //sftpChannel.chmod(777, path);
             System.out.println("\n Uploading file.....\n\n\n");
-                sftpChannel.put(path, pathDest);
+                sftpChannel.put(toBeSent, pathDest);
                 sftpChannel.exit();
                 session.disconnect();
+                
+            CompressPolicy.deleteIfCompressed(toBeSent);
 
         } catch (JSchException a) {
             return false;

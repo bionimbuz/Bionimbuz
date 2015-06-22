@@ -8,9 +8,9 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import com.google.common.io.Files;
-
 import br.unb.cic.bionimbus.services.storage.compress.compactors.GZipCompactor;
+
+import com.google.common.io.Files;
 
 public class GZipCompactorTest {
 

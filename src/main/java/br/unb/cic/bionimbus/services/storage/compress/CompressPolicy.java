@@ -142,7 +142,7 @@ public class CompressPolicy {
 	 */
 	public static String decompress(String compressed) throws IOException{
 		
-		if (compressed.endsWith(".zip4J")){
+		if (compressed.endsWith(".zip4j")){
 			return new Zip4JCompactor().descompact(compressed);
 		} else if(compressed.endsWith(".zip")){
 			return new JavaZipCompactor().descompact(compressed);
@@ -152,6 +152,12 @@ public class CompressPolicy {
 			return new ApacheXZCompactor().descompact(compressed);
 		}
 		return compressed;
+	}
+	
+	public static void deleteIfCompressed(String file){
+		if (file.endsWith(".zip4j") || file.endsWith(".zip") || file.endsWith(".gzip") || file.endsWith(".xz")){
+			new File(file).delete();
+		}
 	}
 
 }
