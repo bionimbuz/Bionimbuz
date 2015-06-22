@@ -2,7 +2,7 @@ package br.unb.cic.bionimbus.utils;
 
 import java.io.IOException;
 
-import br.unb.cic.bionimbus.services.storage.bandwidth.BandwidthCalculatorInterface;
+import br.unb.cic.bionimbus.services.storage.bandwidth.BandwidthCalculator;
 import br.unb.cic.bionimbus.services.storage.compress.CompressPolicy;
 
 import com.jcraft.jsch.Channel;
@@ -60,11 +60,10 @@ public class Put {
             channel.connect();
             ChannelSftp sftpChannel = (ChannelSftp) channel;
             
-            BandwidthCalculatorInterface bandCalc = null; //TODO: Integrar com a Implementacao do Tarcisio.
             String toBeSent;
             try {
             	System.out.println("\n Compressing file.....\n\n\n");
-				toBeSent = CompressPolicy.verifyAndCompress(path, bandCalc.linkSpeed(address));
+				toBeSent = CompressPolicy.verifyAndCompress(path, BandwidthCalculator.linkSpeed(address));
 			} catch (IOException e) {
 				toBeSent = path;
 			}

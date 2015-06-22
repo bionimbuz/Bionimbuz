@@ -11,9 +11,11 @@ import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.sched.SchedService;
+import br.unb.cic.bionimbus.services.storage.bandwidth.BandwidthCalculator;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import br.unb.cic.bionimbus.utils.Nmap;
 import br.unb.cic.bionimbus.utils.Put;
+
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Preconditions;
@@ -21,6 +23,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,6 +38,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.apache.avro.AvroRemoteException;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.zookeeper.CreateMode;
@@ -310,6 +314,7 @@ public class StorageService extends AbstractBioService {
         for (NodeInfo node : list) {
             cloudMap.get(node.getPeerId()).setLatency(node.getLatency());
             cloudMap.get(node.getPeerId()).setFsFreeSize(node.getFreesize());
+            cloudMap.get(node.getPeerId()).setBandwidth(BandwidthCalculator.linkSpeed(node.getAddress()));
         }
         StoragePolicy policy = new StoragePolicy();
         /*
