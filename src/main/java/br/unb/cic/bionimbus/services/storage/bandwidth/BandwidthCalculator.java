@@ -20,6 +20,10 @@ public class BandwidthCalculator {
 	private static String path = "src/main/resources/bandwidth/2MBfile";
 	
 	public static double linkSpeed(String address){
+		return linkSpeed(address, 0);
+	}
+	
+	public static double linkSpeed(String address, double latency){
 		String pathDest = "/home/zoonimbus/zoonimbusProject/data-folder/";
 		Session session = null;
 		
@@ -59,7 +63,7 @@ public class BandwidthCalculator {
         	
 		}
         //Why 2000, and not 2048? it's 2MB/time, but time is in MILIS.
-		return 2000/(finalTime - inicialTime);
+		return (2000/(finalTime - inicialTime - latency) < 0) ? 2000/(finalTime - inicialTime) : 2000/(finalTime - inicialTime - latency);
 	}
 
 }
