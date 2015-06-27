@@ -7,9 +7,8 @@ package br.unb.cic.bionimbus.services.storage;
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
-import br.unb.cic.bionimbus.services.storage.bandwidth.BandwidthCalculator;
-
 import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,7 +16,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.codehaus.jackson.map.ObjectMapper;
 
 /**
@@ -27,11 +25,9 @@ import org.codehaus.jackson.map.ObjectMapper;
  */
 public class StoragePolicy {
     
-    private double peso_latency = 0.1;
+    private double peso_latency = 0.5;
     private double peso_space = 0.2;
     private double peso_uptime = 0.3;
-    private double peso_bandwidth = 0.5;
-    private double peso_lat_band  = 0.4;
     private List<NodeInfo> nodes = new ArrayList<NodeInfo>();
     Collection<PluginInfo> best = new ArrayList<PluginInfo>();
     
@@ -65,9 +61,9 @@ public class StoragePolicy {
             
             uptime = plugin.getUptime() / 1000;
             freesize = (plugin.getFsFreeSize() / 1024 / 1024 / 1024);
-            cost = ((freesize * peso_space)
+            cost = (((freesize * peso_space)
                     + (uptime * peso_uptime))
-                    * peso_lat_band * ( (plugin.getLatency() * peso_latency) + (peso_bandwidth * plugin.getBandwidth()));
+                    * (plugin.getLatency() * peso_latency));
             cost = cost + costpergiga;
             /*
             * Seta o custo de armazenamento no peer
