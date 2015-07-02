@@ -13,12 +13,14 @@ ssh -i zoonimbuskey.pem ubuntu@54.213.0.109
 
 2-sudo su , com o root acesse o arquivo sshd_conf
 nano /etc/ssh/sshd_config 
-e adicione a linha na parte de Authentification 
 
-PasswordAuthentication yes
-comentar as linhas
+comentar as linhas:
 #RSAAuthentication yes
 #PubkeyAuthentication yes
+
+Trocar as linhas:
+PermitRootLogin [without-password] para [yes]
+PasswordAuthentication [no] para [yes]
 
 ctrl+o, enter, ctrl+x
 
