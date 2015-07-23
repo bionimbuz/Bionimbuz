@@ -46,7 +46,8 @@ public class DiscoveryService extends AbstractBioService {
     }
 
     @Override
-    public void run() {    
+    public void run() {
+        System.out.println(Thread.currentThread().getStackTrace());
         setDatasPluginInfo(false);
     /**
      * TODO: substituir por Guava Cache com expiração

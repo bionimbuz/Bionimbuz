@@ -11,6 +11,7 @@ import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import br.unb.cic.bionimbus.services.monitor.MonitoringService;
 import br.unb.cic.bionimbus.services.sched.SchedService;
 import br.unb.cic.bionimbus.services.storage.StorageService;
+import br.unb.cic.bionimbus.toSort.RepositoryService;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.google.inject.AbstractModule;
@@ -33,6 +34,7 @@ public class ServiceModule extends AbstractModule {
         serviceBinder.addBinding().to(StorageService.class);
         serviceBinder.addBinding().to(SchedService.class);
         serviceBinder.addBinding().to(MonitoringService.class);
+        serviceBinder.addBinding().to(RepositoryService.class);
         
         // para mudar a implementação de CloudMessageService usada: alterar argumento do metodo to()
         bind(CloudMessageService.class).to(CuratorMessageService.class);
