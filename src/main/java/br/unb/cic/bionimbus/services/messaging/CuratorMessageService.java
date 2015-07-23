@@ -199,8 +199,8 @@ public class CuratorMessageService implements CloudMessageService {
      */
     @Override
     public void delete(String path) {
-        try {
-            client.delete().forPath(path);
+        try {            
+            client.delete().deletingChildrenIfNeeded().forPath(path);
         } catch (Exception ex) {
             Logger.getLogger(CuratorMessageService.class.getName()).log(Level.SEVERE, null, ex);
         }
