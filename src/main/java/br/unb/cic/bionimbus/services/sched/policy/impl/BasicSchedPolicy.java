@@ -80,10 +80,6 @@ public class BasicSchedPolicy extends SchedPolicy {
     }
 
     @Override
-    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, CloudMessageService cms) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-    @Override
     public String getPolicyName() {
         return "Name: Política de escalonamento Básica  -  "+ BasicSchedPolicy.class.getSimpleName();
     }

@@ -8,7 +8,6 @@ import br.unb.cic.bionimbus.client.JobInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskState;
-import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
 import java.io.IOException;
@@ -33,27 +32,17 @@ public class AcoSched extends SchedPolicy {
     private static final String DIR_SIZEALLJOBS = "/size_jobs";
     private static final String SCHED = "/sched";
     private static final String LATENCY = "/latency";
-    private CloudMessageService cms;
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AcoSched.class.getSimpleName());
     
     @Override
-    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, CloudMessageService cms) {
-        this.cms = cms;
-        //condição para verificar se a chamada foi apenas para iniciar o zk
-        if (jobInfos == null) {
-            return null;
-        }
-        
+    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos) {
         HashMap jobCloud = new HashMap<JobInfo, PluginInfo>();
         JobInfo biggerJob = getBiggerJob(jobInfos);
         biggerJob.setTimestamp(System.currentTimeMillis());
-        // escalonador irá receber um zookeeperService como parâmetro
-        
         
         jobCloud.put(biggerJob, scheduleJob(biggerJob));
         
         return jobCloud;
-        
     }
     
     /**
@@ -692,11 +681,6 @@ public class AcoSched extends SchedPolicy {
         if (cms.getZNodeExist(zkPath + dir, false)) {
             cms.setData(zkPath + dir, datas);
         }
-    }
-    
-    @Override
-    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos) {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
     
     @Override

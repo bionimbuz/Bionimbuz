@@ -6,6 +6,7 @@ import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.sched.policy.impl.AHPPolicy;
 import br.unb.cic.bionimbus.services.sched.policy.impl.AcoSched;
+import br.unb.cic.bionimbus.services.sched.policy.impl.Chessmaster;
 import br.unb.cic.bionimbus.services.sched.policy.impl.RRPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
 import java.util.ArrayList;
@@ -16,6 +17,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 public abstract class SchedPolicy {
+    
+    protected CloudMessageService cms;
+    
+    public enum Policy {
+        ACO_SCHED,
+        AHP,
+        RR,
+        CHESSMASTER
+    }
+    
     private ConcurrentHashMap<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
 
     public void setCloudMap(ConcurrentHashMap<String, PluginInfo> cloudMap) {
@@ -32,20 +43,21 @@ public abstract class SchedPolicy {
      */
     public static List<SchedPolicy> getInstances() {
         List<SchedPolicy> listPolicys= new ArrayList<SchedPolicy>();
-        listPolicys.add(0,new AcoSched());
-        listPolicys.add(1,new AHPPolicy());
-        listPolicys.add(2,new RRPolicy());
+        listPolicys.add(Policy.ACO_SCHED.ordinal(),new AcoSched());
+        listPolicys.add(Policy.AHP.ordinal(),new AHPPolicy());
+        listPolicys.add(Policy.RR.ordinal(),new RRPolicy());
+        listPolicys.add(Policy.CHESSMASTER.ordinal(),new Chessmaster());
 
         return listPolicys;
-        
-        
     }
 
     /**
      * Retorna qual o tipo de escalonador desejado com o mapa das nuvens disponíveis.
-     * 0- AcoSched (Padrão)
-     * 1- AHPPolicy
-     * 2- RRPolicy
+     * AcoSched (Padrão)
+     * AHPPolicy
+     * RRPolicy
+     * 
+     * @param numPolicy
      * @param cloudMap
      * @return 
      */
@@ -54,11 +66,13 @@ public abstract class SchedPolicy {
         policy.setCloudMap(cloudMap);
         return policy;
     }
-
+    
+    public void setCms(CloudMessageService cms) {
+        this.cms = cms;
+    }
+    
     public abstract HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos);
     
-    public abstract HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, CloudMessageService cms);
-
     public abstract List<PluginTask> relocate(Collection<Pair<JobInfo, PluginTask>> taskPairs);
 
     public abstract void cancelJobEvent(PluginTask task);

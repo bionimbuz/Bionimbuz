@@ -292,12 +292,6 @@ public class AHPPolicy extends SchedPolicy {
     }
 
     @Override
-    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, CloudMessageService cms) {
-        
-        return schedule(jobInfos);
-    }
-
-    @Override
     public String getPolicyName() {
         return "Name: "+ AHPPolicy.class.getSimpleName()+" - Número: 1";
     }

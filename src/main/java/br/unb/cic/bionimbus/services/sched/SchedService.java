@@ -52,7 +52,8 @@ public class SchedService extends AbstractBioService implements Runnable {
     private final Map<String, PluginInfo> cancelingJobs = new ConcurrentHashMap<String, PluginInfo>();
     private RpcClient rpcClient;
     
-    private final Integer policy = 0;
+    // change this to select scheduling policy
+    private final Integer policy = SchedPolicy.Policy.CHESSMASTER.ordinal();
     private String idPlugin;
     
     private LinuxPlugin myLinuxPlugin;
@@ -117,7 +118,7 @@ public class SchedService extends AbstractBioService implements Runnable {
         idPlugin = this.config.getId();
         
         //inicia o valor do zk na politica de escalonamento
-        getPolicy().schedule(null, cms);
+        getPolicy().setCms(cms);
         
         if (!cms.getZNodeExist(JOBS, false))
             cms.createZNode(CreateMode.PERSISTENT, JOBS, policy.toString());
@@ -163,7 +164,7 @@ public class SchedService extends AbstractBioService implements Runnable {
             cloudMap.putAll(getPeers());
             LOGGER.info("Número de plugins: "+cloudMap.size());
             //realiza a requisicao dos valores da lantênia antes de escalonar um job
-            schedMap = getPolicy().schedule(getPendingJobs().values(), cms);
+            schedMap = getPolicy().schedule(getPendingJobs().values());
             
             for (Map.Entry<JobInfo, PluginInfo> entry : schedMap.entrySet()) {
                 JobInfo jobInfo = entry.getKey();
