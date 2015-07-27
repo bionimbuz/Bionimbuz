@@ -119,7 +119,8 @@ public class SchedService extends AbstractBioService implements Runnable {
         //inicia o valor do zk na politica de escalonamento
         getPolicy().schedule(null, cms);
         
-        cms.createZNode(CreateMode.PERSISTENT, JOBS, policy.toString());
+        if (!cms.getZNodeExist(JOBS, false))
+            cms.createZNode(CreateMode.PERSISTENT, JOBS, policy.toString());
         cms.createZNode(CreateMode.PERSISTENT, cms.getPath().SCHED.getFullPath(idPlugin, "", ""), null);
         cms.createZNode(CreateMode.PERSISTENT, cms.getPath().TASKS.getFullPath(idPlugin, "", ""), null);
         cms.createZNode(CreateMode.PERSISTENT, cms.getPath().SIZE_JOBS.getFullPath(idPlugin, "", ""), null);

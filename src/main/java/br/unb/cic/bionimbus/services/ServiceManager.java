@@ -27,7 +27,7 @@ public class ServiceManager {
     private static final String ROOT_PEER = CuratorMessageService.Path.PEERS.toString();
     
     private static final String SEPARATOR = CuratorMessageService.Path.SEPARATOR.toString();
-    private static final String PREFIX_PEERS = ROOT_PEER+SEPARATOR+CuratorMessageService.Path.PREFIX_PEER.toString();
+    private static final String PREFIX_PEERS = ROOT_PEER+CuratorMessageService.Path.PREFIX_PEER.toString();
     private static final String STATUS = CuratorMessageService.Path.STATUS.toString();
     
     private static final String ROOT_REPOSITORY = CuratorMessageService.Path.HISTORY.toString();
@@ -59,7 +59,7 @@ public class ServiceManager {
         
         // add current instance as a peer
         cms.createZNode(CreateMode.PERSISTENT, PREFIX_PEERS+id, null);
-        cms.createZNode(CreateMode.EPHEMERAL, PREFIX_PEERS+id+SEPARATOR+STATUS, null);
+        cms.createZNode(CreateMode.EPHEMERAL, PREFIX_PEERS+id+STATUS, null);
         
         // create history repository nodes
         if(!cms.getZNodeExist(ROOT_REPOSITORY, false)) {
@@ -87,7 +87,7 @@ public class ServiceManager {
             peers = cms.getChildren(ROOT_PEER, null);
             if(!(peers==null) && !peers.isEmpty()){
                 for(String peer : peers){
-                    if(cms.getZNodeExist(ROOT_PEER+SEPARATOR+peer+SEPARATOR+STATUS, false))
+                    if(cms.getZNodeExist(ROOT_PEER+SEPARATOR+peer+STATUS, false))
                         return;
                 }
                 cms.delete(ROOT_PEER);
