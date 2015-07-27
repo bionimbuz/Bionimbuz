@@ -14,6 +14,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
@@ -47,7 +48,6 @@ public class DiscoveryService extends AbstractBioService {
 
     @Override
     public void run() {
-        System.out.println(Thread.currentThread().getStackTrace());
         setDatasPluginInfo(false);
     /**
      * TODO: substituir por Guava Cache com expiração

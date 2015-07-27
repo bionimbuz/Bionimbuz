@@ -12,11 +12,10 @@ import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.zookeeper.WatchedEvent;
 import org.mortbay.log.Log;
 
@@ -96,7 +95,8 @@ public class RepositoryService extends AbstractBioService {
     
     @Override
     public void run() {
-        Logger.getLogger(RepositoryService.class.getName()).log(Level.INFO, "run");
+        // this will be executed periodicaly
+        System.out.println(Arrays.toString(Thread.currentThread().getStackTrace()));
     }
 
     @Override
