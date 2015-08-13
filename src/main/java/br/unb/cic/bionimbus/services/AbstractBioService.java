@@ -10,6 +10,7 @@ import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.toSort.Listeners;
+import br.unb.cic.bionimbus.toSort.RepositoryService;
 import com.google.inject.Singleton;
 import java.io.IOException;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 public abstract class AbstractBioService implements Service, Runnable, Listeners {
 
     protected CloudMessageService cms;
+    protected RepositoryService rs;
     protected List<Listeners> listeners;
     protected BioNimbusConfig config;
     private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();    

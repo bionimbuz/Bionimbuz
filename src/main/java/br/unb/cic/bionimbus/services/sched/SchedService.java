@@ -15,6 +15,7 @@ import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.services.storage.Ping;
 import br.unb.cic.bionimbus.toSort.Listeners;
+import br.unb.cic.bionimbus.toSort.RepositoryService;
 import br.unb.cic.bionimbus.utils.Get;
 import br.unb.cic.bionimbus.utils.Pair;
 import com.google.common.base.Preconditions;
@@ -70,11 +71,11 @@ public class SchedService extends AbstractBioService implements Runnable {
     private static final String SEPARATOR = "/";
     
     @Inject
-    public SchedService(final CloudMessageService cms) {
+    public SchedService(final CloudMessageService cms, final RepositoryService rs) {
         Preconditions.checkNotNull(cms);
+        Preconditions.checkNotNull(rs);
         this.cms = cms;
-        
-        
+        this.rs = rs;
     }
     
     public synchronized SchedPolicy getPolicy() {
@@ -116,6 +117,8 @@ public class SchedService extends AbstractBioService implements Runnable {
         listeners.add(this);
 //        }
         idPlugin = this.config.getId();
+        
+        getPolicy().setRs(rs);
         
         //inicia o valor do zk na politica de escalonamento
         getPolicy().setCms(cms);

@@ -8,6 +8,7 @@ import br.unb.cic.bionimbus.services.sched.policy.impl.AHPPolicy;
 import br.unb.cic.bionimbus.services.sched.policy.impl.AcoSched;
 import br.unb.cic.bionimbus.services.sched.policy.impl.Chessmaster;
 import br.unb.cic.bionimbus.services.sched.policy.impl.RRPolicy;
+import br.unb.cic.bionimbus.toSort.RepositoryService;
 import br.unb.cic.bionimbus.utils.Pair;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class SchedPolicy {
     
     protected CloudMessageService cms;
+    protected RepositoryService rs;
     
     public enum Policy {
         ACO_SCHED,
@@ -69,6 +71,10 @@ public abstract class SchedPolicy {
     
     public void setCms(CloudMessageService cms) {
         this.cms = cms;
+    }
+    
+    public void setRs(RepositoryService rs) {
+        this.rs = rs;
     }
     
     public abstract HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos);

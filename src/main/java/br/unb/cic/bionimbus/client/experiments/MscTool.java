@@ -143,6 +143,9 @@ public class MscTool {
 
         while (!list.isEmpty()) {
 
+            // put 4 jobs in a job list
+            // the jobs are the first job of the 4 first pipelines of sending
+            // remove pipeline after first job is added
             int count = 0;
             List<JobInfo> jobs = new ArrayList<JobInfo>();
             List<Pipeline> sendAux = new ArrayList<Pipeline>(sending);
@@ -164,7 +167,8 @@ public class MscTool {
 
             Collection<PluginFile> files = listCloudFiles();
             List<Pipeline> auxList = new ArrayList<Pipeline>(list);
-
+            
+            // send next job of a pipeline after the first is done
             for (Pipeline pipeline : auxList) {
                 String file = pipeline.getCurrentOutput();
                 if (file == null)

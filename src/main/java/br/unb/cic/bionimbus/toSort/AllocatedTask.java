@@ -5,17 +5,19 @@
  */
 package br.unb.cic.bionimbus.toSort;
 
+import br.unb.cic.bionimbus.client.JobInfo;
+
 /**
  *
  * @author willian
  */
 public class AllocatedTask {
-    public final Float cost;
-    public final Task taskRef;
+    public final Long cost;
+    public final JobInfo taskRef;
 
-    public AllocatedTask(Float cost, Task task) {
+    public AllocatedTask(Long cost, JobInfo taskRef) {
         this.cost = cost;
-        taskRef = task;
+        this.taskRef = taskRef;
     }
     
 }

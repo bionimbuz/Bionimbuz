@@ -8,7 +8,6 @@ import java.util.List;
 import br.unb.cic.bionimbus.client.JobInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
-import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.sched.SchedException;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
@@ -26,7 +25,7 @@ public class RRPolicy extends SchedPolicy {
     public PluginInfo scheduleJob(JobInfo jobInfo) {
         List<PluginInfo> plugins = filterByService(jobInfo.getServiceId(), filterByUsed());
         jobInfo.setTimestamp(System.currentTimeMillis());
-        if (plugins.size() == 0) {
+        if (plugins.isEmpty()) {
             return null;
         }
         return plugins.get(0);
@@ -64,7 +63,7 @@ public class RRPolicy extends SchedPolicy {
                 plugins.add(pluginInfo);
         }
 
-        if (plugins.size() == 0) {
+        if (plugins.isEmpty()) {
             usedResources.clear();
             return new ArrayList<PluginInfo>(getCloudMap().values());
         }

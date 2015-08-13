@@ -8,13 +8,11 @@ package br.unb.cic.bionimbus.services.sched.policy.impl;
 import br.unb.cic.bionimbus.client.JobInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
-import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.toSort.AllocatedTask;
 import br.unb.cic.bionimbus.toSort.Pareto;
 import br.unb.cic.bionimbus.toSort.Resource;
 import br.unb.cic.bionimbus.toSort.ResourceList;
-import br.unb.cic.bionimbus.toSort.Task;
 import br.unb.cic.bionimbus.utils.Pair;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,11 +25,28 @@ import java.util.Queue;
  *
  * @author willian
  */
-public class Chessmaster extends SchedPolicy{
-
+public class Chessmaster extends SchedPolicy {
+    
+    private int lookahead = 5;
+    private float alpha = (float) 0.3;
+    
     @Override
     public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ResourceList resources = new ResourceList();
+        resources.resources.add(new Resource(1, (long) 2, (float) 0.007));
+        resources.resources.add(new Resource(2, (long) 3, (float) 0.012));
+        ResourceList out = minmaxPlayer(resources, new LinkedList<JobInfo>(jobInfos), alpha, lookahead);
+        System.out.println("best max time: " + out.getMaxTime());
+        System.out.println("best avg time: " + out.getAvgTime());
+        System.out.println("best cost: " + out.getFullCost());
+        for (Resource resource : out.resources) {
+            System.out.println("R" + resource.id + " - t: " + resource.getExecTime() + " - c: " + resource.getCost());
+            for (AllocatedTask task : resource.getTasks()) {
+                System.out.println("| T" + task.taskRef.getId() + " - c: " + task.cost);
+            }
+            System.out.println("");
+        }
+        return null;
     }
 
     @Override
@@ -54,11 +69,11 @@ public class Chessmaster extends SchedPolicy{
         return "Name: " + Chessmaster.class.getSimpleName();
     }
     
-    private static ResourceList minmaxPlayer(ResourceList resourceList, Queue<Task> taskList, float alpha, int depth) {
+    private ResourceList minmaxPlayer(ResourceList resourceList, Queue<JobInfo> taskList, float alpha, int depth) {
         
         if (!taskList.isEmpty()) {
             printTab(depth);
-            System.out.println("[" + depth + "] Player - task: " + taskList.peek().id);
+            System.out.println("[" + depth + "] Player - job: " + taskList.peek().getId());
         }
         
         // create a local best to minimise with maximum wastage
@@ -71,15 +86,15 @@ public class Chessmaster extends SchedPolicy{
         
         // create a max cost point (i.e. (0, inf))
         ResourceList maxCost = new ResourceList();
-        Resource r1 = new Resource(0, (float) 1, Float.MAX_VALUE);
-        r1.allocateTask(new AllocatedTask((float) 1, null));
+        Resource r1 = new Resource(0, (long) 1, Float.MAX_VALUE);
+        r1.allocateTask(new AllocatedTask((long)1, null));
         maxCost.resources.add(r1);
         paretoOptResults.add(maxCost);
         
         // create a max time point (i.e. (inf, 0))
         ResourceList maxTime = new ResourceList();
-        Resource r2 = new Resource(0, (float) 1, (float) 0);
-        r2.allocateTask(new AllocatedTask(Float.MAX_VALUE, null));
+        Resource r2 = new Resource(0, (long) 1, (float) 0);
+        r2.allocateTask(new AllocatedTask(Long.MAX_VALUE, null));
         maxTime.resources.add(r2);
         paretoOptResults.add(maxTime);
         
@@ -91,7 +106,8 @@ public class Chessmaster extends SchedPolicy{
         if (depth != 0 && !taskList.isEmpty()) {
             for (Resource resource : resourceList.resources) {
                 // create resourceList and taskList copies
-                Queue<Task> taskListCopy = new LinkedList(taskList);
+                Queue<JobInfo> taskListCopy = new LinkedList(taskList);
+                System.out.println("size: " + taskListCopy.size());
                 ResourceList resourceListCopy = new ResourceList(resourceList);
                 
                 // run recursive call with current resource
@@ -124,28 +140,30 @@ public class Chessmaster extends SchedPolicy{
         }
     }
     
-    private static ResourceList minmaxNature(Resource resource, ResourceList resourceList, Queue<Task> taskList, float alpha, int depth) {
+    private ResourceList minmaxNature(Resource resource, ResourceList resourceList, Queue<JobInfo> taskList, float alpha, int depth) {
         printTab(depth);
         System.out.println("[" + depth + "] Nature - resource: " + resource.id);
-        Task task;
+        JobInfo job;
         
         // create current best with min cost
         ResourceList best = new ResourceList();
-        best.resources.add(new Resource(0, (float)1, Float.MIN_VALUE));
+        best.resources.add(new Resource(0, (long)1, Float.MIN_VALUE));
         
         // if we can still go deeper
-        task = taskList.poll();
+        System.out.println("size2: " + taskList.size());
+        job = taskList.poll();
+        System.out.println("job: " + job.toString());
         if (depth != 0) {
             // for each aproximation of a task's cost
-            for (Float cost : task.costs) {
+            for (Long cost : rs.getTaskHistory(job.getId())) {
                 // attempt to use the new resource to allocate the new task
                 
                 // create resourceList and taskList copies
-                Queue<Task> taskListCopy = new LinkedList(taskList);
+                Queue<JobInfo> taskListCopy = new LinkedList(taskList);
                 ResourceList resourceListCopy = new ResourceList(resourceList);
                 
                 // Allocate the newTask to the new resource
-                AllocatedTask newTask = new AllocatedTask(cost, task);
+                AllocatedTask newTask = new AllocatedTask(cost, job);
                 getResource(resource, resourceListCopy.resources).allocateTask(newTask);
                 
                 // recursive call

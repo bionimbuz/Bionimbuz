@@ -15,11 +15,11 @@ import java.util.List;
 public class Resource {
     
     public final int id;
-    public final Float clock;
+    public final Long clock;
     public final Float cost;
     private final List<AllocatedTask> allocatedTasks;
 
-    public Resource(int id, Float clock, Float cost) {
+    public Resource(int id, long clock, Float cost) {
         this.id = id;
         this.clock = clock;
         this.cost = cost;

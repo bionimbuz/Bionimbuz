@@ -2,10 +2,10 @@ package br.unb.cic.bionimbus.services;
 
 import br.unb.cic.bionimbus.avro.rpc.RpcServer;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
-import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import br.unb.cic.bionimbus.toSort.Listeners;
+import br.unb.cic.bionimbus.toSort.RepositoryService;
 import com.codahale.metrics.MetricRegistry;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -21,6 +21,7 @@ public class ServiceManager {
     
     private final Set<Service> services = new LinkedHashSet<Service> ();
     private final CloudMessageService cms;
+    private final RepositoryService rs;
     
     private final RpcServer rpcServer;
     
@@ -39,8 +40,9 @@ public class ServiceManager {
     private MetricRegistry metricRegistry;
     
     @Inject
-    public ServiceManager(Set<Service> services, CloudMessageService cms, RpcServer rpcServer, HttpServer httpServer) {
+    public ServiceManager(Set<Service> services, CloudMessageService cms, RepositoryService rs, RpcServer rpcServer, HttpServer httpServer) {
         this.cms = cms;
+        this.rs = rs;
         this.rpcServer = rpcServer;
         this.httpServer = httpServer;
         
