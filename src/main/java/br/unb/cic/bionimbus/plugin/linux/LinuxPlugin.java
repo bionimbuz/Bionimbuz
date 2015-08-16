@@ -39,7 +39,7 @@ public class LinuxPlugin extends AbstractPlugin{
         if (service == null)
             return null;
 
-        return executorService.submit(new PluginTaskRunner(this, task, service, getConfig().getServerPath(),zk));
+        return executorService.submit(new PluginTaskRunner(this, task, service, getConfig().getServerPath(), zk));
     }
 
 }

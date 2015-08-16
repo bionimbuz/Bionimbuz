@@ -9,7 +9,7 @@ import br.unb.cic.bionimbus.client.JobInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
-import br.unb.cic.bionimbus.toSort.AllocatedTask;
+import br.unb.cic.bionimbus.toSort.AllocatedFixedTask;
 import br.unb.cic.bionimbus.toSort.Pareto;
 import br.unb.cic.bionimbus.toSort.Resource;
 import br.unb.cic.bionimbus.toSort.ResourceList;
@@ -32,16 +32,21 @@ public class Chessmaster extends SchedPolicy {
     
     @Override
     public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos) {
+        
+        // generate resources/current allocation list
+        
         ResourceList resources = new ResourceList();
         resources.resources.add(new Resource(1, (long) 2, (float) 0.007));
         resources.resources.add(new Resource(2, (long) 3, (float) 0.012));
+        
         ResourceList out = minmaxPlayer(resources, new LinkedList<JobInfo>(jobInfos), alpha, lookahead);
+        
         System.out.println("best max time: " + out.getMaxTime());
         System.out.println("best avg time: " + out.getAvgTime());
         System.out.println("best cost: " + out.getFullCost());
         for (Resource resource : out.resources) {
             System.out.println("R" + resource.id + " - t: " + resource.getExecTime() + " - c: " + resource.getCost());
-            for (AllocatedTask task : resource.getTasks()) {
+            for (AllocatedFixedTask task : resource.getTasks()) {
                 System.out.println("| T" + task.taskRef.getId() + " - c: " + task.cost);
             }
             System.out.println("");
@@ -87,14 +92,14 @@ public class Chessmaster extends SchedPolicy {
         // create a max cost point (i.e. (0, inf))
         ResourceList maxCost = new ResourceList();
         Resource r1 = new Resource(0, (long) 1, Float.MAX_VALUE);
-        r1.allocateTask(new AllocatedTask((long)1, null));
+        r1.allocateTask(new AllocatedFixedTask((long)1, null));
         maxCost.resources.add(r1);
         paretoOptResults.add(maxCost);
         
         // create a max time point (i.e. (inf, 0))
         ResourceList maxTime = new ResourceList();
         Resource r2 = new Resource(0, (long) 1, (float) 0);
-        r2.allocateTask(new AllocatedTask(Long.MAX_VALUE, null));
+        r2.allocateTask(new AllocatedFixedTask(Long.MAX_VALUE, null));
         maxTime.resources.add(r2);
         paretoOptResults.add(maxTime);
         
@@ -155,7 +160,7 @@ public class Chessmaster extends SchedPolicy {
         System.out.println("job: " + job.toString());
         if (depth != 0) {
             // for each aproximation of a task's cost
-            for (Long cost : rs.getTaskHistory(job.getId())) {
+            for (Long cost : job.getHistory(rs)) {
                 // attempt to use the new resource to allocate the new task
                 
                 // create resourceList and taskList copies
@@ -163,7 +168,7 @@ public class Chessmaster extends SchedPolicy {
                 ResourceList resourceListCopy = new ResourceList(resourceList);
                 
                 // Allocate the newTask to the new resource
-                AllocatedTask newTask = new AllocatedTask(cost, job);
+                AllocatedFixedTask newTask = new AllocatedFixedTask(cost, job);
                 getResource(resource, resourceListCopy.resources).allocateTask(newTask);
                 
                 // recursive call

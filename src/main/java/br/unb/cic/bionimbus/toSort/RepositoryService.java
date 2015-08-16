@@ -66,7 +66,7 @@ public class RepositoryService extends AbstractBioService {
     
     // retorna um dos elementos da lista de historicos
     // lista atualizada preguiçosamente
-    public List<Long> getTaskHistory (String taskId) {
+    public List<Long> getTaskHistory (Long taskId) {
         NavigableMap<Long, Long> currentHistory = new TreeMap<Long, Long>();
         List<Long> maximas = new ArrayList<Long>();
 

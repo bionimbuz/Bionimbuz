@@ -1,5 +1,6 @@
 package br.unb.cic.bionimbus.client;
 
+import br.unb.cic.bionimbus.toSort.RepositoryService;
 import br.unb.cic.bionimbus.utils.Pair;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,12 +19,15 @@ public class JobInfo {
     private long serviceId;
 
     private String args = "";
-
+    
+    // inputs = [{input.id, input.size}]
     private List<Pair<String, Long>> inputs = new ArrayList<Pair<String, Long>>();
 
     private List<String> outputs = new ArrayList<String>();
 
     private long timestamp;
+    
+    private List<Long> execHistory = null;
 
     public String getId() {
         return id;
@@ -85,6 +89,12 @@ public class JobInfo {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+    
+    public List<Long> getHistory(RepositoryService rs) {
+        if (execHistory == null)
+            execHistory = rs.getTaskHistory(serviceId);
+        return execHistory;
     }
 
     @Override

@@ -5,22 +5,19 @@
  */
 package br.unb.cic.bionimbus.toSort;
 
-import java.util.List;
+import br.unb.cic.bionimbus.client.JobInfo;
 
 /**
  *
  * @author willian
  */
-public class Task {
-    
-    public final List<Float> costs;
-    public final int id;
+public class AllocatedFixedTask {
+    public final Long cost;
+    public final JobInfo taskRef;
 
-    public Task(int id, List<Float> costs) {
-        this.id = id;
-        this.costs = costs;
+    public AllocatedFixedTask(Long cost, JobInfo taskRef) {
+        this.cost = cost;
+        this.taskRef = taskRef;
     }
-    
-    
     
 }

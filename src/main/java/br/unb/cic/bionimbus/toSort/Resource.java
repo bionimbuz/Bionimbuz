@@ -17,7 +17,7 @@ public class Resource {
     public final int id;
     public final Long clock;
     public final Float cost;
-    private final List<AllocatedTask> allocatedTasks;
+    private final List<AllocatedFixedTask> allocatedTasks;
 
     public Resource(int id, long clock, Float cost) {
         this.id = id;
@@ -34,18 +34,18 @@ public class Resource {
         allocatedTasks = new ArrayList(resource.getTasks());
     }
     
-    public void allocateTask(AllocatedTask task) {
+    public void allocateTask(AllocatedFixedTask task) {
         allocatedTasks.add(task);
     }
     
-    public List<AllocatedTask> getTasks() {
+    public List<AllocatedFixedTask> getTasks() {
         return allocatedTasks;
     }
     
     public Float getExecTime() {
         float cycles = 0;
         
-        for (AllocatedTask task : allocatedTasks)
+        for (AllocatedFixedTask task : allocatedTasks)
             cycles += task.cost;
         
         return cycles/clock;
@@ -54,7 +54,7 @@ public class Resource {
     public Float getCost() {
         float cycles = 0;
         
-        for (AllocatedTask task : allocatedTasks)
+        for (AllocatedFixedTask task : allocatedTasks)
             cycles += task.cost;
         
         return cost*cycles/clock;
