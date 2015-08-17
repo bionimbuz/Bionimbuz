@@ -93,6 +93,14 @@ public class RepositoryService extends AbstractBioService {
         return maximas;
     }
     
+    // MOCKED
+    public ResourceList getCurrentResourceList () {
+        ResourceList resources = new ResourceList();
+        resources.resources.add(new Resource(1, (long) 2, (float) 0.007));
+        resources.resources.add(new Resource(2, (long) 3, (float) 0.012));
+        return resources;
+    }
+    
     @Override
     public void run() {
         // this will be executed periodicaly

@@ -33,20 +33,15 @@ public class Chessmaster extends SchedPolicy {
     @Override
     public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos) {
         
-        // generate resources/current allocation list
-        
-        ResourceList resources = new ResourceList();
-        resources.resources.add(new Resource(1, (long) 2, (float) 0.007));
-        resources.resources.add(new Resource(2, (long) 3, (float) 0.012));
-        
-        ResourceList out = minmaxPlayer(resources, new LinkedList<JobInfo>(jobInfos), alpha, lookahead);
+        ResourceList rl = rs.getCurrentResourceList();
+        ResourceList out = minmaxPlayer(rl, new LinkedList<JobInfo>(jobInfos), alpha, lookahead);
         
         System.out.println("best max time: " + out.getMaxTime());
         System.out.println("best avg time: " + out.getAvgTime());
         System.out.println("best cost: " + out.getFullCost());
         for (Resource resource : out.resources) {
             System.out.println("R" + resource.id + " - t: " + resource.getExecTime() + " - c: " + resource.getCost());
-            for (AllocatedFixedTask task : resource.getTasks()) {
+            for (AllocatedFixedTask task : resource.getAllTasks()) {
                 System.out.println("| T" + task.taskRef.getId() + " - c: " + task.cost);
             }
             System.out.println("");

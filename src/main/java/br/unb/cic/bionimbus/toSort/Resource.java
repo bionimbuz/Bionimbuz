@@ -18,12 +18,14 @@ public class Resource {
     public final Long clock;
     public final Float cost;
     private final List<AllocatedFixedTask> allocatedTasks;
+    private final List<AllocatedFixedTask> newAllocatedTasks;
 
     public Resource(int id, long clock, Float cost) {
         this.id = id;
         this.clock = clock;
         this.cost = cost;
         allocatedTasks = new ArrayList();
+        newAllocatedTasks = new ArrayList();
     }
     
     // Copy constructor
@@ -31,15 +33,25 @@ public class Resource {
         this.id = resource.id;
         this.clock = resource.clock;
         this.cost = resource.cost;
-        allocatedTasks = new ArrayList(resource.getTasks());
+        allocatedTasks = new ArrayList(resource.getAllTasks());
+        newAllocatedTasks = new ArrayList(resource.getNewTasks());
     }
     
     public void allocateTask(AllocatedFixedTask task) {
         allocatedTasks.add(task);
+        newAllocatedTasks.add(task);
     }
     
-    public List<AllocatedFixedTask> getTasks() {
+    public void addAllocatedTask(AllocatedFixedTask task) {
+        allocatedTasks.add(task);
+    }
+    
+    public List<AllocatedFixedTask> getAllTasks() {
         return allocatedTasks;
+    }
+    
+    public List<AllocatedFixedTask> getNewTasks() {
+        return newAllocatedTasks;
     }
     
     public Float getExecTime() {
