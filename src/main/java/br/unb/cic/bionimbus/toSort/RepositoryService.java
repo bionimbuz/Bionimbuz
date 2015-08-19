@@ -6,18 +6,18 @@
 package br.unb.cic.bionimbus.toSort;
 
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.NavigableMap;
-import java.util.TreeMap;
+import java.util.Map;
 import org.apache.zookeeper.WatchedEvent;
-import org.mortbay.log.Log;
 
 /**
  *
@@ -28,7 +28,7 @@ import org.mortbay.log.Log;
  */
 public class RepositoryService extends AbstractBioService {
     
-    private final CloudMessageService cms;
+//    private final CloudMessageService cms;
     
     private static final String ROOT_REPOSITORY = CuratorMessageService.Path.HISTORY.toString();
     private static final String PREFIX_TASK = ROOT_REPOSITORY + CuratorMessageService.Path.PREFIX_TASK.toString();
@@ -67,22 +67,22 @@ public class RepositoryService extends AbstractBioService {
     // retorna um dos elementos da lista de historicos
     // lista atualizada preguiçosamente
     public List<Long> getTaskHistory (Long taskId) {
-        NavigableMap<Long, Long> currentHistory = new TreeMap<Long, Long>();
+//        NavigableMap<Long, Long> currentHistory = new TreeMap<Long, Long>();
         List<Long> maximas = new ArrayList<Long>();
-
-        // check if task is supported
-        if(!cms.getZNodeExist(PREFIX_TASK+taskId, false)) {
-            // problem: task not supported
-            Log.warn("task not suported: task_" + taskId);
-            return null;
-        }
-        
-        // get histogram from task taskId
-        for(String task : cms.getChildren(PREFIX_TASK+taskId, null)) {
-            String count = cms.getData(PREFIX_TASK+taskId+SEPARATOR+task+COUNT, null);
-            String intervalStart = cms.getData(PREFIX_TASK+taskId+SEPARATOR+task+START, null);
-            currentHistory.put(Long.valueOf(intervalStart), Long.valueOf(count));
-        }
+//
+//        // check if task is supported
+//        if(!cms.getZNodeExist(PREFIX_TASK+taskId, false)) {
+//            // problem: task not supported
+//            Log.warn("task not suported: task_" + taskId);
+//            return null;
+//        }
+//        
+//        // get histogram from task taskId
+//        for(String task : cms.getChildren(PREFIX_TASK+taskId, null)) {
+//            String count = cms.getData(PREFIX_TASK+taskId+SEPARATOR+task+COUNT, null);
+//            String intervalStart = cms.getData(PREFIX_TASK+taskId+SEPARATOR+task+START, null);
+//            currentHistory.put(Long.valueOf(intervalStart), Long.valueOf(count));
+//        }
         
         // apply moving average
         
@@ -90,14 +90,36 @@ public class RepositoryService extends AbstractBioService {
         // get all local maximas
         
         
+        // MOCK
+        switch(taskId.intValue()) {
+            case 0:
+                maximas.add((long) 50);
+                maximas.add((long) 200);
+                maximas.add((long) 350);
+                break;
+            case 1:
+                maximas.add((long) 150);
+                maximas.add((long) 200);
+                break;
+            default:
+                return null;
+        }
+        
+        
         return maximas;
     }
     
-    // MOCKED
+    // Get all peers/instances and return them in the ResourceList format
     public ResourceList getCurrentResourceList () {
         ResourceList resources = new ResourceList();
-        resources.resources.add(new Resource(1, (long) 2, (float) 0.007));
-        resources.resources.add(new Resource(2, (long) 3, (float) 0.012));
+        
+        for (Map.Entry<String, PluginInfo> peer : getPeers().entrySet()) {
+            Resource r = new Resource(peer.getValue().getId(),
+                        peer.getValue().getFactoryFrequencyCore(),
+                        peer.getValue().getCostPerHour());
+            resources.resources.add(r);
+        }
+        
         return resources;
     }
     

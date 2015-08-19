@@ -14,13 +14,13 @@ import java.util.List;
  */
 public class Resource {
     
-    public final int id;
+    public final String id;
     public final Long clock;
-    public final Float cost;
+    public final Double cost;
     private final List<AllocatedFixedTask> allocatedTasks;
     private final List<AllocatedFixedTask> newAllocatedTasks;
 
-    public Resource(int id, long clock, Float cost) {
+    public Resource(String id, long clock, Double cost) {
         this.id = id;
         this.clock = clock;
         this.cost = cost;
@@ -54,8 +54,8 @@ public class Resource {
         return newAllocatedTasks;
     }
     
-    public Float getExecTime() {
-        float cycles = 0;
+    public Double getExecTime() {
+        double cycles = 0;
         
         for (AllocatedFixedTask task : allocatedTasks)
             cycles += task.cost;
@@ -63,7 +63,7 @@ public class Resource {
         return cycles/clock;
     }
     
-    public Float getCost() {
+    public Double getCost() {
         float cycles = 0;
         
         for (AllocatedFixedTask task : allocatedTasks)
@@ -76,10 +76,15 @@ public class Resource {
     public boolean equals(Object obj) {
         if (obj instanceof Resource) {
             Resource r = (Resource) obj;
-            return id == r.id;
+            return id.equals(r.id);
         } else
             return false;
         
+    }
+
+    @Override
+    public String toString() {
+        return "Id: " + id + ", Clock: " + clock + ", Cost: " + cost;
     }
     
 }

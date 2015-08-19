@@ -42,14 +42,17 @@ public class PluginInfo implements PluginOps {
 
     private Double memoryFree;
 
-    private Double frequencyCore;
+    private Double currentFrequencyCore;
+    
+    // frequency in Hz
+    private Long factoryFrequencyCore;
 
     private List<PluginService> services;
+    
+    private Double costPerHour;
 
     public PluginInfo() {
     }
-    
-    
 
     public String getId() {
         return id;
@@ -185,12 +188,20 @@ public class PluginInfo implements PluginOps {
         this.ranking = ranking;
     }
 
-    public Double getFrequencyCore() {
-        return frequencyCore;
+    public Double getCurrentFrequencyCore() {
+        return currentFrequencyCore;
     }
 
-    public void setFrequencyCore(Double frequencyCore) {
-        this.frequencyCore = frequencyCore;
+    public void setCurrentFrequencyCore(Double frequencyCore) {
+        this.currentFrequencyCore = frequencyCore;
+    }
+    
+    public Long getFactoryFrequencyCore() {
+        return factoryFrequencyCore;
+    }
+
+    public void setFactoryFrequencyCore(Long frequencyCore) {
+        this.factoryFrequencyCore = frequencyCore;
     }
 
     public Double getMemoryFree() {
@@ -231,7 +242,13 @@ public class PluginInfo implements PluginOps {
         this.privateCloud = privateCloud;
     }
 
+    public Double getCostPerHour() {
+        return costPerHour;
+    }
     
+    public void setCostPerHour(Double costPerHour) {
+        this.costPerHour = costPerHour;
+    }
     
     @Override
     public int hashCode() {

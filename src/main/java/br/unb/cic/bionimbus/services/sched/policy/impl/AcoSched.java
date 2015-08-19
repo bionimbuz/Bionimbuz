@@ -487,7 +487,7 @@ public class AcoSched extends SchedPolicy {
         DecimalFormat decimal = new DecimalFormat("0.0000000000");
         
         if (!(plugin.getNumCores() - plugin.getNumOccupied() == 0d)) {
-            Double result = new Double(decimal.format((plugin.getNumCores() - plugin.getNumOccupied()) * plugin.getFrequencyCore() - mapPluginLatency.get(plugin.getId())).replace(",", "."));
+            Double result = new Double(decimal.format((plugin.getNumCores() - plugin.getNumOccupied()) * plugin.getCurrentFrequencyCore() - mapPluginLatency.get(plugin.getId())).replace(",", "."));
             if (!(result == 0d)) {
                 return result;
             }
@@ -568,7 +568,7 @@ public class AcoSched extends SchedPolicy {
         int cont = 0;
         for (PluginInfo plugin : listPlugin) {
             
-            time = new Double(getDatasZookeeper(plugin.getPath_zk(), DIR_SIZEALLJOBS)) / ((plugin.getNumCores() - plugin.getNumOccupied()) * plugin.getFrequencyCore());
+            time = new Double(getDatasZookeeper(plugin.getPath_zk(), DIR_SIZEALLJOBS)) / ((plugin.getNumCores() - plugin.getNumOccupied()) * plugin.getCurrentFrequencyCore());
             
             if (time < timeMin) {
                 timeMin = time;

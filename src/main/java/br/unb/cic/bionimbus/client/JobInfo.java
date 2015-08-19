@@ -28,6 +28,8 @@ public class JobInfo {
     private long timestamp;
     
     private List<Long> execHistory = null;
+    
+    private List<String> dependencies = null;
 
     public String getId() {
         return id;

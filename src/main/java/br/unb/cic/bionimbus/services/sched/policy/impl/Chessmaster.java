@@ -34,18 +34,19 @@ public class Chessmaster extends SchedPolicy {
     public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos) {
         
         ResourceList rl = rs.getCurrentResourceList();
-        ResourceList out = minmaxPlayer(rl, new LinkedList<JobInfo>(jobInfos), alpha, lookahead);
-        
-        System.out.println("best max time: " + out.getMaxTime());
-        System.out.println("best avg time: " + out.getAvgTime());
-        System.out.println("best cost: " + out.getFullCost());
-        for (Resource resource : out.resources) {
-            System.out.println("R" + resource.id + " - t: " + resource.getExecTime() + " - c: " + resource.getCost());
-            for (AllocatedFixedTask task : resource.getAllTasks()) {
-                System.out.println("| T" + task.taskRef.getId() + " - c: " + task.cost);
-            }
-            System.out.println("");
-        }
+        System.out.println(rl.resources.toString());
+//        ResourceList out = minmaxPlayer(rl, new LinkedList<JobInfo>(jobInfos), alpha, lookahead);
+//        
+//        System.out.println("best max time: " + out.getMaxTime());
+//        System.out.println("best avg time: " + out.getAvgTime());
+//        System.out.println("best cost: " + out.getFullCost());
+//        for (Resource resource : out.resources) {
+//            System.out.println("R" + resource.id + " - t: " + resource.getExecTime() + " - c: " + resource.getCost());
+//            for (AllocatedFixedTask task : resource.getAllTasks()) {
+//                System.out.println("| T" + task.taskRef.getId() + " - c: " + task.cost);
+//            }
+//            System.out.println("");
+//        }
         return null;
     }
 
@@ -86,17 +87,17 @@ public class Chessmaster extends SchedPolicy {
         
         // create a max cost point (i.e. (0, inf))
         ResourceList maxCost = new ResourceList();
-        Resource r1 = new Resource(0, (long) 1, Float.MAX_VALUE);
-        r1.allocateTask(new AllocatedFixedTask((long)1, null));
-        maxCost.resources.add(r1);
-        paretoOptResults.add(maxCost);
-        
-        // create a max time point (i.e. (inf, 0))
-        ResourceList maxTime = new ResourceList();
-        Resource r2 = new Resource(0, (long) 1, (float) 0);
-        r2.allocateTask(new AllocatedFixedTask(Long.MAX_VALUE, null));
-        maxTime.resources.add(r2);
-        paretoOptResults.add(maxTime);
+//        Resource r1 = new Resource(0, (long) 1, Float.MAX_VALUE);
+//        r1.allocateTask(new AllocatedFixedTask((long)1, null));
+//        maxCost.resources.add(r1);
+//        paretoOptResults.add(maxCost);
+//        
+//        // create a max time point (i.e. (inf, 0))
+//        ResourceList maxTime = new ResourceList();
+//        Resource r2 = new Resource(0, (long) 1, (float) 0);
+//        r2.allocateTask(new AllocatedFixedTask(Long.MAX_VALUE, null));
+//        maxTime.resources.add(r2);
+//        paretoOptResults.add(maxTime);
         
 //        TODO: f1 = 1 and not 0. need to fix
 //        Float f1 = maxCost.getMaxTime();
@@ -147,7 +148,7 @@ public class Chessmaster extends SchedPolicy {
         
         // create current best with min cost
         ResourceList best = new ResourceList();
-        best.resources.add(new Resource(0, (long)1, Float.MIN_VALUE));
+//        best.resources.add(new Resource(0, (long)1, Float.MIN_VALUE));
         
         // if we can still go deeper
         System.out.println("size2: " + taskList.size());

@@ -5,8 +5,6 @@
  */
 package br.unb.cic.bionimbus.toSort;
 
-import br.unb.cic.bionimbus.avro.gen.FileInfo;
-import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.avro.gen.Pair;
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
@@ -16,8 +14,6 @@ import br.unb.cic.bionimbus.client.experiments.MscTool;
 import br.unb.cic.bionimbus.client.experiments.Pipeline;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.plugin.PluginFile;
-import br.unb.cic.bionimbus.services.storage.Ping;
-import br.unb.cic.bionimbus.utils.Put;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.BufferedReader;
@@ -27,7 +23,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -163,11 +158,11 @@ public class SchedullerTester {
         ArrayList<String> list = new ArrayList<String>();
         String pathHome = System.getProperty("user.dir");
         String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
-        here------------------------------------------------------------vvv
-        BufferedReader br = new BufferedReader(new FileReader(path+"inputfiles.txt"));
+//        here------------------------------------------------------------vvv
+//        BufferedReader br = new BufferedReader(new FileReader(path+"inputfiles.txt"));
         String line;
-        while ((line = br.readLine()) != null)
-            list.add(line);
+//        while ((line = br.readLine()) != null)
+//            list.add(line);
         return list;
     }
 

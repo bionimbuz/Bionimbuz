@@ -89,7 +89,7 @@ public class CuratorMessageService implements CloudMessageService {
          * @param taskid
          * @return 
          */
-        public String getFullPath(String pluginid,String fileid,String taskid) {
+        public String getFullPath(String pluginid, String fileid, String taskid) {
             switch (this) {
                 case ROOT: return "" + this;
                 case PENDING_SAVE: return "" +PENDING_SAVE;

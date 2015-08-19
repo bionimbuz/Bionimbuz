@@ -40,6 +40,7 @@ public abstract class AbstractBioService implements Service, Runnable, Listeners
         List<String> children;
         cloudMap.clear();
         try {
+            cms.getPath();
             children = cms.getChildren(cms.getPath().PEERS.getFullPath("", "", ""), null);
             for (String pluginId : children) {
                 ObjectMapper mapper = new ObjectMapper();
