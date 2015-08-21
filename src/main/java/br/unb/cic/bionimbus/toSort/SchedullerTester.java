@@ -87,6 +87,10 @@ public class SchedullerTester {
 
         // get pipeline from file
         List<JobInfo> pipeline = getPipelineFromFile();
+        
+        for(JobInfo j : pipeline) {
+            System.out.println(j.toString());
+        }
 
         // send pipeline for execution
         sendJobs(pipeline);
@@ -121,22 +125,30 @@ public class SchedullerTester {
             JobInfo jobInfo = new JobInfo();
             jobInfo.setTimestamp(0l);
             
+            // set serviceId from json
             int lastComa = line.indexOf(",");
-            jobInfo.setServiceId(Long.parseLong(line.substring(line.indexOf("serviceId:"), lastComa)));
-            lastComa = line.indexOf(",", lastComa+1);
-            jobInfo.setArgs(line.substring(line.indexOf("args:"), lastComa));
+            jobInfo.setServiceId(Long.parseLong(line.substring(line.indexOf("serviceId:")+10, lastComa)));
             
+            // set args from json
             lastComa = line.indexOf(",", lastComa+1);
-            String io = line.substring(line.indexOf("inputs:"), lastComa);
-            List<String> inputs = fromStringToList(io);
+            jobInfo.setArgs(line.substring(line.indexOf("args:")+5, lastComa));
             
+            // get input list from json
+            int lastBracket = line.indexOf("]");
+            String io = line.substring(line.indexOf("inputs:[")+8, lastBracket);
+            String inputs[] = io.split(",");
+            
+            // set inputs
+            // TODO: change addInput to receive the filename instead of its zookeeper id
             for (String inp : inputs)
-                jobInfo.addInput(inp);
+                jobInfo.addInput(inp, 0l);
             
-            lastComa = line.indexOf(",", lastComa+1);
-            io = line.substring(line.indexOf("inputs:"), lastComa);
-            List<String> outputs = fromStringToList(io);
+            // get output list from json
+            lastBracket = line.indexOf("]", lastBracket+1);
+            io = line.substring(line.indexOf("outputs:[")+9, lastBracket);
+            String outputs[] = io.split(",");
             
+            // set outputs
             for (String out : outputs)
                 jobInfo.addOutput(out);
             
@@ -146,14 +158,18 @@ public class SchedullerTester {
         
         // get the remaining lines: dependency matrix
         for (int i=0; i<tasksNumber; i++) {
-            
+            String deps[] = br.readLine().split(",");
+            for (int j=0; j<tasksNumber; j++) {
+                if (Integer.parseInt(deps[j]) == 1) {
+                    taskList[i].addDependency(taskList[j].getId());
+                }
+            }
         }
         
-        // get task list with dependencies
-        
+        // get task list with dependencies        
         return new ArrayList<JobInfo>(Arrays.asList(taskList));
     }
-
+    
     private void sendJobs(List<JobInfo> jobs) throws InterruptedException, IOException {
 //        communication.sendReq(new JobReqMessage(p2p.getPeerNode(), jobs), P2PMessageType.JOBRESP);
 //        JobRespMessage resp = (JobRespMessage) communication.getResp();

@@ -70,8 +70,8 @@ public class JobInfo {
     }
 
     public void addInput(String id, Long size) {
-        TODO: change from string id to string filename
-                or: split jobinfo into 2 subclasses: staticSchedJobInfo and dynamicSchedJobInfo
+//        TODO: change from string id to string filename
+//                or: split jobinfo into 2 subclasses: staticSchedJobInfo and dynamicSchedJobInfo
         for (Pair<String, Long> pair : inputs) {
             if (pair.first.equals(id)) {
                 inputs.remove(pair);
@@ -101,6 +101,18 @@ public class JobInfo {
         if (execHistory == null)
             execHistory = rs.getTaskHistory(serviceId);
         return execHistory;
+    }
+    
+    /**
+     * Add a dependency to be executed beforehand
+     * @param id The unique id of a job
+     */
+    public void addDependency(String id) {
+        dependencies.add(id);
+    }
+    
+    public List<String> getDependencyList () {
+        return dependencies;
     }
 
     @Override
