@@ -31,6 +31,11 @@ public class JobInfo {
     
     private List<String> dependencies = null;
 
+    public JobInfo() {
+    }
+    
+    
+
     public String getId() {
         return id;
     }

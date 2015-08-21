@@ -163,7 +163,7 @@ public class CuratorMessageService implements CloudMessageService {
     }
     
     /**
-     * Get a list of children of a ZNode
+     * Get a list of children's paths of a ZNode
      * @param path
      * @param watcher
      * @return 
@@ -187,7 +187,7 @@ public class CuratorMessageService implements CloudMessageService {
      */
     @Override
     public String getData(String path, Watcher watcher){
-        byte[] data;        
+        byte[] data;
         String ret = null;
         
         try {

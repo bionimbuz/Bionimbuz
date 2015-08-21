@@ -28,7 +28,7 @@ import java.util.Queue;
 public class Chessmaster extends SchedPolicy {
     
     private int lookahead = 5;
-    private float alpha = (float) 0.3;
+    private double alpha = (double) 0.3;
     
     @Override
     public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos) {
@@ -70,7 +70,7 @@ public class Chessmaster extends SchedPolicy {
         return "Name: " + Chessmaster.class.getSimpleName();
     }
     
-    private ResourceList minmaxPlayer(ResourceList resourceList, Queue<JobInfo> taskList, float alpha, int depth) {
+    private ResourceList minmaxPlayer(ResourceList resourceList, Queue<JobInfo> taskList, double alpha, int depth) {
         
         if (!taskList.isEmpty()) {
             printTab(depth);
@@ -141,7 +141,7 @@ public class Chessmaster extends SchedPolicy {
         }
     }
     
-    private ResourceList minmaxNature(Resource resource, ResourceList resourceList, Queue<JobInfo> taskList, float alpha, int depth) {
+    private ResourceList minmaxNature(Resource resource, ResourceList resourceList, Queue<JobInfo> taskList, double alpha, int depth) {
         printTab(depth);
         System.out.println("[" + depth + "] Nature - resource: " + resource.id);
         JobInfo job;

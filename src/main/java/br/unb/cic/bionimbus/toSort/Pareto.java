@@ -28,10 +28,10 @@ public class Pareto {
         List<ResourceList> paretoCurve = new ArrayList();
         
         // set null element as the current limit
-//        Float limitCost = Float.MAX_VALUE;
-        Float limitTime = Float.MAX_VALUE;
-//        Float newAngle;
-//        Float oldAngle = (float) 0;
+//        Double limitCost = Double.MAX_VALUE;
+        Double limitTime = Double.MAX_VALUE;
+//        Double newAngle;
+//        Double oldAngle = (float) 0;
         
         // sort the list of ResourceList by cost 
         Collections.sort(resources, new Comparator<ResourceList>() {
@@ -44,8 +44,8 @@ public class Pareto {
         
         // for all remaining pairs
         for (ResourceList resource : resources) {
-            Float cost = resource.getFullCost();
-            Float execTime = resource.getMaxTime();
+            Double cost = resource.getFullCost();
+            Double execTime = resource.getMaxTime();
 //            newAngle = (float) atan((cost)/(execTime));
 //            System.out.println("(c=" + cost + ", t=" + execTime + ")");
 //            System.out.println("angle = " + newAngle);
@@ -61,10 +61,10 @@ public class Pareto {
                         ResourceList p2 = paretoCurve.get(paretoCurve.size()-2);
 
                         // calculate the angle (new.time,p1.cost)-p1-new
-                        Float firstAngle = (float) atan((cost-p1.getFullCost())/(p1.getMaxTime()-execTime));
+                        Double firstAngle = (double) atan((cost-p1.getFullCost())/(p1.getMaxTime()-execTime));
 
                         // calculate the angle (p1.time,p2.cost)-p2-p1
-                        Float secondAngle = (float) atan((p1.getFullCost()-p2.getFullCost())/(p2.getMaxTime()-p1.getMaxTime()));
+                        Double secondAngle = (double) atan((p1.getFullCost()-p2.getFullCost())/(p2.getMaxTime()-p1.getMaxTime()));
 
                         // remove p1 if it doesn't belong anymore to the pareto curve
                         eliminated = false;
@@ -87,19 +87,19 @@ public class Pareto {
     
     // get the point from the ordered list closest to the intersection between
     // the pareto curve and the vector given by the angle alpha
-//    public static Entry<Float, Float> getParetoOptimal(TreeMap<Float, Float> paretoCurve, Float alpha) {
-    public static ResourceList getParetoOptimal(List<ResourceList> paretoCurve, Float alpha) {        
+//    public static Entry<Double, Double> getParetoOptimal(TreeMap<Double, Double> paretoCurve, Double alpha) {
+    public static ResourceList getParetoOptimal(List<ResourceList> paretoCurve, Double alpha) {        
         
         // set closest point as inf
         ResourceList closestPoint = null;
-        Float minDistance = Float.MAX_VALUE;
+        Double minDistance = Double.MAX_VALUE;
         
         // for each pareto curve point
         for (ResourceList resource : paretoCurve) {
             // update closest point
-            Float cost = resource.getFullCost();
-            Float execTime = resource.getMaxTime();
-            Float distance = getDistanceFromCurve(alpha, cost, execTime);
+            Double cost = resource.getFullCost();
+            Double execTime = resource.getMaxTime();
+            Double distance = getDistanceFromCurve(alpha, cost, execTime);
             if (distance < minDistance) {
                 minDistance = distance;
                 closestPoint = resource;
@@ -109,17 +109,17 @@ public class Pareto {
         return closestPoint;
     }
     
-    public static Float getDistanceFromCurve(Float alpha, Float x0, Float y0) {
+    public static Double getDistanceFromCurve(Double alpha, Double x0, Double y0) {
         
         // create the vector of alpha
-        Float x1, y1, x2, y2;
-        x1 = new Float(0);
-        y1 = new Float(0);
-        x2 = new Float(cos(alpha));
-        y2 = new Float(sin(alpha));
+        Double x1, y1, x2, y2;
+        x1 = new Double(0);
+        y1 = new Double(0);
+        x2 = new Double(cos(alpha));
+        y2 = new Double(sin(alpha));
         
         // calculate distance
-        Float distance = new Float(abs((y2-y1)*x0-(x2-x1)*y0 + x2*y1 - y2*x1)/
+        Double distance = new Double(abs((y2-y1)*x0-(x2-x1)*y0 + x2*y1 - y2*x1)/
                 sqrt(pow(y2-y1, 2) + pow(x2-x1, 2)));
         
         return distance;
