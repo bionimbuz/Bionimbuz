@@ -22,8 +22,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -114,19 +114,40 @@ public class SchedullerTester {
         int tasksNumber = Integer.parseInt(line);
         taskList = new JobInfo[tasksNumber];
         
-        // get second line: id of each task's service
-        line = br.readLine();
-        String ids[] = line.split(",");
+        // get next tasksNumber lines: each task
         for (int i=0; i<tasksNumber; i++) {
-            // generate a new jobInfo
+            // generate a new jobInfo from json
+            line = br.readLine();
             JobInfo jobInfo = new JobInfo();
-            jobInfo.setServiceId(Integer.parseInt(ids[i]));
+            jobInfo.setTimestamp(0l);
+            
+            int lastComa = line.indexOf(",");
+            jobInfo.setServiceId(Long.parseLong(line.substring(line.indexOf("serviceId:"), lastComa)));
+            lastComa = line.indexOf(",", lastComa+1);
+            jobInfo.setArgs(line.substring(line.indexOf("args:"), lastComa));
+            
+            lastComa = line.indexOf(",", lastComa+1);
+            String io = line.substring(line.indexOf("inputs:"), lastComa);
+            List<String> inputs = fromStringToList(io);
+            
+            for (String inp : inputs)
+                jobInfo.addInput(inp);
+            
+            lastComa = line.indexOf(",", lastComa+1);
+            io = line.substring(line.indexOf("inputs:"), lastComa);
+            List<String> outputs = fromStringToList(io);
+            
+            for (String out : outputs)
+                jobInfo.addOutput(out);
             
             // put it into the map to, furthermore, set the dependencies
             taskList[i] = jobInfo;
         }
         
         // get the remaining lines: dependency matrix
+        for (int i=0; i<tasksNumber; i++) {
+            
+        }
         
         // get task list with dependencies
         

@@ -21,21 +21,18 @@ public class JobInfo {
     private String args = "";
     
     // inputs = [{input.id, input.size}]
-    private List<Pair<String, Long>> inputs = new ArrayList<Pair<String, Long>>();
+    final private List<Pair<String, Long>> inputs = new ArrayList<Pair<String, Long>>();
 
-    private List<String> outputs = new ArrayList<String>();
+    final private List<String> outputs = new ArrayList<String>();
 
     private long timestamp;
     
     private List<Long> execHistory = null;
     
-    private List<String> dependencies = null;
+    final private List<String> dependencies = new ArrayList<String>();
 
-    public JobInfo() {
-    }
+    public JobInfo() {}
     
-    
-
     public String getId() {
         return id;
     }
@@ -73,6 +70,8 @@ public class JobInfo {
     }
 
     public void addInput(String id, Long size) {
+        TODO: change from string id to string filename
+                or: split jobinfo into 2 subclasses: staticSchedJobInfo and dynamicSchedJobInfo
         for (Pair<String, Long> pair : inputs) {
             if (pair.first.equals(id)) {
                 inputs.remove(pair);

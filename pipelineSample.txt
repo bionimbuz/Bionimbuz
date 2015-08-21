@@ -1,5 +1,10 @@
 6
-1,2,3,4,5,6
+{serviceId:1, args:%I1%O1, inputs:[inp0], outputs:[out1]}
+{serviceId:2, args:%I1%O1, inputs:[out1], outputs:[out2]}
+{serviceId:3, args:%I1%O1, inputs:[out1], outputs:[out3]}
+{serviceId:4, args:%I1%O1, inputs:[out1], outputs:[out4]}
+{serviceId:5, args:%I1%O1, inputs:[out2, out3], outputs:[out5]}
+{serviceId:6, args:%I1%O1, inputs:[out4, out], outputs:[out6]}
 0,0,0,0,0,0
 1,0,0,0,0,0
 1,0,0,0,0,0
