@@ -192,6 +192,8 @@ public class SchedullerTester {
 
             listjob.add(job);
         }
+        
+        System.out.println("Jobs: " + listjob.size());
 
         rpcClient.getProxy().startJob(listjob, "");
     }

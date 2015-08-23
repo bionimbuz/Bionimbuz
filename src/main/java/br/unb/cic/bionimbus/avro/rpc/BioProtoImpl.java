@@ -298,11 +298,11 @@ public class BioProtoImpl implements BioProto {
             cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_JOB.getFullPath("", "", job.getId()) , job.toString());
             LOGGER.info("Tempo de inicio do job -"+ job.getOutputs()+"- MileSegundos: " + job.getTimestamp());
             //tempo adicionado para latencia poder ser calculada
-            try {
-                TimeUnit.SECONDS.sleep(10);
-            } catch (InterruptedException ex) {
-                java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-            }
+//            try {
+//                TimeUnit.SECONDS.sleep(10);
+//            } catch (InterruptedException ex) {
+//                java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+//            }
 
         }
 

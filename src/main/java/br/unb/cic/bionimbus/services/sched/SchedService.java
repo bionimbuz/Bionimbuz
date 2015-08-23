@@ -210,12 +210,14 @@ public class SchedService extends AbstractBioService implements Runnable {
         
         HashMap<String,Double> pluginIdLatency = new  HashMap<String,Double>();
         try {
-            for (PluginInfo plugin : getPeers().values()) {
-                //calcula a latencia e regula para segundos
-                pluginIdLatency.put(plugin.getId(),Ping.calculo(plugin.getHost().getAddress())/1000);
-                
+            if(!cms.getZNodeExist(cms.getPath().PREFIX_JOB.getFullPath("", "", job.getId())+LATENCY, false)) {
+                for (PluginInfo plugin : getPeers().values()) {
+                    //calcula a latencia e regula para segundos
+                    pluginIdLatency.put(plugin.getId(),Ping.calculo(plugin.getHost().getAddress())/1000);
+
+                }
+                cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_JOB.getFullPath("", "", job.getId())+LATENCY, new ObjectMapper().writeValueAsString(pluginIdLatency));
             }
-            cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_JOB.getFullPath("", "", job.getId())+LATENCY, new ObjectMapper().writeValueAsString(pluginIdLatency));
             
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
