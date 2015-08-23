@@ -27,26 +27,26 @@ import java.util.Queue;
  */
 public class Chessmaster extends SchedPolicy {
     
-    private int lookahead = 5;
-    private double alpha = (double) 0.3;
+    private final int lookahead = 5;
+    private final double alpha = (double) 0.3;
     
     @Override
     public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos) {
         
         ResourceList rl = rs.getCurrentResourceList();
         System.out.println(rl.resources.toString());
-//        ResourceList out = minmaxPlayer(rl, new LinkedList<JobInfo>(jobInfos), alpha, lookahead);
-//        
-//        System.out.println("best max time: " + out.getMaxTime());
-//        System.out.println("best avg time: " + out.getAvgTime());
-//        System.out.println("best cost: " + out.getFullCost());
-//        for (Resource resource : out.resources) {
-//            System.out.println("R" + resource.id + " - t: " + resource.getExecTime() + " - c: " + resource.getCost());
-//            for (AllocatedFixedTask task : resource.getAllTasks()) {
-//                System.out.println("| T" + task.taskRef.getId() + " - c: " + task.cost);
-//            }
-//            System.out.println("");
-//        }
+        ResourceList out = minmaxPlayer(rl, new LinkedList<JobInfo>(jobInfos), alpha, lookahead);
+        
+        System.out.println("best max time: " + out.getMaxTime());
+        System.out.println("best avg time: " + out.getAvgTime());
+        System.out.println("best cost: " + out.getFullCost());
+        for (Resource resource : out.resources) {
+            System.out.println("R" + resource.id + " - t: " + resource.getExecTime() + " - c: " + resource.getCost());
+            for (AllocatedFixedTask task : resource.getAllTasks()) {
+                System.out.println("| T" + task.taskRef.getId() + " - c: " + task.cost);
+            }
+            System.out.println("");
+        }
         return null;
     }
 
@@ -75,36 +75,39 @@ public class Chessmaster extends SchedPolicy {
         if (!taskList.isEmpty()) {
             printTab(depth);
             System.out.println("[" + depth + "] Player - job: " + taskList.peek().getId());
+        } else {
+            printTab(depth);
+            System.out.println("[" + depth + "] Player - no more jobs");
         }
         
-        // create a local best to minimise with maximum wastage
+        // create a local best to minimise with maximum cost and maximum execution time
         ResourceList best = new ResourceList();
-//        Resource r = new Resource(0, Float.MAX_VALUE);
-//        r.allocateTask(new AllocatedTask((float) 1, null));
-//        best.resources.add(r);
+        Resource r = new Resource("0", 1, Double.MAX_VALUE);
+        r.allocateTask(new AllocatedFixedTask(Long.MAX_VALUE, null));
+        best.resources.add(r);
         
         List<ResourceList> paretoOptResults = new ArrayList();
         
         // create a max cost point (i.e. (0, inf))
         ResourceList maxCost = new ResourceList();
-//        Resource r1 = new Resource(0, (long) 1, Float.MAX_VALUE);
-//        r1.allocateTask(new AllocatedFixedTask((long)1, null));
-//        maxCost.resources.add(r1);
-//        paretoOptResults.add(maxCost);
-//        
-//        // create a max time point (i.e. (inf, 0))
-//        ResourceList maxTime = new ResourceList();
-//        Resource r2 = new Resource(0, (long) 1, (float) 0);
-//        r2.allocateTask(new AllocatedFixedTask(Long.MAX_VALUE, null));
-//        maxTime.resources.add(r2);
-//        paretoOptResults.add(maxTime);
+        Resource r1 = new Resource("0", 1, Double.MAX_VALUE);
+        r1.allocateTask(new AllocatedFixedTask((long)1, null));
+        maxCost.resources.add(r1);
+        paretoOptResults.add(maxCost);
+        
+        // create a max time point (i.e. (inf, 0))
+        ResourceList maxTime = new ResourceList();
+        Resource r2 = new Resource("0", 1, 0d);
+        r2.allocateTask(new AllocatedFixedTask(Long.MAX_VALUE, null));
+        maxTime.resources.add(r2);
+        paretoOptResults.add(maxTime);
         
 //        TODO: f1 = 1 and not 0. need to fix
-//        Float f1 = maxCost.getMaxTime();
-//        Float f2 = maxCost.getFullCost();
+        Double f1 = maxCost.getMaxTime();
+        Double f2 = maxCost.getFullCost();
         
         // if we can still go deeper and there is a task to schedule
-        if (depth != 0 && !taskList.isEmpty()) {
+        if (depth != 0) {
             for (Resource resource : resourceList.resources) {
                 // create resourceList and taskList copies
                 Queue<JobInfo> taskListCopy = new LinkedList(taskList);
@@ -119,8 +122,8 @@ public class Chessmaster extends SchedPolicy {
                 paretoOptResults.add(result);
                 List<ResourceList> newParetoOptResults = Pareto.getParetoCurve(paretoOptResults);
                 
-//                printTab(depth);
-//                System.out.println("    cost=" + result.getFullCost() + ", avgTime=" + result.getAvgTime() + ", maxTime=" + result.getMaxTime());
+                printTab(depth);
+                System.out.println("    cost=" + result.getFullCost() + ", avgTime=" + result.getAvgTime() + ", maxTime=" + result.getMaxTime());
                 
                 // if added, attempt to update best result
                 if (newParetoOptResults != null) {
@@ -148,7 +151,7 @@ public class Chessmaster extends SchedPolicy {
         
         // create current best with min cost
         ResourceList best = new ResourceList();
-//        best.resources.add(new Resource(0, (long)1, Float.MIN_VALUE));
+        best.resources.add(new Resource("0", 1, Double.MIN_VALUE));
         
         // if we can still go deeper
         System.out.println("size2: " + taskList.size());
@@ -183,11 +186,11 @@ public class Chessmaster extends SchedPolicy {
         }
     }
     
-    private static Resource getResource(Resource r, List<Resource> rs) {
+    private Resource getResource(Resource r, List<Resource> rs) {
         return rs.get(rs.indexOf(r));
     }
     
-    private static void printTab(int n) {
+    private void printTab(int n) {
         for (int i = 0; i < 10-n; i++) {
                 System.out.print("   ");
         }
