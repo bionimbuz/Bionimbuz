@@ -78,6 +78,7 @@ public class Chessmaster extends SchedPolicy {
         } else {
             printTab(depth);
             System.out.println("[" + depth + "] Player - no more jobs");
+            return resourceList;
         }
         
         // create a local best to minimise with maximum cost and maximum execution time
@@ -111,7 +112,6 @@ public class Chessmaster extends SchedPolicy {
             for (Resource resource : resourceList.resources) {
                 // create resourceList and taskList copies
                 Queue<JobInfo> taskListCopy = new LinkedList(taskList);
-                System.out.println("size: " + taskListCopy.size());
                 ResourceList resourceListCopy = new ResourceList(resourceList);
                 
                 // run recursive call with current resource
@@ -138,7 +138,7 @@ public class Chessmaster extends SchedPolicy {
             }
             return best;
         }
-        // if the maximum depth was reached or all tasks were scheduled
+        // if the maximum depth was reached
         else {
             return resourceList;
         }
@@ -154,7 +154,6 @@ public class Chessmaster extends SchedPolicy {
         best.resources.add(new Resource("0", 1, Double.MIN_VALUE));
         
         // if we can still go deeper
-        System.out.println("size2: " + taskList.size());
         job = taskList.poll();
         System.out.println("job: " + job.toString());
         if (depth != 0) {

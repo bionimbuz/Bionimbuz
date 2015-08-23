@@ -49,7 +49,7 @@ public class PluginInfo implements PluginOps {
 
     private List<PluginService> services;
     
-    private Double costPerHour;
+    private double costPerHour;
 
     public PluginInfo() {
     }
@@ -242,11 +242,11 @@ public class PluginInfo implements PluginOps {
         this.privateCloud = privateCloud;
     }
 
-    public Double getCostPerHour() {
+    public double getCostPerHour() {
         return costPerHour;
     }
     
-    public void setCostPerHour(Double costPerHour) {
+    public void setCostPerHour(double costPerHour) {
         this.costPerHour = costPerHour;
     }
     
