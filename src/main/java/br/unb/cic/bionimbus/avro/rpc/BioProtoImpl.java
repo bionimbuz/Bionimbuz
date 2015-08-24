@@ -16,7 +16,6 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,21 +60,22 @@ public class BioProtoImpl implements BioProto {
     
     /**
      * Retorna o status do job solicitado.
+     * @param pipelineId id do pipeline contendo o job
      * @param jobId id do job que deve ser consultado
      * @return string com o status do job
      * @throws AvroRemoteException 
      */
     @Override
-    public String statusJob(String jobId) throws AvroRemoteException {
+    public String statusJob(String pipelineId, String jobId) throws AvroRemoteException {
         try {
-            if(cms.getChildren(cms.getPath().JOBS.getFullPath("", "", ""), null).contains("job_"+jobId)){
+            if(cms.getChildren(cms.getPath().JOBS.getFullPath("", "", "", pipelineId), null).contains("job_"+jobId)){
                 return  "Job "+jobId+" ainda não foi escalonado";
             }else {
                 String datas =null;
                 ObjectMapper mapper = new ObjectMapper();
                 for(PluginInfo plugin : storageService.getPeers().values()){
-                    for(String task : cms.getChildren(cms.getPath().TASKS.getFullPath(plugin.getId(), "", ""), null)){
-                        datas = cms.getData(cms.getPath().PREFIX_TASK.getFullPath(plugin.getId(),"",task.substring(5, task.length())),null);
+                    for(String task : cms.getChildren(cms.getPath().TASKS.getFullPath(plugin.getId(), "", "", ""), null)){
+                        datas = cms.getData(cms.getPath().PREFIX_TASK.getFullPath(plugin.getId(),"",task.substring(5, task.length()), ""),null);
                         if(datas!=null){
                             PluginTask pluginTask = mapper.readValue(datas, PluginTask.class);
                             if(pluginTask.getJobInfo().getId().equals(jobId))
@@ -101,26 +101,28 @@ public class BioProtoImpl implements BioProto {
         StringBuilder allJobs = new StringBuilder();
         int i=1;
         try {
-            //verificação dos jobs ainda não escalonados
-            List<String> jobs = cms.getChildren(cms.getPath().JOBS.getFullPath("", "", ""), null);
             ObjectMapper mapper = new ObjectMapper();
-            if(jobs!=null && !jobs.isEmpty()){
-                for(String job : jobs){
-                        String jobData = cms.getData(cms.getPath().PREFIX_JOB.getFullPath("","",job.substring(4,job.length())),null);
+            List<String> pipelines = cms.getChildren(cms.getPath().PIPELINES.getFullPath("", "", "", ""), null);
+            for(String pipeline : pipelines) {
+                //verificação dos jobs ainda não escalonados
+                List<String> jobs = cms.getChildren(cms.getPath().JOBS.getFullPath("", "", "", pipeline), null);
+                if(jobs!=null && !jobs.isEmpty()){
+                    for(String job : jobs){
+                        String jobData = cms.getData(cms.getPath().PREFIX_JOB.getFullPath("","",job.substring(4,job.length()), pipeline),null);
                         if(jobData!=null){
                             JobInfo jobInfo = mapper.readValue(jobData, JobInfo.class);
-                                allJobs.append(i).append(" - Job ").append(jobInfo.getId()).append(" Ainda não escalonado.\n ");
+                            allJobs.append(i).append(" - Job ").append(jobInfo.getId()).append(" Ainda não escalonado.\n ");
                         }
                         i++;
                     }
-                
+                }
             }
-            //verificação dos jobs escalonados
             
+            //verificação dos jobs escalonados
             String datasTask =null;
             for(PluginInfo plugin : storageService.getPeers().values()){
-                for(String task : cms.getChildren(cms.getPath().TASKS.getFullPath(plugin.getId(), "", ""), null)){
-                    datasTask = cms.getData(cms.getPath().PREFIX_TASK.getFullPath(plugin.getId(),"",task.substring(5, task.length())),null);
+                for(String task : cms.getChildren(cms.getPath().TASKS.getFullPath(plugin.getId(), "", "", ""), null)){
+                    datasTask = cms.getData(cms.getPath().PREFIX_TASK.getFullPath(plugin.getId(),"",task.substring(5, task.length()), ""),null);
                     if(datasTask!=null){
                         PluginTask pluginTask = mapper.readValue(datasTask, PluginTask.class);
                         allJobs.append(i).append(" - Job ").append(pluginTask.getJobInfo().getId().toString()).append(" : ").append(pluginTask.getState().toString()).append("\n ");
@@ -290,21 +292,20 @@ public class BioProtoImpl implements BioProto {
     }
 
     @Override
-    public String startJob(List<br.unb.cic.bionimbus.avro.gen.JobInfo> listJob, String ip) throws AvroRemoteException {
-        //inclusão do job para ser escalonado
+    public String startPipeline(br.unb.cic.bionimbus.avro.gen.PipelineInfo pipeline) throws AvroRemoteException {
+        // generate pipeline register
+        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_PIPELINE.getFullPath("", "", "", pipeline.getId()), "");
+        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().JOBS.getFullPath("", "", "", pipeline.getId()), "");
         
-        for (br.unb.cic.bionimbus.avro.gen.JobInfo job: listJob){
+        // add jobs
+        for (br.unb.cic.bionimbus.avro.gen.JobInfo job: pipeline.getJobs()) {
             job.setTimestamp(System.currentTimeMillis());
-            cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_JOB.getFullPath("", "", job.getId()) , job.toString());
-            LOGGER.info("Tempo de inicio do job -"+ job.getOutputs()+"- MileSegundos: " + job.getTimestamp());
-            //tempo adicionado para latencia poder ser calculada
-//            try {
-//                TimeUnit.SECONDS.sleep(10);
-//            } catch (InterruptedException ex) {
-//                java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-
+            cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_JOB.getFullPath("", "", pipeline.getId(), job.getId()) , job.toString());
+            LOGGER.info("Tempo de entrada do job para escalonamento -"+ job.getOutputs()+"- MileSegundos: " + job.getTimestamp());
         }
+        
+        // set finished flag
+        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PIPELINE_FLAG.getFullPath("", "", "", pipeline.getId()), "");
 
         return "Job enviado para o escalonamento. Aguarde...";
     }

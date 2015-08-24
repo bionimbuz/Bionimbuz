@@ -230,6 +230,11 @@ protocol BioProto {
     long timestamp;
   }
 
+  record PipelineInfo {
+    string id;
+    array<JobInfo> jobs;
+  }
+
   record PluginFile {
     string id;
     string path;
@@ -267,10 +272,10 @@ protocol BioProto {
 
   string startJobName(string jobID, string ip);
 
-  string startJob(array<JobInfo> listJob, string ip);
+  string startPipeline(PipelineInfo pipeline);
 
   string schedPolicy(int numPolicy);
-  string statusJob(string jobId);
+  string statusJob(string pipelineId, string jobId);
   string statusAllJob();
 
 

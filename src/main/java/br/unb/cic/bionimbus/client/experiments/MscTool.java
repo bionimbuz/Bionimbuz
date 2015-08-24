@@ -240,7 +240,7 @@ public class MscTool {
             listjob.add(job);
         }
 
-        rpcClient.getProxy().startJob(listjob, "");
+//        rpcClient.getProxy().startJob(listjob, "");
     }
 
     public void printResult() {

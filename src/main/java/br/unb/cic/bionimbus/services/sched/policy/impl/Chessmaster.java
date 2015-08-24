@@ -6,6 +6,7 @@
 package br.unb.cic.bionimbus.services.sched.policy.impl;
 
 import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.client.PipelineInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
@@ -31,11 +32,11 @@ public class Chessmaster extends SchedPolicy {
     private final double alpha = (double) 0.3;
     
     @Override
-    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos) {
+    public HashMap<JobInfo, PluginInfo> schedule(PipelineInfo pipeline) {
         
         ResourceList rl = rs.getCurrentResourceList();
         System.out.println(rl.resources.toString());
-        ResourceList out = minmaxPlayer(rl, new LinkedList<JobInfo>(jobInfos), alpha, lookahead);
+        ResourceList out = minmaxPlayer(rl, new LinkedList<JobInfo>(pipeline.getJobs()), alpha, lookahead);
         
         System.out.println("best max time: " + out.getMaxTime());
         System.out.println("best avg time: " + out.getAvgTime());

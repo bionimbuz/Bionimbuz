@@ -52,28 +52,31 @@ public class CuratorMessageService implements CloudMessageService {
      */
     public enum Path {
         
-        ROOT("/"), 
-        PREFIX_PEER("/peer_"), 
-        PEERS("/peers"), 
+        COST_PREFIX("/cost_"),
+        COUNT("/count"),
+        END("/end"),
         FILES("/files"),
-        PENDING_SAVE("/pending_save"),
-        PREFIX_PENDING_FILE("/pending_file_"),
+        HISTORY("/history"),
         JOBS("/jobs"),
+        LOCK_JOB("/LOCK"),
+        PEERS("/peers"), 
+        PENDING_SAVE("/pending_save"),
+        PIPELINES("/pipelines"),
+        PIPELINE_FLAG("/flag"),
         PREFIX_FILE("/file_"),
+        PREFIX_JOB("/job_"),
+        PREFIX_PEER("/peer_"), 
+        PREFIX_PENDING_FILE("/pending_file_"),
+        PREFIX_PIPELINE("/pipeline_"),
+        PREFIX_TASK("/task_"),
+        ROOT("/"), 
+        SCHED("/sched"),
+        SEPARATOR("/"),
+        SIZE_JOBS("/size_jobs"),
+        START("/start"),
         STATUS("/STATUS"),
         STATUSWAITING("/STATUSWAITING"),
-        SCHED("/sched"),
-        LOCK_JOB("/LOCK"),
-        SIZE_JOBS("/size_jobs"),
         TASKS("/tasks"), 
-        PREFIX_TASK("/task_"),
-        PREFIX_JOB("/job_"),
-        HISTORY("/history"),
-        COST_PREFIX("/cost_"),
-        START("/start"),
-        END("/end"),
-        COUNT("/count"),
-        SEPARATOR("/"),
         UNDERSCORE("_");
         
         private final String value;
@@ -89,13 +92,13 @@ public class CuratorMessageService implements CloudMessageService {
          * @param taskid
          * @return 
          */
-        public String getFullPath(String pluginid, String fileid, String taskid) {
+        public String getFullPath(String pluginid, String fileid, String taskid, String pipelineid) {
             switch (this) {
                 case ROOT: return "" + this;
                 case PENDING_SAVE: return "" +PENDING_SAVE;
                 case PREFIX_PENDING_FILE: return ""+PENDING_SAVE+PREFIX_PENDING_FILE+fileid;
-                case JOBS: return ""+JOBS;   
-                case PREFIX_JOB: return ""+JOBS+PREFIX_JOB+taskid;
+                case JOBS: return "" + PIPELINES + PREFIX_PIPELINE + pipelineid + JOBS;
+                case PREFIX_JOB: return "" + PIPELINES + PREFIX_PIPELINE + pipelineid + JOBS + PREFIX_JOB + taskid;
                 case PEERS:  return "" + PEERS;
                 case PREFIX_PEER: return ""+PEERS+PREFIX_PEER+pluginid;
                 case STATUS: return ""+PEERS+PREFIX_PEER+pluginid+STATUS;
@@ -107,6 +110,9 @@ public class CuratorMessageService implements CloudMessageService {
                 case FILES: return ""+PEERS+PREFIX_PEER+pluginid+FILES;
                 case PREFIX_FILE: return ""+PEERS+PREFIX_PEER+pluginid+FILES+PREFIX_FILE+fileid;
                 case LOCK_JOB: return ""+JOBS+PREFIX_JOB+taskid+LOCK_JOB;
+                case PREFIX_PIPELINE: return "" + PIPELINES + PREFIX_PIPELINE + pipelineid;
+                case PIPELINE_FLAG: return "" + PIPELINES + PREFIX_PIPELINE + pipelineid + PIPELINE_FLAG;
+                case PIPELINES: return "" + PIPELINES;
             }
             return "";
         }

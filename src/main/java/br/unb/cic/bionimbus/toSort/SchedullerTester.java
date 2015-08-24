@@ -9,6 +9,7 @@ import br.unb.cic.bionimbus.avro.gen.Pair;
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.client.PipelineInfo;
 import br.unb.cic.bionimbus.client.experiments.MscTool;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
@@ -21,7 +22,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import org.apache.zookeeper.WatchedEvent;
@@ -85,9 +85,9 @@ public class SchedullerTester {
         CuratorMessageService cms = new CuratorMessageService();
 
         // get pipeline from file
-        List<JobInfo> pipeline = getPipelineFromFile();
+        PipelineInfo pipeline = getPipelineFromFile();
         
-        for(JobInfo j : pipeline) {
+        for(JobInfo j : pipeline.getJobs()) {
             System.out.println(j.toString());
         }
 
@@ -103,7 +103,7 @@ public class SchedullerTester {
         wait();
     }
     
-    private List<JobInfo> getPipelineFromFile() throws FileNotFoundException, IOException {
+    private PipelineInfo getPipelineFromFile() throws FileNotFoundException, IOException {
         
         JobInfo taskList[];
         
@@ -165,15 +165,21 @@ public class SchedullerTester {
             }
         }
         
+        // add all jobs to a pipeline
+        PipelineInfo pipeline = new PipelineInfo();
+        for(JobInfo task : taskList) {
+            pipeline.addJob(task);
+        }
+        
         // get task list with dependencies        
-        return new ArrayList<JobInfo>(Arrays.asList(taskList));
+        return pipeline;
     }
     
-    private void sendJobs(List<JobInfo> jobs) throws InterruptedException, IOException {
+    private void sendJobs(PipelineInfo pipeline) throws InterruptedException, IOException {
 //        communication.sendReq(new JobReqMessage(p2p.getPeerNode(), jobs), P2PMessageType.JOBRESP);
 //        JobRespMessage resp = (JobRespMessage) communication.getResp();
         List<br.unb.cic.bionimbus.avro.gen.JobInfo> listjob = new ArrayList<br.unb.cic.bionimbus.avro.gen.JobInfo>();
-        for (JobInfo jobInfo : jobs) {
+        for (JobInfo jobInfo : pipeline.getJobs()) {
             br.unb.cic.bionimbus.avro.gen.JobInfo job = new br.unb.cic.bionimbus.avro.gen.JobInfo();
             job.setArgs(jobInfo.getArgs());
             job.setId(jobInfo.getId());
@@ -193,9 +199,10 @@ public class SchedullerTester {
             listjob.add(job);
         }
         
-        System.out.println("Jobs: " + listjob.size());
+        br.unb.cic.bionimbus.avro.gen.PipelineInfo avroPipeline = new br.unb.cic.bionimbus.avro.gen.PipelineInfo();
+        avroPipeline.setJobs(listjob);
 
-        rpcClient.getProxy().startJob(listjob, "");
+        rpcClient.getProxy().startPipeline(avroPipeline);
     }
 
     public static class ShowSchedResults implements Watcher {

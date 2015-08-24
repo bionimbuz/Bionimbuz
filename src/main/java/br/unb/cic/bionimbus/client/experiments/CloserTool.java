@@ -197,9 +197,9 @@ public class CloserTool {
         }
 
         LOG.info("Enviando " + jobList.size() + " jobs.");
-        String saida = rpcClient.getProxy().startJob(jobList,"");
+//        String saida = rpcClient.getProxy().startJob(jobList,"");
         
-        LOG.info("Job " + saida + " started succesfully");
+//        LOG.info("Job " + saida + " started succesfully");
     }
 
     /**
