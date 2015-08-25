@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.client.PipelineInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
-import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
 
@@ -41,10 +41,10 @@ public class BasicSchedPolicy extends SchedPolicy {
     }
 
     @Override
-    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos) {
+    public HashMap<JobInfo, PluginInfo> schedule(PipelineInfo pipeline) {
         HashMap<JobInfo, PluginInfo> schedMap = new HashMap<JobInfo, PluginInfo>();
 
-        for (JobInfo jobInfo : jobInfos) {
+        for (JobInfo jobInfo : pipeline.getJobs()) {
             PluginInfo resource = this.scheduleJob(jobInfo);
             schedMap.put(jobInfo, resource);
         }

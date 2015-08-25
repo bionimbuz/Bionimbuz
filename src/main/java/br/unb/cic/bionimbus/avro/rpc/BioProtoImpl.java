@@ -37,7 +37,6 @@ public class BioProtoImpl implements BioProto {
 
     private final DiscoveryService discoveryService;
     private final StorageService storageService;
-    private final SchedService schedService;
     private final CloudMessageService cms;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SchedService.class.getSimpleName());
@@ -49,7 +48,6 @@ public class BioProtoImpl implements BioProto {
     public BioProtoImpl(DiscoveryService discoveryService, StorageService storageService, SchedService schedService, CloudMessageService cms) {
         this.discoveryService = discoveryService;
         this.storageService = storageService;
-        this.schedService = schedService;
         this.cms =  cms;
     }
 
@@ -294,13 +292,13 @@ public class BioProtoImpl implements BioProto {
     @Override
     public String startPipeline(br.unb.cic.bionimbus.avro.gen.PipelineInfo pipeline) throws AvroRemoteException {
         // generate pipeline register
-        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_PIPELINE.getFullPath("", "", "", pipeline.getId()), "");
+        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_PIPELINE.getFullPath("", "", "", pipeline.getId()), pipeline.toString());
         cms.createZNode(CreateMode.PERSISTENT, cms.getPath().JOBS.getFullPath("", "", "", pipeline.getId()), "");
         
         // add jobs
         for (br.unb.cic.bionimbus.avro.gen.JobInfo job: pipeline.getJobs()) {
             job.setTimestamp(System.currentTimeMillis());
-            cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_JOB.getFullPath("", "", pipeline.getId(), job.getId()) , job.toString());
+            cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_JOB.getFullPath("", "", job.getId(), pipeline.getId()) , job.toString());
             LOGGER.info("Tempo de entrada do job para escalonamento -"+ job.getOutputs()+"- MileSegundos: " + job.getTimestamp());
         }
         

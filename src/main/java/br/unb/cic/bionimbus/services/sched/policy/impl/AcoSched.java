@@ -5,6 +5,7 @@
 package br.unb.cic.bionimbus.services.sched.policy.impl;
 
 import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.client.PipelineInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskState;
@@ -35,9 +36,9 @@ public class AcoSched extends SchedPolicy {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AcoSched.class.getSimpleName());
     
     @Override
-    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos) {
+    public HashMap<JobInfo, PluginInfo> schedule(PipelineInfo pipeline) {
         HashMap jobCloud = new HashMap<JobInfo, PluginInfo>();
-        JobInfo biggerJob = getBiggerJob(jobInfos);
+        JobInfo biggerJob = getBiggerJob(pipeline.getJobs());
         biggerJob.setTimestamp(System.currentTimeMillis());
         
         jobCloud.put(biggerJob, scheduleJob(biggerJob));
@@ -623,9 +624,11 @@ public class AcoSched extends SchedPolicy {
     
     private HashMap getMapLatency(JobInfo jobInfo) {
         HashMap<String, Double> map = new HashMap<String, Double>();
-        String datasString;
+        String datasString = null;
         
-        datasString = getDatasZookeeper(cms.getPath().PREFIX_JOB.getFullPath("", "", jobInfo.getId()), LATENCY);
+        // NEED to have pipeline id in order to get job data
+//        datasString = getDatasZookeeper(cms.getPath().PREFIX_JOB.getFullPath("", "", jobInfo.getId()), LATENCY);
+        
         ObjectMapper mapper = new ObjectMapper();
         try {
             if (datasString != null && !datasString.isEmpty()) {

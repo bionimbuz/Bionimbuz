@@ -82,24 +82,13 @@ public class ServiceManager {
      * Responsável pela limpeza do servidor a cada nova conexão onde o todos os plug-ins havia ficado indisponíveis.
      */
     private void clearZookeeper(){
-        List<String> peers;
-        boolean existPeer=false;
         
-        if(cms.getZNodeExist(ROOT_PEER, false)){
-            peers = cms.getChildren(ROOT_PEER, null);
-            if(!(peers==null) && !peers.isEmpty()){
-                for(String peer : peers){
-                    if(cms.getZNodeExist(ROOT_PEER+SEPARATOR+peer+STATUS, false))
-                        return;
-                }
-                cms.delete(ROOT_PEER);
-                cms.delete(cms.getPath().PENDING_SAVE.toString());
-                cms.delete(cms.getPath().JOBS.toString());
-            }
-            if(!existPeer){
-                //apaga os znodes que haviam no servidor
-            }
-        }
+        if (cms.getZNodeExist(cms.getPath().PIPELINES.getFullPath("", "", "", ""), false))
+            cms.delete(cms.getPath().PIPELINES.getFullPath("", "", "", ""));
+        if (cms.getZNodeExist(cms.getPath().PENDING_SAVE.getFullPath("", "", "", ""), false))
+            cms.delete(cms.getPath().PENDING_SAVE.toString());
+        if (cms.getZNodeExist(cms.getPath().JOBS.getFullPath("", "", "", ""), false))
+            cms.delete(cms.getPath().JOBS.toString());
     }
     
     public void register(Service service) {

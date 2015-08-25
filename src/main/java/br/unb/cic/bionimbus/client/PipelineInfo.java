@@ -28,6 +28,10 @@ public class PipelineInfo {
         jobs = new ArrayList<JobInfo>();
     }
     
+    public PipelineInfo(List<JobInfo> jobs) {
+        this.jobs = new ArrayList<JobInfo>();
+    }
+    
     public String getId() {
         return id;
     }
@@ -49,7 +53,7 @@ public class PipelineInfo {
         try {
             return new ObjectMapper().writeValueAsString(this);
         } catch (IOException ex) {
-            Logger.getLogger(JobInfo.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PipelineInfo.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         return null;

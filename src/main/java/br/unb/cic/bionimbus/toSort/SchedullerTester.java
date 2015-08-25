@@ -95,10 +95,10 @@ public class SchedullerTester {
         sendJobs(pipeline);
 
         // get results when ready
-        List<String> peers = cms.getChildren(cms.getPath().PEERS.toString(), null);
-        for (String path : peers) {
-            cms.getChildren(path + Path.SCHED, new ShowSchedResults());
-        }
+//        List<String> peers = cms.getChildren(cms.getPath().PREFIX_PIPELINE.getFullPath("", "", "", pipeline.getId()), null);
+//        for (String path : peers) {
+//            cms.getChildren(path + Path.SCHED, new ShowSchedResults());
+//        }
 
         wait();
     }
@@ -200,6 +200,7 @@ public class SchedullerTester {
         }
         
         br.unb.cic.bionimbus.avro.gen.PipelineInfo avroPipeline = new br.unb.cic.bionimbus.avro.gen.PipelineInfo();
+        avroPipeline.setId(pipeline.getId());
         avroPipeline.setJobs(listjob);
 
         rpcClient.getProxy().startPipeline(avroPipeline);

@@ -1,6 +1,7 @@
 package br.unb.cic.bionimbus.services.sched.policy;
 
 import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.client.PipelineInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
@@ -77,7 +78,7 @@ public abstract class SchedPolicy {
         this.rs = rs;
     }
     
-    public abstract HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos);
+    public abstract HashMap<JobInfo, PluginInfo> schedule(PipelineInfo pipeline);
     
     public abstract List<PluginTask> relocate(Collection<Pair<JobInfo, PluginTask>> taskPairs);
 

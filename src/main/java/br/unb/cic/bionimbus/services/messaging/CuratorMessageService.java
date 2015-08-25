@@ -58,6 +58,7 @@ public class CuratorMessageService implements CloudMessageService {
         FILES("/files"),
         HISTORY("/history"),
         JOBS("/jobs"),
+        LATENCY("/latency"),
         LOCK_JOB("/LOCK"),
         PEERS("/peers"), 
         PENDING_SAVE("/pending_save"),
@@ -90,6 +91,7 @@ public class CuratorMessageService implements CloudMessageService {
          * @param pluginid
          * @param fileid
          * @param taskid
+         * @param pipelineid 
          * @return 
          */
         public String getFullPath(String pluginid, String fileid, String taskid, String pipelineid) {
