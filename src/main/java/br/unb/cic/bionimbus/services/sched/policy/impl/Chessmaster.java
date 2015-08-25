@@ -28,7 +28,7 @@ import java.util.Queue;
  */
 public class Chessmaster extends SchedPolicy {
     
-    private final int lookahead = 5;
+    private final int lookahead = 20;
     private final double alpha = (double) 0.3;
     
     @Override
@@ -84,23 +84,23 @@ public class Chessmaster extends SchedPolicy {
         
         // create a local best to minimise with maximum cost and maximum execution time
         ResourceList best = new ResourceList();
-        Resource r = new Resource("0", 1, Double.MAX_VALUE);
-        r.allocateTask(new AllocatedFixedTask(Long.MAX_VALUE, null));
+        Resource r = new Resource("0", 1d, Double.MAX_VALUE);
+        r.allocateTask(new AllocatedFixedTask(Double.MAX_VALUE, null));
         best.resources.add(r);
         
         List<ResourceList> paretoOptResults = new ArrayList();
         
         // create a max cost point (i.e. (0, inf))
         ResourceList maxCost = new ResourceList();
-        Resource r1 = new Resource("0", 1, Double.MAX_VALUE);
-        r1.allocateTask(new AllocatedFixedTask((long)1, null));
+        Resource r1 = new Resource("0", 1d, Double.MAX_VALUE);
+        r1.allocateTask(new AllocatedFixedTask(1d, null));
         maxCost.resources.add(r1);
         paretoOptResults.add(maxCost);
         
         // create a max time point (i.e. (inf, 0))
         ResourceList maxTime = new ResourceList();
-        Resource r2 = new Resource("0", 1, 0d);
-        r2.allocateTask(new AllocatedFixedTask(Long.MAX_VALUE, null));
+        Resource r2 = new Resource("0", 1d, 0d);
+        r2.allocateTask(new AllocatedFixedTask(Double.MAX_VALUE, null));
         maxTime.resources.add(r2);
         paretoOptResults.add(maxTime);
         
@@ -152,39 +152,34 @@ public class Chessmaster extends SchedPolicy {
         
         // create current best with min cost
         ResourceList best = new ResourceList();
-        best.resources.add(new Resource("0", 1, Double.MIN_VALUE));
+        best.resources.add(new Resource("0", 1d, Double.MIN_VALUE));
         
         // if we can still go deeper
         job = taskList.poll();
         printTab(depth);
         System.out.println("job: " + job.getId());
-        if (depth != 0) {
-            // for each aproximation of a task's cost
-            for (Long cost : job.getHistory(rs)) {
-                // attempt to use the new resource to allocate the new task
-                
-                // create resourceList and taskList copies
-                Queue<JobInfo> taskListCopy = new LinkedList(taskList);
-                ResourceList resourceListCopy = new ResourceList(resourceList);
-                
-                // Allocate the newTask to the new resource
-                AllocatedFixedTask newTask = new AllocatedFixedTask(cost, job);
-                getResource(resource, resourceListCopy.resources).allocateTask(newTask);
-                
-                // recursive call
-                ResourceList result = minmaxPlayer(resourceListCopy, taskListCopy, alpha, depth-1);
-                
-                printTab(depth);
-                System.out.println("    cost=" + result.getFullCost() + ", avgTime=" + result.getAvgTime() + ", maxTime=" + result.getMaxTime());
-                // maxmise nature's play
-                if (result.getFullCost() > best.getFullCost())
-                    best = result;
-            }
-            return best;
-        } else {
-            // if the max depth was reached
-            return resourceList;
+        // for each aproximation of a task's cost
+        for (Double cost : job.getHistory(rs)) {
+            // attempt to use the new resource to allocate the new task
+
+            // create resourceList and taskList copies
+            Queue<JobInfo> taskListCopy = new LinkedList(taskList);
+            ResourceList resourceListCopy = new ResourceList(resourceList);
+
+            // Allocate the newTask to the new resource
+            AllocatedFixedTask newTask = new AllocatedFixedTask(cost, job);
+            getResource(resource, resourceListCopy.resources).allocateTask(newTask);
+
+            // recursive call
+            ResourceList result = minmaxPlayer(resourceListCopy, taskListCopy, alpha, depth);
+
+            printTab(depth);
+            System.out.println("    cost=" + result.getFullCost() + ", avgTime=" + result.getAvgTime() + ", maxTime=" + result.getMaxTime());
+            // maxmise nature's play
+            if (result.getFullCost() > best.getFullCost())
+                best = result;
         }
+        return best;
     }
     
     private Resource getResource(Resource r, List<Resource> rs) {
@@ -192,7 +187,7 @@ public class Chessmaster extends SchedPolicy {
     }
     
     private void printTab(int n) {
-        for (int i = 0; i < 10-n; i++) {
+        for (int i = 0; i < lookahead-n; i++) {
                 System.out.print("   ");
         }
         

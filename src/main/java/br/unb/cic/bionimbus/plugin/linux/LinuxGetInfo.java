@@ -65,7 +65,7 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
         pluginInfo.setCurrentFrequencyCore((new Double(cpuInfo.substring(cpuInfo.indexOf(":") + 1, cpuInfo.length()).trim())) / 100000);
         cpuInfo = execCommand(CPUGHz);
         Double freq = new Double(cpuInfo.substring(cpuInfo.indexOf("@") + 1, cpuInfo.length()-3).trim())*1000000000;
-        pluginInfo.setFactoryFrequencyCore(freq.longValue());
+        pluginInfo.setFactoryFrequencyCore(freq);
     }
 
     /**

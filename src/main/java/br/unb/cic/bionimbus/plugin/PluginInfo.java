@@ -1,6 +1,8 @@
 package br.unb.cic.bionimbus.plugin;
 
 import br.unb.cic.bionimbus.p2p.Host;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbus.toSort.RepositoryService;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,11 +47,11 @@ public class PluginInfo implements PluginOps {
     private Double currentFrequencyCore;
     
     // frequency in Hz
-    private Long factoryFrequencyCore;
+    private Double factoryFrequencyCore;
 
     private List<PluginService> services;
     
-    private double costPerHour;
+    private Double costPerHour = null;
 
     public PluginInfo() {
     }
@@ -196,11 +198,11 @@ public class PluginInfo implements PluginOps {
         this.currentFrequencyCore = frequencyCore;
     }
     
-    public Long getFactoryFrequencyCore() {
+    public Double getFactoryFrequencyCore() {
         return factoryFrequencyCore;
     }
 
-    public void setFactoryFrequencyCore(Long frequencyCore) {
+    public void setFactoryFrequencyCore(Double frequencyCore) {
         this.factoryFrequencyCore = frequencyCore;
     }
 
@@ -242,12 +244,14 @@ public class PluginInfo implements PluginOps {
         this.privateCloud = privateCloud;
     }
 
-    public double getCostPerHour() {
+    public double getCostPerHour(RepositoryService rs) {
+        if (costPerHour == null) {
+            if (factoryFrequencyCore > 2600000000d)
+                costPerHour = rs.getInstanceCost(RepositoryService.InstanceType.LABID_I7);
+            else
+                costPerHour = rs.getInstanceCost(RepositoryService.InstanceType.PERSONAL);
+        }
         return costPerHour;
-    }
-    
-    public void setCostPerHour(double costPerHour) {
-        this.costPerHour = costPerHour;
     }
     
     @Override

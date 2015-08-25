@@ -12,10 +12,10 @@ import br.unb.cic.bionimbus.client.JobInfo;
  * @author willian
  */
 public class AllocatedFixedTask {
-    public final Long cost;
+    public final Double cost;
     public final JobInfo taskRef;
 
-    public AllocatedFixedTask(Long cost, JobInfo taskRef) {
+    public AllocatedFixedTask(Double cost, JobInfo taskRef) {
         this.cost = cost;
         this.taskRef = taskRef;
     }

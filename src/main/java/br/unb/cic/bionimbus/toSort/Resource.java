@@ -15,12 +15,12 @@ import java.util.List;
 public class Resource {
     
     public final String id;
-    public final Long clock;
+    public final Double clock;
     public final Double cost;
     private final List<AllocatedFixedTask> allocatedTasks;
     private final List<AllocatedFixedTask> newAllocatedTasks;
 
-    public Resource(String id, long clock, Double cost) {
+    public Resource(String id, Double clock, Double cost) {
         this.id = id;
         this.clock = clock;
         this.cost = cost;

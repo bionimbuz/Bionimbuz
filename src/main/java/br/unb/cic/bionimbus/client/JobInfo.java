@@ -27,7 +27,7 @@ public class JobInfo {
 
     private long timestamp;
     
-    private List<Long> execHistory = null;
+    private List<Double> execHistory = null;
     
     final private List<String> dependencies = new ArrayList<String>();
 
@@ -97,7 +97,7 @@ public class JobInfo {
         this.timestamp = timestamp;
     }
     
-    public List<Long> getHistory(RepositoryService rs) {
+    public List<Double> getHistory(RepositoryService rs) {
         if (execHistory == null)
             execHistory = rs.getTaskHistory(serviceId);
         return execHistory;

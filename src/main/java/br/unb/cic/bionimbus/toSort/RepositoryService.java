@@ -28,14 +28,12 @@ import org.apache.zookeeper.WatchedEvent;
  */
 public class RepositoryService extends AbstractBioService {
     
-//    private final CloudMessageService cms;
+    public enum InstanceType {
+        AMAZON_LARGE,
+        PERSONAL,
+        LABID_I7
+    }
     
-    private static final String ROOT_REPOSITORY = CuratorMessageService.Path.HISTORY.toString();
-    private static final String PREFIX_TASK = ROOT_REPOSITORY + CuratorMessageService.Path.PREFIX_TASK.toString();
-    private static final String SEPARATOR = CuratorMessageService.Path.SEPARATOR.toString();
-    private static final String START = CuratorMessageService.Path.START.toString();
-    private static final String COUNT = CuratorMessageService.Path.COUNT.toString();
-
     @Inject
     public RepositoryService(final CloudMessageService cms) {
         this.cms = cms;
@@ -49,26 +47,40 @@ public class RepositoryService extends AbstractBioService {
 //        return Collections.unmodifiableList(null);
 //    }
     
-    public float getInstanceCost(int instId) {
-        return 0;
+    /**
+     * Get instance cost from zookeeper cost
+     *
+     * MOCKED
+     * 
+     * @param type type of instance (e.g. AMAZON_LARGE)
+     * @return cost of the input type instance
+     */
+    public double getInstanceCost(InstanceType type) {
+        switch(type) {
+            case LABID_I7:
+                return 0.35d;
+            case PERSONAL:
+                return 0.12d;
+            default:
+                return -1d;     
+        }
     }
     
-    // TODO: criar uma classe para arvores (arvores em java parecem ser demasiadamente/desnecessariamente complicadas)
-//    public TaskNode getDependencyTree(int pipelineId) {
-//        return null;
-//    }
-    
-    // TODO: criar classe que representa um arco na rede (i.e. entre duas instancia ativa)
-    // retorna uma lista de arcos e os valores de throughput e latencia dos mesmos
-//    public List<Latency> getNetworkList () {
-//        return Collections.unmodifiableList(null);
-//    }
-    
-    // retorna um dos elementos da lista de historicos
+    /**
+     * Returns from zookeeper the list of modes of cycles necessary 
+     * to execute a given service
+     * List is updated lazily
+     * 
+     * MOCKED
+     * 
+     * @param serviceId id of requested service
+     * @return 
+     */
+// 
     // lista atualizada preguiçosamente
-    public List<Long> getTaskHistory (Long taskId) {
+    public List<Double> getTaskHistory (Long serviceId) {
 //        NavigableMap<Long, Long> currentHistory = new TreeMap<Long, Long>();
-        List<Long> maximas = new ArrayList<Long>();
+        List<Double> maximas = new ArrayList<Double>();
 //
 //        // check if task is supported
 //        if(!cms.getZNodeExist(PREFIX_TASK+taskId, false)) {
@@ -90,33 +102,33 @@ public class RepositoryService extends AbstractBioService {
         // get all local maximas
         
         // MOCK
-        switch(taskId.intValue()) {
+        switch(serviceId.intValue()) {
             case 1:
-                maximas.add((long) 50);
-                maximas.add((long) 200);
-                maximas.add((long) 350);
+                maximas.add(5000000000d);
+                maximas.add(20000000000d);
+                maximas.add(35000000000d);
                 break;
             case 2:
-                maximas.add((long) 450);
-                maximas.add((long) 800);
+                maximas.add(45000000000d);
+                maximas.add(80000000000d);
                 break;
             case 3:
-                maximas.add((long) 150);
-                maximas.add((long) 300);
-                maximas.add((long) 650);
+                maximas.add(15000000000d);
+                maximas.add(30000000000d);
+                maximas.add(65000000000d);
                 break;
             case 4:
-                maximas.add((long) 50);
-                maximas.add((long) 600);
+                maximas.add(5000000000d);
+                maximas.add(60000000000d);
                 break;
             case 5:
-                maximas.add((long) 150);
-                maximas.add((long) 300);
+                maximas.add(15000000000d);
+                maximas.add(30000000000d);
                 break;
             case 6:
-                maximas.add((long) 50);
-                maximas.add((long) 100);
-                maximas.add((long) 850);
+                maximas.add(5000000000d);
+                maximas.add(10000000000d);
+                maximas.add(85000000000d);
                 break;
             default:
                 return null;
@@ -133,7 +145,7 @@ public class RepositoryService extends AbstractBioService {
         for (Map.Entry<String, PluginInfo> peer : getPeers().entrySet()) {
             Resource r = new Resource(peer.getValue().getId(),
                         peer.getValue().getFactoryFrequencyCore(),
-                        peer.getValue().getCostPerHour());
+                        peer.getValue().getCostPerHour(this));
             resources.resources.add(r);
         }
         
