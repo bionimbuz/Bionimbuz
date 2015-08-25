@@ -156,7 +156,8 @@ public class Chessmaster extends SchedPolicy {
         
         // if we can still go deeper
         job = taskList.poll();
-        System.out.println("job: " + job.toString());
+        printTab(depth);
+        System.out.println("job: " + job.getId());
         if (depth != 0) {
             // for each aproximation of a task's cost
             for (Long cost : job.getHistory(rs)) {

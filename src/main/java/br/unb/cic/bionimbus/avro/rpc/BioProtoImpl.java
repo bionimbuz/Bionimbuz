@@ -65,28 +65,29 @@ public class BioProtoImpl implements BioProto {
      */
     @Override
     public String statusJob(String pipelineId, String jobId) throws AvroRemoteException {
-        try {
-            if(cms.getChildren(cms.getPath().JOBS.getFullPath("", "", "", pipelineId), null).contains("job_"+jobId)){
-                return  "Job "+jobId+" ainda não foi escalonado";
-            }else {
-                String datas =null;
-                ObjectMapper mapper = new ObjectMapper();
-                for(PluginInfo plugin : storageService.getPeers().values()){
-                    for(String task : cms.getChildren(cms.getPath().TASKS.getFullPath(plugin.getId(), "", "", ""), null)){
-                        datas = cms.getData(cms.getPath().PREFIX_TASK.getFullPath(plugin.getId(),"",task.substring(5, task.length()), ""),null);
-                        if(datas!=null){
-                            PluginTask pluginTask = mapper.readValue(datas, PluginTask.class);
-                            if(pluginTask.getJobInfo().getId().equals(jobId))
-                                return "Job: "+pluginTask.getState().toString();
-                        }
-                    }
-                }
-                    
-            }
-        } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return "Job "+jobId+" não encontrado!";
+//        try {
+//            if(cms.getChildren(cms.getPath().JOBS.getFullPath("", "", "", pipelineId), null).contains("job_"+jobId)){
+//                return  "Job "+jobId+" ainda não foi escalonado";
+//            }else {
+//                String datas =null;
+//                ObjectMapper mapper = new ObjectMapper();
+//                for(PluginInfo plugin : storageService.getPeers().values()){
+//                    for(String task : cms.getChildren(cms.getPath().TASKS.getFullPath(plugin.getId(), "", "", ""), null)){
+//                        datas = cms.getData(cms.getPath().PREFIX_TASK.getFullPath(plugin.getId(),"",task.substring(5, task.length()), ""),null);
+//                        if(datas!=null){
+//                            PluginTask pluginTask = mapper.readValue(datas, PluginTask.class);
+//                            if(pluginTask.getJobInfo().getId().equals(jobId))
+//                                return "Job: "+pluginTask.getState().toString();
+//                        }
+//                    }
+//                }
+//                    
+//            }
+//        } catch (IOException ex) {
+//            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        return "Job "+jobId+" não encontrado!";
+        throw new AvroRemoteException("IMPLEMENTATION REMOVED/COMMENTED");
     }
 
     /**
@@ -103,17 +104,19 @@ public class BioProtoImpl implements BioProto {
             List<String> pipelines = cms.getChildren(cms.getPath().PIPELINES.getFullPath("", "", "", ""), null);
             for(String pipeline : pipelines) {
                 //verificação dos jobs ainda não escalonados
-                List<String> jobs = cms.getChildren(cms.getPath().JOBS.getFullPath("", "", "", pipeline), null);
-                if(jobs!=null && !jobs.isEmpty()){
-                    for(String job : jobs){
-                        String jobData = cms.getData(cms.getPath().PREFIX_JOB.getFullPath("","",job.substring(4,job.length()), pipeline),null);
-                        if(jobData!=null){
-                            JobInfo jobInfo = mapper.readValue(jobData, JobInfo.class);
-                            allJobs.append(i).append(" - Job ").append(jobInfo.getId()).append(" Ainda não escalonado.\n ");
-                        }
-                        i++;
-                    }
-                }
+//                List<String> jobs = cms.getChildren(cms.getPath().JOBS.getFullPath("", "", "", pipeline), null);
+//                if(jobs!=null && !jobs.isEmpty()){
+//                    for(String job : jobs){
+//                        String jobData = cms.getData(cms.getPath().PREFIX_JOB.getFullPath("","",job.substring(4,job.length()), pipeline),null);
+//                        if(jobData!=null){
+//                            JobInfo jobInfo = mapper.readValue(jobData, JobInfo.class);
+//                            allJobs.append(i).append(" - Job ").append(jobInfo.getId()).append(" Ainda não escalonado.\n ");
+//                        }
+//                        i++;
+//                    }
+//                }
+                allJobs.append(i).append(" - Pipeline ").append(pipeline).append(" Ainda não escalonado.\n ");
+                i++;
             }
             
             //verificação dos jobs escalonados
@@ -227,26 +230,27 @@ public class BioProtoImpl implements BioProto {
      */
     @Override
     public String schedPolicy(int numPolicy){
-            //verifica se escolher informar a política ou identificar qual é a política
-            if(numPolicy==-1){
-                numPolicy = new Integer(cms.getData(cms.getPath().JOBS.toString(), null));
-            }else{
-                Integer policy = numPolicy;
-                if(cms.getZNodeExist(cms.getPath().JOBS.toString(), false)){
-                    cms.setData(cms.getPath().JOBS.toString(), policy.toString());
-                }else{
-                    return "\nNão foi possível alterar  política de escalonamento. Tente mais tarde.";
-                }
-            }
-        
-        StringBuilder politicys = new StringBuilder();
-        List<SchedPolicy> listPolicy = SchedPolicy.getInstances();
-        for(SchedPolicy policy:listPolicy){
-            politicys.append("\n    ").append(policy.getPolicyName());
-        }
-        
-        
-        return "\nPolítica Atual: "+listPolicy.get(numPolicy).getPolicyName()+"\n\nPolíticas Disponíveis: "+politicys;
+//        //verifica se escolher informar a política ou identificar qual é a política
+//        if(numPolicy==-1){
+//            numPolicy = new Integer(cms.getData(cms.getPath().JOBS.toString(), null));
+//        }else{
+//            Integer policy = numPolicy;
+//            if(cms.getZNodeExist(cms.getPath().JOBS.toString(), false)){
+//                cms.setData(cms.getPath().JOBS.toString(), policy.toString());
+//            }else{
+//                return "\nNão foi possível alterar  política de escalonamento. Tente mais tarde.";
+//            }
+//        }
+//        
+//        StringBuilder politicys = new StringBuilder();
+//        List<SchedPolicy> listPolicy = SchedPolicy.getInstances();
+//        for(SchedPolicy policy:listPolicy){
+//            politicys.append("\n    ").append(policy.getPolicyName());
+//        }
+//        
+//        
+//        return "\nPolítica Atual: "+listPolicy.get(numPolicy).getPolicyName()+"\n\nPolíticas Disponíveis: "+politicys;
+        throw new UnsupportedOperationException("METOD COMMENTED");
     }
     
     @Override
@@ -293,19 +297,8 @@ public class BioProtoImpl implements BioProto {
     public String startPipeline(br.unb.cic.bionimbus.avro.gen.PipelineInfo pipeline) throws AvroRemoteException {
         // generate pipeline register
         cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_PIPELINE.getFullPath("", "", "", pipeline.getId()), pipeline.toString());
-        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().JOBS.getFullPath("", "", "", pipeline.getId()), "");
         
-        // add jobs
-        for (br.unb.cic.bionimbus.avro.gen.JobInfo job: pipeline.getJobs()) {
-            job.setTimestamp(System.currentTimeMillis());
-            cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_JOB.getFullPath("", "", job.getId(), pipeline.getId()) , job.toString());
-            LOGGER.info("Tempo de entrada do job para escalonamento -"+ job.getOutputs()+"- MileSegundos: " + job.getTimestamp());
-        }
-        
-        // set finished flag
-        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PIPELINE_FLAG.getFullPath("", "", "", pipeline.getId()), "");
-
-        return "Job enviado para o escalonamento. Aguarde...";
+        return "Pipeline enviado para o escalonamento. Aguarde...";
     }
     
     private br.unb.cic.bionimbus.avro.gen.PluginFile getPluginFile(String fileName){

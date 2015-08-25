@@ -89,17 +89,34 @@ public class RepositoryService extends AbstractBioService {
         
         // get all local maximas
         
-        
         // MOCK
         switch(taskId.intValue()) {
-            case 0:
+            case 1:
                 maximas.add((long) 50);
                 maximas.add((long) 200);
                 maximas.add((long) 350);
                 break;
-            case 1:
+            case 2:
+                maximas.add((long) 450);
+                maximas.add((long) 800);
+                break;
+            case 3:
                 maximas.add((long) 150);
-                maximas.add((long) 200);
+                maximas.add((long) 300);
+                maximas.add((long) 650);
+                break;
+            case 4:
+                maximas.add((long) 50);
+                maximas.add((long) 600);
+                break;
+            case 5:
+                maximas.add((long) 150);
+                maximas.add((long) 300);
+                break;
+            case 6:
+                maximas.add((long) 50);
+                maximas.add((long) 100);
+                maximas.add((long) 850);
                 break;
             default:
                 return null;

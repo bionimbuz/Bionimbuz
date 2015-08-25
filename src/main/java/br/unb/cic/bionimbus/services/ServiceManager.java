@@ -87,8 +87,8 @@ public class ServiceManager {
             cms.delete(cms.getPath().PIPELINES.getFullPath("", "", "", ""));
         if (cms.getZNodeExist(cms.getPath().PENDING_SAVE.getFullPath("", "", "", ""), false))
             cms.delete(cms.getPath().PENDING_SAVE.toString());
-        if (cms.getZNodeExist(cms.getPath().JOBS.getFullPath("", "", "", ""), false))
-            cms.delete(cms.getPath().JOBS.toString());
+        if (cms.getZNodeExist(cms.getPath().PEERS.getFullPath("", "", "", ""), false))
+            cms.delete(cms.getPath().PEERS.toString());
     }
     
     public void register(Service service) {

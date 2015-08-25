@@ -57,15 +57,12 @@ public class CuratorMessageService implements CloudMessageService {
         END("/end"),
         FILES("/files"),
         HISTORY("/history"),
-        JOBS("/jobs"),
         LATENCY("/latency"),
-        LOCK_JOB("/LOCK"),
         PEERS("/peers"), 
         PENDING_SAVE("/pending_save"),
         PIPELINES("/pipelines"),
         PIPELINE_FLAG("/flag"),
         PREFIX_FILE("/file_"),
-        PREFIX_JOB("/job_"),
         PREFIX_PEER("/peer_"), 
         PREFIX_PENDING_FILE("/pending_file_"),
         PREFIX_PIPELINE("/pipeline_"),
@@ -99,8 +96,6 @@ public class CuratorMessageService implements CloudMessageService {
                 case ROOT: return "" + this;
                 case PENDING_SAVE: return "" +PENDING_SAVE;
                 case PREFIX_PENDING_FILE: return ""+PENDING_SAVE+PREFIX_PENDING_FILE+fileid;
-                case JOBS: return "" + PIPELINES + PREFIX_PIPELINE + pipelineid + JOBS;
-                case PREFIX_JOB: return "" + PIPELINES + PREFIX_PIPELINE + pipelineid + JOBS + PREFIX_JOB + taskid;
                 case PEERS:  return "" + PEERS;
                 case PREFIX_PEER: return ""+PEERS+PREFIX_PEER+pluginid;
                 case STATUS: return ""+PEERS+PREFIX_PEER+pluginid+STATUS;
@@ -111,7 +106,6 @@ public class CuratorMessageService implements CloudMessageService {
                 case PREFIX_TASK: return ""+PEERS+PREFIX_PEER+pluginid+SCHED+TASKS+PREFIX_TASK+taskid;
                 case FILES: return ""+PEERS+PREFIX_PEER+pluginid+FILES;
                 case PREFIX_FILE: return ""+PEERS+PREFIX_PEER+pluginid+FILES+PREFIX_FILE+fileid;
-                case LOCK_JOB: return ""+JOBS+PREFIX_JOB+taskid+LOCK_JOB;
                 case PREFIX_PIPELINE: return "" + PIPELINES + PREFIX_PIPELINE + pipelineid;
                 case PIPELINE_FLAG: return "" + PIPELINES + PREFIX_PIPELINE + pipelineid + PIPELINE_FLAG;
                 case PIPELINES: return "" + PIPELINES;
