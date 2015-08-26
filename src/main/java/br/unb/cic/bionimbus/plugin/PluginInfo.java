@@ -1,7 +1,6 @@
 package br.unb.cic.bionimbus.plugin;
 
 import br.unb.cic.bionimbus.p2p.Host;
-import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.toSort.RepositoryService;
 import java.util.List;
 import java.util.logging.Level;
@@ -243,8 +242,12 @@ public class PluginInfo implements PluginOps {
     public void setPrivateCloud(int privateCloud) {
         this.privateCloud = privateCloud;
     }
+    
+    public void setCostPerHour (double costPerHour) {
+        this.costPerHour = costPerHour;
+    }
 
-    public double getCostPerHour(RepositoryService rs) {
+    public double getCostPerHour (RepositoryService rs) {
         if (costPerHour == null) {
             if (factoryFrequencyCore > 2600000000d)
                 costPerHour = rs.getInstanceCost(RepositoryService.InstanceType.LABID_I7);

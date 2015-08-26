@@ -13,7 +13,6 @@ import br.unb.cic.bionimbus.client.PipelineInfo;
 import br.unb.cic.bionimbus.client.experiments.MscTool;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
-import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.BufferedReader;
@@ -81,7 +80,6 @@ public class SchedullerTester {
 
     public void runJobs() throws IOException, InterruptedException {
 
-        long timeInit = System.currentTimeMillis();
         CuratorMessageService cms = new CuratorMessageService();
 
         // get pipeline from file

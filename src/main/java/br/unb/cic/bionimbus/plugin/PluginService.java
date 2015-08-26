@@ -1,8 +1,13 @@
 package br.unb.cic.bionimbus.plugin;
 
+import com.google.common.base.Objects;
 import java.util.List;
 
 import com.google.common.primitives.Longs;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
 
 public class PluginService {
 
@@ -13,6 +18,7 @@ public class PluginService {
     private List<String> output;
     private String info;
     private String path;
+    private List<Double> modeHistory = new ArrayList<Double>();
 
     public long getId() {
         return id;
@@ -69,6 +75,14 @@ public class PluginService {
     public void setPath(String path) {
         this.path = path;
     }
+    
+    public List<Double> getModeHistory () {
+        return modeHistory;
+    }
+    
+    public void addModeToHistory (Double mode) {
+        modeHistory.add(mode);
+    }
 
     @Override
     public boolean equals(Object object) {
@@ -88,8 +102,11 @@ public class PluginService {
 
     @Override
     public String toString() {
-//        return Objects.toStringHelper(PluginService.class).add("id", id)
-//                .add("name", name).toString();
-        return "Id: "+id+",  Name: "+name+",  Info: "+info;
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (Exception ex) {
+            Logger.getLogger(PluginService.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+        return null;
     }
 }
