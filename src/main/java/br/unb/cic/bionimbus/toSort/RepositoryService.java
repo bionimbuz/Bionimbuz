@@ -7,6 +7,7 @@ package br.unb.cic.bionimbus.toSort;
 
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
+import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 
 /**
@@ -76,8 +78,6 @@ public class RepositoryService extends AbstractBioService {
      * @param serviceId id of requested service
      * @return 
      */
-// 
-    // lista atualizada preguiçosamente
     public List<Double> getTaskHistory (Long serviceId) {
 //        NavigableMap<Long, Long> currentHistory = new TreeMap<Long, Long>();
         List<Double> maximas = new ArrayList<Double>();
@@ -138,7 +138,14 @@ public class RepositoryService extends AbstractBioService {
         return maximas;
     }
     
-    // Get all peers/instances and return them in the ResourceList format
+    /**
+     * Get all peers/instances from zookeeper and return them in the 
+     * ResourceList format
+     * Peers/instances will be fetched by the AbstractBioService.getPeers()
+     * method
+     * 
+     * @return 
+     */
     public ResourceList getCurrentResourceList () {
         ResourceList resources = new ResourceList();
         
@@ -150,6 +157,47 @@ public class RepositoryService extends AbstractBioService {
         }
         
         return resources;
+    }
+    
+    /**
+     *  Add a service to zookeeper, thereby, generating the full history 
+     * structure for given service.
+     * 
+     *  The service can have a history mode, and, having it, the modes will be 
+     * added to the service zookeeper file even without a history. These modes
+     * will be removed when the history is big enough to make its own modes.
+     * 
+     *  The preset modes feature should only be used for testing.
+     * 
+     * @param service Service to be added
+     */
+    public void addServiceToZookeeper (PluginService service) {
+        // create father node
+        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_SERVICE.getFullPath(String.valueOf(service.getId())), service.toString());
+        
+        // create history structure
+        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().HISTORY.getFullPath(String.valueOf(service.getId())), null);
+        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().STEP.getFullPath(String.valueOf(service.getId())), service.getHistoryStep().toString());
+        
+        if (!service.getHistoryMode().isEmpty()) {
+            // if there were preset modes they will be added as preset modes
+            cms.createZNode(CreateMode.PERSISTENT, cms.getPath().MODES.getFullPath(String.valueOf(service.getId())), service.getHistoryMode().toString());
+            
+            // this flag should be removed once the history has enough data to 
+            //    produce new modes, along with the removal of the preset modes
+            cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PRESET.getFullPath(String.valueOf(service.getId())), null);
+        } else {
+            // otherwise, just create the service with an empty mode list
+            cms.createZNode(CreateMode.PERSISTENT, cms.getPath().MODES.getFullPath(String.valueOf(service.getId())), "");
+        }
+    }
+    
+    /**
+     * @see Appendable
+     * @param resource 
+     */
+    public void addPeerToZookeeper (PluginInfo resource) {
+        
     }
     
     @Override

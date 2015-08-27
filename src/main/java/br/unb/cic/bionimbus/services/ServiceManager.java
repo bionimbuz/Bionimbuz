@@ -25,15 +25,6 @@ public class ServiceManager {
     
     private final RpcServer rpcServer;
     
-    private static final String ROOT_PEER = CuratorMessageService.Path.PEERS.toString();
-    
-    private static final String SEPARATOR = CuratorMessageService.Path.SEPARATOR.toString();
-    private static final String PREFIX_PEERS = ROOT_PEER+CuratorMessageService.Path.PREFIX_PEER.toString();
-    private static final String STATUS = CuratorMessageService.Path.STATUS.toString();
-    
-    private static final String ROOT_REPOSITORY = CuratorMessageService.Path.HISTORY.toString();
-    private static final String PREFIX_TASK = ROOT_REPOSITORY + CuratorMessageService.Path.PREFIX_TASK.toString();
-    
     private final HttpServer httpServer;
     
     @Inject
@@ -56,26 +47,18 @@ public class ServiceManager {
     
     public void createZnodeZK(String id) throws IOException, InterruptedException, KeeperException {
         // create root peer node if does not exists
-        if (!cms.getZNodeExist(ROOT_PEER, false))
-            cms.createZNode(CreateMode.PERSISTENT, ROOT_PEER, "10");
+        if (!cms.getZNodeExist(CuratorMessageService.Path.PEERS.toString(), false))
+            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.PEERS.toString(), "");
         
         // add current instance as a peer
-        cms.createZNode(CreateMode.PERSISTENT, PREFIX_PEERS+id, null);
-        cms.createZNode(CreateMode.EPHEMERAL, PREFIX_PEERS+id+STATUS, null);
+        cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.PREFIX_PEER.getFullPath(id), null);
+        cms.createZNode(CreateMode.EPHEMERAL, CuratorMessageService.Path.STATUS.getFullPath(id), null);
         
-        // create history repository nodes
-        if(!cms.getZNodeExist(ROOT_REPOSITORY, false)) {
+        // create services repository node
+        if(!cms.getZNodeExist(cms.getPath().SERVICES.getFullPath(), false)) {
             // create history root
-            cms.createZNode(CreateMode.PERSISTENT, ROOT_REPOSITORY, "10");
-            
-            // insert all tasks
-//            for each task t
-//                PluginTask t = new PluginTask();
-//                cms.createZNode(CreateMode.PERSISTENT, PREFIX_TASK+t.getId(), null);
-//            endfor
+            cms.createZNode(CreateMode.PERSISTENT, cms.getPath().SERVICES.getFullPath(), "");
         }
-        
-        
     }
     
     /**
@@ -83,12 +66,14 @@ public class ServiceManager {
      */
     private void clearZookeeper(){
         
-        if (cms.getZNodeExist(cms.getPath().PIPELINES.getFullPath("", "", "", ""), false))
-            cms.delete(cms.getPath().PIPELINES.getFullPath("", "", "", ""));
-        if (cms.getZNodeExist(cms.getPath().PENDING_SAVE.getFullPath("", "", "", ""), false))
+        if (cms.getZNodeExist(cms.getPath().PIPELINES.getFullPath(), false))
+            cms.delete(cms.getPath().PIPELINES.getFullPath());
+        if (cms.getZNodeExist(cms.getPath().PENDING_SAVE.getFullPath(), false))
             cms.delete(cms.getPath().PENDING_SAVE.toString());
-        if (cms.getZNodeExist(cms.getPath().PEERS.getFullPath("", "", "", ""), false))
+        if (cms.getZNodeExist(cms.getPath().PEERS.getFullPath(), false))
             cms.delete(cms.getPath().PEERS.toString());
+        if (cms.getZNodeExist(cms.getPath().SERVICES.getFullPath(), false))
+            cms.delete(cms.getPath().SERVICES.toString());
     }
     
     public void register(Service service) {

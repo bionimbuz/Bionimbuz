@@ -65,7 +65,7 @@ public class PipelineTestGenerator {
             }
             
             // add one random mode if mode list is empty
-            if (service.getModeHistory().isEmpty()) {
+            if (service.getHistoryMode().isEmpty()) {
                 service.addModeToHistory(modeTemplates.get(rn.nextInt(numMaxModes-1)));
             }
             servicesTemplates.add(service);

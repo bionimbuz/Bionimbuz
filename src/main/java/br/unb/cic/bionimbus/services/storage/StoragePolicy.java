@@ -51,7 +51,7 @@ public class StoragePolicy {
         */
         
         for (PluginInfo plugin : pluginList) {
-            String datastring = cms.getData(cms.getPath().PREFIX_PEER.getFullPath(plugin.getId(), "", "", ""), null);
+            String datastring = cms.getData(cms.getPath().PREFIX_PEER.getFullPath(plugin.getId()), null);
             try {
                 PluginInfo plugindata = new ObjectMapper().readValue(datastring, PluginInfo.class);
                 costpergiga = plugindata.getCostPerGiga();

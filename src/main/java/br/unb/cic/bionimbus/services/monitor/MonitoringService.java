@@ -117,8 +117,8 @@ public class MonitoringService extends AbstractBioService implements Runnable {
         Collection<PluginInfo> temp  = getPeers().values();
         temp.removeAll(plugins);
         for(PluginInfo plugin : temp){
-            if(cms.getZNodeExist(cms.getPath().STATUS.getFullPath(plugin.getId(), null, null, ""), false))
-                cms.getData(cms.getPath().STATUS.getFullPath(plugin.getId(), "", "", ""), new UpdatePeerData(cms, this));
+            if(cms.getZNodeExist(cms.getPath().STATUS.getFullPath(plugin.getId()), false))
+                cms.getData(cms.getPath().STATUS.getFullPath(plugin.getId()), new UpdatePeerData(cms, this));
         }
     }
     
@@ -145,8 +145,8 @@ public class MonitoringService extends AbstractBioService implements Runnable {
 //            }
             
             for (PluginInfo peer : getPeers().values()) {
-                for (String task : cms.getChildren(cms.getPath().TASKS.getFullPath(peer.getId(), "", "", ""), null)) {
-                    String datas =  cms.getData(cms.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length()), ""), null);
+                for (String task : cms.getChildren(cms.getPath().TASKS.getFullPath(peer.getId()), null)) {
+                    String datas =  cms.getData(cms.getPath().PREFIX_TASK.getFullPath(peer.getId(), task.substring(5, task.length())), null);
                     
                     if(datas!=null && datas.isEmpty()){
                         PluginTask pluginTask = new ObjectMapper().readValue(datas, PluginTask.class);
@@ -154,9 +154,9 @@ public class MonitoringService extends AbstractBioService implements Runnable {
                         if (pluginTask.getState() == PluginTaskState.PENDING) {
                             if (waitingTask.containsKey(task)) {
                                 //condição para verificar se a tarefa está sendo utilizada
-                                if(cms.getZNodeExist(cms.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length()), ""), false)){
-                                    cms.delete(cms.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length()), ""));
-                                    cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length()), ""), pluginTask.toString());
+                                if(cms.getZNodeExist(cms.getPath().PREFIX_TASK.getFullPath(peer.getId(), task.substring(5, task.length())), false)){
+                                    cms.delete(cms.getPath().PREFIX_TASK.getFullPath(peer.getId(), task.substring(5, task.length())));
+                                    cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_TASK.getFullPath(peer.getId(), task.substring(5, task.length())), pluginTask.toString());
                                 }
                                 waitingJobs.remove(task);
                             } else {
@@ -210,11 +210,11 @@ public class MonitoringService extends AbstractBioService implements Runnable {
      */
     private void checkPendingSave(){
         try {
-            List<String> listPendingSaves= cms.getChildren(cms.getPath().PENDING_SAVE.getFullPath("", "", "", ""), null);
+            List<String> listPendingSaves= cms.getChildren(cms.getPath().PENDING_SAVE.getFullPath(), null);
             if(listPendingSaves!=null && !listPendingSaves.isEmpty()){
                 
                 for (String filePending : listPendingSaves) {
-                    String datas =  cms.getData(cms.getPath().PREFIX_PENDING_FILE.getFullPath("", filePending.substring(13, filePending.length()), "", ""), null);
+                    String datas =  cms.getData(cms.getPath().PREFIX_PENDING_FILE.getFullPath(filePending.substring(13, filePending.length())), null);
                     
                     if(datas!=null && datas.isEmpty()){
                         
@@ -222,9 +222,9 @@ public class MonitoringService extends AbstractBioService implements Runnable {
                         if (waitingFiles.contains(filePending)) {
                             PluginInfo pluginInfo = new ObjectMapper().readValue(datas, PluginInfo.class);
                             //condição para verificar se arquivo na pending ainda existe
-                            if(cms.getZNodeExist(cms.getPath().PENDING_SAVE.getFullPath("", filePending.substring(13, filePending.length()), "", ""), false)){
-                                cms.delete(cms.getPath().PENDING_SAVE.getFullPath("", filePending.substring(13, filePending.length()),"", ""));
-                                cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PENDING_SAVE.getFullPath("", filePending.substring(13, filePending.length()),"", ""), pluginInfo.toString());
+                            if(cms.getZNodeExist(cms.getPath().PENDING_SAVE.getFullPath(filePending.substring(13, filePending.length())), false)){
+                                cms.delete(cms.getPath().PENDING_SAVE.getFullPath(filePending.substring(13, filePending.length())));
+                                cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PENDING_SAVE.getFullPath(filePending.substring(13, filePending.length())), pluginInfo.toString());
                             }
                             waitingFiles.remove(filePending);
                         } else {

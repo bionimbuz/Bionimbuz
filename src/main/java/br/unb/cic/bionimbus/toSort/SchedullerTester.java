@@ -12,6 +12,9 @@ import br.unb.cic.bionimbus.client.JobInfo;
 import br.unb.cic.bionimbus.client.PipelineInfo;
 import br.unb.cic.bionimbus.client.experiments.MscTool;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import br.unb.cic.bionimbus.plugin.PluginInfo;
+import br.unb.cic.bionimbus.plugin.PluginService;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -39,12 +42,17 @@ public class SchedullerTester {
 
     private RpcClient rpcClient;
     private BioNimbusConfig config;
+    private CloudMessageService cms;
+    private RepositoryService rs;
 
     public SchedullerTester() {
         initCommunication();
     }
 
     private void initCommunication() {
+        cms = new CuratorMessageService();
+        rs = new RepositoryService(cms);
+        
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
         try {
@@ -64,23 +72,40 @@ public class SchedullerTester {
 
     public static void main(String[] args) {
         SchedullerTester tester = new SchedullerTester();
-        try {
-            //tool.uploadFiles();
-            tester.runJobs();
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        boolean fileTest = false;
+        
+        if (fileTest) {
+            try {
+                tester.runJobs();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        } else {
+            List<PipelineInfo> pipelines = PipelineTestGenerator.getPipelinesTemplates();
+            List<PluginService> services = PipelineTestGenerator.getServicesTemplates();
+            List<PluginInfo> resources = PipelineTestGenerator.getResourceTemplates();
+            
+            tester.addServices(services);
+            tester.addResources(resources);
+            
         }
-//        tester.printResult();
+    }
+    
+    public void addServices (List<PluginService> services) {
+        for (PluginService service : services)
+            rs.addServiceToZookeeper(service);
+    }
+    
+    public void addResources (List<PluginInfo> resources) {
+        for (PluginInfo resource : resources)
+            rs.addPeerToZookeeper(resource);
     }
 
     public void runJobs() throws IOException, InterruptedException {
-
-        CuratorMessageService cms = new CuratorMessageService();
 
         // get pipeline from file
         PipelineInfo pipeline = getPipelineFromFile();
@@ -97,8 +122,6 @@ public class SchedullerTester {
 //        for (String path : peers) {
 //            cms.getChildren(path + Path.SCHED, new ShowSchedResults());
 //        }
-
-        wait();
     }
     
     private PipelineInfo getPipelineFromFile() throws FileNotFoundException, IOException {

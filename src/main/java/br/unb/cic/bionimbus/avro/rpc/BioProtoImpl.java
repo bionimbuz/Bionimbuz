@@ -101,7 +101,7 @@ public class BioProtoImpl implements BioProto {
         int i=1;
         try {
             ObjectMapper mapper = new ObjectMapper();
-            List<String> pipelines = cms.getChildren(cms.getPath().PIPELINES.getFullPath("", "", "", ""), null);
+            List<String> pipelines = cms.getChildren(cms.getPath().PIPELINES.getFullPath(), null);
             for(String pipeline : pipelines) {
                 //verificação dos jobs ainda não escalonados
 //                List<String> jobs = cms.getChildren(cms.getPath().JOBS.getFullPath("", "", "", pipeline), null);
@@ -122,8 +122,8 @@ public class BioProtoImpl implements BioProto {
             //verificação dos jobs escalonados
             String datasTask =null;
             for(PluginInfo plugin : storageService.getPeers().values()){
-                for(String task : cms.getChildren(cms.getPath().TASKS.getFullPath(plugin.getId(), "", "", ""), null)){
-                    datasTask = cms.getData(cms.getPath().PREFIX_TASK.getFullPath(plugin.getId(),"",task.substring(5, task.length()), ""),null);
+                for(String task : cms.getChildren(cms.getPath().TASKS.getFullPath(plugin.getId()), null)){
+                    datasTask = cms.getData(cms.getPath().PREFIX_TASK.getFullPath(plugin.getId(),task.substring(5, task.length())),null);
                     if(datasTask!=null){
                         PluginTask pluginTask = mapper.readValue(datasTask, PluginTask.class);
                         allJobs.append(i).append(" - Job ").append(pluginTask.getJobInfo().getId().toString()).append(" : ").append(pluginTask.getState().toString()).append("\n ");
@@ -296,7 +296,7 @@ public class BioProtoImpl implements BioProto {
     @Override
     public String startPipeline(br.unb.cic.bionimbus.avro.gen.PipelineInfo pipeline) throws AvroRemoteException {
         // generate pipeline register
-        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_PIPELINE.getFullPath("", "", "", pipeline.getId()), pipeline.toString());
+        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_PIPELINE.getFullPath(pipeline.getId()), pipeline.toString());
         
         return "Pipeline enviado para o escalonamento. Aguarde...";
     }
