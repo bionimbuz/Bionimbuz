@@ -255,42 +255,43 @@ public class BioProtoImpl implements BioProto {
     
     @Override
     public String startJobName(String param, String ip) throws AvroRemoteException {
-        final String path = "/jobs/job_";
-        JobInfo job = new JobInfo();
-        String params[] = param.split(" ");
-        String jobId = params[0];
-        int i=1;
-            
-        job.setServiceId(Long.parseLong(jobId));
-        job.setLocalId(ip);
-        job.setTimestamp(System.currentTimeMillis());
-        while (i < params.length) {
-            if (i == 1) {
-                job.setArgs(params[i]);
-                i++;
-            } else if (params[i].equals("-i")) {
-                i++;
-                while (i < params.length && !params[i].equals("-o")) {
-                    //verifica a existência dos arquivos de entrada na federação
-                    if(!listFilesName().contains(params[i]))
-                        return "Job não foi escalonado, arquivo de entrada não existe.";
-                    
-                    job.addInput(params[i], getPluginFile(params[i]).getSize());
-                    i++;
-                }
-            } else if (params[i].equals("-o")) {
-                i++;
-                while (i < params.length) {
-                    job.addOutput(params[i]);
-                    i++;
-                }
-            }
-        }
-        LOGGER.info("Tempo de inicio do job -"+ job.getOutputs()+"- MileSegundos: " + job.getTimestamp());
-        //inclusão do job para ser escalonado
-        cms.createZNode(CreateMode.PERSISTENT, path+job.getId(), job.toString());
-        
-        return "Job enviado para o escalonamento, Id : "+job.getId()+".\nAguarde...";
+//        final String path = "/jobs/job_";
+//        JobInfo job = new JobInfo();
+//        String params[] = param.split(" ");
+//        String jobId = params[0];
+//        int i=1;
+//            
+//        job.setServiceId(Long.parseLong(jobId));
+//        job.setLocalId(ip);
+//        job.setTimestamp(System.currentTimeMillis());
+//        while (i < params.length) {
+//            if (i == 1) {
+//                job.setArgs(params[i]);
+//                i++;
+//            } else if (params[i].equals("-i")) {
+//                i++;
+//                while (i < params.length && !params[i].equals("-o")) {
+//                    //verifica a existência dos arquivos de entrada na federação
+//                    if(!listFilesName().contains(params[i]))
+//                        return "Job não foi escalonado, arquivo de entrada não existe.";
+//                    
+//                    job.addInput(params[i], getPluginFile(params[i]).getSize());
+//                    i++;
+//                }
+//            } else if (params[i].equals("-o")) {
+//                i++;
+//                while (i < params.length) {
+//                    job.addOutput(params[i]);
+//                    i++;
+//                }
+//            }
+//        }
+//        LOGGER.info("Tempo de inicio do job -"+ job.getOutputs()+"- MileSegundos: " + job.getTimestamp());
+//        //inclusão do job para ser escalonado
+//        cms.createZNode(CreateMode.PERSISTENT, path+job.getId(), job.toString());
+//        
+//        return "Job enviado para o escalonamento, Id : "+job.getId()+".\nAguarde...";
+        throw  new UnsupportedOperationException("Function commented. Also, if needed, this must be updated to new pipeline model");
     }
 
     @Override

@@ -67,7 +67,7 @@ public class CuratorMessageService implements CloudMessageService {
         PREFIX_PEER("/peer_"), 
         PREFIX_PENDING_FILE("/pending_file_"),
         PREFIX_PIPELINE("/pipeline_"),
-        PREFIX_SERVICE("service_"),
+        PREFIX_SERVICE("/service_"),
         PREFIX_TASK("/task_"),
         PRESET("/PRESET"),
         ROOT("/"), 

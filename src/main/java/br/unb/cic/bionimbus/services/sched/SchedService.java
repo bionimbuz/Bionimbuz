@@ -393,16 +393,16 @@ public class SchedService extends AbstractBioService implements Runnable {
      */
     private void checkPeers() {
 //        try {
-        List<String> listPeers = cms.getChildren(PEERS.toString(), null);
+        List<String> listPeers = cms.getChildren(PEERS.getFullPath(), null);
         for (String peerPath : listPeers) {
             
-            if (!cms.getZNodeExist(PEERS.toString() + SEPARATOR + peerPath + STATUS, false)
-                    && !cms.getZNodeExist(PEERS.toString() + SEPARATOR + peerPath + STATUSWAITING, false)) {
-                cms.createZNode(CreateMode.PERSISTENT, PEERS.toString() + SEPARATOR + peerPath + STATUSWAITING, "");
+            if (!cms.getZNodeExist(PEERS.getFullPath() + SEPARATOR + peerPath + STATUS, false)
+                    && !cms.getZNodeExist(PEERS.getFullPath() + SEPARATOR + peerPath + STATUSWAITING, false)) {
+                cms.createZNode(CreateMode.PERSISTENT, PEERS.getFullPath() + SEPARATOR + peerPath + STATUSWAITING, "");
             }
-            if (cms.getZNodeExist(PEERS.toString() + SEPARATOR + peerPath + STATUSWAITING, false)) {
-                if (!cms.getData(PEERS.toString() + SEPARATOR + peerPath + STATUSWAITING, null).contains("E")) {
-                    repairTask(PEERS.toString() + SEPARATOR + peerPath);
+            if (cms.getZNodeExist(PEERS.getFullPath() + SEPARATOR + peerPath + STATUSWAITING, false)) {
+                if (!cms.getData(PEERS.getFullPath() + SEPARATOR + peerPath + STATUSWAITING, null).contains("E")) {
+                    repairTask(PEERS.getFullPath() + SEPARATOR + peerPath);
                 }
             }
             

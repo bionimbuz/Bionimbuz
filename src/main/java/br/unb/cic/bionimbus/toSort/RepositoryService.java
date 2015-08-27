@@ -11,7 +11,6 @@ import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import java.util.ArrayList;
@@ -177,7 +176,6 @@ public class RepositoryService extends AbstractBioService {
         
         // create history structure
         cms.createZNode(CreateMode.PERSISTENT, cms.getPath().HISTORY.getFullPath(String.valueOf(service.getId())), null);
-        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().STEP.getFullPath(String.valueOf(service.getId())), service.getHistoryStep().toString());
         
         if (!service.getHistoryMode().isEmpty()) {
             // if there were preset modes they will be added as preset modes
@@ -187,17 +185,20 @@ public class RepositoryService extends AbstractBioService {
             //    produce new modes, along with the removal of the preset modes
             cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PRESET.getFullPath(String.valueOf(service.getId())), null);
         } else {
-            // otherwise, just create the service with an empty mode list
+            // otherwise, just create the service with an empty mode list and the step
             cms.createZNode(CreateMode.PERSISTENT, cms.getPath().MODES.getFullPath(String.valueOf(service.getId())), "");
+            cms.createZNode(CreateMode.PERSISTENT, cms.getPath().STEP.getFullPath(String.valueOf(service.getId())), service.getHistoryStep().toString());
         }
     }
     
     /**
-     * @see Appendable
-     * @param resource 
+     * 
+     * 
+     * @param resource Resource to be added
      */
     public void addPeerToZookeeper (PluginInfo resource) {
-        
+        cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.PREFIX_PEER.getFullPath(resource.getId()), resource.toString());
+        cms.createZNode(CreateMode.EPHEMERAL, CuratorMessageService.Path.STATUS.getFullPath(resource.getId()), null);
     }
     
     @Override

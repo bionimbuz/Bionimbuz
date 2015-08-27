@@ -1,6 +1,5 @@
 package br.unb.cic.bionimbus.plugin;
 
-import com.google.common.base.Objects;
 import java.util.List;
 
 import com.google.common.primitives.Longs;

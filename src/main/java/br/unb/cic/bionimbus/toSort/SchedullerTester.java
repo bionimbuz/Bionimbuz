@@ -51,6 +51,7 @@ public class SchedullerTester {
 
     private void initCommunication() {
         cms = new CuratorMessageService();
+        cms.connect("10.190.60.120:2181");
         rs = new RepositoryService(cms);
         
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
