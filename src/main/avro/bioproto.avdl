@@ -223,7 +223,7 @@ protocol BioProto {
   record JobInfo {
     string id;
     string localId;
-    long serviceId;
+    string serviceId;
     string args ;
     array<Pair> inputs;
     array<string> outputs;

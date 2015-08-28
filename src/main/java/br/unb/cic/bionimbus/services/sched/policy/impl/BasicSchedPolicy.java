@@ -17,7 +17,7 @@ public class BasicSchedPolicy extends SchedPolicy {
     private final int CORES_WEIGHT = 3;
     private final int NODES_WEIGHT = 2;
 
-    private List<PluginInfo> filterByService(long serviceId) {
+    private List<PluginInfo> filterByService(String serviceId) {
         ArrayList<PluginInfo> plugins = new ArrayList<PluginInfo>();
         for (PluginInfo pluginInfo : getCloudMap().values()) {
             if (pluginInfo.getService(serviceId) != null)

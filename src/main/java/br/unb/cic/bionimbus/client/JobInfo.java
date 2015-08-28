@@ -16,7 +16,7 @@ public class JobInfo {
 
     private String localId;
 
-    private long serviceId;
+    private String serviceId;
 
     private String args = "";
     
@@ -49,11 +49,11 @@ public class JobInfo {
         this.localId = id;
     }
 
-    public long getServiceId() {
+    public String getServiceId() {
         return serviceId;
     }
 
-    public void setServiceId(long serviceId) {
+    public void setServiceId(String serviceId) {
         this.serviceId = serviceId;
     }
 

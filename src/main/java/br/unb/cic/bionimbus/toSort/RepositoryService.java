@@ -11,14 +11,20 @@ import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
+import org.mortbay.log.Log;
 
 /**
  *
@@ -77,18 +83,26 @@ public class RepositoryService extends AbstractBioService {
      * @param serviceId id of requested service
      * @return 
      */
-    public List<Double> getTaskHistory (Long serviceId) {
-//        NavigableMap<Long, Long> currentHistory = new TreeMap<Long, Long>();
+    public List<Double> getTaskHistory (String serviceId) {
         List<Double> maximas = new ArrayList<Double>();
-//
-//        // check if task is supported
-//        if(!cms.getZNodeExist(PREFIX_TASK+taskId, false)) {
-//            // problem: task not supported
-//            Log.warn("task not suported: task_" + taskId);
-//            return null;
-//        }
-//        
-//        // get histogram from task taskId
+
+        // check if service is supported
+        if(!cms.getZNodeExist(Path.PREFIX_SERVICE.getFullPath(serviceId), null)) {
+            // problem: task not supported
+            Log.warn("service_" + serviceId + " not suported");
+            return null;
+        }
+        
+        // return modes
+        String data = cms.getData(Path.MODES.getFullPath(serviceId), null);
+        try {
+            return new ObjectMapper().readValue(data, List.class);
+        } catch (IOException ex) {
+            Logger.getLogger(RepositoryService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        
+        // get histogram from task taskId
 //        for(String task : cms.getChildren(PREFIX_TASK+taskId, null)) {
 //            String count = cms.getData(PREFIX_TASK+taskId+SEPARATOR+task+COUNT, null);
 //            String intervalStart = cms.getData(PREFIX_TASK+taskId+SEPARATOR+task+START, null);
@@ -99,39 +113,6 @@ public class RepositoryService extends AbstractBioService {
         
         
         // get all local maximas
-        
-        // MOCK
-        switch(serviceId.intValue()) {
-            case 1:
-                maximas.add(5000000000d);
-                maximas.add(20000000000d);
-                maximas.add(35000000000d);
-                break;
-            case 2:
-                maximas.add(45000000000d);
-                maximas.add(80000000000d);
-                break;
-            case 3:
-                maximas.add(15000000000d);
-                maximas.add(30000000000d);
-                maximas.add(65000000000d);
-                break;
-            case 4:
-                maximas.add(5000000000d);
-                maximas.add(60000000000d);
-                break;
-            case 5:
-                maximas.add(15000000000d);
-                maximas.add(30000000000d);
-                break;
-            case 6:
-                maximas.add(5000000000d);
-                maximas.add(10000000000d);
-                maximas.add(85000000000d);
-                break;
-            default:
-                return null;
-        }
         
         
         return maximas;
@@ -198,7 +179,6 @@ public class RepositoryService extends AbstractBioService {
      */
     public void addPeerToZookeeper (PluginInfo resource) {
         cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.PREFIX_PEER.getFullPath(resource.getId()), resource.toString());
-        cms.createZNode(CreateMode.EPHEMERAL, CuratorMessageService.Path.STATUS.getFullPath(resource.getId()), null);
     }
     
     @Override

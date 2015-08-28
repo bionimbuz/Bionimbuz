@@ -277,7 +277,7 @@ public class AHPPolicy extends SchedPolicy {
         return resource;
     }
 
-    private List<PluginInfo> filterByService(long serviceId,
+    private List<PluginInfo> filterByService(String serviceId,
                                              Collection<PluginInfo> plgs) {
         ArrayList<PluginInfo> plugins = new ArrayList<PluginInfo>();
         for (PluginInfo pluginInfo : plgs) {

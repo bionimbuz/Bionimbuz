@@ -10,7 +10,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 public class PluginService {
 
-    private long id;
+    private String id;
     private String name;
     private List<String> arguments;
     private List<String> input;
@@ -20,11 +20,11 @@ public class PluginService {
     private final List<Double> historyMode = new ArrayList<Double>();
     private Double historyStep;
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -105,7 +105,7 @@ public class PluginService {
 
     @Override
     public int hashCode() {
-        return Longs.hashCode(id);
+        return Longs.hashCode(Integer.parseInt(id));
     }
 
     @Override

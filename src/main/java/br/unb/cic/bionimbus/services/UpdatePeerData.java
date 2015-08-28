@@ -36,11 +36,11 @@ public class UpdatePeerData implements Watcher  {
             switch(event.getType()){
             
                 case NodeChildrenChanged:
-                    if(cms.getZNodeExist(event.getPath(), false))
+                    if(cms.getZNodeExist(event.getPath(), null))
                         cms.getChildren(event.getPath(), this);
                 break;
                 case NodeDataChanged:
-                    if(cms.getZNodeExist(event.getPath(), false))
+                    if(cms.getZNodeExist(event.getPath(), null))
                         cms.getData(event.getPath(), this);
                 break;
             

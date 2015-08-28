@@ -47,7 +47,7 @@ public class ServiceManager {
     
     public void createZnodeZK(String id) throws IOException, InterruptedException, KeeperException {
         // create root peer node if does not exists
-        if (!cms.getZNodeExist(CuratorMessageService.Path.PEERS.toString(), false))
+        if (!cms.getZNodeExist(CuratorMessageService.Path.PEERS.toString(), null))
             cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.PEERS.toString(), "");
         
         // add current instance as a peer
@@ -55,7 +55,7 @@ public class ServiceManager {
         cms.createZNode(CreateMode.EPHEMERAL, CuratorMessageService.Path.STATUS.getFullPath(id), null);
         
         // create services repository node
-        if(!cms.getZNodeExist(cms.getPath().SERVICES.getFullPath(), false)) {
+        if(!cms.getZNodeExist(cms.getPath().SERVICES.getFullPath(), null)) {
             // create history root
             cms.createZNode(CreateMode.PERSISTENT, cms.getPath().SERVICES.getFullPath(), "");
         }
@@ -66,13 +66,13 @@ public class ServiceManager {
      */
     private void clearZookeeper(){
         
-        if (cms.getZNodeExist(cms.getPath().PIPELINES.getFullPath(), false))
+        if (cms.getZNodeExist(cms.getPath().PIPELINES.getFullPath(), null))
             cms.delete(cms.getPath().PIPELINES.getFullPath());
-        if (cms.getZNodeExist(cms.getPath().PENDING_SAVE.getFullPath(), false))
+        if (cms.getZNodeExist(cms.getPath().PENDING_SAVE.getFullPath(), null))
             cms.delete(cms.getPath().PENDING_SAVE.toString());
-        if (cms.getZNodeExist(cms.getPath().PEERS.getFullPath(), false))
+        if (cms.getZNodeExist(cms.getPath().PEERS.getFullPath(), null))
             cms.delete(cms.getPath().PEERS.toString());
-        if (cms.getZNodeExist(cms.getPath().SERVICES.getFullPath(), false))
+        if (cms.getZNodeExist(cms.getPath().SERVICES.getFullPath(), null))
             cms.delete(cms.getPath().SERVICES.toString());
     }
     

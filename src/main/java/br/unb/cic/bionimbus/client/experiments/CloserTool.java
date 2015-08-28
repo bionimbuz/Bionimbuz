@@ -174,7 +174,7 @@ public class CloserTool {
             JobInfo job = new JobInfo();
             List<Pair> pairs = new ArrayList<Pair>();
             job.setId(null);
-            job.setServiceId(1001l);
+            job.setServiceId("1001");
             job.setArgs("%O1 e_coli %I1");
             if ((i % 3) == 0){
                 pairs.add(new Pair(idFull, Long.valueOf(0)));

@@ -146,7 +146,7 @@ public class CuratorMessageService implements CloudMessageService {
     @Override
     public void createZNode(CreateMode cm, String node, String desc) {
         try {
-            if (!getZNodeExist(node, true)) {
+            if (!getZNodeExist(node, null)) {
                 client.create().withMode(cm).
                                 withACL(ZooDefs.Ids.OPEN_ACL_UNSAFE).
                                 forPath(node, (desc == null) ? new byte[0] : desc.getBytes());
@@ -161,15 +161,15 @@ public class CuratorMessageService implements CloudMessageService {
     /**
      * Check if a ZNode exists
      * @param path
-     * @param watch
+     * @param watcher
      * @return 
      */
     @Override
-    public Boolean getZNodeExist(String path, boolean watch) {
+    public Boolean getZNodeExist(String path, Watcher watcher) {
         // Need to know how to use watchers in this method (Zookeeper Watcher or Curator Watcher?)
         Stat s = null;
         try {
-            s = client.checkExists().forPath(path);
+            s = client.checkExists().usingWatcher(watcher).forPath(path);
         } catch (Exception ex) {
             Logger.getLogger(CuratorMessageService.class.getName()).log(Level.SEVERE, null, ex);
         }    

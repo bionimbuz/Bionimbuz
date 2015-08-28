@@ -14,8 +14,10 @@ import br.unb.cic.bionimbus.client.experiments.MscTool;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginService;
+import br.unb.cic.bionimbus.services.Service;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.BufferedReader;
@@ -71,7 +73,7 @@ public class SchedullerTester {
 
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException, IOException {
         SchedullerTester tester = new SchedullerTester();
         boolean fileTest = false;
         
@@ -90,9 +92,15 @@ public class SchedullerTester {
             List<PluginService> services = PipelineTestGenerator.getServicesTemplates();
             List<PluginInfo> resources = PipelineTestGenerator.getResourceTemplates();
             
+            // add data to zookeeper
             tester.addServices(services);
             tester.addResources(resources);
             
+            // perform all tests
+            tester.sendJobs(pipelines.get(0));
+            for (int i=1; i<pipelines.size(); i++) {
+                tester.cms.getChildren(Path.PIPELINES.getFullPath(), new SendPipeline(tester.cms, tester, pipelines.get(i), pipelines.get(i-1).getId()));
+            }
         }
     }
     
@@ -148,7 +156,7 @@ public class SchedullerTester {
             
             // set serviceId from json
             int lastComa = line.indexOf(",");
-            jobInfo.setServiceId(Long.parseLong(line.substring(line.indexOf("serviceId:")+10, lastComa)));
+            jobInfo.setServiceId(line.substring(line.indexOf("serviceId:")+10, lastComa));
             
             // set args from json
             lastComa = line.indexOf(",", lastComa+1);
@@ -197,7 +205,7 @@ public class SchedullerTester {
         return pipeline;
     }
     
-    private void sendJobs(PipelineInfo pipeline) throws InterruptedException, IOException {
+    public void sendJobs(PipelineInfo pipeline) throws InterruptedException, IOException {
 //        communication.sendReq(new JobReqMessage(p2p.getPeerNode(), jobs), P2PMessageType.JOBRESP);
 //        JobRespMessage resp = (JobRespMessage) communication.getResp();
         List<br.unb.cic.bionimbus.avro.gen.JobInfo> listjob = new ArrayList<br.unb.cic.bionimbus.avro.gen.JobInfo>();
@@ -234,5 +242,46 @@ public class SchedullerTester {
         public void process(WatchedEvent event) {
             System.out.println(event);
         }
+    }
+    
+    public static class SendPipeline implements Watcher  {
+
+        private final CloudMessageService cms;
+        private final SchedullerTester st;
+        private final PipelineInfo pipeline;
+        private final String prevId;
+
+        public SendPipeline(CloudMessageService cms, SchedullerTester st, PipelineInfo pipeline, String prevId) {
+            this.cms = cms;
+            this.st = st;
+            this.pipeline = pipeline;
+            this.prevId = prevId;
+        }
+
+        /**
+         * Recebe as notificações de evento do zookeeper.
+         * @param event evento que identifica a mudança realizada no zookeeper
+         */
+        @Override
+        public void process(WatchedEvent event){
+            System.out.println("[SendPipeline] event: " + event.toString());
+            switch(event.getType()){
+                case NodeChildrenChanged:
+                    if(cms.getZNodeExist(Path.PIPELINE_FLAG.getFullPath(prevId), null)) {
+                        System.out.println("Pipeline " + pipeline.getId() + " sent");
+                        try {
+                            st.sendJobs(pipeline);
+                        } catch (InterruptedException ex) {
+                            java.util.logging.Logger.getLogger(SchedullerTester.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (IOException ex) {
+                            java.util.logging.Logger.getLogger(SchedullerTester.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                    break;
+                default:
+                    System.out.println("SendPipeline of " + pipeline.getId() + " received other event: " + event.getPath());
+
+            }
+        } 
     }
 }

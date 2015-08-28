@@ -7,11 +7,11 @@ package br.unb.cic.bionimbus.avro.gen;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class JobInfo extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"JobInfo\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"localId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"serviceId\",\"type\":\"long\"},{\"name\":\"args\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"inputs\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Pair\",\"fields\":[{\"name\":\"first\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"second\",\"type\":\"long\"}]}}},{\"name\":\"outputs\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"timestamp\",\"type\":\"long\"}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"JobInfo\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"localId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"serviceId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"args\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"inputs\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Pair\",\"fields\":[{\"name\":\"first\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"second\",\"type\":\"long\"}]}}},{\"name\":\"outputs\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"timestamp\",\"type\":\"long\"}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public java.lang.String id;
   @Deprecated public java.lang.String localId;
-  @Deprecated public long serviceId;
+  @Deprecated public java.lang.String serviceId;
   @Deprecated public java.lang.String args;
   @Deprecated public java.util.List<br.unb.cic.bionimbus.avro.gen.Pair> inputs;
   @Deprecated public java.util.List<java.lang.String> outputs;
@@ -25,7 +25,7 @@ public class JobInfo extends org.apache.avro.specific.SpecificRecordBase impleme
   /**
    * All-args constructor.
    */
-  public JobInfo(java.lang.String id, java.lang.String localId, java.lang.Long serviceId, java.lang.String args, java.util.List<br.unb.cic.bionimbus.avro.gen.Pair> inputs, java.util.List<java.lang.String> outputs, java.lang.Long timestamp) {
+  public JobInfo(java.lang.String id, java.lang.String localId, java.lang.String serviceId, java.lang.String args, java.util.List<br.unb.cic.bionimbus.avro.gen.Pair> inputs, java.util.List<java.lang.String> outputs, java.lang.Long timestamp) {
     this.id = id;
     this.localId = localId;
     this.serviceId = serviceId;
@@ -55,7 +55,7 @@ public class JobInfo extends org.apache.avro.specific.SpecificRecordBase impleme
     switch (field$) {
     case 0: id = (java.lang.String)value$; break;
     case 1: localId = (java.lang.String)value$; break;
-    case 2: serviceId = (java.lang.Long)value$; break;
+    case 2: serviceId = (java.lang.String)value$; break;
     case 3: args = (java.lang.String)value$; break;
     case 4: inputs = (java.util.List<br.unb.cic.bionimbus.avro.gen.Pair>)value$; break;
     case 5: outputs = (java.util.List<java.lang.String>)value$; break;
@@ -97,7 +97,7 @@ public class JobInfo extends org.apache.avro.specific.SpecificRecordBase impleme
   /**
    * Gets the value of the 'serviceId' field.
    */
-  public java.lang.Long getServiceId() {
+  public java.lang.String getServiceId() {
     return serviceId;
   }
 
@@ -105,7 +105,7 @@ public class JobInfo extends org.apache.avro.specific.SpecificRecordBase impleme
    * Sets the value of the 'serviceId' field.
    * @param value the value to set.
    */
-  public void setServiceId(java.lang.Long value) {
+  public void setServiceId(java.lang.String value) {
     this.serviceId = value;
   }
 
@@ -192,7 +192,7 @@ public class JobInfo extends org.apache.avro.specific.SpecificRecordBase impleme
 
     private java.lang.String id;
     private java.lang.String localId;
-    private long serviceId;
+    private java.lang.String serviceId;
     private java.lang.String args;
     private java.util.List<br.unb.cic.bionimbus.avro.gen.Pair> inputs;
     private java.util.List<java.lang.String> outputs;
@@ -292,12 +292,12 @@ public class JobInfo extends org.apache.avro.specific.SpecificRecordBase impleme
     }
 
     /** Gets the value of the 'serviceId' field */
-    public java.lang.Long getServiceId() {
+    public java.lang.String getServiceId() {
       return serviceId;
     }
     
     /** Sets the value of the 'serviceId' field */
-    public br.unb.cic.bionimbus.avro.gen.JobInfo.Builder setServiceId(long value) {
+    public br.unb.cic.bionimbus.avro.gen.JobInfo.Builder setServiceId(java.lang.String value) {
       validate(fields()[2], value);
       this.serviceId = value;
       fieldSetFlags()[2] = true;
@@ -311,6 +311,7 @@ public class JobInfo extends org.apache.avro.specific.SpecificRecordBase impleme
     
     /** Clears the value of the 'serviceId' field */
     public br.unb.cic.bionimbus.avro.gen.JobInfo.Builder clearServiceId() {
+      serviceId = null;
       fieldSetFlags()[2] = false;
       return this;
     }
@@ -420,7 +421,7 @@ public class JobInfo extends org.apache.avro.specific.SpecificRecordBase impleme
         JobInfo record = new JobInfo();
         record.id = fieldSetFlags()[0] ? this.id : (java.lang.String) defaultValue(fields()[0]);
         record.localId = fieldSetFlags()[1] ? this.localId : (java.lang.String) defaultValue(fields()[1]);
-        record.serviceId = fieldSetFlags()[2] ? this.serviceId : (java.lang.Long) defaultValue(fields()[2]);
+        record.serviceId = fieldSetFlags()[2] ? this.serviceId : (java.lang.String) defaultValue(fields()[2]);
         record.args = fieldSetFlags()[3] ? this.args : (java.lang.String) defaultValue(fields()[3]);
         record.inputs = fieldSetFlags()[4] ? this.inputs : (java.util.List<br.unb.cic.bionimbus.avro.gen.Pair>) defaultValue(fields()[4]);
         record.outputs = fieldSetFlags()[5] ? this.outputs : (java.util.List<java.lang.String>) defaultValue(fields()[5]);

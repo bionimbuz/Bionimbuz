@@ -22,7 +22,7 @@ public interface CloudMessageService {
     
     public void createZNode(CreateMode cm, String node, String desc);
     
-    public Boolean getZNodeExist(String path, boolean watch);
+    public Boolean getZNodeExist(String path, Watcher watcher);
     
     public List<String> getChildren(String path, Watcher watcher);
     

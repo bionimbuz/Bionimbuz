@@ -55,7 +55,7 @@ public class PipelineTestGenerator {
         // generate services
         for (int i=1; i<=numMaxServices; i++) {
             PluginService service = new PluginService();
-            service.setId(rn.nextInt(Integer.MAX_VALUE));
+            service.setId(UUID.randomUUID().toString());
             double chance = rn.nextDouble();
             
             // add random number of modes
@@ -92,7 +92,7 @@ public class PipelineTestGenerator {
             PipelineInfo pipeline = new PipelineInfo();
             for (int i=0; i<numTasks; i++) {
                 JobInfo job = new JobInfo();
-                job.setServiceId(rn.nextInt(numMaxServices-1));
+                job.setServiceId(servicesTemplates.get(rn.nextInt(numMaxServices-1)).getId());
                 pipeline.addJob(job);
             }
             pipelinesTemplates.add(pipeline);

@@ -264,7 +264,7 @@ public class AcoSched extends SchedPolicy {
      * @param plgs
      * @param serviceId
      */
-    private void filterByService(long serviceId, Collection<PluginInfo> plgs) {
+    private void filterByService(String serviceId, Collection<PluginInfo> plgs) {
         ArrayList<PluginInfo> plugins = new ArrayList<PluginInfo>();
         
         for (PluginInfo pluginInfo : plgs) {
@@ -664,7 +664,7 @@ public class AcoSched extends SchedPolicy {
      */
     private String getDatasZookeeper(String zkPath, String dir) {
         String datas = "";
-        if (cms.getZNodeExist(zkPath + dir, false)) {
+        if (cms.getZNodeExist(zkPath + dir, null)) {
             datas = cms.getData(zkPath + dir, null);
         }
         
@@ -681,7 +681,7 @@ public class AcoSched extends SchedPolicy {
      * @return dados contidos no diretorio
      */
     private void setDatasZookeeper(String zkPath, String dir, String datas) {
-        if (cms.getZNodeExist(zkPath + dir, false)) {
+        if (cms.getZNodeExist(zkPath + dir, null)) {
             cms.setData(zkPath + dir, datas);
         }
     }

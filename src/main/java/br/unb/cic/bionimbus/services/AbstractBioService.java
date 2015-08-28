@@ -49,7 +49,7 @@ public abstract class AbstractBioService implements Service, Runnable, Listeners
                 if (datas != null && !datas.trim().isEmpty()){
                     PluginInfo myInfo = mapper.readValue(datas, PluginInfo.class);
                     
-                    if(cms.getZNodeExist(cms.getPath().STATUS.getFullPath(id), false)){ 
+                    if(cms.getZNodeExist(cms.getPath().STATUS.getFullPath(id), null)){ 
                        cloudMap.put(myInfo.getId(), myInfo);
                     }
                 }

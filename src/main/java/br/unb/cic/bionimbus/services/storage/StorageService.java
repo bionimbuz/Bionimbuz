@@ -85,9 +85,9 @@ public class StorageService extends AbstractBioService {
             listeners.add(this);
         }
         //Criando pastas zookeeper para o módulo de armazenamento
-        if (!cms.getZNodeExist(cms.getPath().PENDING_SAVE.toString(), false))
+        if (!cms.getZNodeExist(cms.getPath().PENDING_SAVE.toString(), null))
             cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PENDING_SAVE.toString(), null);
-        if (!cms.getZNodeExist(cms.getPath().FILES.getFullPath(config.getId()), false))
+        if (!cms.getZNodeExist(cms.getPath().FILES.getFullPath(config.getId()), null))
             cms.createZNode(CreateMode.PERSISTENT, cms.getPath().FILES.getFullPath(config.getId()), "");
 
         //watcher para verificar se um pending_save foi lançado
@@ -124,7 +124,7 @@ public class StorageService extends AbstractBioService {
      */
     public void checkPeers() {
         for (PluginInfo plugin : getPeers().values()) {
-            if(cms.getZNodeExist(cms.getPath().STATUS.getFullPath(plugin.getId()), false))
+            if(cms.getZNodeExist(cms.getPath().STATUS.getFullPath(plugin.getId()), null))
                 cms.getData(cms.getPath().STATUS.getFullPath(plugin.getId()), new UpdatePeerData(cms, this));
         }
     }
@@ -352,7 +352,7 @@ public class StorageService extends AbstractBioService {
      */
     public synchronized void fileUploaded(PluginFile fileuploaded) throws KeeperException, InterruptedException, IOException {
         System.out.println("(fileUploaded) Checando se existe a requisição no pending saving"+fileuploaded.toString());
-        if (cms.getZNodeExist(cms.getPath().PREFIX_PENDING_FILE.getFullPath(fileuploaded.getId()), false)) {
+        if (cms.getZNodeExist(cms.getPath().PREFIX_PENDING_FILE.getFullPath(fileuploaded.getId()), null)) {
             
             String ipPluginFile;
             ipPluginFile = getIpContainsFile(fileuploaded.getName());
@@ -370,7 +370,7 @@ public class StorageService extends AbstractBioService {
                 
                 RpcClient rpcClient = new AvroClient("http", ipPluginFile, PORT);
                 try {
-                    if (rpcClient.getProxy().verifyFile(file, fileuploaded.getPluginId())&&cms.getZNodeExist(cms.getPath().PREFIX_FILE.getFullPath(idPluginFile,fileuploaded.getId()), false)) {
+                    if (rpcClient.getProxy().verifyFile(file, fileuploaded.getPluginId())&&cms.getZNodeExist(cms.getPath().PREFIX_FILE.getFullPath(idPluginFile,fileuploaded.getId()), null)) {
                         rpcClient.getProxy().notifyReply(fileuploaded.getName(), ipPluginFile);
                         cms.delete(cms.getPath().PREFIX_PENDING_FILE.getFullPath(fileuploaded.getId()));
                     }
@@ -380,7 +380,7 @@ public class StorageService extends AbstractBioService {
                 }
             }else {
                 if (checkFilePeer(fileuploaded)) {
-                    if (cms.getZNodeExist(cms.getPath().PREFIX_FILE.getFullPath(idPluginFile, fileuploaded.getId()), true)&&!existReplication(file.getName())){
+                    if (cms.getZNodeExist(cms.getPath().PREFIX_FILE.getFullPath(idPluginFile, fileuploaded.getId()), null)&&!existReplication(file.getName())){
                         try {
                             replication(file.getName(), config.getAddress());
                             if(existReplication(file.getName())){
@@ -559,7 +559,7 @@ public class StorageService extends AbstractBioService {
                         * Com o arquivo enviado, seta os seus dados no Zookeeper
                         */
                         for (String idPlugin : idsPluginsFile) {
-                            if (cms.getZNodeExist(cms.getPath().PREFIX_FILE.getFullPath(idPlugin, filename), true)) {
+                            if (cms.getZNodeExist(cms.getPath().PREFIX_FILE.getFullPath(idPlugin, filename), null)) {
                                 cms.setData(cms.getPath().PREFIX_FILE.getFullPath(idPlugin, filename), pluginFile.toString());
                             } else {
                                 cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_FILE.getFullPath(idPlugin, filename), pluginFile.toString());
@@ -656,7 +656,7 @@ public class StorageService extends AbstractBioService {
         Collection<PluginInfo> temp = getPeers().values();
         temp.removeAll(cloudMap.values());
         for (PluginInfo plugin : temp) {
-            if(cms.getZNodeExist(cms.getPath().STATUS.getFullPath(plugin.getId(), null, null), false))
+            if(cms.getZNodeExist(cms.getPath().STATUS.getFullPath(plugin.getId(), null, null), null))
                 cms.getData(cms.getPath().STATUS.getFullPath(plugin.getId()), new UpdatePeerData(cms, this));
         }
     }
@@ -690,7 +690,7 @@ public class StorageService extends AbstractBioService {
                     String peerId = path.substring(12, path.indexOf("/STATUS"));
                     if(getPeers().values().size()!=1){
                         try {
-                            if (!cms.getZNodeExist(cms.getPath().STATUSWAITING.getFullPath(peerId), false)) {
+                            if (!cms.getZNodeExist(cms.getPath().STATUSWAITING.getFullPath(peerId), null)) {
                                 cms.createZNode(CreateMode.PERSISTENT, cms.getPath().STATUSWAITING.getFullPath(peerId), "");
                             }
                             

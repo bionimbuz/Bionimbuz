@@ -33,7 +33,7 @@ public class SchedTester {
         p.setNumOccupied(numOccupied);
         ArrayList<PluginService> services = new ArrayList<PluginService>();
         PluginService ps = new PluginService();
-        ps.setId(1L);
+        ps.setId("1");
         services.add(ps);
         p.setServices(services);
         return p;
@@ -59,7 +59,7 @@ public class SchedTester {
     private JobInfo generateJob(String id) {
         JobInfo j = new JobInfo();
         j.setId(id);
-        j.setServiceId(1L);
+        j.setServiceId("1");
         return j;
     }
 

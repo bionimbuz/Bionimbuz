@@ -173,9 +173,9 @@ public class PluginInfo implements PluginOps {
         this.services = services;
     }
 
-    public PluginService getService(long serviceId) {
+    public PluginService getService(String serviceId) {
         for (PluginService service : getServices())
-            if (service.getId() == serviceId)
+            if (service.getId().equals(serviceId))
                 return service;
         return null;
     }

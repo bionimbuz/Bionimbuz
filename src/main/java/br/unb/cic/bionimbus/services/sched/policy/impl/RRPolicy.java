@@ -47,7 +47,7 @@ public class RRPolicy extends SchedPolicy {
         return schedMap;
     }
 
-    private List<PluginInfo> filterByService(long serviceId, List<PluginInfo> plgs) {
+    private List<PluginInfo> filterByService(String serviceId, List<PluginInfo> plgs) {
         ArrayList<PluginInfo> plugins = new ArrayList<PluginInfo>();
         for (PluginInfo pluginInfo : plgs) {
             if (pluginInfo.getService(serviceId) != null)
