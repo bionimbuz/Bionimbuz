@@ -30,6 +30,7 @@ public class UpdatePeerData implements Watcher  {
     @Override
     public void process(WatchedEvent event){
         //chamada para alertar servico que adicionou o watcher, tratar evento na service
+//        System.out.println("[UpdatePeerData] event: " + event.toString());
         service.event(event);
         
         //Realiza a solicitação para um novo observer

@@ -38,8 +38,8 @@ public class PipelineTestGenerator {
         double minCostPerHour = 0.0002d;
         double maxCostPerHour = 0.05d;
         
-        int numTasksStep = 2;
-        int numMaxTasks = 20;
+        int numTasksStep = 5;
+        int numMaxTasks = 100;
         List<Integer> numTasksList = new ArrayList<Integer>();
         
         Random rn = new Random();

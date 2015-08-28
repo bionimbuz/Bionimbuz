@@ -74,11 +74,11 @@ public class Chessmaster extends SchedPolicy {
     private ResourceList minmaxPlayer(ResourceList resourceList, Queue<JobInfo> taskList, double alpha, int depth) {
         
         if (!taskList.isEmpty()) {
-            printTab(depth);
-            System.out.println("[" + depth + "] Player - job: " + taskList.peek().getId());
+//            printTab(depth);
+//            System.out.println("[" + depth + "] Player - job: " + taskList.peek().getId());
         } else {
-            printTab(depth);
-            System.out.println("[" + depth + "] Player - no more jobs");
+//            printTab(depth);
+//            System.out.println("[" + depth + "] Player - no more jobs");
             return resourceList;
         }
         
@@ -123,8 +123,8 @@ public class Chessmaster extends SchedPolicy {
                 paretoOptResults.add(result);
                 List<ResourceList> newParetoOptResults = Pareto.getParetoCurve(paretoOptResults);
                 
-                printTab(depth);
-                System.out.println("    cost=" + result.getFullCost() + ", avgTime=" + result.getAvgTime() + ", maxTime=" + result.getMaxTime());
+//                printTab(depth);
+//                System.out.println("    cost=" + result.getFullCost() + ", avgTime=" + result.getAvgTime() + ", maxTime=" + result.getMaxTime());
                 
                 // if added, attempt to update best result
                 if (newParetoOptResults != null) {
@@ -146,8 +146,8 @@ public class Chessmaster extends SchedPolicy {
     }
     
     private ResourceList minmaxNature(Resource resource, ResourceList resourceList, Queue<JobInfo> taskList, double alpha, int depth) {
-        printTab(depth);
-        System.out.println("[" + depth + "] Nature - resource: " + resource.id);
+//        printTab(depth);
+//        System.out.println("[" + depth + "] Nature - resource: " + resource.id);
         JobInfo job;
         
         // create current best with min cost
@@ -156,8 +156,8 @@ public class Chessmaster extends SchedPolicy {
         
         // if we can still go deeper
         job = taskList.poll();
-        printTab(depth);
-        System.out.println("job: " + job.getId());
+//        printTab(depth);
+//        System.out.println("job: " + job.getId());
         // for each aproximation of a task's cost
         for (Double cost : job.getHistory(rs)) {
             // attempt to use the new resource to allocate the new task
@@ -173,8 +173,8 @@ public class Chessmaster extends SchedPolicy {
             // recursive call
             ResourceList result = minmaxPlayer(resourceListCopy, taskListCopy, alpha, depth);
 
-            printTab(depth);
-            System.out.println("    cost=" + result.getFullCost() + ", avgTime=" + result.getAvgTime() + ", maxTime=" + result.getMaxTime());
+//            printTab(depth);
+//            System.out.println("    cost=" + result.getFullCost() + ", avgTime=" + result.getAvgTime() + ", maxTime=" + result.getMaxTime());
             // maxmise nature's play
             if (result.getFullCost() > best.getFullCost())
                 best = result;

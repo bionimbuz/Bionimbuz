@@ -157,7 +157,7 @@ public class SchedService extends AbstractBioService implements Runnable {
      * Executa a rotina de escalonamento, após o zookeeper disparar um aviso que
      * um novo job foi criado para ser escalonado.
      */
-    private void scheduleJobs() throws InterruptedException, KeeperException {
+    private synchronized void scheduleJobs() throws InterruptedException, KeeperException {
         HashMap<JobInfo, PluginInfo> schedMap = null;
         
         // Caso nao exista nenhum pipeline pendente da a chance do escalonador
@@ -170,9 +170,10 @@ public class SchedService extends AbstractBioService implements Runnable {
 
             for (PipelineInfo pipeline : pendingPipelines) {
                 schedMap = getPolicy().schedule(pipeline);
-                
-                // remove create below after tests
-                cms.createZNode(CreateMode.PERSISTENT, Path.PIPELINE_FLAG.getFullPath(pipeline.getId()), "");
+
+                // remove delete below after tests
+                pendingPipelines.remove(pipeline);
+                cms.delete(Path.PREFIX_PIPELINE.getFullPath(pipeline.getId()));
                 return;
 
 //                for (Map.Entry<JobInfo, PluginInfo> entry : schedMap.entrySet()) {
@@ -586,8 +587,8 @@ public class SchedService extends AbstractBioService implements Runnable {
 //                        setLatencyPlugins(job);
 //                    }
 //                }
-//                scheduleJobs();
-                System.out.println("[SchedService] scheduleJobs não chamado por motivos de teste. Após testes descomentar");
+                scheduleJobs();
+//                System.out.println("[SchedService] scheduleJobs não chamado por motivos de teste. Após testes descomentar");
             }
         } catch (Exception ex) {
             java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);

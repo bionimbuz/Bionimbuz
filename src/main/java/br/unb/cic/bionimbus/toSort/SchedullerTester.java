@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package br.unb.cic.bionimbus.toSort;
 
 import br.unb.cic.bionimbus.avro.gen.Pair;
@@ -14,7 +9,6 @@ import br.unb.cic.bionimbus.client.experiments.MscTool;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginService;
-import br.unb.cic.bionimbus.services.Service;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
@@ -25,6 +19,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -53,7 +48,7 @@ public class SchedullerTester {
 
     private void initCommunication() {
         cms = new CuratorMessageService();
-        cms.connect("10.190.60.120:2181");
+        cms.connect("192.168.1.12:2181");
         rs = new RepositoryService(cms);
         
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -92,15 +87,37 @@ public class SchedullerTester {
             List<PluginService> services = PipelineTestGenerator.getServicesTemplates();
             List<PluginInfo> resources = PipelineTestGenerator.getResourceTemplates();
             
+            // flush test data
+            System.out.println("[SchedTester] flushing test data");
+            PrintWriter pwr = new PrintWriter("pipelines.txt", "UTF-8");
+            for (PipelineInfo p : pipelines)
+                pwr.println(p.toString());
+            PrintWriter swr = new PrintWriter("services.txt", "UTF-8");
+            for (PluginService s : services)
+                swr.println(s.toString());
+            PrintWriter rwr = new PrintWriter("resources.txt", "UTF-8");
+            for (PluginInfo r : resources)
+                rwr.println(r.toString());
+            
             // add data to zookeeper
             tester.addServices(services);
             tester.addResources(resources);
             
+            System.out.println("[SchedTester] starting testing with " + pipelines.size() + " pipelines");
+            
             // perform all tests
-            tester.sendJobs(pipelines.get(0));
-            for (int i=1; i<pipelines.size(); i++) {
-                tester.cms.getChildren(Path.PIPELINES.getFullPath(), new SendPipeline(tester.cms, tester, pipelines.get(i), pipelines.get(i-1).getId()));
-            }
+            PipelineInfo fst = pipelines.get(0);
+            tester.sendJobs(fst);
+            pipelines.remove(fst);
+            System.out.println("[SchedTester] First pipeline " + fst.getId() + " sent, " + pipelines.size() + " remaining");
+            
+            // busy waiting to wait for node to exists
+            while(!tester.cms.getZNodeExist(Path.PREFIX_PIPELINE.getFullPath(fst.getId()), null)){
+            System.out.println("[SchedTester] waiting node creation");}
+            tester.cms.getChildren(Path.PREFIX_PIPELINE.getFullPath(fst.getId()), new SendPipeline(tester.cms, tester, pipelines, fst.getId()));
+            
+            System.out.println("[SchedTester] waiting forever");
+            while(true){}
         }
     }
     
@@ -248,13 +265,13 @@ public class SchedullerTester {
 
         private final CloudMessageService cms;
         private final SchedullerTester st;
-        private final PipelineInfo pipeline;
+        private final List<PipelineInfo> remaining;
         private final String prevId;
 
-        public SendPipeline(CloudMessageService cms, SchedullerTester st, PipelineInfo pipeline, String prevId) {
+        public SendPipeline(CloudMessageService cms, SchedullerTester st, List<PipelineInfo> remaining, String prevId) {
             this.cms = cms;
             this.st = st;
-            this.pipeline = pipeline;
+            this.remaining = remaining;
             this.prevId = prevId;
         }
 
@@ -264,22 +281,32 @@ public class SchedullerTester {
          */
         @Override
         public void process(WatchedEvent event){
-            System.out.println("[SendPipeline] event: " + event.toString());
+            System.out.println("[SentPipeline] Event got: " + event.toString());
             switch(event.getType()){
-                case NodeChildrenChanged:
-                    if(cms.getZNodeExist(Path.PIPELINE_FLAG.getFullPath(prevId), null)) {
-                        System.out.println("Pipeline " + pipeline.getId() + " sent");
-                        try {
+                case NodeDeleted:
+                    try {
+                        if (!remaining.isEmpty()) {
+                            PipelineInfo pipeline = remaining.get(0);
+
+                            // send new pipeline
                             st.sendJobs(pipeline);
-                        } catch (InterruptedException ex) {
-                            java.util.logging.Logger.getLogger(SchedullerTester.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (IOException ex) {
-                            java.util.logging.Logger.getLogger(SchedullerTester.class.getName()).log(Level.SEVERE, null, ex);
+
+                            // set new watcher with remaining pipelines
+                            remaining.remove(pipeline);
+                            System.out.println("[SentPipeline] Pipeline " + pipeline.getId() + " sent, " + remaining.size() + " remaining");
+                            while(!cms.getZNodeExist(Path.PREFIX_PIPELINE.getFullPath(pipeline.getId()), null)){}
+                            cms.getChildren(Path.PREFIX_PIPELINE.getFullPath(pipeline.getId()), new SendPipeline(cms, st, remaining, pipeline.getId()));
+                        } else {
+                            System.out.println("[SentPipeline] No more pipelines");
                         }
+                    } catch (InterruptedException ex) {
+                        java.util.logging.Logger.getLogger(SchedullerTester.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (IOException ex) {
+                        java.util.logging.Logger.getLogger(SchedullerTester.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     break;
                 default:
-                    System.out.println("SendPipeline of " + pipeline.getId() + " received other event: " + event.getPath());
+                    System.out.println("[SendPipeline] Received other event: " + event.getPath());
 
             }
         } 

@@ -9,13 +9,11 @@ import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -28,10 +26,6 @@ public class DiscoveryService extends AbstractBioService {
 
     private static final int PERIOD_SECS = 10;
     private final ScheduledExecutorService schedExecService;
-    private static final String SEPARATOR = "/";
-    private static final String STATUS = "STATUS";
-    private static final String STATUSWAITING = "STATUSWAITING";
-    private final ConcurrentMap<String, PluginInfo> map = Maps.newConcurrentMap();
 
     @Inject
     public DiscoveryService(final CloudMessageService cms) {
