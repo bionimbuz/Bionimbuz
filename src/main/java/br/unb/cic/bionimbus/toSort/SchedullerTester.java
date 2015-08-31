@@ -20,7 +20,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
 import org.apache.zookeeper.WatchedEvent;
@@ -48,7 +53,15 @@ public class SchedullerTester {
 
     private void initCommunication() {
         cms = new CuratorMessageService();
-        cms.connect("192.168.1.12:2181");
+        try {
+            Enumeration<InetAddress> inet = NetworkInterface.getByName("wlan0").getInetAddresses();
+            String ip = "";
+            while (inet.hasMoreElements())
+                ip = inet.nextElement().toString();
+            cms.connect(ip.substring(1)+":2181");
+        } catch (SocketException ex) {
+            java.util.logging.Logger.getLogger(SchedullerTester.class.getName()).log(Level.SEVERE, null, ex);
+        }
         rs = new RepositoryService(cms);
         
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());

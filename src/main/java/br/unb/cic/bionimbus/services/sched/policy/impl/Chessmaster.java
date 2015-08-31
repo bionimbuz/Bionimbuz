@@ -36,7 +36,7 @@ public class Chessmaster extends SchedPolicy {
         
         ResourceList rl = rs.getCurrentResourceList();
         System.out.println(rl.resources.toString());
-        ResourceList out = minmaxPlayer(rl, new LinkedList<JobInfo>(pipeline.getJobs()), alpha, lookahead);
+        ResourceList out = minmaxPlayer(rl, new LinkedList<JobInfo>(pipeline.getJobs()), alpha);
         
         System.out.println("best max time: " + out.getMaxTime());
         System.out.println("best avg time: " + out.getAvgTime());
@@ -71,7 +71,7 @@ public class Chessmaster extends SchedPolicy {
         return "Name: " + Chessmaster.class.getSimpleName();
     }
     
-    private ResourceList minmaxPlayer(ResourceList resourceList, Queue<JobInfo> taskList, double alpha, int depth) {
+    private ResourceList minmaxPlayer(ResourceList resourceList, Queue<JobInfo> taskList, double alpha) {
         
         if (!taskList.isEmpty()) {
 //            printTab(depth);
@@ -109,43 +109,37 @@ public class Chessmaster extends SchedPolicy {
         Double f2 = maxCost.getFullCost();
         
         // if we can still go deeper and there is a task to schedule
-        if (depth != 0) {
-            for (Resource resource : resourceList.resources) {
-                // create resourceList and taskList copies
-                Queue<JobInfo> taskListCopy = new LinkedList(taskList);
-                ResourceList resourceListCopy = new ResourceList(resourceList);
-                
-                // run recursive call with current resource
-                ResourceList result = minmaxNature(resource, resourceListCopy, taskListCopy, alpha, depth-1);
-                
-                // minimise player's play with a pareto optimal and an alpha selector
-                // attempt to add new result to pareto curve
-                paretoOptResults.add(result);
-                List<ResourceList> newParetoOptResults = Pareto.getParetoCurve(paretoOptResults);
-                
+        for (Resource resource : resourceList.resources) {
+            // create resourceList and taskList copies
+            Queue<JobInfo> taskListCopy = new LinkedList(taskList);
+            ResourceList resourceListCopy = new ResourceList(resourceList);
+
+            // run recursive call with current resource
+            ResourceList result = minmaxNature(resource, resourceListCopy, taskListCopy, alpha);
+
+            // minimise player's play with a pareto optimal and an alpha selector
+            // attempt to add new result to pareto curve
+            paretoOptResults.add(result);
+            List<ResourceList> newParetoOptResults = Pareto.getParetoCurve(paretoOptResults);
+
 //                printTab(depth);
 //                System.out.println("    cost=" + result.getFullCost() + ", avgTime=" + result.getAvgTime() + ", maxTime=" + result.getMaxTime());
-                
-                // if added, attempt to update best result
-                if (newParetoOptResults != null) {
-                    // update pareto curve
-                    paretoOptResults = newParetoOptResults;
-                    
-                    // get pareto optimal for alpha
-                    ResourceList newBest = Pareto.getParetoOptimal(paretoOptResults, alpha);
-                    if (newBest != null)
-                        best = newBest;
-                }
+
+            // if added, attempt to update best result
+            if (newParetoOptResults != null) {
+                // update pareto curve
+                paretoOptResults = newParetoOptResults;
+
+                // get pareto optimal for alpha
+                ResourceList newBest = Pareto.getParetoOptimal(paretoOptResults, alpha);
+                if (newBest != null)
+                    best = newBest;
             }
-            return best;
         }
-        // if the maximum depth was reached
-        else {
-            return resourceList;
-        }
+        return best;
     }
     
-    private ResourceList minmaxNature(Resource resource, ResourceList resourceList, Queue<JobInfo> taskList, double alpha, int depth) {
+    private ResourceList minmaxNature(Resource resource, ResourceList resourceList, Queue<JobInfo> taskList, double alpha) {
 //        printTab(depth);
 //        System.out.println("[" + depth + "] Nature - resource: " + resource.id);
         JobInfo job;
@@ -171,7 +165,7 @@ public class Chessmaster extends SchedPolicy {
             getResource(resource, resourceListCopy.resources).allocateTask(newTask);
 
             // recursive call
-            ResourceList result = minmaxPlayer(resourceListCopy, taskListCopy, alpha, depth);
+            ResourceList result = minmaxPlayer(resourceListCopy, taskListCopy, alpha);
 
 //            printTab(depth);
 //            System.out.println("    cost=" + result.getFullCost() + ", avgTime=" + result.getAvgTime() + ", maxTime=" + result.getMaxTime());
