@@ -5,31 +5,16 @@ image:https://travis-ci.org/bionimbuz/Bionimbuz.svg?branch=master["Build Status"
 image:http://img.shields.io/coveralls/bionimbuz/Bionimbuz/master.svg["Coverage Status", link="https://coveralls.io/r/bionimbuz/Bionimbuz?branch=master"]
 
 Plataforma de Federação de Nuvens
-
---Configurar a amazon para acessar ssh sem a pem--
-
-1- acessar a maquina na amazon
-ssh -i zoonimbuskey.pem ubuntu@54.213.0.109
-
-2-sudo su , com o root acesse o arquivo sshd_conf
-nano /etc/ssh/sshd_config 
-e adicione a linha na parte de Authentification 
-
-PasswordAuthentication yes
-comentar as linhas
-#RSAAuthentication yes
-#PubkeyAuthentication yes
-
-ctrl+o, enter, ctrl+x
-
-3- sudo /etc/init.d/ssh restart
-
-criar usuário zoonimbus, senha: 
-Adicionar o usuario zoonimbus
-sudo adduser zoonimbus sudo
-liberar as portas : 2181,9999,80,8080,9191,22
-
+----------------------------------------------------------------------------------------------------------------------
 Ordem dos comandos de instalação
+--Zookeeper--
+http://ftp.unicamp.br/pub/apache/zookeeper/stable/zookeeper-3.4.6.tar.gz
+Descompacte na pasta opt/zookeeper/
+Configure o arquivo /opt/zookeeper/conf/zoo.cfg
+altere a linha  dataDir=/opt/zookeeper/ 
+salve e feche o arquivo
+Inicie o zookeeper com o comando sudo /opt/zookeeper/bin/zkServer.sh start
+pronto zookeeper executando, mais detalhes olhe a documentação: https://zookeeper.apache.org/doc/r3.4.6/zookeeperStarted.html#sc_InstallingSingleMode
 
 --Java--
 sudo add-apt-repository ppa:webupd8team/java	
@@ -53,10 +38,9 @@ sudo apt-get install unzip
 
 --CRIANDO PASTA DO PROJETO----
 mkdir /home/zoonimbus/zoonimbusProject 
-
 ---Compacte os arquivos a seguir e envie via sftp---
 scp zoonimbus@10.0.0.1:/path/to/file.txt localfile.txt
-
+-----------------------------------------------------------------------------------------------------------------------------
 -----Configurar Zoonimbus -------
 	
 OB: COLOCAR TODOS OS ARQUIVOS LISTADOS NA PASTA zoonimbusProject/
@@ -70,7 +54,6 @@ enviar as pastas conf
 enviar bionimbus-1.0-SNAPSHOT-bundle.jar gerado na target
 
 
-
 ***********
 Para executar o Zoonimbus, o servidor zookeeper deve ser inciado.
 
@@ -80,3 +63,26 @@ Para executar o Zoonimbus, o servidor zookeeper deve ser inciado.
 4- Cliente: executar o comando "sh exported-folders/bin/client.sh"
 5- Pipeline: executar o comando "sh exported-folders/bin/client-pipeline.sh"
 ***********
+-------------------------------------------------------------------------------------------------------------
+--Configurar a amazon para acessar ssh sem a pem--
+
+1- acessar a maquina na amazon
+ssh -i zoonimbuskey.pem ubuntu@54.213.0.109
+
+2-sudo su , com o root acesse o arquivo sshd_conf
+nano /etc/ssh/sshd_config 
+e adicione a linha na parte de Authentification 
+
+PasswordAuthentication yes
+comentar as linhas
+#RSAAuthentication yes
+#PubkeyAuthentication yes
+
+ctrl+o, enter, ctrl+x
+
+3- sudo /etc/init.d/ssh restart
+
+criar usuário zoonimbus, senha: 
+Adicionar o usuario zoonimbus
+sudo adduser zoonimbus sudo
+liberar as portas : 2181,9999,80,8080,9191,22
