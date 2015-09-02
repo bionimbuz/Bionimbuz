@@ -7,8 +7,8 @@ package br.unb.cic.bionimbus.services.storage;
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
-import java.io.IOException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.codehaus.jackson.map.ObjectMapper;
 
 /**
@@ -25,9 +26,9 @@ import org.codehaus.jackson.map.ObjectMapper;
  */
 public class StoragePolicy {
     
-    private double peso_latency = 0.5;
-    private double peso_space = 0.2;
-    private double peso_uptime = 0.3;
+    private double peso_uptime = 0.25;
+    private double peso_bandwidth = 0.6;
+    private double peso_costs = 0.15;
     private List<NodeInfo> nodes = new ArrayList<NodeInfo>();
     Collection<PluginInfo> best = new ArrayList<PluginInfo>();
     
@@ -42,8 +43,10 @@ public class StoragePolicy {
         
         double cost;
         double uptime;
-        double freesize;
         double costpergiga = 0;
+        double latency;
+        double bandwidth;
+        		
         
         /*
         * Calculando os custos de armazenamento dos peers
@@ -59,12 +62,11 @@ public class StoragePolicy {
                 Logger.getLogger(StoragePolicy.class.getName()).log(Level.SEVERE, null, ex);
             }
             
-            uptime = plugin.getUptime() / 1000;
-            freesize = (plugin.getFsFreeSize() / 1024 / 1024 / 1024);
-            cost = (((freesize * peso_space)
-                    + (uptime * peso_uptime))
-                    * (plugin.getLatency() * peso_latency));
-            cost = cost + costpergiga;
+            uptime = plugin.getUptime() / 3600000; //milis to hours
+            latency = plugin.getLatency();
+            bandwidth = plugin.getBandwidth();
+            cost = latency/(peso_uptime*(10*Math.log10(uptime+0.1) +10) + (peso_bandwidth*bandwidth));
+            cost = cost + peso_costs * costpergiga;
             /*
             * Seta o custo de armazenamento no peer
             */

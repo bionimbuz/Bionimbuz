@@ -69,12 +69,14 @@ public class Put {
 			return false;
 		}
 
+		long inicio =0, fim = 0;
+		String toBeSent = path;
 		try {
 			this.channel = session.openChannel("sftp");
 			channel.connect();
 			ChannelSftp sftpChannel = (ChannelSftp) channel;
-
-			String toBeSent = path;
+			
+			inicio =System.currentTimeMillis();
 			if (new File(toBeSent).getTotalSpace() >= MIN_SIZE_FOR_COMPRESSION) {
 				try {
 
@@ -97,12 +99,18 @@ public class Put {
 			sftpChannel.put(toBeSent, pathDest);
 			sftpChannel.exit();
 			session.disconnect();
+			fim = System.currentTimeMillis();
 
 			CompressPolicy.deleteIfCompressed(toBeSent);
 
 		} catch (JSchException a) {
 			return false;
 		}
+		System.out.println("\n\n\n\n\n\n");
+		System.out.println("Tempo gasto: " + (fim -inicio));
+		System.out.println("Arquivo enviado: " + toBeSent);
+		System.out.println("\n\n\n\n\n\n");
+		
 		return true;
 
 	}
