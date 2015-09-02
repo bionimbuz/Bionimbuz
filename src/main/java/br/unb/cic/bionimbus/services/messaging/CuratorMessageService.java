@@ -48,13 +48,33 @@ public class CuratorMessageService implements CloudMessageService {
     }
     
     /**
-     * Internal Enum that handles Paths for BioNimbuZ proccessing ZNodes     
+     * Internal Enum that handles Paths for BioNimbuZ proccessing ZNodes
      */
     public enum Path {
         
-        ROOT("/"), PREFIX_PEER("/peer_"), PEERS("/peers"), FILES("/files"),PENDING_SAVE("/pending_save"),PREFIX_PENDING_FILE("/pending_file_"),
-        JOBS("/jobs"),PREFIX_FILE("/file_"),STATUS("/STATUS"),STATUSWAITING("/STATUSWAITING"),SCHED("/sched"),LOCK_JOB("/LOCK"),
-        SIZE_JOBS("/size_jobs"),TASKS("/tasks"), PREFIX_TASK("/task_"),PREFIX_JOB("/job_"), UNDERSCORE("_");
+        ROOT("/"), 
+        PREFIX_PEER("/peer_"), 
+        PEERS("/peers"), 
+        FILES("/files"),
+        PENDING_SAVE("/pending_save"),
+        PREFIX_PENDING_FILE("/pending_file_"),
+        JOBS("/jobs"),
+        PREFIX_FILE("/file_"),
+        STATUS("/STATUS"),
+        STATUSWAITING("/STATUSWAITING"),
+        SCHED("/sched"),
+        LOCK_JOB("/LOCK"),
+        SIZE_JOBS("/size_jobs"),
+        TASKS("/tasks"), 
+        PREFIX_TASK("/task_"),
+        PREFIX_JOB("/job_"),
+        HISTORY("/history"),
+        COST_PREFIX("/cost_"),
+        START("/start"),
+        END("/end"),
+        COUNT("/count"),
+        SEPARATOR("/"),
+        UNDERSCORE("_");
         
         private final String value;
         
@@ -199,8 +219,8 @@ public class CuratorMessageService implements CloudMessageService {
      */
     @Override
     public void delete(String path) {
-        try {
-            client.delete().forPath(path);
+        try {            
+            client.delete().deletingChildrenIfNeeded().forPath(path);
         } catch (Exception ex) {
             Logger.getLogger(CuratorMessageService.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -89,8 +89,10 @@ public class StorageService extends AbstractBioService {
             listeners.add(this);
         }
         //Criando pastas zookeeper para o módulo de armazenamento
-        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PENDING_SAVE.toString(), null);
-        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().FILES.getFullPath(config.getId(), "", ""), "");
+        if (!cms.getZNodeExist(cms.getPath().PENDING_SAVE.toString(), false))
+            cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PENDING_SAVE.toString(), null);
+        if (!cms.getZNodeExist(cms.getPath().FILES.getFullPath(config.getId(), "", ""), false))
+            cms.createZNode(CreateMode.PERSISTENT, cms.getPath().FILES.getFullPath(config.getId(), "", ""), "");
 
         //watcher para verificar se um pending_save foi lançado
         cms.getChildren(cms.getPath().PENDING_SAVE.getFullPath("", "", ""), new UpdatePeerData(cms, this));
