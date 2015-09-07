@@ -27,7 +27,7 @@ public class JobInfo {
 
     private long timestamp;
     
-    private List<Double> execHistory = null;
+    private double worstExecution;
     
     final private List<String> dependencies = new ArrayList<String>();
 
@@ -97,10 +97,12 @@ public class JobInfo {
         this.timestamp = timestamp;
     }
     
-    public List<Double> getHistory(RepositoryService rs) {
-        if (execHistory == null)
-            execHistory = rs.getTaskHistory(serviceId);
-        return execHistory;
+    public Double getWorstExecution() {
+        return worstExecution;
+    }
+    
+    public void setWorstExecution(double worstExecution) {
+        this.worstExecution = worstExecution;
     }
     
     /**

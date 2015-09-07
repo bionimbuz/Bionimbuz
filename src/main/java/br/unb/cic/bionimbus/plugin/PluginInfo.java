@@ -247,13 +247,7 @@ public class PluginInfo implements PluginOps {
         this.costPerHour = costPerHour;
     }
 
-    public double getCostPerHour (RepositoryService rs) {
-        if (costPerHour == null) {
-            if (factoryFrequencyCore > 2600000000d)
-                costPerHour = rs.getInstanceCost(RepositoryService.InstanceType.LABID_I7);
-            else
-                costPerHour = rs.getInstanceCost(RepositoryService.InstanceType.PERSONAL);
-        }
+    public double getCostPerHour () {
         return costPerHour;
     }
     

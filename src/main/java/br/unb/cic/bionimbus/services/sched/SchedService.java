@@ -53,7 +53,8 @@ public class SchedService extends AbstractBioService implements Runnable {
             .newScheduledThreadPool(1, new BasicThreadFactory.Builder()
                     .namingPattern("SchedService-%d").build());
     private final Queue<PluginTask> relocateTasks = new ConcurrentLinkedQueue<PluginTask>();
-    private final List<PipelineInfo> pendingPipelines = new ArrayList<PipelineInfo>();
+    private final List<JobInfo> pendingJobs = new ArrayList<JobInfo>();
+    private final List<JobInfo> dependentJobs = new ArrayList<JobInfo>();
     private final Map<String, Pair<PluginInfo, PluginTask>> waitingTask = new ConcurrentHashMap<String, Pair<PluginInfo, PluginTask>>();
     private Map<String, PluginFile> mapFilesPlugin;
     private final Map<String, JobInfo> jobsWithNoService = new ConcurrentHashMap<String, JobInfo>();
@@ -62,7 +63,7 @@ public class SchedService extends AbstractBioService implements Runnable {
     private RpcClient rpcClient;
     
     // change this to select scheduling policy
-    private final Integer policy = SchedPolicy.Policy.CHESSMASTER.ordinal();
+    private final SchedPolicy.Policy policy = SchedPolicy.Policy.C99SUPERCOLIDER;
     private String idPlugin;
     
     private LinuxPlugin myLinuxPlugin;
@@ -162,51 +163,48 @@ public class SchedService extends AbstractBioService implements Runnable {
         
         // Caso nao exista nenhum pipeline pendente da a chance do escalonador
         // realocar as tarefas.
-        if (!pendingPipelines.isEmpty()) {
+        if (!pendingJobs.isEmpty()) {
             cloudMap.clear();
             cloudMap.putAll(getPeers());
             LOGGER.info("[SchedService] Número de plugins: "+cloudMap.size());
             //realiza a requisicao dos valores da lantência antes de escalonar um job
 
-            for (PipelineInfo pipeline : pendingPipelines) {
-                schedMap = getPolicy().schedule(pipeline);
+            // sched all pending jobs
+            schedMap = getPolicy().schedule(pendingJobs);
 
-                // remove delete below after tests
-                pendingPipelines.remove(pipeline);
-                cms.delete(Path.PREFIX_PIPELINE.getFullPath(pipeline.getId()));
-                return;
+            return;
 
-//                for (Map.Entry<JobInfo, PluginInfo> entry : schedMap.entrySet()) {
-//                    JobInfo jobInfo = entry.getKey();
+//            for (Map.Entry<JobInfo, PluginInfo> entry : schedMap.entrySet()) {
+//                JobInfo jobInfo = entry.getKey();
 //
-//                    LOGGER.info("[SchedService] Tempo de escalonamento: " + (System.currentTimeMillis() - jobInfo.getTimestamp())+" milesegundos");
+//                LOGGER.info("[SchedService] Tempo de escalonamento: " + (System.currentTimeMillis() - jobInfo.getTimestamp())+" milesegundos");
 //
-//                    PluginInfo pluginInfo = entry.getValue();
-//                    PluginTask task = new PluginTask();
-//                    task.setJobInfo(jobInfo);
-//                    if (pluginInfo != null) {
-//                        LOGGER.info("[SchedService] SCHEDULE JobID: " + jobInfo.getId()+ " , saida:("+jobInfo.getOutputs()+") escalonado para peer_" + pluginInfo.getId());
+//                PluginInfo pluginInfo = entry.getValue();
+//                PluginTask task = new PluginTask();
+//                task.setJobInfo(jobInfo);
+//                if (pluginInfo != null) {
+//                    LOGGER.info("[SchedService] SCHEDULE JobID: " + jobInfo.getId()+ " , saida:("+jobInfo.getOutputs()+") escalonado para peer_" + pluginInfo.getId());
 //
-//                        task.setState(PluginTaskState.PENDING);
-//                        task.setPluginExec(pluginInfo.getId());
-//                        task.setPluginTaskPathZk(pluginInfo.getPath_zk() + SCHED + TASKS + PREFIX_TASK + task.getId());
-//                        //adiciona o job na lista de execução do servidor zookeeper
-//                        cms.createZNode(CreateMode.PERSISTENT, task.getPluginTaskPathZk(), task.toString());
+//                    task.setState(PluginTaskState.PENDING);
+//                    task.setPluginExec(pluginInfo.getId());
+//                    task.setPluginTaskPathZk(pluginInfo.getPath_zk() + SCHED + TASKS + PREFIX_TASK + task.getId());
+//                    //adiciona o job na lista de execução do servidor zookeeper
+//                    cms.createZNode(CreateMode.PERSISTENT, task.getPluginTaskPathZk(), task.toString());
 //
-//                        //retira o pipeline da lista de pipelines para escanolamento no zookeeper
-//                        cms.delete(cms.getPath().PREFIX_PIPELINE.getFullPath(pipeline.getId()));
-//                        //retira o pipelineda lista de jobs para escalonamento
-//                        pendingPipelines.remove(pipeline);
-//    //                    //adiciona a lista de jobs que aguardam execução
-//    //                    waitingTask.put(task.getJobInfo().getId(), new Pair<PluginInfo, PluginTask>(pluginInfo,task));
+//                    //retira o pipeline da lista de pipelines para escanolamento no zookeeper
+//                    cms.delete(cms.getPath().PREFIX_PIPELINE.getFullPath(pipeline.getId()));
+//                    //retira o pipelineda lista de jobs para escalonamento
+//                    pendingPipelines.remove(pipeline);
+////                    //adiciona a lista de jobs que aguardam execução
+////                    waitingTask.put(task.getJobInfo().getId(), new Pair<PluginInfo, PluginTask>(pluginInfo,task));
 //
-//                    } else {
-//                        LOGGER.info("JobID: " + jobInfo.getId() + " não escalonado");
-//                    }
+//                } else {
+//                    LOGGER.info("JobID: " + jobInfo.getId() + " não escalonado");
 //                }
-                //chamada recursiva para escalonar todos os jobs enviados, só é chamada após um
-    //            scheduleJobs();
-            }
+//            }
+            //chamada recursiva para escalonar todos os jobs enviados, só é chamada após um
+//            scheduleJobs();
+            
         }
     }
     
@@ -580,8 +578,8 @@ public class SchedService extends AbstractBioService implements Runnable {
                     }
                 }
             }
-            if(pendingPipelines!=null &&  !pendingPipelines.isEmpty()){
-                System.out.println("[SchedService] Tamanho da lista de PIPELINES para execução :  " + pendingPipelines.size());
+            if(pendingJobs!=null &&  !pendingJobs.isEmpty()){
+                System.out.println("[SchedService] Tamanho da lista de JOBS para execução :  " + pendingJobs.size());
 //                for(JobInfo job : pendingJobs.values()){
 //                    if(!cms.getZNodeExist(JOBS.toString()+PREFIX_JOB+job.getId()+LATENCY, true)){
 //                        setLatencyPlugins(job);
@@ -755,7 +753,8 @@ public class SchedService extends AbstractBioService implements Runnable {
                                 ObjectMapper mapper = new ObjectMapper();
                                 datas = cms.getData(cms.getPath().PREFIX_PIPELINE.getFullPath(pipelineReady.substring(9)), null);
                                 PipelineInfo pipeline = mapper.readValue(datas, PipelineInfo.class);
-                                pendingPipelines.add(pipeline);
+                                System.out.println("[SchedService:756] TODO: enforce jobs dependencies");
+                                pendingJobs.addAll(pipeline.getJobs());
                             }
 
 //                            for (String child : children) {

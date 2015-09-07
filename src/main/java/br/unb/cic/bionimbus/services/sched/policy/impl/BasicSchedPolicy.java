@@ -41,10 +41,10 @@ public class BasicSchedPolicy extends SchedPolicy {
     }
 
     @Override
-    public HashMap<JobInfo, PluginInfo> schedule(PipelineInfo pipeline) {
+    public HashMap<JobInfo, PluginInfo> schedule(List<JobInfo> jobs) {
         HashMap<JobInfo, PluginInfo> schedMap = new HashMap<JobInfo, PluginInfo>();
 
-        for (JobInfo jobInfo : pipeline.getJobs()) {
+        for (JobInfo jobInfo : jobs) {
             PluginInfo resource = this.scheduleJob(jobInfo);
             schedMap.put(jobInfo, resource);
         }

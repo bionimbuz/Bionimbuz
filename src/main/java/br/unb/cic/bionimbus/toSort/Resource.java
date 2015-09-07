@@ -5,6 +5,7 @@
  */
 package br.unb.cic.bionimbus.toSort;
 
+import br.unb.cic.bionimbus.client.JobInfo;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,15 +18,13 @@ public class Resource {
     public final String id;
     public final Double clock;
     public final Double cost;
-    private final List<AllocatedFixedTask> allocatedTasks;
-    private final List<AllocatedFixedTask> newAllocatedTasks;
+    private final List<JobInfo> allocatedTasks;
 
     public Resource(String id, Double clock, Double cost) {
         this.id = id;
         this.clock = clock;
         this.cost = cost;
         allocatedTasks = new ArrayList();
-        newAllocatedTasks = new ArrayList();
     }
     
     // Copy constructor
@@ -33,32 +32,23 @@ public class Resource {
         this.id = resource.id;
         this.clock = resource.clock;
         this.cost = resource.cost;
-        allocatedTasks = new ArrayList(resource.getAllTasks());
-        newAllocatedTasks = new ArrayList(resource.getNewTasks());
+        allocatedTasks = new ArrayList(resource.getAllocatedTasks());
     }
     
-    public void allocateTask(AllocatedFixedTask task) {
-        allocatedTasks.add(task);
-        newAllocatedTasks.add(task);
-    }
     
-    public void addAllocatedTask(AllocatedFixedTask task) {
+    public void allocateTask(JobInfo task) {
         allocatedTasks.add(task);
     }
     
-    public List<AllocatedFixedTask> getAllTasks() {
+    public List<JobInfo> getAllocatedTasks() {
         return allocatedTasks;
-    }
-    
-    public List<AllocatedFixedTask> getNewTasks() {
-        return newAllocatedTasks;
     }
     
     public Double getExecTime() {
         double cycles = 0;
         
-        for (AllocatedFixedTask task : allocatedTasks)
-            cycles += task.cost;
+        for (JobInfo task : allocatedTasks)
+            cycles += task.getWorstExecution();
         
         return cycles/clock;
     }
@@ -66,8 +56,8 @@ public class Resource {
     public Double getCost() {
         float cycles = 0;
         
-        for (AllocatedFixedTask task : allocatedTasks)
-            cycles += task.cost;
+        for (JobInfo task : allocatedTasks)
+            cycles += task.getWorstExecution();
         
         return cost*cycles/clock;
     }
@@ -84,7 +74,7 @@ public class Resource {
 
     @Override
     public String toString() {
-        return "Id: " + id + ", Clock: " + clock + ", Cost: " + cost;
+        return "Id: " + id + ", Time: " + getExecTime() + ", Cost: " + getCost();
     }
     
 }

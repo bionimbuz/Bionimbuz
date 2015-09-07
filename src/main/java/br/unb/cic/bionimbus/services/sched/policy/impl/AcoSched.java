@@ -36,9 +36,9 @@ public class AcoSched extends SchedPolicy {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AcoSched.class.getSimpleName());
     
     @Override
-    public HashMap<JobInfo, PluginInfo> schedule(PipelineInfo pipeline) {
+    public HashMap<JobInfo, PluginInfo> schedule(List<JobInfo> jobs) {
         HashMap jobCloud = new HashMap<JobInfo, PluginInfo>();
-        JobInfo biggerJob = getBiggerJob(pipeline.getJobs());
+        JobInfo biggerJob = getBiggerJob(jobs);
         biggerJob.setTimestamp(System.currentTimeMillis());
         
         jobCloud.put(biggerJob, scheduleJob(biggerJob));

@@ -97,7 +97,6 @@ public class SchedullerTester {
             }
         } else {
             List<PipelineInfo> pipelines = PipelineTestGenerator.getPipelinesTemplates();
-            List<PluginService> services = PipelineTestGenerator.getServicesTemplates();
             List<PluginInfo> resources = PipelineTestGenerator.getResourceTemplates();
             
             // flush test data
@@ -105,15 +104,11 @@ public class SchedullerTester {
             PrintWriter pwr = new PrintWriter("pipelines.txt", "UTF-8");
             for (PipelineInfo p : pipelines)
                 pwr.println(p.toString());
-            PrintWriter swr = new PrintWriter("services.txt", "UTF-8");
-            for (PluginService s : services)
-                swr.println(s.toString());
             PrintWriter rwr = new PrintWriter("resources.txt", "UTF-8");
             for (PluginInfo r : resources)
                 rwr.println(r.toString());
             
             // add data to zookeeper
-            tester.addServices(services);
             tester.addResources(resources);
             
             System.out.println("[SchedTester] starting testing with " + pipelines.size() + " pipelines");

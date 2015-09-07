@@ -132,7 +132,7 @@ public class RepositoryService extends AbstractBioService {
         for (Map.Entry<String, PluginInfo> peer : getPeers().entrySet()) {
             Resource r = new Resource(peer.getValue().getId(),
                         peer.getValue().getFactoryFrequencyCore(),
-                        peer.getValue().getCostPerHour(this));
+                        peer.getValue().getCostPerHour());
             resources.resources.add(r);
         }
         

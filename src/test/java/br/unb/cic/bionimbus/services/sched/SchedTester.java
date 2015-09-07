@@ -51,7 +51,7 @@ public class SchedTester {
 
     public SchedPolicy getPolicy() {
         if (schedPolicy == null) {
-            schedPolicy = SchedPolicy.getInstance(1, cloudMap);
+            schedPolicy = SchedPolicy.getInstance(SchedPolicy.Policy.ACO_SCHED, cloudMap);
         }
         return schedPolicy;
     }

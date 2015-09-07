@@ -8,7 +8,6 @@ import java.util.Map;
 
 import Jama.Matrix;
 import br.unb.cic.bionimbus.client.JobInfo;
-import br.unb.cic.bionimbus.client.PipelineInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskState;
@@ -27,8 +26,8 @@ public class AHPPolicy extends SchedPolicy {
     }
 
     @Override
-    public HashMap<JobInfo, PluginInfo> schedule(PipelineInfo pipeline) {
-        List<JobInfo> jobInfos = pipeline.getJobs();
+    public HashMap<JobInfo, PluginInfo> schedule(List<JobInfo> jobs) {
+        List<JobInfo> jobInfos = jobs;
         if (jobInfos==null || jobInfos.isEmpty()) return null;
 
         HashMap<JobInfo, PluginInfo> jobMap = new HashMap<JobInfo, PluginInfo>();
