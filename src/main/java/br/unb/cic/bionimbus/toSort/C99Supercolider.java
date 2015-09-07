@@ -446,7 +446,8 @@ public class C99Supercolider extends SchedPolicy {
     
     @Override
     public HashMap<JobInfo, PluginInfo> schedule(List<JobInfo> jobs) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        schedule(rs.getCurrentResourceList(), jobs);
+        return null;
     }
 
     @Override

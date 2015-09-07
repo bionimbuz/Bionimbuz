@@ -27,11 +27,25 @@ public class JobInfo {
 
     private long timestamp;
     
-    private double worstExecution;
+    private Double worstExecution = null;
     
     final private List<String> dependencies = new ArrayList<String>();
+    
+    private RepositoryService rs;
 
     public JobInfo() {}
+    
+    public JobInfo(RepositoryService rs) {
+        this.rs = rs;
+    }
+    
+    /**
+     * This constructor is for testing purposes only
+     * @param worstExecution 
+     */
+    public JobInfo(double worstExecution) {
+        this.worstExecution = worstExecution;
+    }
     
     public String getId() {
         return id;
@@ -97,18 +111,30 @@ public class JobInfo {
         this.timestamp = timestamp;
     }
     
-    public Double getWorstExecution() {
-        return worstExecution;
-    }
-    
+    /**
+     * To be used only by avro
+     * @param worstExecution
+     */
     public void setWorstExecution(double worstExecution) {
         this.worstExecution = worstExecution;
     }
     
-    /**
-     * Add a dependency to be executed beforehand
-     * @param id The unique id of a job
-     */
+    public Double getWorstExecution() {
+        if (worstExecution == null) {
+            List<Double> history = rs.getTaskHistory(serviceId);
+            double max = 0d;
+            for (Double ex : history)
+                if (ex > max)
+                    max = ex;
+            worstExecution = max;
+        }
+        return worstExecution;
+    }
+    
+//    /**
+//     * Add a dependency to be executed beforehand
+//     * @param id The unique id of a job
+//     */
     public void addDependency(String id) {
         dependencies.add(id);
     }

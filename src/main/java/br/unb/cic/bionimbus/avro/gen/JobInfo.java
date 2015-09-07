@@ -7,7 +7,7 @@ package br.unb.cic.bionimbus.avro.gen;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class JobInfo extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"JobInfo\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"localId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"serviceId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"args\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"inputs\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Pair\",\"fields\":[{\"name\":\"first\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"second\",\"type\":\"long\"}]}}},{\"name\":\"outputs\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"timestamp\",\"type\":\"long\"}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"JobInfo\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"localId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"serviceId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"args\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"inputs\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Pair\",\"fields\":[{\"name\":\"first\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"second\",\"type\":\"long\"}]}}},{\"name\":\"outputs\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"timestamp\",\"type\":\"long\"},{\"name\":\"worstExecution\",\"type\":\"double\"}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public java.lang.String id;
   @Deprecated public java.lang.String localId;
@@ -16,6 +16,7 @@ public class JobInfo extends org.apache.avro.specific.SpecificRecordBase impleme
   @Deprecated public java.util.List<br.unb.cic.bionimbus.avro.gen.Pair> inputs;
   @Deprecated public java.util.List<java.lang.String> outputs;
   @Deprecated public long timestamp;
+  @Deprecated public double worstExecution;
 
   /**
    * Default constructor.
@@ -25,7 +26,7 @@ public class JobInfo extends org.apache.avro.specific.SpecificRecordBase impleme
   /**
    * All-args constructor.
    */
-  public JobInfo(java.lang.String id, java.lang.String localId, java.lang.String serviceId, java.lang.String args, java.util.List<br.unb.cic.bionimbus.avro.gen.Pair> inputs, java.util.List<java.lang.String> outputs, java.lang.Long timestamp) {
+  public JobInfo(java.lang.String id, java.lang.String localId, java.lang.String serviceId, java.lang.String args, java.util.List<br.unb.cic.bionimbus.avro.gen.Pair> inputs, java.util.List<java.lang.String> outputs, java.lang.Long timestamp, java.lang.Double worstExecution) {
     this.id = id;
     this.localId = localId;
     this.serviceId = serviceId;
@@ -33,6 +34,7 @@ public class JobInfo extends org.apache.avro.specific.SpecificRecordBase impleme
     this.inputs = inputs;
     this.outputs = outputs;
     this.timestamp = timestamp;
+    this.worstExecution = worstExecution;
   }
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
@@ -46,6 +48,7 @@ public class JobInfo extends org.apache.avro.specific.SpecificRecordBase impleme
     case 4: return inputs;
     case 5: return outputs;
     case 6: return timestamp;
+    case 7: return worstExecution;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -60,6 +63,7 @@ public class JobInfo extends org.apache.avro.specific.SpecificRecordBase impleme
     case 4: inputs = (java.util.List<br.unb.cic.bionimbus.avro.gen.Pair>)value$; break;
     case 5: outputs = (java.util.List<java.lang.String>)value$; break;
     case 6: timestamp = (java.lang.Long)value$; break;
+    case 7: worstExecution = (java.lang.Double)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -169,6 +173,21 @@ public class JobInfo extends org.apache.avro.specific.SpecificRecordBase impleme
     this.timestamp = value;
   }
 
+  /**
+   * Gets the value of the 'worstExecution' field.
+   */
+  public java.lang.Double getWorstExecution() {
+    return worstExecution;
+  }
+
+  /**
+   * Sets the value of the 'worstExecution' field.
+   * @param value the value to set.
+   */
+  public void setWorstExecution(java.lang.Double value) {
+    this.worstExecution = value;
+  }
+
   /** Creates a new JobInfo RecordBuilder */
   public static br.unb.cic.bionimbus.avro.gen.JobInfo.Builder newBuilder() {
     return new br.unb.cic.bionimbus.avro.gen.JobInfo.Builder();
@@ -197,6 +216,7 @@ public class JobInfo extends org.apache.avro.specific.SpecificRecordBase impleme
     private java.util.List<br.unb.cic.bionimbus.avro.gen.Pair> inputs;
     private java.util.List<java.lang.String> outputs;
     private long timestamp;
+    private double worstExecution;
 
     /** Creates a new Builder */
     private Builder() {
@@ -238,6 +258,10 @@ public class JobInfo extends org.apache.avro.specific.SpecificRecordBase impleme
       if (isValidValue(fields()[6], other.timestamp)) {
         this.timestamp = data().deepCopy(fields()[6].schema(), other.timestamp);
         fieldSetFlags()[6] = true;
+      }
+      if (isValidValue(fields()[7], other.worstExecution)) {
+        this.worstExecution = data().deepCopy(fields()[7].schema(), other.worstExecution);
+        fieldSetFlags()[7] = true;
       }
     }
 
@@ -415,6 +439,30 @@ public class JobInfo extends org.apache.avro.specific.SpecificRecordBase impleme
       return this;
     }
 
+    /** Gets the value of the 'worstExecution' field */
+    public java.lang.Double getWorstExecution() {
+      return worstExecution;
+    }
+    
+    /** Sets the value of the 'worstExecution' field */
+    public br.unb.cic.bionimbus.avro.gen.JobInfo.Builder setWorstExecution(double value) {
+      validate(fields()[7], value);
+      this.worstExecution = value;
+      fieldSetFlags()[7] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'worstExecution' field has been set */
+    public boolean hasWorstExecution() {
+      return fieldSetFlags()[7];
+    }
+    
+    /** Clears the value of the 'worstExecution' field */
+    public br.unb.cic.bionimbus.avro.gen.JobInfo.Builder clearWorstExecution() {
+      fieldSetFlags()[7] = false;
+      return this;
+    }
+
     @Override
     public JobInfo build() {
       try {
@@ -426,6 +474,7 @@ public class JobInfo extends org.apache.avro.specific.SpecificRecordBase impleme
         record.inputs = fieldSetFlags()[4] ? this.inputs : (java.util.List<br.unb.cic.bionimbus.avro.gen.Pair>) defaultValue(fields()[4]);
         record.outputs = fieldSetFlags()[5] ? this.outputs : (java.util.List<java.lang.String>) defaultValue(fields()[5]);
         record.timestamp = fieldSetFlags()[6] ? this.timestamp : (java.lang.Long) defaultValue(fields()[6]);
+        record.worstExecution = fieldSetFlags()[7] ? this.worstExecution : (java.lang.Double) defaultValue(fields()[7]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

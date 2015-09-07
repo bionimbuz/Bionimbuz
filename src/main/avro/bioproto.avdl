@@ -228,6 +228,7 @@ protocol BioProto {
     array<Pair> inputs;
     array<string> outputs;
     long timestamp;
+    double worstExecution;
   }
 
   record PipelineInfo {

@@ -1,7 +1,6 @@
 package br.unb.cic.bionimbus.plugin;
 
 import br.unb.cic.bionimbus.p2p.Host;
-import br.unb.cic.bionimbus.toSort.RepositoryService;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,7 +49,7 @@ public class PluginInfo implements PluginOps {
 
     private List<PluginService> services;
     
-    private Double costPerHour = null;
+    private double costPerHour;
 
     public PluginInfo() {
     }

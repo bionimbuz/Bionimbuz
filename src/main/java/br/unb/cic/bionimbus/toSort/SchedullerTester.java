@@ -23,7 +23,6 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -54,7 +53,7 @@ public class SchedullerTester {
     private void initCommunication() {
         cms = new CuratorMessageService();
         try {
-            Enumeration<InetAddress> inet = NetworkInterface.getByName("wlan0").getInetAddresses();
+            Enumeration<InetAddress> inet = NetworkInterface.getByName("eth0").getInetAddresses();
             String ip = "";
             while (inet.hasMoreElements())
                 ip = inet.nextElement().toString();
@@ -97,6 +96,7 @@ public class SchedullerTester {
             }
         } else {
             List<PipelineInfo> pipelines = PipelineTestGenerator.getPipelinesTemplates();
+            List<PluginService> services = PipelineTestGenerator.getServicesTemplates();
             List<PluginInfo> resources = PipelineTestGenerator.getResourceTemplates();
             
             // flush test data
@@ -104,11 +104,15 @@ public class SchedullerTester {
             PrintWriter pwr = new PrintWriter("pipelines.txt", "UTF-8");
             for (PipelineInfo p : pipelines)
                 pwr.println(p.toString());
+            PrintWriter swr = new PrintWriter("services.txt", "UTF-8");
+            for (PluginService s : services)
+                swr.println(s.toString());
             PrintWriter rwr = new PrintWriter("resources.txt", "UTF-8");
             for (PluginInfo r : resources)
                 rwr.println(r.toString());
             
             // add data to zookeeper
+            tester.addServices(services);
             tester.addResources(resources);
             
             System.out.println("[SchedTester] starting testing with " + pipelines.size() + " pipelines");
@@ -162,6 +166,7 @@ public class SchedullerTester {
         
         JobInfo taskList[];
         
+        
         // get pipeline file path
         String pathHome = System.getProperty("user.dir");
         String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
@@ -176,7 +181,7 @@ public class SchedullerTester {
         for (int i=0; i<tasksNumber; i++) {
             // generate a new jobInfo from json
             line = br.readLine();
-            JobInfo jobInfo = new JobInfo();
+            JobInfo jobInfo = new JobInfo(rs);
             jobInfo.setTimestamp(0l);
             
             // set serviceId from json
@@ -241,6 +246,7 @@ public class SchedullerTester {
             job.setLocalId(config.getHost().getAddress());
             job.setServiceId(jobInfo.getServiceId());
             job.setTimestamp(jobInfo.getTimestamp());
+            job.setWorstExecution(jobInfo.getWorstExecution());
             List<Pair> listPair = new ArrayList<Pair>();
             for (br.unb.cic.bionimbus.utils.Pair<String, Long> pairInfo : jobInfo.getInputs()) {
                 Pair pair = new Pair();

@@ -13,9 +13,9 @@ import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
-import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import static br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path.PEERS;
 import static br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path.PIPELINES;
+import static br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path.PREFIX_PIPELINE;
 import static br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path.SCHED;
 import static br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path.SEPARATOR;
 import static br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path.STATUS;
@@ -172,8 +172,6 @@ public class SchedService extends AbstractBioService implements Runnable {
             // sched all pending jobs
             schedMap = getPolicy().schedule(pendingJobs);
 
-            return;
-
 //            for (Map.Entry<JobInfo, PluginInfo> entry : schedMap.entrySet()) {
 //                JobInfo jobInfo = entry.getKey();
 //
@@ -202,7 +200,7 @@ public class SchedService extends AbstractBioService implements Runnable {
 //                    LOGGER.info("JobID: " + jobInfo.getId() + " não escalonado");
 //                }
 //            }
-            //chamada recursiva para escalonar todos os jobs enviados, só é chamada após um
+//            //chamada recursiva para escalonar todos os jobs enviados, só é chamada após um
 //            scheduleJobs();
             
         }
@@ -751,10 +749,15 @@ public class SchedService extends AbstractBioService implements Runnable {
                             // get pipelines and add them to pendingPipelines
                             for (String pipelineReady : pipelinesId) {                            
                                 ObjectMapper mapper = new ObjectMapper();
-                                datas = cms.getData(cms.getPath().PREFIX_PIPELINE.getFullPath(pipelineReady.substring(9)), null);
+                                datas = cms.getData(PREFIX_PIPELINE.getFullPath(pipelineReady.substring(9)), null);
                                 PipelineInfo pipeline = mapper.readValue(datas, PipelineInfo.class);
-                                System.out.println("[SchedService:756] TODO: enforce jobs dependencies");
+
+                                // add jobs to pendingJobs list
+                                System.out.println("[SchedService] TODO: enforce jobs dependencies");
                                 pendingJobs.addAll(pipeline.getJobs());
+                                
+                                // remove pipeline from zookeeper
+                                cms.delete(PREFIX_PIPELINE.getFullPath(pipelineReady.substring(9)));
                             }
 
 //                            for (String child : children) {
