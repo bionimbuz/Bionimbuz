@@ -28,35 +28,24 @@ public class PipelineTestGenerator {
         double worstExecStart   =  50000000000d;
         double worstExecMaxStep = 500000000000d;
         
-        int numMaxModes = 6;
+        int numMaxModes = 3;
         double modeStart = 50000000000d;
         double modeMaxStep = 500000000000d;
         ArrayList<Double> modeTemplates = new ArrayList<Double>();
         
-        int numMaxServices = 6;
+        int numMaxServices = 5;
         
-        int numMaxResources = 2;
+        int numMaxResources = 0;
         double minCpuFrequency = 2400000000d;
         double maxCpuFrequency = 4000000000d;
         double minCostPerHour = 0.0002d;
         double maxCostPerHour = 0.05d;
         
-        int numTasksStep = 2;
+        int numTasksStep = 4;
         int numMaxTasks = numTasksStep;
         List<Integer> numTasksList = new ArrayList<Integer>();
         
         Random rn = new Random(new java.util.Date().getTime());
-        
-        // generate resources
-        for (int i=1; i<=numMaxResources; i++) {
-            PluginInfo resource = new PluginInfo();
-            resource.setId(UUID.randomUUID().toString());
-            double freq = minCpuFrequency + rn.nextDouble()*(maxCpuFrequency - minCpuFrequency);
-            resource.setFactoryFrequencyCore(freq);
-            double cost = minCostPerHour +  rn.nextDouble()*(maxCostPerHour - minCostPerHour);
-            resource.setCostPerHour(cost);
-            resourceTemplates.add(resource);
-        }
         
         // generate mode templates
         modeTemplates.add(modeStart);
@@ -91,6 +80,7 @@ public class PipelineTestGenerator {
             resource.setFactoryFrequencyCore(freq);
             double cost = minCostPerHour +  rn.nextDouble()*(maxCostPerHour - minCostPerHour);
             resource.setCostPerHour(cost);
+            resource.setServices(servicesTemplates);
             resourceTemplates.add(resource);
         }
         

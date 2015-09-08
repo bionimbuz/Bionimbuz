@@ -1,7 +1,6 @@
 package br.unb.cic.bionimbus.services.sched.policy;
 
 import br.unb.cic.bionimbus.client.JobInfo;
-import br.unb.cic.bionimbus.client.PipelineInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;

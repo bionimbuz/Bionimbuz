@@ -36,8 +36,10 @@ public class LinuxPlugin extends AbstractPlugin{
     @Override
     public Future<PluginTask> startTask(PluginTask task, CloudMessageService zk) {
         PluginService service = getMyInfo().getService(task.getJobInfo().getServiceId());
-        if (service == null)
+        if (service == null) {
+            System.out.println("[LinuxPlugin] Task's service is not installed on this instance.");
             return null;
+        }
 
         return executorService.submit(new PluginTaskRunner(this, task, service, getConfig().getServerPath(), zk));
     }

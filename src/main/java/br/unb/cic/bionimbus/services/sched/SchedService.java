@@ -16,6 +16,7 @@ import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import static br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path.PEERS;
 import static br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path.PIPELINES;
 import static br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path.PREFIX_PIPELINE;
+import static br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path.PREFIX_TASK;
 import static br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path.SCHED;
 import static br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path.SEPARATOR;
 import static br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path.STATUS;
@@ -171,37 +172,37 @@ public class SchedService extends AbstractBioService implements Runnable {
 
             // sched all pending jobs
             schedMap = getPolicy().schedule(pendingJobs);
+            System.out.println("[SchedService] Sched result:");
+            System.out.println(schedMap.toString());
 
-//            for (Map.Entry<JobInfo, PluginInfo> entry : schedMap.entrySet()) {
-//                JobInfo jobInfo = entry.getKey();
-//
-//                LOGGER.info("[SchedService] Tempo de escalonamento: " + (System.currentTimeMillis() - jobInfo.getTimestamp())+" milesegundos");
-//
-//                PluginInfo pluginInfo = entry.getValue();
-//                PluginTask task = new PluginTask();
-//                task.setJobInfo(jobInfo);
-//                if (pluginInfo != null) {
-//                    LOGGER.info("[SchedService] SCHEDULE JobID: " + jobInfo.getId()+ " , saida:("+jobInfo.getOutputs()+") escalonado para peer_" + pluginInfo.getId());
-//
-//                    task.setState(PluginTaskState.PENDING);
-//                    task.setPluginExec(pluginInfo.getId());
-//                    task.setPluginTaskPathZk(pluginInfo.getPath_zk() + SCHED + TASKS + PREFIX_TASK + task.getId());
-//                    //adiciona o job na lista de execução do servidor zookeeper
-//                    cms.createZNode(CreateMode.PERSISTENT, task.getPluginTaskPathZk(), task.toString());
-//
-//                    //retira o pipeline da lista de pipelines para escanolamento no zookeeper
+            for (Map.Entry<JobInfo, PluginInfo> entry : schedMap.entrySet()) {
+                JobInfo jobInfo = entry.getKey();
+
+                PluginInfo pluginInfo = entry.getValue();
+                PluginTask task = new PluginTask();
+                task.setJobInfo(jobInfo);
+                if (pluginInfo != null) {
+                    LOGGER.info("[SchedService] SCHEDULE JobID: " + jobInfo.getId()+ " , saida:("+jobInfo.getOutputs()+") escalonado para peer_" + pluginInfo.getId());
+
+                    task.setState(PluginTaskState.PENDING);
+                    task.setPluginExec(pluginInfo.getId());
+                    task.setPluginTaskPathZk(pluginInfo.getPath_zk() + SCHED + TASKS + PREFIX_TASK + task.getId());
+                    //adiciona o job na lista de execução do servidor zookeeper
+                    cms.createZNode(CreateMode.PERSISTENT, task.getPluginTaskPathZk(), task.toString());
+
+                    //retira o pipeline da lista de pipelines para escanolamento no zookeeper
 //                    cms.delete(cms.getPath().PREFIX_PIPELINE.getFullPath(pipeline.getId()));
-//                    //retira o pipelineda lista de jobs para escalonamento
-//                    pendingPipelines.remove(pipeline);
-////                    //adiciona a lista de jobs que aguardam execução
-////                    waitingTask.put(task.getJobInfo().getId(), new Pair<PluginInfo, PluginTask>(pluginInfo,task));
-//
-//                } else {
-//                    LOGGER.info("JobID: " + jobInfo.getId() + " não escalonado");
-//                }
-//            }
-//            //chamada recursiva para escalonar todos os jobs enviados, só é chamada após um
-//            scheduleJobs();
+                    //retira o pipelineda lista de jobs para escalonamento
+                    pendingJobs.remove(jobInfo);
+                    //adiciona a lista de jobs que aguardam execução
+                    waitingTask.put(task.getJobInfo().getId(), new Pair<PluginInfo, PluginTask>(pluginInfo,task));
+                    LOGGER.info("JobID: " + jobInfo.getId() + " escalonado para " + pluginInfo.getId());
+                } else {
+                    LOGGER.info("JobID: " + jobInfo.getId() + " não escalonado");
+                }
+            }
+            //chamada recursiva para escalonar todos os jobs enviados, só é chamada após um
+            scheduleJobs();
             
         }
     }
@@ -546,6 +547,7 @@ public class SchedService extends AbstractBioService implements Runnable {
      * satisfizer essas condições.
      */
     private void checkStatusTask() {
+        System.out.println("[SchedService] checkStatusTask");
         for (Pair<PluginInfo, PluginTask> pair : waitingTask.values()) {
             if (myLinuxPlugin.getMyInfo().getId().equals(pair.first.getId()) && pair.second.getState() == PluginTaskState.PENDING) {
                 try {
@@ -564,6 +566,7 @@ public class SchedService extends AbstractBioService implements Runnable {
      */
     private void checkTasks() {
         try {
+            System.out.println("[SchedService] checkTasks");
             if (waitingTask!=null && !waitingTask.isEmpty()) {
                 for (Pair<PluginInfo, PluginTask> pair : waitingTask.values()) {
                     if (pair.first.getHost().getAddress().equals(myLinuxPlugin.getMyInfo().getHost().getAddress())) {
@@ -598,7 +601,7 @@ public class SchedService extends AbstractBioService implements Runnable {
      * @param task
      */
     private void executeTasks(PluginTask task) throws Exception {
-        System.out.println("Recebimento do pedido de execução da tarefa!");
+        System.out.println("[SchedService] Recebimento do pedido de execução da tarefa!");
         //TODO otimiza chamada de checage dos arquivos
         checkFilesPlugin();
         //verifica se o arquivo existe no plugin se não cria a solicitação de transfêrencia do arquivo
@@ -607,15 +610,19 @@ public class SchedService extends AbstractBioService implements Runnable {
 //                task.setState(PluginTaskState.WAITING);
 //            }
             task.setState(PluginTaskState.ERRO);
+            System.out.println("[SchedService] executeTasks: task " + task.getId() + " error.");
             return;
         }
         if (!existFiles(task.getJobInfo().getInputs())) {
             requestFile(task.getJobInfo().getInputs());
+            System.out.println("[SchedService] executeTasks: task " + task.getId() + " files not present.");
         }
         if (existFiles(task.getJobInfo().getInputs())) {
             myLinuxPlugin.startTask(task, cms);
+            System.out.println("[SchedService] executeTasks: task " + task.getId() + " started.");
         } else {
             task.setState(PluginTaskState.WAITING);
+            System.out.println("[SchedService] executeTasks: task " + task.getId() + " waiting.");
         }
         
     }
@@ -630,12 +637,14 @@ public class SchedService extends AbstractBioService implements Runnable {
      */
     private boolean existFiles(List<Pair<String, Long>> listInputFiles) {
         
+        if (listInputFiles.isEmpty())
+            return true;
+        
         for (Pair<String, Long> fileInput : listInputFiles) {
             if (mapFilesPlugin.containsKey(fileInput.first)) {
                 return true;
             }
         }
-        
         return false;
     }
     
@@ -760,31 +769,13 @@ public class SchedService extends AbstractBioService implements Runnable {
                                 cms.delete(PREFIX_PIPELINE.getFullPath(pipelineReady.substring(9)));
                             }
 
-//                            for (String child : children) {
-//                                ObjectMapper mapper = new ObjectMapper();
-//                                datas = cms.getData(eventType.getPath() + SEPARATOR + child, null);
-//                                JobInfo job = mapper.readValue(datas, JobInfo.class);
-//
-//                                //rotina para criar bloqueio para que nenhuma outra máquina selecione o job para escalonar       ->>>comentado para verificar problema de concorrência
-////                                if (!cms.getZNodeExist(cms.getPath().LOCK_JOB.getFullPath("", "", job.getId()), true)) {
-//                                if(job.getLocalId().equals(myLinuxPlugin.getMyInfo().getHost().getAddress())){
-////                                    String result = cms.createEphemeralZNode(cms.getPath().LOCK_JOB.getFullPath("", "", job.getId()), "");
-//                                    setLatencyPlugins(job);
-////                                    if (result != null) {
-//                                    if (!getPendingJobs().containsKey(job.getId())) {
-//                                        getPendingJobs().put(job.getId(), job);
-//                                        System.out.println("(NodeChildrenChanged)>>Tamanho da lista de JOBS para execução :  "+getPendingJobs().size());
-//                                    }
-////                                    }
-//                                }
-//                            }
-//                            if (!getPendingJobs().isEmpty()) {
+                            if (!pendingJobs.isEmpty()) {
                                 scheduleJobs();
-//                            }
+                            }
                         }
                         
                     } else if (eventType.getPath().contains(SCHED.toString() + TASKS)) {
-                        System.out.println(">>>>>>Recebimento de um alerta para uma TAREFA, NodeChildrenChanged<<<<<");
+                        System.out.println("[SchedService] Recebimento de um alerta para uma TAREFA");
                         //verifica qual foi o job colocado para ser executado
                         PluginTask pluginTask = getNewTask(eventType.getPath());
                         //verifica se um existe algum novo pluginTask

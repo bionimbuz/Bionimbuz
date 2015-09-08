@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -447,7 +448,17 @@ public class C99Supercolider extends SchedPolicy {
     @Override
     public HashMap<JobInfo, PluginInfo> schedule(List<JobInfo> jobs) {
         schedule(rs.getCurrentResourceList(), jobs);
-        return null;
+        
+        HashMap<JobInfo, PluginInfo> sched = new HashMap<JobInfo, PluginInfo>();
+        Map<String, PluginInfo> peers = rs.getPeers();
+        
+        for (Resource r : best.resources) {
+            for (JobInfo j : r.getAllocatedTasks()) {
+                sched.put(j, peers.get(r.id));
+            }
+        }
+
+        return sched;
     }
 
     @Override
