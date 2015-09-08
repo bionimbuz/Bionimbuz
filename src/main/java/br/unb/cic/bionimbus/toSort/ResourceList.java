@@ -61,5 +61,10 @@ public class ResourceList {
         
         return maxTime;
     }
+
+    @Override
+    public String toString() {
+        return "c: " + getFullCost() + " - t: " + getMaxTime();
+    }
     
 }

@@ -42,15 +42,18 @@ public abstract class AbstractBioService implements Service, Runnable, Listeners
         try {
             cms.getPath();
             children = cms.getChildren(cms.getPath().PEERS.getFullPath(), null);
+//            System.out.println("[AbstractBioService] children got: " + children.size());
             for (String pluginId : children) {
                 ObjectMapper mapper = new ObjectMapper();
                 String id=pluginId.substring(pluginId.indexOf(cms.getPath().UNDERSCORE.toString())+1);
                 String datas = cms.getData(cms.getPath().PREFIX_PEER.getFullPath(id), null);
+//                System.out.println("[AbstractBioService] data got: " + datas);
                 if (datas != null && !datas.trim().isEmpty()){
                     PluginInfo myInfo = mapper.readValue(datas, PluginInfo.class);
-                    
+//                    System.out.println("[AbstractBioService] info mapped: " + myInfo.toString());
                     if(cms.getZNodeExist(cms.getPath().STATUS.getFullPath(id), null)){ 
                        cloudMap.put(myInfo.getId(), myInfo);
+//                        System.out.println("[AbstractBioService] peer put: " + myInfo.getId());
                     }
                 }
             }

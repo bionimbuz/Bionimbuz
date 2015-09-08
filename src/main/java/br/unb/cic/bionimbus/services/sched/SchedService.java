@@ -160,7 +160,7 @@ public class SchedService extends AbstractBioService implements Runnable {
      * um novo job foi criado para ser escalonado.
      */
     private synchronized void scheduleJobs() throws InterruptedException, KeeperException {
-        HashMap<JobInfo, PluginInfo> schedMap = null;
+        HashMap<JobInfo, PluginInfo> schedMap;
         
         // Caso nao exista nenhum pipeline pendente da a chance do escalonador
         // realocar as tarefas.

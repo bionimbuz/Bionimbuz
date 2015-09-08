@@ -133,6 +133,7 @@ public class RepositoryService extends AbstractBioService {
             Resource r = new Resource(peer.getValue().getId(),
                         peer.getValue().getFactoryFrequencyCore(),
                         peer.getValue().getCostPerHour());
+            System.out.println("[RepositoryService] resource converted: " + r.toString());
             resources.resources.add(r);
         }
         
@@ -179,6 +180,9 @@ public class RepositoryService extends AbstractBioService {
      */
     public void addPeerToZookeeper (PluginInfo resource) {
         cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.PREFIX_PEER.getFullPath(resource.getId()), resource.toString());
+        cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.STATUS.getFullPath(resource.getId()), null);
+        cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.SCHED.getFullPath(resource.getId()), null);
+        cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.TASKS.getFullPath(resource.getId()), null);
     }
     
     @Override

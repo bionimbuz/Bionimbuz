@@ -35,7 +35,7 @@ public class PipelineTestGenerator {
         
         int numMaxServices = 5;
         
-        int numMaxResources = 0;
+        int numMaxResources = 4;
         double minCpuFrequency = 2400000000d;
         double maxCpuFrequency = 4000000000d;
         double minCostPerHour = 0.0002d;

@@ -49,7 +49,7 @@ public class PluginInfo implements PluginOps {
 
     private List<PluginService> services;
     
-    private double costPerHour;
+    private double costPerHour = 110d;
 
     public PluginInfo() {
     }

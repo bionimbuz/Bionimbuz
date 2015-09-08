@@ -96,6 +96,11 @@ public class C99Supercolider extends SchedPolicy {
             nextNode = node.toVisit.poll();
             node.visiting.add(nextNode);
 //            printSearchNode(node, 0);
+            System.out.println("priorityQueue:");
+            for (Resource r : nextNode.rl.resources) {
+                System.out.println(r.toString());
+            }
+            System.out.println();
             // set the next node (depth. next task) by the priority queue 
             // toVisit of the current node
             node = nextNode;
@@ -272,7 +277,12 @@ public class C99Supercolider extends SchedPolicy {
         // generate a pareto curve and also get the remaining ResourceLists
         Pair<List<ResourceList>, List<ResourceList>> rlPair = Pareto.getParetoCurve(rls);
         List<ResourceList> pareto = rlPair.first;
+//        System.out.println("Resources:");
+//        System.out.println(Arrays.toString(rls.toArray()));
+//        System.out.println("generatePriorityQueue pareto: ");
+//        System.out.println(Arrays.toString(pareto.toArray()));
         List<ResourceList> remaining = rlPair.second;
+//        System.out.println("generatePriorityQueue remaining size: " + remaining.size());
         
         // create an ordered queue by how pareto-optimal a solution is
         Queue<SearchNode> priorityQueue = new LinkedList<SearchNode>();
@@ -282,6 +292,8 @@ public class C99Supercolider extends SchedPolicy {
             priorityQueue.add(new SearchNode(currentBest, id));
             id++;
         }
+        
+//        System.out.println("out");
         
         // create another queue with the remaining solutions, thus, 
         // guaranteeing completeness 
@@ -454,6 +466,7 @@ public class C99Supercolider extends SchedPolicy {
         
         for (Resource r : best.resources) {
             for (JobInfo j : r.getAllocatedTasks()) {
+                System.out.println("T" + j.getId() + " -> R" + r.id);
                 sched.put(j, peers.get(r.id));
             }
         }
