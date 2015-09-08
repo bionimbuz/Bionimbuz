@@ -34,7 +34,7 @@ public class Pareto {
         List<ResourceList> paretoCurve = new ArrayList();
         List<ResourceList> remaining = new ArrayList();
         
-        double limitTime = Double.MAX_VALUE;
+        double limitTime = Double.POSITIVE_INFINITY;
         
         // sort the list of ResourceList by cost 
         Collections.sort(resources, new Comparator<ResourceList>() {

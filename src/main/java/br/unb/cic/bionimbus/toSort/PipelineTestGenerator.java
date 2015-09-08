@@ -29,7 +29,7 @@ public class PipelineTestGenerator {
         double worstExecMaxStep = 500000000000d;
         
         int numMaxModes = 3;
-        double modeStart = 50000000000d;
+        double modeStart   =  50000000000d;
         double modeMaxStep = 500000000000d;
         ArrayList<Double> modeTemplates = new ArrayList<Double>();
         

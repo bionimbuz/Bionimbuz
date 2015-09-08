@@ -25,7 +25,7 @@ public class ParetoInfResourceList extends ResourceList{
     @Override
     public Double getFullCost() {
         if (type == ElemType.COST)
-            return Double.MAX_VALUE;
+            return Double.POSITIVE_INFINITY;
         else
             return 0d;
     }
@@ -33,7 +33,7 @@ public class ParetoInfResourceList extends ResourceList{
     @Override
     public Double getMaxTime() {
         if (type == ElemType.TIME)
-            return Double.MAX_VALUE;
+            return Double.POSITIVE_INFINITY;
         else
             return 0d;
     }

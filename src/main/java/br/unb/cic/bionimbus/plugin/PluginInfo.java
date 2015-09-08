@@ -49,7 +49,7 @@ public class PluginInfo implements PluginOps {
 
     private List<PluginService> services;
     
-    private double costPerHour = 110d;
+    private double costPerHour = Double.MAX_VALUE;
 
     public PluginInfo() {
     }
