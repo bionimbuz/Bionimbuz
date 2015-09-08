@@ -86,8 +86,7 @@ public class C99Supercolider extends SchedPolicy {
         SearchNode root = node;
         JobInfo job;
         
-        System.out.println("Stage One");
-        System.out.println("");
+        System.out.println("[C99Supercolider] Stage One");
         
         // allocate all jobs
         while (!jobs.isEmpty()) {
@@ -96,11 +95,11 @@ public class C99Supercolider extends SchedPolicy {
             nextNode = node.toVisit.poll();
             node.visiting.add(nextNode);
 //            printSearchNode(node, 0);
-            System.out.println("priorityQueue:");
-            for (Resource r : nextNode.rl.resources) {
-                System.out.println(r.toString());
-            }
-            System.out.println();
+//            System.out.println("priorityQueue:");
+//            for (Resource r : nextNode.rl.resources) {
+//                System.out.println(r.toString());
+//            }
+//            System.out.println();
             // set the next node (depth. next task) by the priority queue 
             // toVisit of the current node
             node = nextNode;
@@ -128,8 +127,7 @@ public class C99Supercolider extends SchedPolicy {
         SearchNode node;
         SearchNode nextNode;
         
-        System.out.println("Stage Two");
-        System.out.println("");
+        System.out.println("[C99Supercolider] Stage Two");
         
         // rework every i allocation
         for (int i=0; i<jobs.size(); i++) {
@@ -180,8 +178,7 @@ public class C99Supercolider extends SchedPolicy {
      * @see C99Supercolider.beamSearch
      */
     private void stageThree(SearchNode root, int maxBeam) {
-        System.out.println("Stage Three");
-        System.out.println("");
+        System.out.println("[C99Supercolider] Stage Three");
         
         for (beam = 2; beam <= maxBeam; beam++) {
             beamSearch(root, jobs.size());
@@ -287,7 +284,11 @@ public class C99Supercolider extends SchedPolicy {
         // create an ordered queue by how pareto-optimal a solution is
         Queue<SearchNode> priorityQueue = new LinkedList<SearchNode>();
         while (!pareto.isEmpty()) {
-            ResourceList currentBest = Pareto.getParetoOptimal(pareto, alpha);
+            ResourceList currentBest;
+            if ((currentBest = Pareto.getParetoOptimal(pareto, alpha)) == null) {
+                remaining.addAll(pareto);
+                break;
+            }
             pareto.remove(currentBest);
             priorityQueue.add(new SearchNode(currentBest, id));
             id++;
