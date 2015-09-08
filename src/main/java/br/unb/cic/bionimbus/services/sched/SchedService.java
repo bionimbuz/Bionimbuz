@@ -172,8 +172,6 @@ public class SchedService extends AbstractBioService implements Runnable {
 
             // sched all pending jobs
             schedMap = getPolicy().schedule(pendingJobs);
-            System.out.println("[SchedService] Sched result:");
-            System.out.println(schedMap.toString());
 
             for (Map.Entry<JobInfo, PluginInfo> entry : schedMap.entrySet()) {
                 JobInfo jobInfo = entry.getKey();

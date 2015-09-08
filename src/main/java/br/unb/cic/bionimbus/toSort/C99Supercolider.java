@@ -181,7 +181,13 @@ public class C99Supercolider extends SchedPolicy {
         System.out.println("[C99Supercolider] Stage Three");
         
         for (beam = 2; beam <= maxBeam; beam++) {
+            System.out.println("[C99Supercolider] Beam width: " + beam);
             beamSearch(root, jobs.size());
+            // exit if this thread was interrupted
+            if (Thread.currentThread().isInterrupted()) {
+    //            System.out.println("interrupted on node " + node.id);
+                return;
+            }
         }
     }
     
@@ -195,6 +201,12 @@ public class C99Supercolider extends SchedPolicy {
      * greater or equal to one and no check is performed to ensure that.
      */
     private void beamSearch(SearchNode node, int tasksRemaining) {
+        // exit if this thread was interrupted
+        if (Thread.currentThread().isInterrupted()) {
+//            System.out.println("interrupted on node " + node.id);
+            return;
+        }
+
         // calculate how many more nodes should be visited according to the 
         // current beam width
         int needed = beam - (node.visiting.size() + node.visited.size());
@@ -388,70 +400,96 @@ public class C99Supercolider extends SchedPolicy {
     public static void main(String[] args) throws InterruptedException {
         List<PipelineInfo> pipelines = PipelineTestGenerator.getPipelinesTemplates();
         List<PluginInfo> resources = PipelineTestGenerator.getResourceTemplates();
-        final C99Supercolider scheduler = new C99Supercolider();
-        int maxExecTime = 10; // seconds
+        int execTime; // seconds
+        int maxExecTime = 60; // seconds
+        int timeoutCounts = 6;
         
         // run all pipelines
         for (PipelineInfo p : pipelines) {
-            
-            // convert List<PluginInfo> resources into a ResourceList
-            final ResourceList rl = new ResourceList();
-            for (PluginInfo info : resources) {
-                Resource r = new Resource(info.getId(),
-                            info.getFactoryFrequencyCore(),
-                            info.getCostPerHour());
-                rl.resources.add(r);
-            }
-            
-            // create a thread to run the pipeline
-            ExecutorService executor = Executors.newFixedThreadPool(1);
-            final PipelineInfo pipeline = p;
+            // run each pipeline with different max execution times
+            execTime = maxExecTime/timeoutCounts;
+            boolean finished = false;
+            for (int i=1; i<timeoutCounts && !finished; i++) {
+                C99Supercolider scheduler = new C99Supercolider();
+                finished = runPipeline(resources, execTime, scheduler, p);
 
-            // execute pipeline scheduling
-            Future<?> future = executor.submit(new Runnable() {
-                @Override
-                public void run() {
-                    scheduler.schedule(rl, pipeline.getJobs());
+                // Print test input
+                System.out.println("MaxExecTime: " + execTime);
+                if (finished)
+                    System.out.println("Complete sched");
+                else
+                    System.out.println("Incomplete sched");
+                
+                System.out.println("Resources:");
+                for (PluginInfo pi : resources) {
+                    System.out.println("Id: " + pi.getId() + ", cost: " + pi.getCostPerHour() + ", freq: " + pi.getFactoryFrequencyCore()/1000000000);
                 }
-            });
-            executor.shutdown();            //        <-- reject all further submissions
+                System.out.println("");
+                System.out.println("Tasks:");
+                for (JobInfo j : pipelines.get(0).getJobs()) {
+                    System.out.println("Id: " + j.getId() + ", cost: " + j.getWorstExecution());
+                }
 
-            // wait for scheduling to finish or timeout
-            try {
-                future.get(maxExecTime, TimeUnit.SECONDS);  //     <-- wait 8 seconds to finish
-            } catch (InterruptedException e) {    //     <-- possible error cases
-                System.out.println("job was interrupted");
-            } catch (ExecutionException e) {
-                System.out.println("caught exception: " + e.getCause());
-            } catch (TimeoutException e) {
-                future.cancel(true);              //     <-- interrupt the job
-                System.out.println("timeout");
+                // Print test output
+                System.out.println("");
+                System.out.println("Best List:");
+                for (ResourceList rll : scheduler.bestList) {
+                    System.out.println(rll);
+                }
+                System.out.println("Stage One: 1 - Stage Two: " + scheduler.s2best + " - Stage Three: " + scheduler.s3best);
+                System.out.println("Final beam: " + scheduler.beam);
+                System.out.println("___________________________________________________________________________________________________");
+                System.out.println("");
+                System.out.println("");
+                
+                // update execTime
+                execTime += maxExecTime/timeoutCounts;
             }
-
-            // force scheduler to stop
-            // TODO: scheduler don't actually stops
-            executor.shutdownNow();
-            
-            // Print test input
-            System.out.println("Resources:");
-            for (PluginInfo pi : resources) {
-                System.out.println("Id: " + pi.getId() + ", cost: " + pi.getCostPerHour() + ", freq: " + pi.getFactoryFrequencyCore()/1000000000);
-            }
-            System.out.println("");
-            System.out.println("Tasks:");
-            for (JobInfo j : pipelines.get(0).getJobs()) {
-                System.out.println("Id: " + j.getId() + ", cost: " + j.getWorstExecution());
-            }
-            
-            // Print test output
-            System.out.println("");
-            System.out.println("Best List:");
-            for (ResourceList rll : scheduler.bestList) {
-                System.out.println(rll);
-            }
-            System.out.println("Stage One: 1 - Stage Two: " + scheduler.s2best + " - Stage Three: " + scheduler.s3best);
-            System.out.println("Final beam: " + scheduler.beam);
         }
+    }
+    
+    static boolean runPipeline(List<PluginInfo> resources, int maxExecTime, C99Supercolider s, PipelineInfo p) {
+        // convert List<PluginInfo> resources into a ResourceList
+        final ResourceList rl = new ResourceList();
+        for (PluginInfo info : resources) {
+            Resource r = new Resource(info.getId(),
+                        info.getFactoryFrequencyCore(),
+                        info.getCostPerHour());
+            rl.resources.add(r);
+        }
+
+        // create a thread to run the pipeline
+        ExecutorService executor = Executors.newFixedThreadPool(1);
+        final PipelineInfo pipeline = p;
+        final C99Supercolider scheduler = s;
+
+        // execute pipeline scheduling
+        Future<?> future = executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                scheduler.schedule(rl, pipeline.getJobs());
+            }
+        });
+        executor.shutdown();            //        <-- reject all further submissions
+        
+        // wait for scheduling to finish or timeout
+        boolean finished = true;
+        try {
+            future.get(maxExecTime, TimeUnit.SECONDS);  //     <-- wait to finish
+        } catch (InterruptedException e) {    //     <-- possible error cases
+            System.out.println("job was interrupted");
+        } catch (ExecutionException e) {
+            System.out.println("caught exception: " + e.getCause());
+        } catch (TimeoutException e) {
+            future.cancel(true);              //     <-- interrupt the job
+            System.out.println("timeout");
+            finished = false;
+        }
+
+        // force scheduler to stop
+        executor.shutdownNow();
+        
+        return finished;
     }
     
     /***********************************************************/

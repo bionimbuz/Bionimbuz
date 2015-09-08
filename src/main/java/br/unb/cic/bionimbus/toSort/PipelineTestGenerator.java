@@ -7,6 +7,7 @@ package br.unb.cic.bionimbus.toSort;
 
 import br.unb.cic.bionimbus.client.JobInfo;
 import br.unb.cic.bionimbus.client.PipelineInfo;
+import br.unb.cic.bionimbus.p2p.Host;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginService;
 import java.util.ArrayList;
@@ -35,14 +36,14 @@ public class PipelineTestGenerator {
         
         int numMaxServices = 5;
         
-        int numMaxResources = 4;
+        int numMaxResources = 10;
         double minCpuFrequency = 2400000000d;
         double maxCpuFrequency = 4000000000d;
         double minCostPerHour = 0.0002d;
         double maxCostPerHour = 0.05d;
         
-        int numTasksStep = 4;
-        int numMaxTasks = numTasksStep;
+        int numTasksStep = 50;
+        int numMaxTasks = 50;
         List<Integer> numTasksList = new ArrayList<Integer>();
         
         Random rn = new Random(new java.util.Date().getTime());
@@ -81,6 +82,7 @@ public class PipelineTestGenerator {
             double cost = minCostPerHour +  rn.nextDouble()*(maxCostPerHour - minCostPerHour);
             resource.setCostPerHour(cost);
             resource.setServices(servicesTemplates);
+            resource.setHost(new Host("0.0.0.0", 0));
             resourceTemplates.add(resource);
         }
         
