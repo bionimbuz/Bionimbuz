@@ -13,12 +13,16 @@ public class ComparatorUtil {
 		BufferedReader reader1 = new BufferedReader(new FileReader(f1));
 		BufferedReader reader2 = new BufferedReader(new FileReader(f2));
 		
-		boolean result = reader1.readLine().equals(reader2.readLine());
+		String linha1 = reader1.readLine();
+		String linha2 = reader2.readLine();
+		
+		System.out.println("Linha1: " + linha1);
+		System.out.println("Linha2: " + linha2);
 		
 		IOUtils.closeQuietly(reader1);
 		IOUtils.closeQuietly(reader2);
 		
-		return result;
+		return linha1.equals(linha2);
 	}
 	
 }
