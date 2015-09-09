@@ -1,6 +1,7 @@
 package br.unb.cic.bionimbuz.services.storage.compress;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -18,6 +19,7 @@ public class ComparatorUtil {
 		
 		System.out.println("Linha1: " + linha1);
 		System.out.println("Linha2: " + linha2);
+		System.out.println("Tamanho: " + new File(f2).getTotalSpace());
 		
 		IOUtils.closeQuietly(reader1);
 		IOUtils.closeQuietly(reader2);
