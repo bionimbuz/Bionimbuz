@@ -37,7 +37,7 @@ public class ApacheXZCompactor implements Compactor{
 		BufferedInputStream in = new BufferedInputStream(fin);
 		FileOutputStream fos = new FileOutputStream(out);
 		XZCompressorInputStream xzIn = new XZCompressorInputStream(in);
-		final byte[] buffer = new byte[(int) new File(compressed).getTotalSpace()];
+		final byte[] buffer = new byte[2*1024*1024];
 		int n = 0;
 		while (-1 != (n = xzIn.read(buffer))) {
 		    fos.write(buffer, 0, n);

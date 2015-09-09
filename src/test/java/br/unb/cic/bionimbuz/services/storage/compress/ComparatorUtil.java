@@ -20,6 +20,7 @@ public class ComparatorUtil {
 		System.out.println("Linha1: " + linha1);
 		System.out.println("Linha2: " + linha2);
 		System.out.println("Tamanho: " + new File(f2).getTotalSpace());
+		System.out.println("Tamanho2: " + (int) new File(f2).getTotalSpace());
 		
 		IOUtils.closeQuietly(reader1);
 		IOUtils.closeQuietly(reader2);

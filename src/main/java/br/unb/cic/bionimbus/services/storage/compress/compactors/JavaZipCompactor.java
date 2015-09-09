@@ -39,7 +39,7 @@ public class JavaZipCompactor implements Compactor {
 		
 		File out = new File(folder + name);
 		FileOutputStream fos = new FileOutputStream(out);
-		byte[] buffer = new byte[(int)new File(compressed).getTotalSpace()];
+		byte[] buffer = new byte[2*1024*1024];
 		
 		ZipInputStream zip;
 		zip = new ZipInputStream( new FileInputStream(compressed));

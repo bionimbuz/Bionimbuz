@@ -31,7 +31,7 @@ public class GZipCompactor implements Compactor{
 		
 		File out = new File(compressed.replace(".gzip", ""));
 		FileOutputStream fos = new FileOutputStream(out);
-		byte[] buffer = new byte[(int)new File(compressed).getTotalSpace()];
+		byte[] buffer = new byte[2*1024*1024];
 		
 		GZIPInputStream gzip;
 		gzip = new GZIPInputStream( new FileInputStream(compressed));
