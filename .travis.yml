@@ -11,3 +11,5 @@ env:
 after_success:
 - mvn clean cobertura:cobertura coveralls:report
 - mvn clean test jacoco:report coveralls:report
+
+sudo: false
