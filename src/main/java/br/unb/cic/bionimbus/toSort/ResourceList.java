@@ -64,7 +64,7 @@ public class ResourceList {
 
     @Override
     public String toString() {
-        return "c: " + getFullCost() + " - t: " + getMaxTime();
+        return "c: " + getFullCost() + " - tA: " + getAvgTime() + " - tM: " + getMaxTime();
     }
     
 }

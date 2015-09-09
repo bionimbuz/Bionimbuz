@@ -14,6 +14,8 @@ import br.unb.cic.bionimbus.utils.Pair;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -39,10 +41,11 @@ public class C99Supercolider extends SchedPolicy {
     private int s2best = 0;
     private int s3best = 0;
     private int beam;
-    // between 0 and 1.57
-    //        time   cost
-    private final double alpha = 0.75d;
+    // between 0 and 1
+    //        time  cost
+    private final double alpha = 0.5d;
     public Integer id = 0;
+    private final List<ResourceList> solutionsList = new ArrayList<ResourceList>();
     
     /**
      * Run the C99Supercolider Three stages Scheduling Algorithm. The stages are:
@@ -330,18 +333,24 @@ public class C99Supercolider extends SchedPolicy {
      * @return True if it's a new best, false otherwise.
      */
     boolean updateBest(SearchNode node) {
-        List<ResourceList> lrl = new ArrayList<ResourceList>();
-        lrl.add(new ResourceList(best));
+        List<ResourceList> lrl = new ArrayList<ResourceList>(solutionsList);
         ResourceList newRl = new ResourceList(node.rl);
         lrl.add(newRl);
-
-        ResourceList newBest = Pareto.getParetoOptimal(lrl, alpha);
-        if (newBest == newRl) {
-            System.out.println("New best");
-            bestList.add(newBest);
-            best = newBest;
-            return true;
+        
+        Pair<List<ResourceList>, List<ResourceList>> ret = Pareto.getParetoCurve(lrl);
+        
+        if (ret.second.isEmpty()) {
+            solutionsList.add(newRl);
+            ResourceList newBest = Pareto.getParetoOptimal(ret.first, alpha);
+            
+            if (newBest == newRl) {
+                System.out.println("New best");
+                bestList.add(newBest);
+                best = newBest;
+                return true;
+            }
         }
+        
         return false;
     }
     
@@ -436,6 +445,31 @@ public class C99Supercolider extends SchedPolicy {
                 for (ResourceList rll : scheduler.bestList) {
                     System.out.println(rll);
                 }
+                
+//                System.out.println("");
+//                System.out.println("Solution List:");
+//                // sort the list of ResourceList by max exec time
+//                Collections.sort(scheduler.solutionsList, new Comparator<ResourceList>() {
+//                    // returns 1 if r2 before r1 and -1 otherwise
+//                    @Override
+//                    public int compare(ResourceList r1, ResourceList r2) {
+//                        if (r2.getMaxTime() < r1.getMaxTime())
+//                            return 1;
+//                        if (r2.getMaxTime() > r1.getMaxTime())
+//                            return -1;
+//                        else {
+//                            if (r2.getFullCost() < r1.getFullCost())
+//                                return 1;
+//                            if (r2.getFullCost() > r1.getFullCost())
+//                                return -1;
+//                        }
+//                        return 0;
+//                    }
+//                });
+//                for (ResourceList rll : scheduler.solutionsList) {
+//                    System.out.println(rll);
+//                }
+                
                 System.out.println("Stage One: 1 - Stage Two: " + scheduler.s2best + " - Stage Three: " + scheduler.s3best);
                 System.out.println("Final beam: " + scheduler.beam);
                 System.out.println("___________________________________________________________________________________________________");

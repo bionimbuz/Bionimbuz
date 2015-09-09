@@ -36,14 +36,14 @@ public class PipelineTestGenerator {
         
         int numMaxServices = 5;
         
-        int numMaxResources = 10;
+        int numMaxResources = 6;
         double minCpuFrequency = 2400000000d;
         double maxCpuFrequency = 4000000000d;
         double minCostPerHour = 0.0002d;
         double maxCostPerHour = 0.05d;
         
-        int numTasksStep = 50;
-        int numMaxTasks = 50;
+        int numTasksStep = 10;
+        int numMaxTasks = 10;
         List<Integer> numTasksList = new ArrayList<Integer>();
         
         Random rn = new Random(new java.util.Date().getTime());
