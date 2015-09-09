@@ -22,10 +22,11 @@ public class GZipCompactorTest {
 		GZipCompactor compactor = new GZipCompactor();
 		
 		String compressed = "src/test/resources/outputFiles/test.txt.gzip";
+		File comp = new File(compressed);
 		
-		Files.move(new File(compactor.compact(original, 5)), new File(compressed));
+		Files.move(new File(compactor.compact(original, 5)), comp);
 		
-		assertTrue("Compression OK", new File(compressed).exists());
+		assertTrue("Compression OK", comp.exists());
 		assertFalse("Contents are different", ComparatorUtil.areFilesEqual(original, compressed));
 		
 		String uncompressed = compactor.descompact(compressed);

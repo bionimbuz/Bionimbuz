@@ -24,10 +24,11 @@ public class ApacheXZCompactorTest {
 		ApacheXZCompactor compactor = new ApacheXZCompactor();
 		
 		String compressed = currentDirectory + "/src/test/resources/outputFiles/test.txt.xz";
+		File comp = new File(compressed);
 		
-		Files.move(new File(compactor.compact(original, 5)), new File(compressed));
+		Files.move(new File(compactor.compact(original, 5)), comp);
 		
-		assertTrue("Compression OK", new File(compressed).exists());
+		assertTrue("Compression OK", comp.exists());
 		assertFalse("Contents are different", ComparatorUtil.areFilesEqual(original, compressed));
 		
 		String uncompressed = compactor.descompact(compressed);
