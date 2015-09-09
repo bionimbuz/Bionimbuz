@@ -8,8 +8,10 @@ jdk:
 env:
 - TERM=dumb
 
+before_script:
+  - pip install --user codecov
+
 after_success:
-- mvn clean cobertura:cobertura coveralls:report
-- mvn clean test jacoco:report coveralls:report
+  - codecov
 
 sudo: false
