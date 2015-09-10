@@ -1,5 +1,30 @@
 package br.unb.cic.bionimbus.services.storage;
 
+import br.unb.cic.bionimbus.avro.gen.FileInfo;
+import br.unb.cic.bionimbus.avro.gen.NodeInfo;
+import br.unb.cic.bionimbus.avro.rpc.AvroClient;
+import br.unb.cic.bionimbus.avro.rpc.RpcClient;
+import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import br.unb.cic.bionimbus.plugin.PluginFile;
+import br.unb.cic.bionimbus.plugin.PluginInfo;
+import br.unb.cic.bionimbus.services.AbstractBioService;
+import br.unb.cic.bionimbus.services.UpdatePeerData;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbus.services.sched.SchedService;
+import br.unb.cic.bionimbus.services.storage.policy.StoragePolicy;
+import br.unb.cic.bionimbus.services.storage.policy.impl.BioCirrusPolicy;
+import br.unb.cic.bionimbus.toSort.Listeners;
+import br.unb.cic.bionimbus.utils.Nmap;
+import br.unb.cic.bionimbus.utils.Put;
+
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.SftpException;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,29 +46,6 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.codehaus.jackson.map.ObjectMapper;
-
-import br.unb.cic.bionimbus.avro.gen.FileInfo;
-import br.unb.cic.bionimbus.avro.gen.NodeInfo;
-import br.unb.cic.bionimbus.avro.rpc.AvroClient;
-import br.unb.cic.bionimbus.avro.rpc.RpcClient;
-import br.unb.cic.bionimbus.config.BioNimbusConfig;
-import br.unb.cic.bionimbus.plugin.PluginFile;
-import br.unb.cic.bionimbus.plugin.PluginInfo;
-import br.unb.cic.bionimbus.services.AbstractBioService;
-import br.unb.cic.bionimbus.services.UpdatePeerData;
-import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
-import br.unb.cic.bionimbus.services.sched.SchedService;
-import br.unb.cic.bionimbus.services.storage.bandwidth.BandwidthCalculator;
-import br.unb.cic.bionimbus.toSort.Listeners;
-import br.unb.cic.bionimbus.utils.Nmap;
-import br.unb.cic.bionimbus.utils.Put;
-
-import com.codahale.metrics.MetricRegistry;
-import com.google.common.base.Preconditions;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.SftpException;
 
 @Singleton
 public class StorageService extends AbstractBioService {
@@ -315,9 +317,9 @@ public class StorageService extends AbstractBioService {
         for (NodeInfo node : list) {
             cloudMap.get(node.getPeerId()).setLatency(node.getLatency());
             cloudMap.get(node.getPeerId()).setFsFreeSize(node.getFreesize());
-            cloudMap.get(node.getPeerId()).setBandwidth(BandwidthCalculator.linkSpeed(node.getAddress(), node.getLatency()));
         }
-        StoragePolicy policy = new StoragePolicy();
+        //TODO: Permitir a escolha entre a BioCirrus e a ZooClouS
+        StoragePolicy policy = new BioCirrusPolicy();
         /*
         * Dentro da Storage Policy é feito o ordenamento da list de acordo com o custo de armazenamento
         */
