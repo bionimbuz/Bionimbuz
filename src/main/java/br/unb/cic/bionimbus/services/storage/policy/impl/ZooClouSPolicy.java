@@ -52,9 +52,7 @@ public class ZooClouSPolicy extends StoragePolicy{
             
             uptime = plugin.getUptime() / 1000;
             freesize = (plugin.getFsFreeSize() / 1024 / 1024 / 1024);
-            cost = (((freesize * peso_space)
-                    + (uptime * peso_uptime))
-                    * (plugin.getLatency() * peso_latency));
+            cost = ( (plugin.getLatency() * peso_latency) / ( (freesize * peso_space) + (uptime * peso_uptime) ) );
             cost = cost + costpergiga;
             /*
             * Seta o custo de armazenamento no peer
