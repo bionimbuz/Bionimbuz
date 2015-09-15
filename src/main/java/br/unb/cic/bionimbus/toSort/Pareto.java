@@ -6,14 +6,10 @@
 package br.unb.cic.bionimbus.toSort;
 
 import br.unb.cic.bionimbus.utils.Pair;
-import static java.lang.StrictMath.abs;
-import static java.lang.StrictMath.cos;
-import static java.lang.StrictMath.pow;
-import static java.lang.StrictMath.sin;
-import static java.lang.StrictMath.sqrt;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -79,6 +75,39 @@ public class Pareto {
         }
         
         return paretoCurve.get((int) Math.round(paretoCurve.size() * alpha));
+    }
+    
+    /**
+     *
+     * @param old
+     * @return
+     */
+    public static ArrayList<Pair<Double, Double>> getParetoCurve(ArrayList<Pair<Double, Double>> old) {
+        // pair = <time, cost>
+        ArrayList<Pair<Double, Double>> newPareto = new ArrayList<Pair<Double, Double>>();
+        
+        // sort the old list by time
+        Collections.sort(old, new Comparator<Pair<Double, Double>>() {
+            // returns 1 if r2 before r1 and -1 otherwise
+            @Override
+            public int compare(Pair<Double, Double> p1, Pair<Double, Double> p2) {
+                if (p2.first < p1.first)
+                    return 1;
+                if (p1.first < p2.first)
+                    return -1;
+                return 0;
+            }
+        });
+        
+        double max = Double.MAX_VALUE;
+        for (Pair<Double, Double> pair : old) {
+            if (pair.second < max) {
+                max = pair.second;
+                newPareto.add(pair);
+            }
+        }
+        
+        return newPareto;
     }
     
 }

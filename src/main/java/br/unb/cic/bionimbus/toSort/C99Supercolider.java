@@ -14,14 +14,13 @@ import br.unb.cic.bionimbus.utils.Pair;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Stack;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -103,6 +102,13 @@ public class C99Supercolider extends SchedPolicy {
 //                System.out.println(r.toString());
 //            }
 //            System.out.println();
+            
+            // set last node as visited to the second-last node
+            if (jobs.isEmpty()) {
+                node.visiting.poll();
+                node.visitedCount++;
+            }
+            
             // set the next node (depth. next task) by the priority queue 
             // toVisit of the current node
             node = nextNode;
@@ -112,6 +118,15 @@ public class C99Supercolider extends SchedPolicy {
         // set the current best as the solution previously found
         best = node.rl;
         bestList.add(new ResourceList(best));
+        
+        // set the pareto lists for the pruning
+        node = root;
+        node.addToPareto(best.getAvgTime(), best.getFullCost());
+        while(!node.visiting.isEmpty()) {
+            node = node.visiting.peek();
+            node.addToPareto(best.getAvgTime(), best.getFullCost());
+        }
+        
         return root;
     }
 
@@ -138,14 +153,18 @@ public class C99Supercolider extends SchedPolicy {
             int k = i;
             node = root;
             
+            Stack<SearchNode> backtrackStack = new Stack<SearchNode>();
+            
             // run scheduler for jobsCopy list
             while (!jobsCopy.isEmpty()) {
                 JobInfo job = jobsCopy.poll();
                 
                 // if the allocation is said to be good, go to next node
                 if (k > 0) {
-                    if (!jobsCopy.isEmpty())
+                    if (!jobsCopy.isEmpty()) {
+                        backtrackStack.push(node);
                         node = node.visiting.peek();
+                    }
                 } 
                 
                 // if not, perform allocation to next best option
@@ -158,6 +177,7 @@ public class C99Supercolider extends SchedPolicy {
                     // move nextNode to node.visiting and go to nextNode
                     nextNode = node.toVisit.poll();
                     node.visiting.add(nextNode);
+                    backtrackStack.push(node);
                     node = nextNode;
                 }
                 k--;
@@ -166,6 +186,16 @@ public class C99Supercolider extends SchedPolicy {
             // update best if this is the case
             if (updateBest(node))
                 s2best++;
+            
+            SearchNode beforeLast = backtrackStack.pop();
+            System.out.println("beforeLast: " + beforeLast.id);
+            beforeLast.visiting.poll();
+            beforeLast.visitedCount++;
+            beforeLast.addToPareto(node.rl.getMaxTime(), node.rl.getFullCost());
+            
+            // backtrack the pareto results needed for pruning
+            while (!backtrackStack.isEmpty())
+                backtrackStack.pop().addToPareto(node.rl.getMaxTime(), node.rl.getFullCost());
         }
     }
     
@@ -203,16 +233,19 @@ public class C99Supercolider extends SchedPolicy {
      * This value should be the size of the task list. The value should be 
      * greater or equal to one and no check is performed to ensure that.
      */
-    private void beamSearch(SearchNode node, int tasksRemaining) {
+    private List<Pair<Double, Double>> beamSearch(SearchNode node, int tasksRemaining) {
         // exit if this thread was interrupted
         if (Thread.currentThread().isInterrupted()) {
 //            System.out.println("interrupted on node " + node.id);
-            return;
+            return null;
         }
+        
+//        printSearchNode(node, 0);
+//        System.out.println("");
 
         // calculate how many more nodes should be visited according to the 
         // current beam width
-        int needed = beam - (node.visiting.size() + node.visited.size());
+        long needed = beam - (node.visiting.size() + node.visitedCount);
         
         // widen the visiting list/search beam if necessary
         if (needed > 0) {
@@ -234,23 +267,37 @@ public class C99Supercolider extends SchedPolicy {
             SearchNode n = iterator.next();
             
             // if there still are nodes to visit, run them recursively
-            if ((n.visiting.size() + n.toVisit.size()) > 0)
-                beamSearch(n, tasksRemaining-1);
-            else {
+            if ((n.visiting.size() + n.toVisit.size()) > 0) {
+                node.addToPareto(beamSearch(n, tasksRemaining-1));
+                
+                // remove child if there is no more seaching to be done on it
+                if (n.toVisit.size() + n.visiting.size() == 0) {
+                    node.visitedCount++;
+                    iterator.remove();
+                }
+            } else {
                 // if the reason there are no more nodes to visit is that this 
                 // is a leaf node
                 if (tasksRemaining == 1) {
                     // calculate the leaf cost and update best if it's a new best
                     if (updateBest(n))
                         s3best++;
+                    node.addToPareto(n.rl.getMaxTime(), n.rl.getFullCost());
+                    node.visitedCount++;
+                    
+                    // remove node from visiting list
+                    iterator.remove();
                 }
-                
-                // move node to visited list
-                iterator.remove();
-                node.visited.add(n);
             }
         }
-    }
+        
+//        printSearchNode(node, 0);
+//        System.out.println("");
+//        System.out.println("____________________________________________________________");
+//        System.out.println("");
+        
+        return node.getParetoList();
+    }    
     
     /***********************************************************/
     /******************* Helper Functions **********************/
@@ -289,12 +336,7 @@ public class C99Supercolider extends SchedPolicy {
         // generate a pareto curve and also get the remaining ResourceLists
         Pair<List<ResourceList>, List<ResourceList>> rlPair = Pareto.getParetoCurve(rls);
         List<ResourceList> pareto = rlPair.first;
-//        System.out.println("Resources:");
-//        System.out.println(Arrays.toString(rls.toArray()));
-//        System.out.println("generatePriorityQueue pareto: ");
-//        System.out.println(Arrays.toString(pareto.toArray()));
         List<ResourceList> remaining = rlPair.second;
-//        System.out.println("generatePriorityQueue remaining size: " + remaining.size());
         
         // create an ordered queue by how pareto-optimal a solution is
         Queue<SearchNode> priorityQueue = new LinkedList<SearchNode>();
@@ -308,8 +350,6 @@ public class C99Supercolider extends SchedPolicy {
             priorityQueue.add(new SearchNode(currentBest, id));
             id++;
         }
-        
-//        System.out.println("out");
         
         // create another queue with the remaining solutions, thus, 
         // guaranteeing completeness 
@@ -344,7 +384,7 @@ public class C99Supercolider extends SchedPolicy {
             ResourceList newBest = Pareto.getParetoOptimal(ret.first, alpha);
             
             if (newBest == newRl) {
-                System.out.println("New best");
+                System.out.println("New best - node: " + node.id);
                 bestList.add(newBest);
                 best = newBest;
                 return true;
@@ -361,7 +401,7 @@ public class C99Supercolider extends SchedPolicy {
     
     private void printSearchNode(SearchNode node, int n) {
         printTab(n);
-        System.out.println("Node" + node.id + ": width" + node.beamWidth);
+        System.out.println("Node" + node.id);
         
         printTab(n);
         System.out.println("Resources state:");
@@ -379,9 +419,10 @@ public class C99Supercolider extends SchedPolicy {
         System.out.println(Arrays.toString(node.visiting.toArray()));
         
         printTab(n);
-        System.out.println("Visited state:");
+        System.out.println("Visited: " + node.visitedCount);
+        
         printTab(n);
-        System.out.println(Arrays.toString(node.visited.toArray()));
+        System.out.println("paretoCount: " + node.paretoCount);
         
         System.out.println("");
     }
@@ -410,8 +451,8 @@ public class C99Supercolider extends SchedPolicy {
         List<PipelineInfo> pipelines = PipelineTestGenerator.getPipelinesTemplates();
         List<PluginInfo> resources = PipelineTestGenerator.getResourceTemplates();
         int execTime; // seconds
-        int maxExecTime = 60; // seconds
-        int timeoutCounts = 6;
+        int maxExecTime = 60000000; // seconds
+        int timeoutCounts = 2;
         
         // run all pipelines
         for (PipelineInfo p : pipelines) {
@@ -514,6 +555,7 @@ public class C99Supercolider extends SchedPolicy {
             System.out.println("job was interrupted");
         } catch (ExecutionException e) {
             System.out.println("caught exception: " + e.getCause());
+            e.printStackTrace();
         } catch (TimeoutException e) {
             future.cancel(true);              //     <-- interrupt the job
             System.out.println("timeout");
@@ -522,6 +564,8 @@ public class C99Supercolider extends SchedPolicy {
 
         // force scheduler to stop
         executor.shutdownNow();
+        
+        
         
         return finished;
     }
