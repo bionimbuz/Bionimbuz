@@ -24,6 +24,10 @@ public class PipelineTestGenerator {
     private static List<PipelineInfo> pipelinesTemplates;
     private static List<PluginService> servicesTemplates;
     private static List<PluginInfo> resourceTemplates;
+    
+    public static int numMaxResources = 60;
+    public static int numTasksStep = 50;
+    public static int numMaxTasks = numTasksStep;
 
     private static void generateTestValues() {
         double worstExecStart   =  50000000000d;
@@ -36,17 +40,15 @@ public class PipelineTestGenerator {
         
         int numMaxServices = 5;
         
-        int numMaxResources = 6;
         double minCpuFrequency = 2400000000d;
         double maxCpuFrequency = 4000000000d;
         double minCostPerHour = 0.0002d;
         double maxCostPerHour = 0.05d;
         
-        int numTasksStep = 6;
-        int numMaxTasks = numTasksStep;
         List<Integer> numTasksList = new ArrayList<Integer>();
         
-        Random rn = new Random(new java.util.Date().getTime());
+//        new java.util.Date().getTime()
+        Random rn = new Random(9455);
         
         // generate mode templates
         modeTemplates.add(modeStart);

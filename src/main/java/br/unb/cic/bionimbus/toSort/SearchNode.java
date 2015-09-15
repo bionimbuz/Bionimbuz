@@ -16,25 +16,32 @@ import java.util.Queue;
  * @author willian
  */
 public class SearchNode {
+    public int id;
+    
     public Queue<SearchNode> toVisit;
     public Queue<SearchNode> visiting;
     public long visitedCount;
     public final ResourceList rl;
+    
     // pair = <time, cost>
     private ArrayList<Pair<Double, Double>> pareto;
+    
     private double maxc;
     private double maxt;
-    public int id;
-    
-    public int paretoCount = 0;
+    public boolean prunable;
+    public long prunedChildren;
+    public final long depth;
 
-    public SearchNode(ResourceList rl, Integer id) {
+    public SearchNode(ResourceList rl, int id, long depth) {
         this.rl = rl;
         this.id = id;
         toVisit = new LinkedList<SearchNode>();
         visiting = new LinkedList<SearchNode>();
         visitedCount = 0;
         pareto  = new ArrayList<Pair<Double, Double>>();
+        prunable = false;
+        prunedChildren = 0;
+        this.depth = depth;
     }
     
     public void addToPareto (Double time, Double cost) {
@@ -42,7 +49,6 @@ public class SearchNode {
         pareto = Pareto.getParetoCurve(pareto);
         maxt = pareto.get(0).first;
         maxc = pareto.get(pareto.size()-1).second;
-        paretoCount++;
     }
     
     public void addToPareto (List<Pair<Double, Double>> list) {
@@ -50,7 +56,6 @@ public class SearchNode {
         pareto = Pareto.getParetoCurve(pareto);
         maxt = pareto.get(0).first;
         maxc = pareto.get(pareto.size()-1).second;
-        paretoCount+=list.size();
     }
     
     public List<Pair<Double, Double>> getParetoList() {

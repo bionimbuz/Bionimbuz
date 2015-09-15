@@ -57,10 +57,11 @@ public class SchedTester {
     }
 
     private JobInfo generateJob(String id) {
-        JobInfo j = new JobInfo(null);
-        j.setId(id);
-        j.setServiceId("1");
-        return j;
+//        JobInfo j = new JobInfo(null);
+//        j.setId(id);
+//        j.setServiceId("1");
+//        return j;]
+        return null;
     }
 
     private void addJob(JobInfo j) {
