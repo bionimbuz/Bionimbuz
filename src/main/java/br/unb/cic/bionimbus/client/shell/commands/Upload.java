@@ -1,14 +1,14 @@
 package br.unb.cic.bionimbus.client.shell.commands;
 
+import br.unb.cic.bionimbus.avro.gen.BioProto;
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.avro.gen.FileInfo;
-
-
 
 import java.io.File;
 
 import br.unb.cic.bionimbus.client.shell.Command;
 import br.unb.cic.bionimbus.client.shell.SimpleShell;
+import br.unb.cic.bionimbus.security.Hash;
 import br.unb.cic.bionimbus.services.storage.Ping;
 import br.unb.cic.bionimbus.utils.Nmap;
 import br.unb.cic.bionimbus.utils.Put;
@@ -38,23 +38,28 @@ public class Upload implements Command {
 
         File file = new File(params[0]);
         if (file.exists()){
-
-            FileInfo info = new FileInfo();
+            br.unb.cic.bionimbus.avro.gen.FileInfo info = new br.unb.cic.bionimbus.avro.gen.FileInfo();
             String path = file.getPath();
-
+            
+            //TO-DO: Criptografar arquivo usando o seu path
             info.setFileId(file.getName());
             info.setName(file.getName());
             info.setSize(file.length());
+            String hashFile = Hash.SHA1File(path);                        
+            info.setHash(hashFile);            
+            
             /*
              * Pega uma lista com todos os peers para calcular a latencia entre o cliente 
              * e os servidores.
              */
 //            if (shell.getRpcClient().getProxy().listFilesIp(info.getName()).equals("") && shell.getRpcClient().getProxy().checkFileSize(info.getName()) != info.getSize()){
              
-            //verifica se existi o arquivo, e se existir vefica se é do mesmo tamanho
+            //Verifica se existe o arquivo, e se existir vefica se é do mesmo tamanho
             if (shell.getProxy().getIpFile(info.getName()).isEmpty() || shell.getProxy().checkFileSize(info.getName()) != info.getSize()){
                 System.out.println("\n Calculando Latencia.....");
                 pluginList = shell.getRpcClient().getProxy().getPeersNode();
+                
+                //Insere o arquivo na pasta PENDING SAVE do Zookeeper
                 shell.getRpcClient().getProxy().setFileInfo(info,"upload!");
                 for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
                     NodeInfo plugin = it.next();
@@ -75,7 +80,6 @@ public class Upload implements Command {
                  * Retorna a lista dos nos ordenados como melhores, passando a latência calculada
                  */
                 nodesdisp = new ArrayList<NodeInfo>(shell.getRpcClient().getProxy().callStorage(nodesdisp));
-
 
                 NodeInfo no = null;
                 Iterator<NodeInfo> it = nodesdisp.iterator();
@@ -98,9 +102,8 @@ public class Upload implements Command {
                      * os dados do arquivo que foi upado.
                      */
                     shell.getRpcClient().getProxy().fileSent(info, dest);
-                    return "\n Upload Completed!!";
-                }
-            
+                    return "\n Upload Completed!";
+                }            
             } else {
             return "\n\n Ja existe um arquivo com mesmo nome e tamanho na federação !!!";
             }   
