@@ -35,7 +35,7 @@ protocol BioProto {
     string id;
     string path;
     string name;
-   long size;
+    long size;
     array<string> pluginId;
   }
 
@@ -271,6 +271,8 @@ protocol BioProto {
 
   array<PluginFile> listFiles();
 
+  string getFileHash(string fileName);
+
   string startJobName(string jobID, string ip);
 
   string startPipeline(PipelineInfo pipeline);
@@ -292,7 +294,8 @@ protocol BioProto {
   record FileInfo{
     string fileId;
     long size;
-    string name;    
+    string name;
+    string hash;
   }
 
    //Set information file that will be uploaded

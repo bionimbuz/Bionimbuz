@@ -13,6 +13,7 @@ import com.google.inject.Inject;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.logging.Level;
 import org.slf4j.Logger;
@@ -38,7 +39,6 @@ public class BioProtoImpl implements BioProto {
     private final CloudMessageService cms;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SchedService.class.getSimpleName());
-
     
     private Map<String, NodeInfo> nodes = new HashMap<String, NodeInfo>();
 
@@ -156,6 +156,26 @@ public class BioProtoImpl implements BioProto {
         }
         
         return listFile;
+    }
+    
+     /**
+     * 
+     * @param fileName
+     * @return lista com nome dos arquivos
+     * @throws AvroRemoteException 
+     */
+    @Override
+    public String getFileHash(String fileName) throws org.apache.avro.AvroRemoteException{
+        
+        try {
+            String hash = storageService.getFileHash(fileName);
+            return hash;
+        } catch (NoSuchAlgorithmException ex) {
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
     
     /**
@@ -310,8 +330,7 @@ public class BioProtoImpl implements BioProto {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        return null;
-    
+        return null;    
     }
      
     @Override
@@ -390,7 +409,7 @@ public class BioProtoImpl implements BioProto {
      * @param dest lista com os plugins de destino
      */
     @Override
-    public synchronized void fileSent(FileInfo fileSucess, List<String> dest){
+    public void fileSent(FileInfo fileSucess, List<String> dest){
         PluginFile file = new PluginFile(fileSucess);
         file.setPluginId(dest);
         String pathHome = System.getProperty("user.dir");
@@ -404,10 +423,11 @@ public class BioProtoImpl implements BioProto {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchAlgorithmException ex) {
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
-
+    
     /**
      * Método que notifica o peer para fazer a replicação
      * @param filename nome do arquivo a ser replicado
