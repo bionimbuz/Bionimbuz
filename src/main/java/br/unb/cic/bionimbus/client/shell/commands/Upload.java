@@ -8,6 +8,7 @@ import java.io.File;
 
 import br.unb.cic.bionimbus.client.shell.Command;
 import br.unb.cic.bionimbus.client.shell.SimpleShell;
+import br.unb.cic.bionimbus.security.AESEncryptor;
 import br.unb.cic.bionimbus.security.Hash;
 import br.unb.cic.bionimbus.services.storage.Ping;
 import br.unb.cic.bionimbus.utils.Nmap;
@@ -41,11 +42,15 @@ public class Upload implements Command {
             br.unb.cic.bionimbus.avro.gen.FileInfo info = new br.unb.cic.bionimbus.avro.gen.FileInfo();
             String path = file.getPath();
             
-            //TO-DO: Criptografar arquivo usando o seu path
+            AESEncryptor aes = new AESEncryptor();
+            String newPath = aes.encrypt(path);
+            
+            //Overwrite the file
+            file = new File(newPath);
             info.setFileId(file.getName());
             info.setName(file.getName());
             info.setSize(file.length());
-            String hashFile = Hash.SHA1File(path);                        
+            String hashFile = Hash.SHA1File(newPath);                        
             info.setHash(hashFile);            
             
             /*
@@ -88,7 +93,7 @@ public class Upload implements Command {
                     /*
                      * Tenta enviar o arquivo a partir do melhor peer que está na lista
                      */
-                    Put conexao = new Put(node.getAddress(), path);
+                    Put conexao = new Put(node.getAddress(), newPath);
                     if (conexao.startSession()) {
                         no = node;
                     }

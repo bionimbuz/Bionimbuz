@@ -15,24 +15,26 @@ import java.util.List;
  * @author rafaelsardenberg
  */
 public class Integrity {
+
     private List<br.unb.cic.bionimbus.avro.gen.PluginFile> pluginList;
-    
-    public Boolean verifyFile(String filePeerHash, String fileUploadedHash) throws NoSuchAlgorithmException, IOException {      
+
+    public Boolean verifyFile(String filePeerHash, String fileUploadedHash) throws NoSuchAlgorithmException, IOException {
+         //TO-DO: Printar no lugar correto.
+
         //Compara os hashes
-        //TO-DO: Printar no lugar correto.
-        if(filePeerHash == null ? fileUploadedHash == null : filePeerHash.equals(fileUploadedHash)) {
+        if (filePeerHash == null ? fileUploadedHash == null : filePeerHash.equals(fileUploadedHash)) {
             System.out.println("Integridade do arquivo  verificada com sucesso! Arquivo transferido corretamente.");
             return true;
         } else {
             System.out.println("Erro na transferência do arquivo!");
             return false;
-        }        
+        }
     }
-    
+
     public Boolean verifyAllFiles() throws IOException {
         SimpleShell shell = new SimpleShell();
         pluginList = shell.getRpcClient().getProxy().listFiles();
-        
+
         //TO-DO: Retornar dados referentes aos arquivos do zookeeper
         return true;
     }

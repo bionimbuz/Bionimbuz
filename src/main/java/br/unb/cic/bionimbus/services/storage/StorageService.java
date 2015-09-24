@@ -177,8 +177,7 @@ public class StorageService extends AbstractBioService {
      * @throws java.io.IOException 
      */
     public String getFileHash(String fileName) throws NoSuchAlgorithmException, IOException {
-        String rootPath = "/home/zoonimbus/zoonimbusProject/data-folder/"; 
-         
+         String rootPath = "/home/zoonimbus/zoonimbusProject/data-folder/"; 
          //Produz o hash do arquivo
          String hashFile = Hash.SHA1File(rootPath + fileName);
          return  hashFile;
@@ -384,7 +383,7 @@ public class StorageService extends AbstractBioService {
             System.out.println("(FileUploaded)IdPluginFile: "+idPluginFile);
             //Verifica se a máquina que recebeu essa requisição não é a que está armazenando o arquivo
             if (!config.getAddress().equals(ipPluginFile)){
-                  RpcClient rpcClient = new AvroClient("http", "164.41.209.96", PORT);
+                  RpcClient rpcClient = new AvroClient("http", "164.41.209.89", PORT);
                   //RpcClient rpcClient = new AvroClient("http", ipPluginFile, PORT);
                   String filePeerHash = rpcClient.getProxy().getFileHash(fileUploaded.getName());
                   
