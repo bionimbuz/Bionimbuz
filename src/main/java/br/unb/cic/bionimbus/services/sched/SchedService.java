@@ -9,6 +9,7 @@ import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskState;
 import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
+import br.unb.cic.bionimbus.security.AESEncryptor;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
@@ -585,7 +586,7 @@ public class SchedService extends AbstractBioService implements Runnable {
      */
     private void executeTasks(PluginTask task) throws Exception {
         System.out.println("Recebimento do pedido de execução da tarefa!");
-        //TODO otimiza chamada de checage dos arquivos
+        //TODO otimiza chamada de checagem dos arquivos
         checkFilesPlugin();
         //verifica se o arquivo existe no plugin se não cria a solicitação de transfêrencia do arquivo
         if (!existFilesCloud(task.getJobInfo().getInputs())) {
@@ -599,11 +600,17 @@ public class SchedService extends AbstractBioService implements Runnable {
             requestFile(task.getJobInfo().getInputs());
         }
         if (existFiles(task.getJobInfo().getInputs())) {
+            //TO-DO: Descriptografar arquivos
+            for (Pair<String, Long> pair : task.getJobInfo().getInputs()) {
+                String path = "/home/zoonimbus/zoonimbusProject/data-folder/"; 
+                AESEncryptor aes = new AESEncryptor();
+                aes.decrypt(path + pair.first);
+                //TO-DO: Atualizar nome do arquivo
+            }    
             myLinuxPlugin.startTask(task, cms);
         } else {
             task.setState(PluginTaskState.WAITING);
-        }
-        
+        }        
     }
     
     /**
