@@ -158,19 +158,6 @@ public class RepositoryService extends AbstractBioService {
         
         // create history structure
         cms.createZNode(CreateMode.PERSISTENT, cms.getPath().HISTORY.getFullPath(String.valueOf(service.getId())), null);
-        
-        if (!service.getHistoryMode().isEmpty()) {
-            // if there were preset modes they will be added as preset modes
-            cms.createZNode(CreateMode.PERSISTENT, cms.getPath().MODES.getFullPath(String.valueOf(service.getId())), service.getHistoryMode().toString());
-            
-            // this flag should be removed once the history has enough data to 
-            //    produce new modes, along with the removal of the preset modes
-            cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PRESET.getFullPath(String.valueOf(service.getId())), null);
-        } else {
-            // otherwise, just create the service with an empty mode list and the step
-            cms.createZNode(CreateMode.PERSISTENT, cms.getPath().MODES.getFullPath(String.valueOf(service.getId())), "");
-            cms.createZNode(CreateMode.PERSISTENT, cms.getPath().STEP.getFullPath(String.valueOf(service.getId())), service.getHistoryStep().toString());
-        }
     }
     
     /**

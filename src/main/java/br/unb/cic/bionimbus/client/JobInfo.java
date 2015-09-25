@@ -13,6 +13,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 public class JobInfo {
 
     private String id = UUID.randomUUID().toString();
+    
+    public long testId;
 
     private String localId;
 
@@ -120,14 +122,14 @@ public class JobInfo {
     }
     
     public Double getWorstExecution() {
-        if (worstExecution == null) {
-            List<Double> history = rs.getTaskHistory(serviceId);
-            double max = 0d;
-            for (Double ex : history)
-                if (ex > max)
-                    max = ex;
-            worstExecution = max;
-        }
+//        if (worstExecution == null) {
+//            List<Double> history = rs.getTaskHistory(serviceId);
+//            double max = 0d;
+//            for (Double ex : history)
+//                if (ex > max)
+//                    max = ex;
+//            worstExecution = max;
+//        }
         return worstExecution;
     }
     

@@ -13,6 +13,7 @@ import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
 import static java.lang.Math.floor;
 import static java.lang.Math.pow;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Stack;
@@ -426,19 +428,13 @@ public class C99Supercolider extends SchedPolicy {
     }
     
     public long childNodesCount(long depth) {
-        long base = PipelineTestGenerator.numMaxResources;
+        long base = RandomTestGenerator.numMaxResources;
         return (long) (pow(base, depth) + floor(pow(base, depth)/(base-1)));
     }
 
-    /**
-     * ********************************************************
-     */
-    /**
-     * ***************** Printing Methods *********************
-     */
-    /**
-     * ********************************************************
-     */
+    /*********************************************************/
+    /***************** Printing Methods **********************/
+    /*********************************************************/
     private void printSearchNode(SearchNode node, int n) {
         printTab(n);
         System.out.println("Node" + node.id + " - d" + node.depth);
@@ -480,21 +476,21 @@ public class C99Supercolider extends SchedPolicy {
         }
     }
 
+    static public String format(long l) {
+        return NumberFormat.getNumberInstance(Locale.UK).format(l);
+    }
+
     private void printTab(int n) {
         for (int i = 0; i < n; i++) {
             System.out.print("    ");
         }
     }
 
-    /**
-     * ********************************************************
-     */
-    /**
-     * *********************** Main ***************************
-     */
-    /**
-     * ********************************************************
-     */
+    /*********************************************************/
+    /*********************** Main ****************************/
+    /*********************************************************/
+    
+    
     /**
      * Test function
      *
@@ -502,8 +498,18 @@ public class C99Supercolider extends SchedPolicy {
      * @throws InterruptedException
      */
     public static void main(String[] args) throws InterruptedException {
-        List<PipelineInfo> pipelines = PipelineTestGenerator.getPipelinesTemplates();
-        List<PluginInfo> resources = PipelineTestGenerator.getResourceTemplates();
+//        RandomTestGenerator gen = new RandomTestGenerator();
+        PipelineTestGenerator gen = new FromFileTestGenerator();
+        List<PipelineInfo> pipelines = gen.getPipelinesTemplates();
+        List<PluginInfo> resources = gen.getResourceTemplates();
+        
+        testAllTimeoutPipelines(pipelines, resources);
+        
+        testFailurePronePipelines(pipelines, resources);
+        
+    }
+    
+    private static void testAllTimeoutPipelines(List<PipelineInfo> pipelines, List<PluginInfo> resources) {
         int execTime; // seconds
         int maxExecTime = 120; // seconds
         int timeoutCounts = 5;
@@ -569,14 +575,13 @@ public class C99Supercolider extends SchedPolicy {
                 }
 
                 System.out.println("Stage One: 1 - Stage Two: " + scheduler.s2best + " - Stage Three: " + scheduler.s3best);
-                System.out.println("Final beam: " + scheduler.beam);
-                System.out.println("Prunable nodes: " + scheduler.prunableNodes + " - "
-                        + 100 * scheduler.prunableNodes / Math.pow(PipelineTestGenerator.numMaxResources, PipelineTestGenerator.numMaxTasks)
-                        + "%");
-                System.out.println("Pruned nodes: " + scheduler.pruned);
-                System.out.println("Nodes removed from search: " + scheduler.removedFromSearch);
-                System.out.println("Max number of nodes to search: " + scheduler.childNodesCount(p.getJobs().size()));
-                System.out.println(100*scheduler.removedFromSearch/scheduler.childNodesCount(p.getJobs().size()) + "% of removed nodes");
+                System.out.println("Final beam: " + (scheduler.beam-1));
+                System.out.println("Max number of nodes to search: " + format(scheduler.childNodesCount(p.getJobs().size())));
+                System.out.format("Searched Nodes created: " + format(scheduler.id) + " - %5.5f%% of all possible nodes %n", 100*(float)(scheduler.id)/scheduler.childNodesCount(p.getJobs().size()));
+                System.out.format("Prunable nodes: " + format(scheduler.prunableNodes) + " - %5.5f%% of searched nodes %n",
+                        100 * (float)scheduler.prunableNodes/(float)scheduler.id);
+                System.out.format("Pruned nodes: " + format(scheduler.pruned) + " - %5.5f%% of searched nodes %n", 100*((float)scheduler.pruned/(float)scheduler.id));
+                System.out.format("Nodes removed from search: " + format(scheduler.removedFromSearch) + " - %5.5f%% of all possible nodes %n", 100*(float)scheduler.removedFromSearch/scheduler.childNodesCount(p.getJobs().size()));
                 System.out.println("___________________________________________________________________________________________________");
                 System.out.println("");
                 System.out.println("");
@@ -585,6 +590,10 @@ public class C99Supercolider extends SchedPolicy {
                 execTime += maxExecTime / timeoutCounts;
             }
         }
+    }
+    
+    private static void testFailurePronePipelines(List<PipelineInfo> pipelines, List<PluginInfo> resources) {
+        
     }
 
     static boolean runPipeline(List<PluginInfo> resources, int maxExecTime, C99Supercolider s, PipelineInfo p) {

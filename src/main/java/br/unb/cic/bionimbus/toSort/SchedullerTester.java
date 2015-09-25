@@ -95,9 +95,10 @@ public class SchedullerTester {
                 e.printStackTrace();
             }
         } else {
-            List<PipelineInfo> pipelines = PipelineTestGenerator.getPipelinesTemplates();
-            List<PluginService> services = PipelineTestGenerator.getServicesTemplates();
-            List<PluginInfo> resources = PipelineTestGenerator.getResourceTemplates();
+            RandomTestGenerator gen = new RandomTestGenerator();
+            List<PipelineInfo> pipelines = gen.getPipelinesTemplates();
+            List<PluginService> services = gen.getServicesTemplates();
+            List<PluginInfo> resources = gen.getResourceTemplates();
             
             // flush test data
             System.out.println("[SchedTester] flushing test data");

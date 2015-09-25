@@ -17,8 +17,6 @@ public class PluginService {
     private List<String> output;
     private String info;
     private String path;
-    private final List<Double> historyMode = new ArrayList<Double>();
-    private Double historyStep;
 
     public String getId() {
         return id;
@@ -76,22 +74,6 @@ public class PluginService {
         this.path = path;
     }
     
-    public List<Double> getHistoryMode () {
-        return historyMode;
-    }
-    
-    public void addModeToHistory (Double mode) {
-        historyMode.add(mode);
-    }
-    
-    public void setHistoryStep(Double historyStep) {
-        this.historyStep = historyStep;
-    }
-
-    public Double getHistoryStep() {
-        return historyStep;
-    }
-
     @Override
     public boolean equals(Object object) {
         if (this == object)
