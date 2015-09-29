@@ -43,14 +43,13 @@ public class Upload implements Command {
             String path = file.getPath();
             
             AESEncryptor aes = new AESEncryptor();
-            String newPath = aes.encrypt(path);
+            //Overwrite the file with the encrypt version
+            aes.encrypt(path);
             
-            //Overwrite the file
-            file = new File(newPath);
             info.setFileId(file.getName());
             info.setName(file.getName());
             info.setSize(file.length());
-            String hashFile = Hash.SHA1File(newPath);                        
+            String hashFile = Hash.SHA1File(path);                        
             info.setHash(hashFile);            
             
             /*
@@ -93,7 +92,7 @@ public class Upload implements Command {
                     /*
                      * Tenta enviar o arquivo a partir do melhor peer que está na lista
                      */
-                    Put conexao = new Put(node.getAddress(), newPath);
+                    Put conexao = new Put(node.getAddress(), path);
                     if (conexao.startSession()) {
                         no = node;
                     }
