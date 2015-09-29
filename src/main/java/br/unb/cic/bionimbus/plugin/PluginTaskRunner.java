@@ -1,5 +1,6 @@
 package br.unb.cic.bionimbus.plugin;
 
+import br.unb.cic.bionimbus.security.AESEncryptor;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -33,12 +34,16 @@ public class PluginTaskRunner implements Callable<PluginTask> {
     
     @Override
     public PluginTask call() throws Exception {
-
+        
         String args = task.getJobInfo().getArgs();
         List<Pair<String, Long>> inputs = task.getJobInfo().getInputs();
+        AESEncryptor aes = new AESEncryptor();
         int i = 1;
         for (Pair<String, Long> pair : inputs) {
             String input = pair.first;
+            //TO-DO: Verificar se está correto
+            //Descriptografar os arquivos requeridos pela job
+            aes.decrypt(path + PATHFILES + input);
             //linha comentada pois arquivos de entrada não ficam mais no AbstractPlugin
 //            args = args.replaceFirst("%I" + i, path + File.pathSeparator + plugin.getInputFiles().get(input).first);
             args = args.replaceFirst("%I" + i, path+PATHFILES + input+" ");

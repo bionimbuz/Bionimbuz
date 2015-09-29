@@ -387,10 +387,11 @@ public class StorageService extends AbstractBioService {
                   RpcClient rpcClient = new AvroClient("http", "164.41.209.89", PORT);
                   //RpcClient rpcClient = new AvroClient("http", ipPluginFile, PORT);
                   String filePeerHash = rpcClient.getProxy().getFileHash(fileUploaded.getName());
-                  
+
                   //Verifica se o arquivo foi corretamente transferido ao nó. Só faz a verificação caso o arquivo não seja saída de uma execução.
                   Integrity integrity = new Integrity();
                   if(integrity.verifyFile(filePeerHash, fileUploaded.getHash())) {
+                        System.out.println("Integridade do arquivo  verificada com sucesso! Arquivo transferido corretamente.");
                         try {
                             if (rpcClient.getProxy().verifyFile(file, fileUploaded.getPluginId())&&cms.getZNodeExist(CuratorMessageService.Path.PREFIX_FILE.getFullPath(idPluginFile,fileUploaded.getId(), ""), false)) {
                                 rpcClient.getProxy().notifyReply(fileUploaded.getName(), ipPluginFile);                                
@@ -402,7 +403,7 @@ public class StorageService extends AbstractBioService {
                              Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
                          }
                   } else {
-                    //TO-DO:Return to the Shell option!  
+                    System.out.println("Erro na transferência do arquivo!");
                   }                  
               }else {
                   if (checkFilePeer(fileUploaded)) {
@@ -411,6 +412,7 @@ public class StorageService extends AbstractBioService {
                       //Verifica se o arquivo foi corretamente transferido ao nó. Só faz a verificação caso o arquivo não seja saída de uma execução.
                       Integrity integrity = new Integrity();
                       if(integrity.verifyFile(filePeerHash, fileUploaded.getHash())) {
+                            System.out.println("Integridade do arquivo  verificada com sucesso! Arquivo transferido corretamente.");
                             if (cms.getZNodeExist(CuratorMessageService.Path.PREFIX_FILE.getFullPath(idPluginFile, fileUploaded.getId(), ""), true)&&!existReplication(file.getName())){
                                  try {
                                       replication(file.getName(), config.getAddress());
@@ -427,7 +429,7 @@ public class StorageService extends AbstractBioService {
                                       }
                           }
                     } else {
-                          //TO-DO:Return to the Shell option! 
+                          System.out.println("Erro na transferência do arquivo!");
                       }
                   }
                 }

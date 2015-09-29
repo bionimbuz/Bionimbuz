@@ -5,6 +5,7 @@
  */
 package br.unb.cic.bionimbus.security;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
@@ -23,22 +24,18 @@ public class AESEncryptor {
 
     private static final byte[] keyValue = new byte[]{'Z', 'o', 'o', 'n', 'i', 'm', 'b', 'u', 's', '1', '2', '3', '4', '5', '6', '7'};
 
-    public String encrypt(String fname) throws Exception {
-        //KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-        //keyGen.init(128);  //using AES-128
-        //SecretKey key = keyGen.generateKey();  //generating key
+    public void encrypt(String filePath) throws Exception {
         Key key = new SecretKeySpec(keyValue, "AES");
         Cipher aesCipher = Cipher.getInstance("AES");  //getting cipher for AES
         aesCipher.init(Cipher.ENCRYPT_MODE, key);  //initializing cipher for encryption with key
 
-        String newFilePath = fname + ".aes";
+        String newFilePath = filePath + ".aes";
         //creating file output stream to write to file
         try (FileOutputStream fos = new FileOutputStream(newFilePath)) {
             //creating object output stream to write objects to file
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-
             //creating file input stream to read contents for encryption
-            try (FileInputStream fis = new FileInputStream(fname)) {
+            try (FileInputStream fis = new FileInputStream(filePath)) {
                 //creating cipher output stream to write encrypted contents
                 try (CipherOutputStream cos = new CipherOutputStream(fos, aesCipher)) {
                     int read;
@@ -50,16 +47,19 @@ public class AESEncryptor {
                 }
             }
         }
-        return newFilePath;
+        File file = new File(filePath);
+        file.delete();
+        File newFile = new File(newFilePath);
+        newFile.renameTo(file);
     }
 
-    public String decrypt(String filePath) throws Exception {
+    public void decrypt(String filePath) throws Exception {
         Key key = new SecretKeySpec(keyValue, "AES");
         Cipher aesCipher = Cipher.getInstance("AES");  //getting cipher for AES
         aesCipher.init(Cipher.DECRYPT_MODE, key);  //initializing cipher for decryption with key
         
         //Came back to the original file name
-        String newFilePath = filePath.replaceAll(".aes", "");
+        String newFilePath = filePath + ".aes";
         //creating file input stream to read from file
         try (FileInputStream fis = new FileInputStream(filePath)) {
             //creating object input stream to read objects from file
@@ -75,8 +75,11 @@ public class AESEncryptor {
                         fos.write(buf, 0, read);  //decrypting and writing to file
                     }
                 }
-            }
+            }            
         }
-        return newFilePath;
+        File file = new File(filePath);
+        file.delete();
+        File newFile = new File(newFilePath);
+        newFile.renameTo(file);
     }
 }

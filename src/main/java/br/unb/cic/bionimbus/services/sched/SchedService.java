@@ -599,14 +599,7 @@ public class SchedService extends AbstractBioService implements Runnable {
         if (!existFiles(task.getJobInfo().getInputs())) {
             requestFile(task.getJobInfo().getInputs());
         }
-        if (existFiles(task.getJobInfo().getInputs())) {
-            //TO-DO: Descriptografar arquivos
-            for (Pair<String, Long> pair : task.getJobInfo().getInputs()) {
-                String path = "/home/zoonimbus/zoonimbusProject/data-folder/"; 
-                AESEncryptor aes = new AESEncryptor();
-                aes.decrypt(path + pair.first);
-                //TO-DO: Atualizar nome do arquivo
-            }    
+        if (existFiles(task.getJobInfo().getInputs())) {            
             myLinuxPlugin.startTask(task, cms);
         } else {
             task.setState(PluginTaskState.WAITING);
