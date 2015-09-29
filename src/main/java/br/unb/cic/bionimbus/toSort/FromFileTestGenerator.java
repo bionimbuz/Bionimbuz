@@ -7,6 +7,7 @@ package br.unb.cic.bionimbus.toSort;
 
 import br.unb.cic.bionimbus.client.JobInfo;
 import br.unb.cic.bionimbus.client.PipelineInfo;
+import br.unb.cic.bionimbus.plugin.PluginInfo;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -79,7 +80,40 @@ public class FromFileTestGenerator extends PipelineTestGenerator {
 
     @Override
     protected void generateResourcesTemplates() {
-        
+        try {
+            BufferedReader br = new BufferedReader(new FileReader("res-reduced.txt"));
+            String line = br.readLine();
+            
+            // for each line
+            Integer id = 0;
+            while (line != null) {
+                // split all fields
+                String[] elements = line.split("\\s+");
+                
+                // don't add the resource if there is no cpu freq
+                String freq;
+                if ((freq = elements[3]).equals("-")) {
+                    line = br.readLine();
+                    continue;
+                }
+                
+                // create the resource
+                PluginInfo res = new PluginInfo();
+                res.setId(id.toString());
+                res.setInstanceName(elements[1]);
+                res.setFactoryFrequencyCore(Double.parseDouble(freq)*1000000000);
+                res.setCostPerHour(Double.parseDouble(elements[7]));
+                
+                resourceTemplates.add(res);
+                    
+                line = br.readLine();
+                id++;
+            }
+            
+            br.close();
+        } catch (IOException ex) {
+            Logger.getLogger(FromFileTestGenerator.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override

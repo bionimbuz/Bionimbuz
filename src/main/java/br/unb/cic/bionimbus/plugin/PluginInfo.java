@@ -10,6 +10,8 @@ public class PluginInfo implements PluginOps {
 
     private String id;
     
+    private String InstanceName;
+    
     private String path_zk;
     
     private int privateCloud;
@@ -60,6 +62,14 @@ public class PluginInfo implements PluginOps {
 
     public void setId(String id) {
         this.id = id;
+    }
+    
+    public String getInstanceName() {
+        return InstanceName;
+    }
+
+    public void setInstanceName(String instanceName) {
+        this.InstanceName = instanceName;
     }
 
     /**

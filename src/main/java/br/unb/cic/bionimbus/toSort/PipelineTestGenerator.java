@@ -67,8 +67,8 @@ public abstract class PipelineTestGenerator {
             i++;
         }
         System.out.println("");
-        System.out.println(gen.getPipelinesTemplates());
-        System.out.println(gen.getServicesTemplates());
-        System.out.println(gen.getResourceTemplates());
+//        System.out.println(gen.getPipelinesTemplates());
+//        System.out.println(gen.getServicesTemplates());
+//        System.out.println(gen.getResourceTemplates());
     }
 }

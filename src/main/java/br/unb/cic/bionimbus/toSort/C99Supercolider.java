@@ -11,6 +11,10 @@ import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import static java.lang.Math.floor;
 import static java.lang.Math.pow;
 import java.text.NumberFormat;
@@ -33,6 +37,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -45,7 +51,7 @@ public class C99Supercolider extends SchedPolicy {
     private final List<ResourceList> bestList = new ArrayList<ResourceList>();
     private int s2best = 0;
     private int s3best = 0;
-    private int beam;
+    private int beam = 0;
     // between 0 and 1
     //        time  cost
     private final double alpha = 0.5d;
@@ -54,6 +60,7 @@ public class C99Supercolider extends SchedPolicy {
     private long prunableNodes = 0;
     private long pruned = 0;
     private long removedFromSearch = 0;
+    private long finalSolutionBeam = 0;
 
     /**
      * Run the C99Supercolider Three stages Scheduling Algorithm. The stages
@@ -420,6 +427,7 @@ public class C99Supercolider extends SchedPolicy {
                 System.out.println("New best - node: " + node.id);
                 bestList.add(newBest);
                 best = newBest;
+                finalSolutionBeam = beam;
                 return true;
             }
         }
@@ -503,8 +511,7 @@ public class C99Supercolider extends SchedPolicy {
         List<PipelineInfo> pipelines = gen.getPipelinesTemplates();
         List<PluginInfo> resources = gen.getResourceTemplates();
         
-        testAllTimeoutPipelines(pipelines, resources);
-        
+//        testAllTimeoutPipelines(pipelines, resources);
         testFailurePronePipelines(pipelines, resources);
         
     }
@@ -593,7 +600,54 @@ public class C99Supercolider extends SchedPolicy {
     }
     
     private static void testFailurePronePipelines(List<PipelineInfo> pipelines, List<PluginInfo> resources) {
+        int maxExecTime = 50; // secs
+        long resNum = resources.size();
+        int i=0;
+        PrintWriter writer = null;
         
+        // open output file
+        try {
+            System.out.println("oppening output file");
+            writer = new PrintWriter("testOut.txt", "UTF-8");
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(C99Supercolider.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(C99Supercolider.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        for (PipelineInfo pipeline : pipelines) {
+            C99Supercolider scheduler = new C99Supercolider();
+            System.out.println("running pipeline " + i);
+            boolean finished = runPipeline(resources, maxExecTime, scheduler, pipeline);;
+            
+            // assemble result data
+            String result = "" + i + "\t" + 
+                    resNum + "\t" + 
+                    pipeline.getJobs().size() + "\t" + 
+                    "1\t" +
+                    scheduler.s2best +  "\t" + 
+                    scheduler.s2best +  "\t" + 
+                    scheduler.beam + "\t" + 
+                    scheduler.childNodesCount(pipeline.getJobs().size()) +  "\t" + 
+                    scheduler.id +  "\t" + 
+                    scheduler.prunableNodes +  "\t" + 
+                    scheduler.pruned +  "\t" + 
+                    scheduler.removedFromSearch +  "\t" + 
+                    scheduler.bestList.size() + "\t" + 
+                    scheduler.finalSolutionBeam + "\t" + 
+                    finished + "\t[";
+            for (ResourceList rll : scheduler.bestList) {
+                result += rll.toString() + ", ";
+            }
+            result += "]";
+            
+            // flush test data
+            writer.println(result);
+            writer.flush();
+            System.out.println("finished pipeline " + i);
+            i++;
+        }
+        writer.close();
     }
 
     static boolean runPipeline(List<PluginInfo> resources, int maxExecTime, C99Supercolider s, PipelineInfo p) {
