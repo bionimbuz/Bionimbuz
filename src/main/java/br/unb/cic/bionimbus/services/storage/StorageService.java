@@ -24,7 +24,6 @@ import com.google.inject.Singleton;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -34,7 +33,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import static java.util.Objects.hash;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -146,8 +144,7 @@ public class StorageService extends AbstractBioService {
             }
             cms.getChildren(CuratorMessageService.Path.FILES.getFullPath(config.getId(), "", ""), new UpdatePeerData(cms, this));
             for (File file : dataFolder.listFiles()) {
-                if (!savedFiles.containsKey(file.getName())) {
-                    
+                if (!savedFiles.containsKey(file.getName())) {                    
                     PluginFile pluginFile = new PluginFile();
                     pluginFile.setId(file.getName());
                     pluginFile.setName(file.getName());
@@ -158,6 +155,7 @@ public class StorageService extends AbstractBioService {
                     
                     pluginFile.setPluginId(listIds);
                     pluginFile.setSize(file.length());
+                    pluginFile.setHash(Hash.SHA1File(file.getAbsolutePath()));
                     //cria um novo znode para o arquivo e adiciona o watcher
                     cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.PREFIX_FILE.getFullPath(config.getId(), pluginFile.getId(), ""), pluginFile.toString());
                     cms.getData(CuratorMessageService.Path.PREFIX_FILE.getFullPath(config.getId(), pluginFile.getId(), ""), new UpdatePeerData(cms, this));
@@ -173,15 +171,14 @@ public class StorageService extends AbstractBioService {
     
       /**
      * Retorna o hash de um arquivo. Usado para verificar a integridade do arquivo.
-     * @param fileName
+     * @param path
      * @return 
      * @throws java.security.NoSuchAlgorithmException 
      * @throws java.io.IOException 
      */
-    public String getFileHash(String fileName) throws NoSuchAlgorithmException, IOException {
-         String rootPath = "/home/zoonimbus/zoonimbusProject/data-folder/"; 
+    public String getFileHash(String path) throws NoSuchAlgorithmException, IOException { 
          //Produz o hash do arquivo
-         String hashFile = Hash.SHA1File(rootPath + fileName);
+         String hashFile = Hash.SHA1File(path);
          return  hashFile;
     }
     
@@ -349,7 +346,7 @@ public class StorageService extends AbstractBioService {
         File localFile = new File(path + file.getName());
         
         if (localFile.exists()) {
-            cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_FILE.getFullPath(config.getId(), file.getId(), ""), file.toString());
+            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.PREFIX_FILE.getFullPath(config.getId(), file.getId(), ""), file.toString());
             cms.getData(cms.getPath().PREFIX_FILE.getFullPath(config.getId(), file.getId(), ""), new UpdatePeerData(cms, this));
             return true;
         }
@@ -364,10 +361,11 @@ public class StorageService extends AbstractBioService {
      * @throws KeeperException
      * @throws InterruptedException
      * @throws IOException    
+     * @throws java.security.NoSuchAlgorithmException    
      */
-    public synchronized void fileUploaded(PluginFile fileUploaded) throws KeeperException, InterruptedException, IOException, NoSuchAlgorithmException {
+    public synchronized void fileUploaded(PluginFile fileUploaded) throws KeeperException, InterruptedException, IOException, NoSuchAlgorithmException, SftpException {
         System.out.println("(fileUploaded) Checando se existe a requisição no pending saving"+fileUploaded.toString());
-        if (cms.getZNodeExist(cms.getPath().PREFIX_PENDING_FILE.getFullPath("", fileUploaded.getId(), ""), false)) {
+        if (cms.getZNodeExist(CuratorMessageService.Path.PREFIX_PENDING_FILE.getFullPath("", fileUploaded.getId(), ""), false)) {
             
             String ipPluginFile;
             ipPluginFile = getIpContainsFile(fileUploaded.getName());
@@ -375,6 +373,7 @@ public class StorageService extends AbstractBioService {
             file.setFileId(fileUploaded.getId());
             file.setName(fileUploaded.getName());
             file.setSize(fileUploaded.getSize());
+            file.setHash(fileUploaded.getHash());
             String idPluginFile=null;
             for(String idPlugin : fileUploaded.getPluginId()){
                 idPluginFile=idPlugin;
@@ -382,15 +381,15 @@ public class StorageService extends AbstractBioService {
             }
                         
             System.out.println("(FileUploaded)IdPluginFile: "+idPluginFile);
+            
             //Verifica se a máquina que recebeu essa requisição não é a que está armazenando o arquivo
             if (!config.getAddress().equals(ipPluginFile)){
-                  RpcClient rpcClient = new AvroClient("http", "164.41.209.89", PORT);
+                  RpcClient rpcClient = new AvroClient("http", "164.41.209.96", PORT);
                   //RpcClient rpcClient = new AvroClient("http", ipPluginFile, PORT);
                   String filePeerHash = rpcClient.getProxy().getFileHash(fileUploaded.getName());
 
                   //Verifica se o arquivo foi corretamente transferido ao nó. Só faz a verificação caso o arquivo não seja saída de uma execução.
-                  Integrity integrity = new Integrity();
-                  if(integrity.verifyFile(filePeerHash, fileUploaded.getHash())) {
+                  if(Integrity.verifyHashes(filePeerHash, fileUploaded.getHash())) {
                         System.out.println("Integridade do arquivo  verificada com sucesso! Arquivo transferido corretamente.");
                         try {
                             if (rpcClient.getProxy().verifyFile(file, fileUploaded.getPluginId())&&cms.getZNodeExist(CuratorMessageService.Path.PREFIX_FILE.getFullPath(idPluginFile,fileUploaded.getId(), ""), false)) {
@@ -398,7 +397,7 @@ public class StorageService extends AbstractBioService {
                                 //Remova o arquivo do PENDING FILE já que ele foi upado
                                 cms.delete(CuratorMessageService.Path.PREFIX_PENDING_FILE.getFullPath("", fileUploaded.getId(), ""));
                              }
-                              rpcClient.close();
+                             rpcClient.close();
                          } catch (Exception ex) {                            
                              Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
                          }
@@ -407,11 +406,9 @@ public class StorageService extends AbstractBioService {
                   }                  
               }else {
                   if (checkFilePeer(fileUploaded)) {
-                      String filePeerHash = getFileHash(fileUploaded.getName());
-                      
+                      String filePeerHash = getFileHash(fileUploaded.getName());                      
                       //Verifica se o arquivo foi corretamente transferido ao nó. Só faz a verificação caso o arquivo não seja saída de uma execução.
-                      Integrity integrity = new Integrity();
-                      if(integrity.verifyFile(filePeerHash, fileUploaded.getHash())) {
+                      if(Integrity.verifyHashes(filePeerHash, fileUploaded.getHash())) {
                             System.out.println("Integridade do arquivo  verificada com sucesso! Arquivo transferido corretamente.");
                             if (cms.getZNodeExist(CuratorMessageService.Path.PREFIX_FILE.getFullPath(idPluginFile, fileUploaded.getId(), ""), true)&&!existReplication(file.getName())){
                                  try {
@@ -423,8 +420,6 @@ public class StorageService extends AbstractBioService {
                                           System.out.println("\n\n Erro na replicacao, arquivo nao foi replicado!!");
                                           }
                                   } catch (JSchException ex) {
-                                          Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-                                      } catch (SftpException ex) {
                                           Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
                                       }
                           }
@@ -525,8 +520,10 @@ public class StorageService extends AbstractBioService {
      * @throws IOException
      * @throws JSchException
      * @throws SftpException
+     * @throws java.io.FileNotFoundException
+     * @throws java.security.NoSuchAlgorithmException
      */
-    public synchronized void replication(String filename, String address) throws IOException, JSchException, SftpException {
+    public synchronized void replication(String filename, String address) throws IOException, JSchException, SftpException, FileNotFoundException, NoSuchAlgorithmException {
         
         System.out.println("(replication) Replicando o arquivo de nome: "+filename+" do peer: "+address);
         List<NodeInfo> pluginList = new ArrayList<NodeInfo>();
@@ -545,7 +542,8 @@ public class StorageService extends AbstractBioService {
             FileInfo info = new FileInfo();
             info.setFileId(file.getName());
             info.setName(file.getName());
-            info.setSize(file.length());
+            info.setSize(file.length());            
+            info.setHash(Hash.SHA1File(file.getAbsolutePath()));
             
             PluginFile pluginFile = new PluginFile(info);
             /*
@@ -774,6 +772,8 @@ public class StorageService extends AbstractBioService {
                         } catch (IOException ex) {
                             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
                         } catch (NoSuchAlgorithmException ex) {
+                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (SftpException ex) {
                             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }

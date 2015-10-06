@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -156,6 +157,8 @@ public class BioProtoImpl implements BioProto {
         return listFile;
     }
     
+    
+    
      /**
      * 
      * @param fileName
@@ -163,14 +166,15 @@ public class BioProtoImpl implements BioProto {
      * @throws AvroRemoteException 
      */
     @Override
-    public String getFileHash(String fileName) throws org.apache.avro.AvroRemoteException{
-        
+    public String getFileHash(String fileName) throws org.apache.avro.AvroRemoteException{        
         try {
-            String hash = storageService.getFileHash(fileName);
+            String pathHome = System.getProperty("user.dir");
+            String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
+            String hash = storageService.getFileHash(path + fileName);
             return hash;
-        } catch (NoSuchAlgorithmException ex) {
+        } catch (IOException ex) {        
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
+        }catch (NoSuchAlgorithmException ex) {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
@@ -199,6 +203,32 @@ public class BioProtoImpl implements BioProto {
                 listFiles.add(file);
             }    
         }
+        List<br.unb.cic.bionimbus.avro.gen.PluginFile> listFile = new ArrayList<br.unb.cic.bionimbus.avro.gen.PluginFile>(listFiles);
+
+        return listFile;
+    }
+    
+    /**
+     * 
+     * @param pluginId
+     * @return
+     * @throws AvroRemoteException 
+     */
+    @Override
+    public List<br.unb.cic.bionimbus.avro.gen.PluginFile> listFilesPlugin(String pluginId) throws AvroRemoteException {
+            HashSet<br.unb.cic.bionimbus.avro.gen.PluginFile> listFiles = new HashSet<br.unb.cic.bionimbus.avro.gen.PluginFile>();
+            br.unb.cic.bionimbus.avro.gen.PluginFile file;
+            for(PluginFile fileInfo : storageService.getFilesPeer(pluginId)){
+                file = new  br.unb.cic.bionimbus.avro.gen.PluginFile();
+                file.setId(fileInfo.getId());
+                file.setName(fileInfo.getName());
+                file.setPath(fileInfo.getName());
+                file.setPluginId(fileInfo.getPluginId());
+                file.setSize(fileInfo.getSize());
+                //TO-DO: Informação sobre do Zookeeper está vindo null
+                file.setHash(fileInfo.getHash());
+                listFiles.add(file);
+            }    
         List<br.unb.cic.bionimbus.avro.gen.PluginFile> listFile = new ArrayList<br.unb.cic.bionimbus.avro.gen.PluginFile>(listFiles);
 
         return listFile;
@@ -387,7 +417,7 @@ public class BioProtoImpl implements BioProto {
     
     /**
      * Método que cria o znode do arquivo no diretório /pending_save/file_"id_do arquivo" com as informações de arquivos que clientes querem enviar;
-     * @param file informações do arquivo:id,nome e tamanho
+     * @param file informações do arquivo:id,nome, tamanho e hash
      * @param kindString Tipo de serviço que está requisitando o arquivo 
      */  
     @Override
@@ -433,6 +463,8 @@ public class BioProtoImpl implements BioProto {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NoSuchAlgorithmException ex) {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SftpException ex) {
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -450,6 +482,8 @@ public class BioProtoImpl implements BioProto {
         } catch (JSchException ex) {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SftpException ex) {
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchAlgorithmException ex) {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

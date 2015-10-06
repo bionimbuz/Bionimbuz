@@ -234,6 +234,7 @@ protocol BioProto {
     string id;
     string path;
     string name;
+    string hash;
    long size;
     array<string> pluginId;
   }
@@ -264,6 +265,8 @@ protocol BioProto {
   array<string> listServices();
 
   array<PluginFile> listFiles();
+
+  array<PluginFile> listFilesPlugin(string pluginId);
 
   string getFileHash(string fileName);
 
