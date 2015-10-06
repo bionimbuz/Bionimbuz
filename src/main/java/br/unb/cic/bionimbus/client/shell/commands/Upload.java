@@ -1,8 +1,6 @@
 package br.unb.cic.bionimbus.client.shell.commands;
 
-import br.unb.cic.bionimbus.avro.gen.BioProto;
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
-import br.unb.cic.bionimbus.avro.gen.FileInfo;
 
 import java.io.File;
 
@@ -24,7 +22,7 @@ public class Upload implements Command {
     private final SimpleShell shell;
     private List<NodeInfo> pluginList;
     private List<NodeInfo> nodesdisp = new ArrayList<NodeInfo>();
-    private Double MAXCAPACITY = 0.9;
+    private final Double MAXCAPACITY = 0.9;
 
     public Upload(SimpleShell shell) {
         this.shell = shell;
@@ -32,11 +30,8 @@ public class Upload implements Command {
 
     @Override
     public String execute(String... params) throws Exception {
-
-        /*
-         * Verifica se o arquivo existe
-         */
-
+        
+        //Verifica se o arquivo existe         
         File file = new File(params[0]);
         if (file.exists()){
             br.unb.cic.bionimbus.avro.gen.FileInfo info = new br.unb.cic.bionimbus.avro.gen.FileInfo();
@@ -50,13 +45,7 @@ public class Upload implements Command {
             info.setName(file.getName());
             info.setSize(file.length());
             String hashFile = Hash.SHA1File(path);                        
-            info.setHash(hashFile);            
-            
-            /*
-             * Pega uma lista com todos os peers para calcular a latencia entre o cliente 
-             * e os servidores.
-             */
-//            if (shell.getRpcClient().getProxy().listFilesIp(info.getName()).equals("") && shell.getRpcClient().getProxy().checkFileSize(info.getName()) != info.getSize()){
+            info.setHash(hashFile);                        
              
             //Verifica se existe o arquivo, e se existir vefica se é do mesmo tamanho
             if (shell.getProxy().getIpFile(info.getName()).isEmpty() || shell.getProxy().checkFileSize(info.getName()) != info.getSize()){
@@ -67,31 +56,25 @@ public class Upload implements Command {
                 shell.getRpcClient().getProxy().setFileInfo(info,"upload!");
                 for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
                     NodeInfo plugin = it.next();
-                    /*
-                     * Adiciona na lista de possiveis peers de destino somente os que possuem
-                     * espaço livre para receber o arquivo
-                     */
+                    
+                    //Adiciona na lista de possiveis peers de destino somente os que possuem espaço livre para receber o arquivo                    
                     if ((long) (plugin.getFreesize() * MAXCAPACITY) > info.getSize()) {
-
                         plugin.setLatency(Ping.calculo(plugin.getAddress()));
                         if(plugin.getLatency().equals(Double.MAX_VALUE))
                            plugin.setLatency(Nmap.nmap(plugin.getAddress()));
                         nodesdisp.add(plugin);
                     }
                 }
-
-                /*
-                 * Retorna a lista dos nos ordenados como melhores, passando a latência calculada
-                 */
+                
+                //Retorna a lista dos nos ordenados como melhores, passando a latência calculada                
                 nodesdisp = new ArrayList<NodeInfo>(shell.getRpcClient().getProxy().callStorage(nodesdisp));
 
                 NodeInfo no = null;
                 Iterator<NodeInfo> it = nodesdisp.iterator();
                 while (it.hasNext() && no == null) {
                     NodeInfo node = (NodeInfo) it.next();
-                    /*
-                     * Tenta enviar o arquivo a partir do melhor peer que está na lista
-                     */
+
+                    //Tenta enviar o arquivo a partir do melhor peer que está na lista                    
                     Put conexao = new Put(node.getAddress(), path);
                     if (conexao.startSession()) {
                         no = node;
@@ -101,10 +84,8 @@ public class Upload implements Command {
                     List<String> dest = new ArrayList<String>();
                     dest.add(no.getPeerId());
                     nodesdisp.remove(no);
-                    /*
-                     * Envia RPC para o peer em que está conectado, para que ele sete no Zookeeper
-                     * os dados do arquivo que foi upado.
-                     */
+                    
+                    //Envia RPC para o peer em que está conectado, para que ele sete no Zookeeper os dados do arquivo que foi upado.                    
                     shell.getRpcClient().getProxy().fileSent(info, dest);
                     return "\n Upload Completed!";
                 }            

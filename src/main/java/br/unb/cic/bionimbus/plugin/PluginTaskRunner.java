@@ -44,7 +44,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
             //Descriptografar os arquivos requeridos pela job
             aes.decrypt(path + PATHFILES + input);
             //linha comentada pois arquivos de entrada não ficam mais no AbstractPlugin
-//            args = args.replaceFirst("%I" + i, path + File.pathSeparator + plugin.getInputFiles().get(input).first);
+            //args = args.replaceFirst("%I" + i, path + File.pathSeparator + plugin.getInputFiles().get(input).first);
             args = args.replaceFirst("%I" + i, path+PATHFILES + input+" ");
             i++;
         }
