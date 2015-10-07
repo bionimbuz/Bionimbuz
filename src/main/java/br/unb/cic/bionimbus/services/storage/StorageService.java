@@ -386,7 +386,7 @@ public class StorageService extends AbstractBioService {
             
             //Verifica se a máquina que recebeu essa requisição não é a que está armazenando o arquivo
             if (!config.getAddress().equals(ipPluginFile)){
-                  RpcClient rpcClient = new AvroClient("http", "164.41.209.96", PORT);
+                  RpcClient rpcClient = new AvroClient("http", "164.41.209.100", PORT);
                   //RpcClient rpcClient = new AvroClient("http", ipPluginFile, PORT);
                   String filePeerHash = rpcClient.getProxy().getFileHash(fileUploaded.getName());
 

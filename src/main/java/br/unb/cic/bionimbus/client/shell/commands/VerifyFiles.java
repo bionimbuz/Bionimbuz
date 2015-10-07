@@ -26,19 +26,26 @@ public class VerifyFiles implements Command {
             throw new IllegalStateException("This command should be used with an active connection!");
         }
         
+        int errors=0, count=0;        
         nodeList = shell.getRpcClient().getProxy().getPeersNode();
         for(NodeInfo node : nodeList) {            
             RpcClient rpcClient = new AvroClient("http", node.getAddress(), 8080);
             List<br.unb.cic.bionimbus.avro.gen.PluginFile> zkFiles = rpcClient.getProxy().listFilesPlugin(node.getPeerId());                        
             for(br.unb.cic.bionimbus.avro.gen.PluginFile file : zkFiles) {
+                count++;
                 String filePeerHash = rpcClient.getProxy().getFileHash(file.getName());
                 if(!Integrity.verifyHashes(file.getHash(), filePeerHash)) {                    
-                    System.out.println("Erro no armazenamento do arquivo: " + file.getName());
-                    System.out.println("Arquivo não é o mesmo que o armazenado inicialmente.");
+                    System.out.println("Erro no armazenamento do arquivo: " + file.getName() + " do peer " + node.getAddress());
+                    errors++;
+                } else {
+                    System.out.println("Arquivo " + file.getName() + " do peer " + node.getAddress() + " armazenado corretamente");
                 }
              }        
         }
-        return "\n\n Verificação da integridade dos arquivos finalizada.";
+        String stringReturn = "\nVerificacao da integridade dos arquivos finalizada:\n"
+                + count + " arquivos verificados\n"
+                + errors + " arquivos com erro\n";
+        return stringReturn;
     }
 
     @Override

@@ -227,7 +227,6 @@ public class BioProtoImpl implements BioProto {
                 file.setPath(fileInfo.getName());
                 file.setPluginId(fileInfo.getPluginId());
                 file.setSize(fileInfo.getSize());
-                //TO-DO: Informação sobre do Zookeeper está vindo null
                 file.setHash(fileInfo.getHash());
                 listFiles.add(file);
             }    
