@@ -85,9 +85,8 @@ public class Upload implements Command {
                     dest.add(no.getPeerId());
                     nodesdisp.remove(no);
                     
-                    //Envia RPC para o peer em que está conectado, para que ele sete no Zookeeper os dados do arquivo que foi upado.                    
-                    shell.getRpcClient().getProxy().fileSent(info, dest);
-                    return "\n Upload Completed!";
+                    //Envia RPC para o peer em que está conectado, para que ele sete no Zookeeper os dados do arquivo que foi upado.                                        
+                    return shell.getRpcClient().getProxy().fileSent(info, dest);
                 }            
             } else {
             return "\n\n Ja existe um arquivo com mesmo nome e tamanho na federação !!!";

@@ -446,25 +446,20 @@ public class BioProtoImpl implements BioProto {
      * @param dest lista com os plugins de destino
      */
     @Override
-    public void fileSent(FileInfo fileSucess, List<String> dest){
+    public String fileSent(FileInfo fileSucess, List<String> dest){
         PluginFile file = new PluginFile(fileSucess);
         file.setPluginId(dest);
         String pathHome = System.getProperty("user.dir");
         String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
         file.setPath(path+file.getName());
+        String retorno = "File uploaded.";
         try {
-            storageService.fileUploaded(file);
-        } catch (KeeperException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (NoSuchAlgorithmException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SftpException ex) {
+            retorno = storageService.fileUploaded(file);
+            return retorno;
+        } catch (KeeperException | InterruptedException | IOException | NoSuchAlgorithmException | SftpException ex) {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return retorno;
     }
     
     /**
