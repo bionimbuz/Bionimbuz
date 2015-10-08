@@ -366,14 +366,16 @@ public class StorageService extends AbstractBioService {
      * de replicar esse arquivo pelos nós.
      *
      * @param fileUploaded
+     * @return 
      * @throws KeeperException
      * @throws InterruptedException
      * @throws IOException
      * @throws java.security.NoSuchAlgorithmException
+     * @throws com.jcraft.jsch.SftpException
      */
     public synchronized String fileUploaded(PluginFile fileUploaded) throws KeeperException, InterruptedException, IOException, NoSuchAlgorithmException, SftpException {
         System.out.println("(fileUploaded) Checando se existe a requisição no pending saving" + fileUploaded.toString());
-        Boolean success = false;
+        Boolean successUpload = false;
         if (cms.getZNodeExist(CuratorMessageService.Path.PREFIX_PENDING_FILE.getFullPath("", fileUploaded.getId(), ""), false)) {
 
             String ipPluginFile;
@@ -399,10 +401,11 @@ public class StorageService extends AbstractBioService {
 
                 //Verifica se o arquivo foi corretamente transferido ao nó. Só faz a verificação caso o arquivo não seja saída de uma execução.
                 if (Integrity.verifyHashes(filePeerHash, fileUploaded.getHash())) {
-                    success = true;
+                    successUpload = true;
                     try {
                         if (rpcClient.getProxy().verifyFile(file, fileUploaded.getPluginId()) && cms.getZNodeExist(CuratorMessageService.Path.PREFIX_FILE.getFullPath(idPluginFile, fileUploaded.getId(), ""), false)) {
-                            rpcClient.getProxy().notifyReply(fileUploaded.getName(), ipPluginFile);
+                            //TO-DO: NotifyReply esta apagando o conteudo do arquivo
+                            //rpcClient.getProxy().notifyReply(fileUploaded.getName(), ipPluginFile);
                             //Remova o arquivo do PENDING FILE já que ele foi upado
                             cms.delete(CuratorMessageService.Path.PREFIX_PENDING_FILE.getFullPath("", fileUploaded.getId(), ""));
                         }
@@ -416,7 +419,7 @@ public class StorageService extends AbstractBioService {
                     String filePeerHash = getFileHash(fileUploaded.getName());
                     //Verifica se o arquivo foi corretamente transferido ao nó. Só faz a verificação caso o arquivo não seja saída de uma execução.
                     if (Integrity.verifyHashes(filePeerHash, fileUploaded.getHash())) {
-                        success = true;
+                        successUpload = true;
                         if (cms.getZNodeExist(CuratorMessageService.Path.PREFIX_FILE.getFullPath(idPluginFile, fileUploaded.getId(), ""), true) && !existReplication(file.getName())) {
                             try {
                                 replication(file.getName(), config.getAddress());
@@ -437,7 +440,7 @@ public class StorageService extends AbstractBioService {
             System.out.println("Arquivo não encontrado nas pendências !");
         }
 
-        if (success) {
+        if (successUpload) {
             return "File integrity verified: File uploaded correctly.";
         } else {
             return "File integrity verified: Error on file uploading.";
@@ -537,8 +540,8 @@ public class StorageService extends AbstractBioService {
     public synchronized void replication(String filename, String address) throws IOException, JSchException, SftpException, FileNotFoundException, NoSuchAlgorithmException {
 
         System.out.println("(replication) Replicando o arquivo de nome: " + filename + " do peer: " + address);
-        List<NodeInfo> pluginList = new ArrayList<NodeInfo>();
-        List<String> idsPluginsFile = new ArrayList<String>();
+        List<NodeInfo> pluginList = new ArrayList<>();
+        List<String> idsPluginsFile = new ArrayList<>();
         String pathHome = System.getProperty("user.dir");
         String path = (pathHome.substring(pathHome.length()).equals("/") ? pathHome + "data-folder/" : pathHome + "/data-folder/");
         File file = new File(path + filename);
@@ -587,7 +590,7 @@ public class StorageService extends AbstractBioService {
 
                 pluginList.remove(no);
             }
-            pluginList = new ArrayList<NodeInfo>(bestNode(pluginList));
+            pluginList = new ArrayList<>(bestNode(pluginList));
             pluginList.remove(no);
             Iterator<NodeInfo> bt = pluginList.iterator();
             while (bt.hasNext() && filesreplicated != REPLICATIONFACTOR) {
