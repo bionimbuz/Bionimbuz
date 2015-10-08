@@ -31,21 +31,23 @@ public class AESEncryptor {
 
         String newFilePath = filePath + ".aes";
         //creating file output stream to write to file
-            FileOutputStream fos = new FileOutputStream(newFilePath);
-                    
-            //creating object output stream to write objects to file
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            //creating file input stream to read contents for encryption
-            FileInputStream fis = new FileInputStream(filePath);
-                //creating cipher output stream to write encrypted contents
-            CipherOutputStream cos = new CipherOutputStream(fos, aesCipher);
-                    int read;
-                    byte buf[] = new byte[4096];
-                    while ((read = fis.read(buf)) != -1) //reading from file 
-                    {
-                        cos.write(buf, 0, read);  //encrypting and writing to file
-                    }
+        FileOutputStream fos = new FileOutputStream(newFilePath);
+
+        //creating object output stream to write objects to file
+        ObjectOutputStream oos = new ObjectOutputStream(fos);
+        //creating file input stream to read contents for encryption
+        FileInputStream fis = new FileInputStream(filePath);
+        //creating cipher output stream to write encrypted contents
+        CipherOutputStream cos = new CipherOutputStream(fos, aesCipher);
+        int read;
+        byte buf[] = new byte[4096];
+        while ((read = fis.read(buf)) != -1) //reading from file 
+        {
+            cos.write(buf, 0, read);  //encrypting and writing to file
+        }
         File file = new File(filePath);
+        File old_file = new File(filePath + "_old");
+        file.renameTo(old_file);
         file.delete();
         File newFile = new File(newFilePath);
         newFile.renameTo(file);
@@ -55,23 +57,23 @@ public class AESEncryptor {
         Key key = new SecretKeySpec(keyValue, "AES");
         Cipher aesCipher = Cipher.getInstance("AES");  //getting cipher for AES
         aesCipher.init(Cipher.DECRYPT_MODE, key);  //initializing cipher for decryption with key
-        
+
         //Came back to the original file name
         String newFilePath = filePath + ".aes";
         //creating file input stream to read from file
         FileInputStream fis = new FileInputStream(filePath);
-            //creating object input stream to read objects from file
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            //creating file output stream to write back original contents
-            FileOutputStream fos = new FileOutputStream(newFilePath);
-                //creating cipher input stream to read encrypted contents
-              CipherInputStream cis = new CipherInputStream(fis, aesCipher);
-                    int read;
-                    byte buf[] = new byte[4096];
-                    while ((read = cis.read(buf)) != -1) //reading from file
-                    {
-                        fos.write(buf, 0, read);  //decrypting and writing to file
-                    }        
+        //creating object input stream to read objects from file
+        ObjectInputStream ois = new ObjectInputStream(fis);
+        //creating file output stream to write back original contents
+        FileOutputStream fos = new FileOutputStream(newFilePath);
+        //creating cipher input stream to read encrypted contents
+        CipherInputStream cis = new CipherInputStream(fis, aesCipher);
+        int read;
+        byte buf[] = new byte[4096];
+        while ((read = cis.read(buf)) != -1) //reading from file
+        {
+            fos.write(buf, 0, read);  //decrypting and writing to file
+        }
         File file = new File(filePath);
         file.delete();
         File newFile = new File(newFilePath);
