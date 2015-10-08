@@ -37,9 +37,12 @@ public class Upload implements Command {
             br.unb.cic.bionimbus.avro.gen.FileInfo info = new br.unb.cic.bionimbus.avro.gen.FileInfo();
             String path = file.getPath();
             
-            AESEncryptor aes = new AESEncryptor();
-            //Overwrite the file with the encrypt version
-            aes.encrypt(path);
+            //Not encrypt inputfiles.txt
+            if(!file.getName().equals("inputfiles.txt")) {
+                AESEncryptor aes = new AESEncryptor();
+                //Overwrite the file with the encrypt version          
+                aes.encrypt(path);
+            }
             
             info.setFileId(file.getName());
             info.setName(file.getName());
