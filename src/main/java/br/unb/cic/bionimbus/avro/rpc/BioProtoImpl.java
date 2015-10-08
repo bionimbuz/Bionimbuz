@@ -199,6 +199,7 @@ public class BioProtoImpl implements BioProto {
                 file.setName(fileInfo.getName());
                 //retorno com getName  para o path porque avro não reconhece barra(/), adicionar data-folder/
                 //ao receber o retono deste método
+                file.setHash(fileInfo.getHash());
                 file.setPath(fileInfo.getName());
                 file.setPluginId(fileInfo.getPluginId());
                 file.setSize(fileInfo.getSize());
@@ -436,6 +437,7 @@ public class BioProtoImpl implements BioProto {
      * Método avro que chama o método fileuploaded da storage para avisar que o arquivo foi enviado.
      * @param fileSucess informações do arquivo:id,nome e tamanho
      * @param dest lista com os plugins de destino
+     * @return 
      */
     @Override
     public String fileSent(FileInfo fileSucess, List<String> dest){
@@ -463,13 +465,7 @@ public class BioProtoImpl implements BioProto {
     public void notifyReply(String filename, String address) {
         try {
             storageService.replication(filename,address);
-        } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (JSchException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SftpException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (NoSuchAlgorithmException ex) {
+        } catch (IOException | JSchException | SftpException | NoSuchAlgorithmException ex) {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
