@@ -38,7 +38,7 @@ public class Upload implements Command {
             String path = file.getPath();
             
             //Not encrypt inputfiles.txt
-            if(!file.getName().equals("inputfiles.txt")) {
+            if(!file.getPath().contains("inputfiles.txt")) {
                 AESEncryptor aes = new AESEncryptor();
                 //Overwrite the file with the encrypt version          
                 aes.encrypt(path);
