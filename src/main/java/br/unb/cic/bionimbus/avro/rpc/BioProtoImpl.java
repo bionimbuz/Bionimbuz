@@ -4,6 +4,7 @@ import br.unb.cic.bionimbus.avro.gen.BioProto;
 import br.unb.cic.bionimbus.avro.gen.FileInfo;
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.plugin.*;
+import br.unb.cic.bionimbus.security.AESEncryptor;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.sched.SchedService;
@@ -159,7 +160,26 @@ public class BioProtoImpl implements BioProto {
         return listFile;
     }
     
-    
+    /**
+     *
+     * @param filename
+     */
+    @Override
+    public void decryptPluginFile(String filename) {
+        try {
+            String pathHome = System.getProperty("user.dir");
+            String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
+            AESEncryptor aes = new AESEncryptor();
+            //Not decrypt inputfiles.txt
+            if(!filename.contains("inputfiles.txt")) {
+                aes.decrypt(path + filename);
+            }
+        } catch (IOException | NoSuchAlgorithmException ex) {
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     
      /**
      * 
