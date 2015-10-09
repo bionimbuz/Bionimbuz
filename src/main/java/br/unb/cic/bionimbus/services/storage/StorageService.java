@@ -404,7 +404,6 @@ public class StorageService extends AbstractBioService {
                     successUpload = true;
                     try {
                         if (rpcClient.getProxy().verifyFile(file, fileUploaded.getPluginId()) && cms.getZNodeExist(CuratorMessageService.Path.PREFIX_FILE.getFullPath(idPluginFile, fileUploaded.getId(), ""), false)) {
-                            //TO-DO: NotifyReply esta apagando o conteudo do arquivo
                             //rpcClient.getProxy().notifyReply(fileUploaded.getName(), ipPluginFile);
                             //Remova o arquivo do PENDING FILE já que ele foi upado
                             cms.delete(CuratorMessageService.Path.PREFIX_PENDING_FILE.getFullPath("", fileUploaded.getId(), ""));

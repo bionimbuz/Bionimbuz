@@ -482,6 +482,19 @@ public class SchedService extends AbstractBioService implements Runnable {
         return pluginTask;
     }
     
+    private void decryptFiles(List<Pair<String, Long>> inputs) throws Exception {
+        try {
+            //realiza uma chama rpc para decriptografar os arquivos que serao usados pela task
+            rpcClient = new AvroClient(config.getRpcProtocol(), myLinuxPlugin.getMyInfo().getHost().getAddress(), myLinuxPlugin.getMyInfo().getHost().getPort());
+            for(Pair<String, Long> pair : inputs) {
+                rpcClient.getProxy().decryptPluginFile(pair.first);
+            }
+            rpcClient.close();
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     /**
      * Método que realiza a verificação dos arquivos existentes no plugin para
      * possíveis utilizações durante a execução das tarefas.
@@ -599,7 +612,8 @@ public class SchedService extends AbstractBioService implements Runnable {
         if (!existFiles(task.getJobInfo().getInputs())) {
             requestFile(task.getJobInfo().getInputs());
         }
-        if (existFiles(task.getJobInfo().getInputs())) {            
+        if (existFiles(task.getJobInfo().getInputs())) {
+            decryptFiles(task.getJobInfo().getInputs());
             myLinuxPlugin.startTask(task, cms);
         } else {
             task.setState(PluginTaskState.WAITING);
