@@ -42,7 +42,6 @@ public class Upload implements Command {
                 AESEncryptor aes = new AESEncryptor();
                 //Overwrite the file with the encrypt version          
                 aes.encrypt(path);
-                aes.decrypt(path);
             }
             
             info.setFileId(file.getName());

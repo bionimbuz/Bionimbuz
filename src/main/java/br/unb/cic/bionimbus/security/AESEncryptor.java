@@ -5,15 +5,11 @@
  */
 package br.unb.cic.bionimbus.security;
 
-import com.google.common.io.Files;
-import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import org.apache.commons.io.IOUtils;
 
 /**
  *
@@ -23,51 +19,67 @@ public class AESEncryptor {
     static String encryptionKey = "zoonimbus1234567";
     
     public void encrypt(String filePath) throws Exception {
-        String plainText;
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            StringBuilder sb = new StringBuilder();
-            String line = br.readLine();
-
-            while (line != null) {
-                sb.append(line);
-                sb.append(System.lineSeparator());
-                line = br.readLine();
-            }
-            plainText = sb.toString();
-        }
-
         Cipher cipher = Cipher.getInstance("AES", "SunJCE");
         SecretKeySpec key = new SecretKeySpec(encryptionKey.getBytes("UTF-8"), "AES");
         cipher.init(Cipher.ENCRYPT_MODE, key);
-        byte[] bytes = cipher.doFinal(plainText.getBytes("UTF-8"));
         
-        File newEncryptFile = new File(filePath + ".aes");
-        FileOutputStream output = new FileOutputStream(newEncryptFile);
-        IOUtils.write(bytes, output);
+        byte[] input = new byte[64];
+        int bytesRead;
 
+        FileInputStream inFile = new FileInputStream(filePath);
+        FileOutputStream outFile = new FileOutputStream(filePath + ".aes");
+
+        while ((bytesRead = inFile.read(input)) != -1) {
+            byte[] output = cipher.update(input, 0, bytesRead);
+            if (output != null) {
+                outFile.write(output);
+            }
+        }
+
+        byte[] output = cipher.doFinal();
+        if (output != null) {
+            outFile.write(output);
+        }
+                
+        inFile.close();
+        outFile.flush();
+        outFile.close();
+        
         File file =  new File(filePath);        
-        File oldFile = new File(filePath + "_old.txt");
+        File oldFile = new File(filePath + "_old");
         file.renameTo(oldFile);
         file.delete();       
-        newEncryptFile.renameTo(file);
+        File newFile = new File(filePath + ".aes");
+        newFile.renameTo(file);   
     }
 
-    public void decrypt(String filePath) throws Exception {
-        File file = new File(filePath);
-        byte[] cipherText = Files.toByteArray(file);
-        
+    public void decrypt(String filePath) throws Exception {     
         Cipher cipher = Cipher.getInstance("AES", "SunJCE");
         SecretKeySpec key = new SecretKeySpec(encryptionKey.getBytes("UTF-8"), "AES");
         cipher.init(Cipher.DECRYPT_MODE, key);
-        String originalText = new String(cipher.doFinal(cipherText), "UTF-8");
-        
-        File newDecryptFile = new File(filePath + ".aes");
-        try (FileWriter fileWriter = new FileWriter(newDecryptFile)) {
-            fileWriter.write(originalText);
-            fileWriter.flush();
+
+        FileInputStream fis = new FileInputStream(filePath);
+        FileOutputStream fos = new FileOutputStream(filePath + ".aes");
+        byte[] in = new byte[64];
+        int read;
+        while ((read = fis.read(in)) != -1) {
+            byte[] output = cipher.update(in, 0, read);
+            if (output != null) {
+                fos.write(output);
+            }
         }
+
+        byte[] output = cipher.doFinal();
+        if (output != null) {
+            fos.write(output);
+        }
+        fis.close();
+        fos.flush();
+        fos.close();
         
+        File file = new File(filePath);
         file.delete();
-        newDecryptFile.renameTo(file);
+        File newFile = new File(filePath + ".aes");
+        newFile.renameTo(file);
     }
 }
