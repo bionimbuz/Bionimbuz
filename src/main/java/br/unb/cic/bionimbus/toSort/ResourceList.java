@@ -13,7 +13,7 @@ import java.util.List;
  * @author willian
  */
 public class ResourceList {
-    
+
     public final List<Resource> resources;
 
     public ResourceList() {
@@ -22,49 +22,70 @@ public class ResourceList {
 
     // Copy constructor
     public ResourceList(ResourceList resourceList) {
-        
+
         resources = new ArrayList();
-        
+
         for (Resource resource : resourceList.resources) {
-            if (resource != null)
+            if (resource != null) {
                 resources.add(new Resource(resource));
+            }
         }
     }
-    
+
     public Double getFullCost() {
-        
+
         Double cost = (double) 0;
-        
-        for (Resource resource : resources)
+
+        for (Resource resource : resources) {
             cost += resource.getCost();
-        
+        }
+
         return cost;
     }
-    
+
     public Double getAvgTime() {
-        
+
         Double time = (double) 0;
-        
-        for (Resource resource : resources)
+
+        for (Resource resource : resources) {
             time += resource.getExecTime();
-        
-        return time/resources.size();
+        }
+
+        return time / resources.size();
     }
-    
+
     public Double getMaxTime() {
-        
+
         Double maxTime = (double) 0;
-        
-        for (Resource resource : resources)
-            if (resource.getExecTime() > maxTime)
+
+        for (Resource resource : resources) {
+            if (resource.getExecTime() > maxTime) {
                 maxTime = resource.getExecTime();
-        
+            }
+        }
+
         return maxTime;
     }
 
     @Override
-    public String toString() {
-        return "c: " + getFullCost() + " - tA: " + getAvgTime() + " - tM: " + getMaxTime();
+    public boolean equals(Object obj) {
+        if (obj.getClass() != ResourceList.class) {
+            return false;
+        }
+        return resources.equals(((ResourceList) obj).resources);
+    }
+
+    public String result() {
+        return getFullCost() + ", " + getAvgTime() + ", " + getMaxTime();
     }
     
+    @Override
+    public String toString() {
+        String ret = "[";
+        for (Resource r : resources) {
+            ret += r.id + ", " +  r.getAlloc()+ "; ";
+        }
+        return ret + "]";
+    }
+
 }

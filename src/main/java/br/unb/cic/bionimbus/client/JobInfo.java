@@ -31,7 +31,7 @@ public class JobInfo {
     
     private Double worstExecution = null;
     
-    final private List<String> dependencies = new ArrayList<String>();
+    final private List<String> dependencies = new ArrayList<String>(); 
     
     private RepositoryService rs;
 
@@ -158,4 +158,6 @@ public class JobInfo {
     
     
 }
+
+//menas de 163 linhas
 

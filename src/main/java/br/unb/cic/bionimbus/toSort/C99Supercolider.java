@@ -11,8 +11,9 @@ import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
+import com.google.common.primitives.UnsignedLong;
+import static com.sun.corba.se.impl.util.Utility.printStackTrace;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import static java.lang.Math.floor;
@@ -55,12 +56,14 @@ public class C99Supercolider extends SchedPolicy {
     // between 0 and 1
     //        time  cost
     private final double alpha = 0.5d;
-    public Integer id = 0;
+    public Long id = 0l;
     private final List<ResourceList> solutionsList = new ArrayList<ResourceList>();
     private long prunableNodes = 0;
     private long pruned = 0;
     private long removedFromSearch = 0;
     private long finalSolutionBeam = 0;
+    private int recoveryMemory[];
+    private boolean outOfMemory = false;
 
     /**
      * Run the C99Supercolider Three stages Scheduling Algorithm. The stages
@@ -78,13 +81,29 @@ public class C99Supercolider extends SchedPolicy {
      * @see C99Supercolider.stageThree
      */
     public ResourceList schedule(ResourceList rl, List<JobInfo> jobs) {
-        SearchNode root = stageOne(rl, new LinkedList<JobInfo>(jobs));
-//        recursiveSeachNodePrint(root, 0);
-        stageTwo(root, new LinkedList<JobInfo>(jobs));
-//        recursiveSeachNodePrint(root, 0);
-        this.jobs = jobs;
-        stageThree(root, rl.resources.size());
-//        recursiveSeachNodePrint(root, 0);
+        // allocate memory for recovery
+        allocateRecoveryMemory();
+        SearchNode root;
+        
+        try {
+            root = stageOne(rl, new LinkedList<JobInfo>(jobs));
+//            recursiveSeachNodePrint(root, 0);
+            stageTwo(root, new LinkedList<JobInfo>(jobs));
+//            recursiveSeachNodePrint(root, 0);
+            this.jobs = jobs;
+            stageThree(root, rl.resources.size());
+//            recursiveSeachNodePrint(root, 0);
+        } catch (OutOfMemoryError e) {
+            // release recovery memory and perform recovery
+            root = null;
+            freeRecoveryMemory();
+            System.out.println("OOME");
+            outOfMemory = true;
+        } finally {
+            root  = null;
+            if (!outOfMemory)
+                freeRecoveryMemory();
+        }
 
         return best;
     }
@@ -419,16 +438,20 @@ public class C99Supercolider extends SchedPolicy {
 
         Pair<List<ResourceList>, List<ResourceList>> ret = Pareto.getParetoCurve(lrl);
 
+        // it there is no remaining elements it means that this node has a new good solution
         if (ret.second.isEmpty()) {
-            solutionsList.add(newRl);
-            ResourceList newBest = Pareto.getParetoOptimal(ret.first, alpha);
+            // check if the new solution isn't already there
+            if (!solutionsList.contains(newRl)) {
+                solutionsList.add(newRl);
+                ResourceList newBest = Pareto.getParetoOptimal(ret.first, alpha);
 
-            if (newBest == newRl) {
-                System.out.println("New best - node: " + node.id);
-                bestList.add(newBest);
-                best = newBest;
-                finalSolutionBeam = beam;
-                return true;
+                if (newBest == newRl) {
+                    System.out.println("New best - node: " + node.id);
+                    bestList.add(newBest);
+                    best = newBest;
+                    finalSolutionBeam = beam;
+                    return true;
+                }
             }
         }
 
@@ -438,6 +461,27 @@ public class C99Supercolider extends SchedPolicy {
     public long childNodesCount(long depth) {
         long base = RandomTestGenerator.numMaxResources;
         return (long) (pow(base, depth) + floor(pow(base, depth)/(base-1)));
+    }
+    
+    /**
+     * Allocate memory space equivalent to 1000 integers if needed for
+     * OOME. Using Hedging strategy. The allocation is ensured to happen by the
+     * end of this method.
+     */
+    private void allocateRecoveryMemory() {
+        recoveryMemory = new int[10000000];
+        recoveryMemory[999] = 1;
+    }
+    
+    /**
+     * Release the recovery memory space if needed for treating an  OOME. 
+     * Using Hedging strategy. The desallocation is ensured to happen only after
+     * this method.
+     */
+    private void freeRecoveryMemory() {
+        if (recoveryMemory[999] == 1)
+            recoveryMemory[999] = 1;
+        recoveryMemory = null;
     }
 
     /*********************************************************/
@@ -586,7 +630,7 @@ public class C99Supercolider extends SchedPolicy {
                 System.out.println("Max number of nodes to search: " + format(scheduler.childNodesCount(p.getJobs().size())));
                 System.out.format("Searched Nodes created: " + format(scheduler.id) + " - %5.5f%% of all possible nodes %n", 100*(float)(scheduler.id)/scheduler.childNodesCount(p.getJobs().size()));
                 System.out.format("Prunable nodes: " + format(scheduler.prunableNodes) + " - %5.5f%% of searched nodes %n",
-                        100 * (float)scheduler.prunableNodes/(float)scheduler.id);
+                        100 * (float)scheduler.prunableNodes/(float)scheduler.id.doubleValue());
                 System.out.format("Pruned nodes: " + format(scheduler.pruned) + " - %5.5f%% of searched nodes %n", 100*((float)scheduler.pruned/(float)scheduler.id));
                 System.out.format("Nodes removed from search: " + format(scheduler.removedFromSearch) + " - %5.5f%% of all possible nodes %n", 100*(float)scheduler.removedFromSearch/scheduler.childNodesCount(p.getJobs().size()));
                 System.out.println("___________________________________________________________________________________________________");
@@ -616,35 +660,52 @@ public class C99Supercolider extends SchedPolicy {
         }
         
         for (PipelineInfo pipeline : pipelines) {
-            C99Supercolider scheduler = new C99Supercolider();
-            System.out.println("running pipeline " + i);
-            boolean finished = runPipeline(resources, maxExecTime, scheduler, pipeline);;
-            
-            // assemble result data
-            String result = "" + i + "\t" + 
-                    resNum + "\t" + 
-                    pipeline.getJobs().size() + "\t" + 
-                    "1\t" +
-                    scheduler.s2best +  "\t" + 
-                    scheduler.s2best +  "\t" + 
-                    scheduler.beam + "\t" + 
-                    scheduler.childNodesCount(pipeline.getJobs().size()) +  "\t" + 
-                    scheduler.id +  "\t" + 
-                    scheduler.prunableNodes +  "\t" + 
-                    scheduler.pruned +  "\t" + 
-                    scheduler.removedFromSearch +  "\t" + 
-                    scheduler.bestList.size() + "\t" + 
-                    scheduler.finalSolutionBeam + "\t" + 
-                    finished + "\t[";
-            for (ResourceList rll : scheduler.bestList) {
-                result += rll.toString() + ", ";
+            // this if is used to simulate a resumed test
+            if (i > -10) {
+                C99Supercolider scheduler = new C99Supercolider();
+                System.out.println("running pipeline " + i);
+                boolean finished = false;
+                try {
+                    finished = runPipeline(resources, maxExecTime, scheduler, pipeline);;
+                } catch (Error e) {
+                    printStackTrace();
+                    System.out.println(e.toString());
+                } catch (Exception e) {
+                    printStackTrace();
+                    System.out.println(e.toString());
+                }
+
+                // assemble result data
+                String result = "" + i + "\t" + 
+                        resNum + "\t" + 
+                        pipeline.getJobs().size() + "\t" + 
+                        "1\t" +
+                        scheduler.s2best +  "\t" + 
+                        scheduler.s3best +  "\t" + 
+                        scheduler.beam + "\t" + 
+                        scheduler.childNodesCount(pipeline.getJobs().size()) +  "\t" + 
+                        scheduler.id +  "\t" + 
+                        scheduler.prunableNodes +  "\t" + 
+                        scheduler.pruned +  "\t" + 
+                        scheduler.removedFromSearch +  "\t" + 
+                        scheduler.bestList.size() + "\t" + 
+                        scheduler.finalSolutionBeam + "\t" + 
+                        scheduler.outOfMemory + "\t" + 
+                        finished + "\t[";
+                for (ResourceList rll : scheduler.bestList) {
+                    result += rll.result() + "; ";
+                }
+                result += "]\t";
+                for (ResourceList rll : scheduler.bestList) {
+                    result += rll.toString() + "; ";
+                }
+                result += "]";
+
+                // flush test data
+                writer.println(result);
+                writer.flush();
+                System.out.println("finished pipeline " + i);
             }
-            result += "]";
-            
-            // flush test data
-            writer.println(result);
-            writer.flush();
-            System.out.println("finished pipeline " + i);
             i++;
         }
         writer.close();
@@ -664,7 +725,10 @@ public class C99Supercolider extends SchedPolicy {
         ExecutorService executor = Executors.newFixedThreadPool(1);
         final PipelineInfo pipeline = p;
         final C99Supercolider scheduler = s;
-
+        
+        
+        // 
+        
         // execute pipeline scheduling
         Future<?> future = executor.submit(new Runnable() {
             @Override

@@ -66,7 +66,7 @@ public class Resource {
     public boolean equals(Object obj) {
         if (obj instanceof Resource) {
             Resource r = (Resource) obj;
-            return id.equals(r.id);
+            return id.equals(r.id) && r.allocatedTasks.equals(allocatedTasks);
         } else
             return false;
         
@@ -75,6 +75,14 @@ public class Resource {
     @Override
     public String toString() {
         return "Id: " + id + ", Time: " + getExecTime() + ", Cost: " + getCost();
+    }
+    
+    public String getAlloc() {
+        String s = "[";
+        for (JobInfo t : allocatedTasks) {
+            s += t.getId() + ", ";
+        }
+        return s + "]";
     }
     
 }

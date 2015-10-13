@@ -16,7 +16,7 @@ import java.util.Queue;
  * @author willian
  */
 public class SearchNode {
-    public int id;
+    public Long id;
     
     public Queue<SearchNode> toVisit;
     public Queue<SearchNode> visiting;
@@ -32,7 +32,7 @@ public class SearchNode {
     public long prunedChildren;
     public final long depth;
 
-    public SearchNode(ResourceList rl, int id, long depth) {
+    public SearchNode(ResourceList rl, Long id, long depth) {
         this.rl = rl;
         this.id = id;
         toVisit = new LinkedList<SearchNode>();
