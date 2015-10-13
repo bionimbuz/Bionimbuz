@@ -1,4 +1,4 @@
-﻿/*
+/*
     BioNimbuZ is a federated cloud platform.
     Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD), 
     Department of Computer Science, University of Brasilia, Brazil
