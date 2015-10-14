@@ -81,7 +81,7 @@ public class FromFileTestGenerator extends PipelineTestGenerator {
     @Override
     protected void generateResourcesTemplates() {
         try {
-            BufferedReader br = new BufferedReader(new FileReader("res-reduced.txt"));
+            BufferedReader br = new BufferedReader(new FileReader("res-full.txt"));
             String line = br.readLine();
             
             // for each line

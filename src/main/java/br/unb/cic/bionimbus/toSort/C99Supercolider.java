@@ -717,32 +717,39 @@ public class C99Supercolider extends SchedPolicy {
         
         
         // 
-        
-        // execute pipeline scheduling
-        Future<?> future = executor.submit(new Runnable() {
-            @Override
-            public void run() {
-                scheduler.schedule(rl, pipeline.getJobs());
-            }
-        });
-        executor.shutdown();            //        <-- reject all further submissions
-
-        // wait for scheduling to finish or timeout
+        Future<?> future = null;
         boolean finished = true;
         try {
+            // execute pipeline scheduling
+            future = executor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    scheduler.schedule(rl, pipeline.getJobs());
+                    scheduler.outOfMemory = false;
+                }
+            });
+            executor.shutdown();            //        <-- reject all further submissions
+
+            // wait for scheduling to finish or timeout
             future.get(maxExecTime, TimeUnit.SECONDS);  //     <-- wait to finish
         } catch (InterruptedException e) {    //     <-- possible error cases
             System.out.println("job was interrupted");
+            scheduler.outOfMemory = true;
         } catch (ExecutionException e) {
             System.out.println("caught exception: " + e.getCause());
             e.printStackTrace();
+            finished = false;
+            scheduler.outOfMemory = true;
         } catch (TimeoutException e) {
             future.cancel(true);              //     <-- interrupt the job
             System.out.println("timeout");
             finished = false;
+            scheduler.outOfMemory = false;
         } catch (OutOfMemoryError e) {
             hedge = null;
             future = null;
+            finished = false;
+            scheduler.outOfMemory = true;
             System.out.println("OOME");
         } finally {
             hedge = null;
