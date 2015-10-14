@@ -23,7 +23,7 @@ public class FromFileTestGenerator extends PipelineTestGenerator {
 
     @Override
     protected void generatePipelineTemplates() {
-        double window = 50; // in secs
+        double window = 500; // in secs
         double windowEnd = window; // in secs
                 
         try {
@@ -81,7 +81,7 @@ public class FromFileTestGenerator extends PipelineTestGenerator {
     @Override
     protected void generateResourcesTemplates() {
         try {
-            BufferedReader br = new BufferedReader(new FileReader("res-full.txt"));
+            BufferedReader br = new BufferedReader(new FileReader("res-reduced.txt"));
             String line = br.readLine();
             
             // for each line

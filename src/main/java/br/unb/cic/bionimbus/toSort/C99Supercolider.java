@@ -81,29 +81,15 @@ public class C99Supercolider extends SchedPolicy {
      * @see C99Supercolider.stageThree
      */
     public ResourceList schedule(ResourceList rl, List<JobInfo> jobs) {
-        // allocate memory for recovery
-        allocateRecoveryMemory();
         SearchNode root;
         
-        try {
-            root = stageOne(rl, new LinkedList<JobInfo>(jobs));
+        root = stageOne(rl, new LinkedList<JobInfo>(jobs));
 //            recursiveSeachNodePrint(root, 0);
-            stageTwo(root, new LinkedList<JobInfo>(jobs));
+        stageTwo(root, new LinkedList<JobInfo>(jobs));
 //            recursiveSeachNodePrint(root, 0);
-            this.jobs = jobs;
-            stageThree(root, rl.resources.size());
+        this.jobs = jobs;
+        stageThree(root, rl.resources.size());
 //            recursiveSeachNodePrint(root, 0);
-        } catch (OutOfMemoryError e) {
-            // release recovery memory and perform recovery
-            root = null;
-            freeRecoveryMemory();
-            System.out.println("OOME");
-            outOfMemory = true;
-        } finally {
-            root  = null;
-            if (!outOfMemory)
-                freeRecoveryMemory();
-        }
 
         return best;
     }
@@ -644,7 +630,7 @@ public class C99Supercolider extends SchedPolicy {
     }
     
     private static void testFailurePronePipelines(List<PipelineInfo> pipelines, List<PluginInfo> resources) {
-        int maxExecTime = 50; // secs
+        int maxExecTime = 500; // secs
         long resNum = resources.size();
         int i=0;
         PrintWriter writer = null;
@@ -712,6 +698,9 @@ public class C99Supercolider extends SchedPolicy {
     }
 
     static boolean runPipeline(List<PluginInfo> resources, int maxExecTime, C99Supercolider s, PipelineInfo p) {
+        // 10MB hedge
+        int hedge[] = new int[2621440];
+
         // convert List<PluginInfo> resources into a ResourceList
         final ResourceList rl = new ResourceList();
         for (PluginInfo info : resources) {
@@ -751,6 +740,14 @@ public class C99Supercolider extends SchedPolicy {
             future.cancel(true);              //     <-- interrupt the job
             System.out.println("timeout");
             finished = false;
+        } catch (OutOfMemoryError e) {
+            hedge = null;
+            future = null;
+            System.out.println("OOME");
+        } finally {
+            hedge = null;
+            future = null;
+            System.gc();
         }
 
         // force scheduler to stop
