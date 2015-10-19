@@ -11,7 +11,6 @@ import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
-import com.google.common.primitives.UnsignedLong;
 import static com.sun.corba.se.impl.util.Utility.printStackTrace;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -64,6 +63,12 @@ public class C99Supercolider extends SchedPolicy {
     private long finalSolutionBeam = 0;
     private int recoveryMemory[];
     private boolean outOfMemory = false;
+    private final int numMaxResources;
+    private long searchedNodes = 0;
+
+    public C99Supercolider(int numMaxResources) {
+        this.numMaxResources = numMaxResources;
+    }
 
     /**
      * Run the C99Supercolider Three stages Scheduling Algorithm. The stages
@@ -108,6 +113,7 @@ public class C99Supercolider extends SchedPolicy {
         // create the root node
         SearchNode node = new SearchNode(rl, id, 0);
         id++;
+        searchedNodes++;
         SearchNode nextNode;
         SearchNode root = node;
         JobInfo job;
@@ -138,6 +144,7 @@ public class C99Supercolider extends SchedPolicy {
             // toVisit of the current node
             node = nextNode;
             depth++;
+            searchedNodes++;
         }
 //        printSearchNode(node, 0);
 
@@ -189,11 +196,9 @@ public class C99Supercolider extends SchedPolicy {
                 JobInfo job = jobsCopy.poll();
 
                 // if the allocation is said to be good, go to next node
-                if (k > 0) {
-                    if (!jobsCopy.isEmpty()) {
-                        backtrackStack.push(node);
-                        node = node.visiting.peek();
-                    }
+                if (k > 0 && !jobsCopy.isEmpty()) {
+                    backtrackStack.push(node);
+                    node = node.visiting.peek();
                 } // if not, perform allocation to next best option
                 else {
                     // generate toVisit queue if this is the first time 
@@ -207,6 +212,7 @@ public class C99Supercolider extends SchedPolicy {
                     node.visiting.add(nextNode);
                     backtrackStack.push(node);
                     node = nextNode;
+                    searchedNodes++;
                 }
                 k--;
                 depth++;
@@ -269,7 +275,7 @@ public class C99Supercolider extends SchedPolicy {
     private List<Pair<Double, Double>> beamSearch(SearchNode node, int tasksRemaining, long depth) {
         // exit if this thread was interrupted
         if (Thread.currentThread().isInterrupted()) {
-//            System.out.println("interrupted on node " + node.id);
+            System.out.println("interrupted on node " + node.id);
             return null;
         }
 
@@ -287,10 +293,11 @@ public class C99Supercolider extends SchedPolicy {
                 // transfer a node from to visit to visiting
                 SearchNode nextNode = node.toVisit.poll();
                 node.visiting.add(nextNode);
+                searchedNodes++;
 
                 // if the node isn't a leaf, thereby needing to generate for the
                 // first time its toVisit queue
-                if ((tasksRemaining - 1) > 0) {
+                if (tasksRemaining > 1) {
                     nextNode.toVisit = generatePriorityQueue(jobs.get(jobs.size() - tasksRemaining), nextNode.rl, depth);
                 }
             }
@@ -445,7 +452,7 @@ public class C99Supercolider extends SchedPolicy {
     }
     
     public long childNodesCount(long depth) {
-        long base = RandomTestGenerator.numMaxResources;
+        long base = numMaxResources;
         return (long) (pow(base, depth) + floor(pow(base, depth)/(base-1)));
     }
     
@@ -557,7 +564,7 @@ public class C99Supercolider extends SchedPolicy {
             execTime = maxExecTime / timeoutCounts;
             boolean finished = false;
             for (int i = 1; i < timeoutCounts && !finished; i++) {
-                C99Supercolider scheduler = new C99Supercolider();
+                C99Supercolider scheduler = new C99Supercolider(resources.size());
                 finished = runPipeline(resources, execTime, scheduler, p);
 
                 // Print test input
@@ -630,7 +637,7 @@ public class C99Supercolider extends SchedPolicy {
     }
     
     private static void testFailurePronePipelines(List<PipelineInfo> pipelines, List<PluginInfo> resources) {
-        int maxExecTime = 500; // secs
+        int maxExecTime = 50; // secs
         long resNum = resources.size();
         int i=0;
         PrintWriter writer = null;
@@ -648,7 +655,7 @@ public class C99Supercolider extends SchedPolicy {
         for (PipelineInfo pipeline : pipelines) {
             // this if is used to simulate a resumed test
             if (i > -10) {
-                C99Supercolider scheduler = new C99Supercolider();
+                C99Supercolider scheduler = new C99Supercolider(resources.size());
                 System.out.println("running pipeline " + i);
                 boolean finished = false;
                 try {
@@ -670,7 +677,7 @@ public class C99Supercolider extends SchedPolicy {
                         scheduler.s3best +  "\t" + 
                         scheduler.beam + "\t" + 
                         scheduler.childNodesCount(pipeline.getJobs().size()) +  "\t" + 
-                        scheduler.id +  "\t" + 
+                        scheduler.searchedNodes +  "\t" + 
                         scheduler.prunableNodes +  "\t" + 
                         scheduler.pruned +  "\t" + 
                         scheduler.removedFromSearch +  "\t" + 
@@ -714,11 +721,9 @@ public class C99Supercolider extends SchedPolicy {
         ExecutorService executor = Executors.newFixedThreadPool(1);
         final PipelineInfo pipeline = p;
         final C99Supercolider scheduler = s;
-        
-        
-        // 
         Future<?> future = null;
         boolean finished = true;
+        
         try {
             // execute pipeline scheduling
             future = executor.submit(new Runnable() {
@@ -728,11 +733,27 @@ public class C99Supercolider extends SchedPolicy {
                     scheduler.outOfMemory = false;
                 }
             });
-            executor.shutdown();            //        <-- reject all further submissions
+            // reject all further submissions
+            executor.shutdown();
 
             // wait for scheduling to finish or timeout
-            future.get(maxExecTime, TimeUnit.SECONDS);  //     <-- wait to finish
-        } catch (InterruptedException e) {    //     <-- possible error cases
+            future.get(maxExecTime, TimeUnit.SECONDS);
+        } catch (OutOfMemoryError e) {
+            // OOME: cancel task and wait for it to finish
+            hedge = null;
+            System.out.println("OOME");
+            future.cancel(true);
+             try {
+                future.get();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(C99Supercolider.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ExecutionException ex) {
+                Logger.getLogger(C99Supercolider.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            finished = false;
+            scheduler.outOfMemory = true;
+            System.out.println("OOME - finished task");
+        } catch (InterruptedException e) {
             System.out.println("job was interrupted");
             scheduler.outOfMemory = true;
         } catch (ExecutionException e) {
@@ -741,16 +762,10 @@ public class C99Supercolider extends SchedPolicy {
             finished = false;
             scheduler.outOfMemory = true;
         } catch (TimeoutException e) {
-            future.cancel(true);              //     <-- interrupt the job
             System.out.println("timeout");
             finished = false;
             scheduler.outOfMemory = false;
-        } catch (OutOfMemoryError e) {
-            hedge = null;
-            future = null;
-            finished = false;
-            scheduler.outOfMemory = true;
-            System.out.println("OOME");
+            System.out.println("timeout - task finished");
         } finally {
             hedge = null;
             future = null;
