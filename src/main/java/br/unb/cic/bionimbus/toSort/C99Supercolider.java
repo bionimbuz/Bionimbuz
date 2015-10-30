@@ -12,7 +12,9 @@ import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
 import static com.sun.corba.se.impl.util.Utility.printStackTrace;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import static java.lang.Math.floor;
@@ -20,6 +22,7 @@ import static java.lang.Math.pow;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,8 +40,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.aspectj.apache.bcel.verifier.exc.Utility;
 
 /**
  *
@@ -65,7 +71,13 @@ public class C99Supercolider extends SchedPolicy {
     private boolean outOfMemory = false;
     private final int numMaxResources;
     private long searchedNodes = 0;
+    
+    public Lock execLock;
 
+    public C99Supercolider() {
+        numMaxResources = 0;
+    }
+        
     public C99Supercolider(int numMaxResources) {
         this.numMaxResources = numMaxResources;
     }
@@ -88,13 +100,24 @@ public class C99Supercolider extends SchedPolicy {
     public ResourceList schedule(ResourceList rl, List<JobInfo> jobs) {
         SearchNode root;
         
-        root = stageOne(rl, new LinkedList<JobInfo>(jobs));
-//            recursiveSeachNodePrint(root, 0);
-        stageTwo(root, new LinkedList<JobInfo>(jobs));
-//            recursiveSeachNodePrint(root, 0);
-        this.jobs = jobs;
-        stageThree(root, rl.resources.size());
-//            recursiveSeachNodePrint(root, 0);
+        // lock to ensure that the execution will be finished
+        execLock = new ReentrantLock();
+        
+        try {
+            execLock.lock();
+            root = stageOne(rl, new LinkedList<JobInfo>(jobs));
+//                recursiveSeachNodePrint(root, 0);
+            stageTwo(root, new LinkedList<JobInfo>(jobs));
+//                recursiveSeachNodePrint(root, 0);
+            this.jobs = jobs;
+            stageThree(root, rl.resources.size());
+//                recursiveSeachNodePrint(root, 0);
+        } catch (Exception e) {
+            System.out.println("[schedule] exception: " + e.getMessage());
+            System.out.println(Utility.getStackTrace(e));
+        } finally {
+            execLock.unlock();
+        }
 
         return best;
     }
@@ -256,7 +279,7 @@ public class C99Supercolider extends SchedPolicy {
             beamSearch(root, jobs.size(), 0);
             // exit if this thread was interrupted
             if (Thread.currentThread().isInterrupted()) {
-                //            System.out.println("interrupted on node " + node.id);
+                System.out.println("[stageThree] interrupted");
                 return;
             }
         }
@@ -275,7 +298,7 @@ public class C99Supercolider extends SchedPolicy {
     private List<Pair<Double, Double>> beamSearch(SearchNode node, int tasksRemaining, long depth) {
         // exit if this thread was interrupted
         if (Thread.currentThread().isInterrupted()) {
-            System.out.println("interrupted on node " + node.id);
+            System.out.println("[beamSearch] interrupted on node " + node.id);
             return null;
         }
 
@@ -319,6 +342,11 @@ public class C99Supercolider extends SchedPolicy {
                 } else {
                     // add all newly generated pareto points from child node
                     node.addToPareto(beamSearch(n, tasksRemaining - 1, depth + 1));
+                    
+                    if (Thread.currentThread().isInterrupted()) {
+                        System.out.println("interrupted on node " + node.id);
+                        return null;
+                    }
 
                     // remove child if there is no more seaching to be done on it
                     if (n.toVisit.size() + n.visiting.size() == 0) {
@@ -544,7 +572,7 @@ public class C99Supercolider extends SchedPolicy {
      */
     public static void main(String[] args) throws InterruptedException {
 //        RandomTestGenerator gen = new RandomTestGenerator();
-        PipelineTestGenerator gen = new FromFileTestGenerator();
+        PipelineTestGenerator gen = new FromFileTestGenerator(Double.parseDouble(args[0]), args[1], args[2]);
         List<PipelineInfo> pipelines = gen.getPipelinesTemplates();
         List<PluginInfo> resources = gen.getResourceTemplates();
         
@@ -645,10 +673,10 @@ public class C99Supercolider extends SchedPolicy {
         // open output file
         try {
             System.out.println("oppening output file");
-            writer = new PrintWriter("testOut.txt", "UTF-8");
+            writer = new PrintWriter(new FileOutputStream(
+                new File("testOut.txt"), 
+                true /* append = true */));
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(C99Supercolider.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(C99Supercolider.class.getName()).log(Level.SEVERE, null, ex);
         }
         
@@ -656,15 +684,15 @@ public class C99Supercolider extends SchedPolicy {
             // this if is used to simulate a resumed test
             if (i > -10) {
                 C99Supercolider scheduler = new C99Supercolider(resources.size());
-                System.out.println("running pipeline " + i);
+                System.out.println("running pipeline " + i + " - " + Calendar.getInstance().getTime().toString());
                 boolean finished = false;
                 try {
-                    finished = runPipeline(resources, maxExecTime, scheduler, pipeline);;
+                    finished = runPipeline(resources, maxExecTime, scheduler, pipeline);
                 } catch (Error e) {
-                    printStackTrace();
+                    System.out.println(Utility.getStackTrace(e));
                     System.out.println(e.toString());
                 } catch (Exception e) {
-                    printStackTrace();
+                    System.out.println(Utility.getStackTrace(e));
                     System.out.println(e.toString());
                 }
 
@@ -697,7 +725,7 @@ public class C99Supercolider extends SchedPolicy {
                 // flush test data
                 writer.println(result);
                 writer.flush();
-                System.out.println("finished pipeline " + i);
+                System.out.println("finished pipeline " + i + " - " + Calendar.getInstance().getTime().toString());
             }
             i++;
         }
@@ -758,11 +786,15 @@ public class C99Supercolider extends SchedPolicy {
             scheduler.outOfMemory = true;
         } catch (ExecutionException e) {
             System.out.println("caught exception: " + e.getCause());
-            e.printStackTrace();
+            System.out.println(Utility.getStackTrace(e));
             finished = false;
             scheduler.outOfMemory = true;
         } catch (TimeoutException e) {
             System.out.println("timeout");
+            // force scheduler to stop
+            executor.shutdownNow();
+            
+            scheduler.execLock.lock();
             finished = false;
             scheduler.outOfMemory = false;
             System.out.println("timeout - task finished");
@@ -771,9 +803,6 @@ public class C99Supercolider extends SchedPolicy {
             future = null;
             System.gc();
         }
-
-        // force scheduler to stop
-        executor.shutdownNow();
 
         return finished;
     }

@@ -20,14 +20,23 @@ import java.util.logging.Logger;
  * @author willian
  */
 public class FromFileTestGenerator extends PipelineTestGenerator {
+    
+    private double window; // in secs
+    private String pipeFile;
+    private String resFile;
+    
+    public FromFileTestGenerator(double window, String pipeFile, String resFile) {
+        this.window = window;
+        this.pipeFile = pipeFile;
+        this.resFile = resFile;
+    }
 
     @Override
     protected void generatePipelineTemplates() {
-        double window = 500; // in secs
         double windowEnd = window; // in secs
                 
         try {
-            BufferedReader br = new BufferedReader(new FileReader("LLNL-Thunder-2007-1.1-cln.swf"));
+            BufferedReader br = new BufferedReader(new FileReader(pipeFile));
             String line = br.readLine();
             long clock;
 
@@ -81,7 +90,7 @@ public class FromFileTestGenerator extends PipelineTestGenerator {
     @Override
     protected void generateResourcesTemplates() {
         try {
-            BufferedReader br = new BufferedReader(new FileReader("res-full.txt"));
+            BufferedReader br = new BufferedReader(new FileReader(resFile));
             String line = br.readLine();
             
             // for each line
