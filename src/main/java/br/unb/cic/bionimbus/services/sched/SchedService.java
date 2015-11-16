@@ -162,7 +162,7 @@ public class SchedService extends AbstractBioService implements Runnable {
     private synchronized void scheduleJobs() throws InterruptedException, KeeperException {
         HashMap<JobInfo, PluginInfo> schedMap;
         
-        // Caso nao exista nenhum pipeline pendente da a chance do escalonador
+        // Caso nao exista nenhum pipeline pendente da a chance para o escalonador
         // realocar as tarefas.
         if (!pendingJobs.isEmpty()) {
             cloudMap.clear();

@@ -80,7 +80,7 @@ public class Resource {
     public String getAlloc() {
         String s = "[";
         for (JobInfo t : allocatedTasks) {
-            s += t.getId() + ", ";
+            s += t.getWorstExecution() + ", ";
         }
         return s + "]";
     }

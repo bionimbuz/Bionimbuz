@@ -1,0 +1,6 @@
+{serviceId:1, path:~/programs/s1.sh}
+{serviceId:2, path:~/programs/s2.sh}
+{serviceId:3, path:~/programs/s3.sh}
+{serviceId:4, path:~/programs/s4.sh}
+{serviceId:5, path:~/programs/s5.sh}
+{serviceId:6, path:~/programs/s6.sh}

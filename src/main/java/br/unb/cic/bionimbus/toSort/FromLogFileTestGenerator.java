@@ -19,17 +19,19 @@ import java.util.logging.Logger;
  *
  * @author willian
  */
-public class FromFileTestGenerator extends PipelineTestGenerator {
+public class FromLogFileTestGenerator extends PipelineTestGenerator {
     
     private double window; // in secs
     private String pipeFile;
-    private String resFile;
+    protected String resFile;
     
-    public FromFileTestGenerator(double window, String pipeFile, String resFile) {
+    public FromLogFileTestGenerator(double window, String pipeFile, String resFile) {
         this.window = window;
         this.pipeFile = pipeFile;
         this.resFile = resFile;
     }
+    
+    protected FromLogFileTestGenerator() {}
 
     @Override
     protected void generatePipelineTemplates() {
@@ -82,7 +84,7 @@ public class FromFileTestGenerator extends PipelineTestGenerator {
             
             br.close();
         } catch (IOException ex) {
-            Logger.getLogger(FromFileTestGenerator.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(FromLogFileTestGenerator.class.getName()).log(Level.SEVERE, null, ex);
         }
         
     }
@@ -121,7 +123,7 @@ public class FromFileTestGenerator extends PipelineTestGenerator {
             
             br.close();
         } catch (IOException ex) {
-            Logger.getLogger(FromFileTestGenerator.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(FromLogFileTestGenerator.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

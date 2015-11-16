@@ -3,7 +3,6 @@ package br.unb.cic.bionimbus.plugin;
 import java.util.List;
 
 import com.google.common.primitives.Longs;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -11,12 +10,14 @@ import org.codehaus.jackson.map.ObjectMapper;
 public class PluginService {
 
     private String id;
+    private String path;
+    
+    // NOT USED
     private String name;
     private List<String> arguments;
     private List<String> input;
     private List<String> output;
     private String info;
-    private String path;
 
     public String getId() {
         return id;
@@ -25,7 +26,8 @@ public class PluginService {
     public void setId(String id) {
         this.id = id;
     }
-
+    
+    // NOT USED
     public String getName() {
         return name;
     }
@@ -33,7 +35,8 @@ public class PluginService {
     public void setName(String name) {
         this.name = name;
     }
-
+    
+    // NOT USED
     public List<String> getArguments() {
         return arguments;
     }
@@ -41,7 +44,8 @@ public class PluginService {
     public void setArguments(List<String> arguments) {
         this.arguments = arguments;
     }
-
+    
+    // NOT USED
     public List<String> getInput() {
         return input;
     }
@@ -49,7 +53,8 @@ public class PluginService {
     public void setInput(List<String> input) {
         this.input = input;
     }
-
+    
+    // NOT USED
     public List<String> getOutput() {
         return output;
     }
@@ -57,7 +62,8 @@ public class PluginService {
     public void setOutput(List<String> output) {
         this.output = output;
     }
-
+    
+    // NOT USED
     public String getInfo() {
         return info;
     }

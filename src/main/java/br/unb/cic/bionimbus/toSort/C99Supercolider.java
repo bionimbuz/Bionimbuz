@@ -11,12 +11,10 @@ import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
-import static com.sun.corba.se.impl.util.Utility.printStackTrace;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import static java.lang.Math.floor;
 import static java.lang.Math.pow;
 import java.text.NumberFormat;
@@ -572,7 +570,7 @@ public class C99Supercolider extends SchedPolicy {
      */
     public static void main(String[] args) throws InterruptedException {
 //        RandomTestGenerator gen = new RandomTestGenerator();
-        PipelineTestGenerator gen = new FromFileTestGenerator(Double.parseDouble(args[0]), args[1], args[2]);
+        PipelineTestGenerator gen = new FromLogFileTestGenerator(Double.parseDouble(args[0]), args[1], args[2]);
         List<PipelineInfo> pipelines = gen.getPipelinesTemplates();
         List<PluginInfo> resources = gen.getResourceTemplates();
         
