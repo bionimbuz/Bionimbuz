@@ -118,12 +118,17 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
                 service.setId(line.substring(line.indexOf("serviceId:")+10, lastComa));
                 
                 // set args from json
-                service.setPath(line.substring(line.indexOf("path:")+5, line.length()-1));
+                lastComa = line.indexOf(",", lastComa+1);
+                service.setPath(line.substring(line.indexOf("path:")+5, lastComa));
+                
+                // set mode
+                service.setPresetMode(Double.parseDouble(line.substring(line.indexOf("mode:")+5, line.length()-1)));
                 
                 // add service
                 servicesTemplates.add(service);
             }
         } catch (Exception e) {
+            System.out.println(e.toString());
             printStackTrace();
         }
     }    

@@ -43,24 +43,24 @@ public class ResourceList {
         return cost;
     }
 
-    public Double getAvgTime() {
+    public Double getAvgTime(RepositoryService rs) {
 
         Double time = (double) 0;
 
         for (Resource resource : resources) {
-            time += resource.getExecTime();
+            time += resource.getExecTime(rs);
         }
 
         return time / resources.size();
     }
 
-    public Double getMaxTime() {
+    public Double getMaxTime(RepositoryService rs) {
 
         Double maxTime = (double) 0;
 
         for (Resource resource : resources) {
-            if (resource.getExecTime() > maxTime) {
-                maxTime = resource.getExecTime();
+            if (resource.getExecTime(rs) > maxTime) {
+                maxTime = resource.getExecTime(rs);
             }
         }
 
@@ -76,7 +76,7 @@ public class ResourceList {
     }
 
     public String result(RepositoryService rs) {
-        return getFullCost(rs) + ", " + getAvgTime() + ", " + getMaxTime();
+        return getFullCost(rs) + ", " + getAvgTime(rs) + ", " + getMaxTime(rs);
     }
     
     @Override

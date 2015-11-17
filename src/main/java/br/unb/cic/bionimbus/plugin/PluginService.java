@@ -11,6 +11,7 @@ public class PluginService {
 
     private String id;
     private String path;
+    private Double presetMode = null;
     
     // NOT USED
     private String name;
@@ -25,6 +26,14 @@ public class PluginService {
 
     public void setId(String id) {
         this.id = id;
+    }
+    
+    public Double getPresetMode() {
+        return presetMode;
+    }
+
+    public void setPresetMode(Double presetMode) {
+        this.presetMode = presetMode;
     }
     
     // NOT USED

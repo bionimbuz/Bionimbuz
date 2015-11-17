@@ -84,23 +84,12 @@ public class SchedullerTester {
         SchedullerTester tester = new SchedullerTester();
         boolean fileTest = false;
         
-        if (fileTest) {
-            try {
-                tester.runJobs();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        } else {
-            FromMockFileTestGenerator gen = new FromMockFileTestGenerator();
-            List<PipelineInfo> pipelines = gen.getPipelinesTemplates();
-            List<PluginService> services = gen.getServicesTemplates();
-            List<PluginInfo> resources = gen.getResourceTemplates();
-            
-            // flush test data
+        FromMockFileTestGenerator gen = new FromMockFileTestGenerator();
+        List<PipelineInfo> pipelines = gen.getPipelinesTemplates();
+        List<PluginService> services = gen.getServicesTemplates();
+        List<PluginInfo> resources = gen.getResourceTemplates();
+
+        // flush test data
 //            System.out.println("[SchedTester] flushing test data");
 //            PrintWriter pwr = new PrintWriter("pipelines.txt", "UTF-8");
 //            for (PipelineInfo p : pipelines)
@@ -111,27 +100,26 @@ public class SchedullerTester {
 //            PrintWriter rwr = new PrintWriter("resources.txt", "UTF-8");
 //            for (PluginInfo r : resources)
 //                rwr.println(r.toString());
-            
-            // add data to zookeeper
-            tester.addServices(services);
+
+        // add data to zookeeper
+        tester.addServices(services);
 //            tester.addResources(resources);
-            
-            System.out.println("[SchedTester] starting testing with " + pipelines.size() + " pipelines");
-            
-            // perform all tests
-            PipelineInfo fst = pipelines.get(0);
-            tester.sendJobs(fst);
-            pipelines.remove(fst);
-            System.out.println("[SchedTester] First pipeline " + fst.getId() + " with " + fst.getJobs().size() + " jobs sent, " + pipelines.size() + " remaining");
-            
-            // busy waiting to wait for node to exists
-            while(!tester.cms.getZNodeExist(Path.PREFIX_PIPELINE.getFullPath(fst.getId()), null)){
-            System.out.println("[SchedTester] waiting node creation");}
-            tester.cms.getChildren(Path.PREFIX_PIPELINE.getFullPath(fst.getId()), new SendPipeline(tester.cms, tester, pipelines, fst.getId()));
-            
-            System.out.println("[SchedTester] waiting forever");
-            while(true){}
-        }
+
+        System.out.println("[SchedTester] starting testing with " + pipelines.size() + " pipelines");
+
+        // perform all tests
+        PipelineInfo fst = pipelines.get(0);
+        tester.sendJobs(fst);
+        pipelines.remove(fst);
+        System.out.println("[SchedTester] First pipeline " + fst.getId() + " with " + fst.getJobs().size() + " jobs sent, " + pipelines.size() + " remaining");
+
+        // busy waiting to wait for node to exists
+        while(!tester.cms.getZNodeExist(Path.PREFIX_PIPELINE.getFullPath(fst.getId()), null)){
+        System.out.println("[SchedTester] waiting node creation");}
+        tester.cms.getChildren(Path.PREFIX_PIPELINE.getFullPath(fst.getId()), new SendPipeline(tester.cms, tester, pipelines, fst.getId()));
+
+        System.out.println("[SchedTester] waiting forever");
+        while(true){}
     }
     
     public void addServices (List<PluginService> services) {
@@ -142,98 +130,6 @@ public class SchedullerTester {
     public void addResources (List<PluginInfo> resources) {
         for (PluginInfo resource : resources)
             rs.addPeerToZookeeper(resource);
-    }
-
-    public void runJobs() throws IOException, InterruptedException {
-
-        // get pipeline from file
-        PipelineInfo pipeline = getPipelineFromFile();
-        
-        for(JobInfo j : pipeline.getJobs()) {
-            System.out.println(j.toString());
-        }
-
-        // send pipeline for execution
-        sendJobs(pipeline);
-
-        // get results when ready
-//        List<String> peers = cms.getChildren(cms.getPath().PREFIX_PIPELINE.getFullPath("", "", "", pipeline.getId()), null);
-//        for (String path : peers) {
-//            cms.getChildren(path + Path.SCHED, new ShowSchedResults());
-//        }
-    }
-    
-    private PipelineInfo getPipelineFromFile() throws FileNotFoundException, IOException {
-        
-        JobInfo taskList[];
-        
-        
-        // get pipeline file path
-        String pathHome = System.getProperty("user.dir");
-        String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
-        BufferedReader br = new BufferedReader(new FileReader(path+"pipelineSample.txt"));
-        
-        // get first line: number of tasks
-        String line = br.readLine();
-        int tasksNumber = Integer.parseInt(line);
-        taskList = new JobInfo[tasksNumber];
-        
-        // get next tasksNumber lines: each task
-        for (int i=0; i<tasksNumber; i++) {
-            // generate a new jobInfo from json
-            line = br.readLine();
-            JobInfo jobInfo = new JobInfo(rs);
-            jobInfo.setTimestamp(0l);
-            
-            // set serviceId from json
-            int lastComa = line.indexOf(",");
-            jobInfo.setServiceId(line.substring(line.indexOf("serviceId:")+10, lastComa));
-            
-            // set args from json
-            lastComa = line.indexOf(",", lastComa+1);
-            jobInfo.setArgs(line.substring(line.indexOf("args:")+5, lastComa));
-            
-            // get input list from json
-            int lastBracket = line.indexOf("]");
-            String io = line.substring(line.indexOf("inputs:[")+8, lastBracket);
-            String inputs[] = io.split(",");
-            
-            // set inputs
-            // TODO: change addInput to receive the filename instead of its zookeeper id
-            for (String inp : inputs)
-                jobInfo.addInput(inp, 0l);
-            
-            // get output list from json
-            lastBracket = line.indexOf("]", lastBracket+1);
-            io = line.substring(line.indexOf("outputs:[")+9, lastBracket);
-            String outputs[] = io.split(",");
-            
-            // set outputs
-            for (String out : outputs)
-                jobInfo.addOutput(out);
-            
-            // put it into the map to, furthermore, set the dependencies
-            taskList[i] = jobInfo;
-        }
-        
-        // get the remaining lines: dependency matrix
-        for (int i=0; i<tasksNumber; i++) {
-            String deps[] = br.readLine().split(",");
-            for (int j=0; j<tasksNumber; j++) {
-                if (Integer.parseInt(deps[j]) == 1) {
-                    taskList[i].addDependency(taskList[j].getId());
-                }
-            }
-        }
-        
-        // add all jobs to a pipeline
-        PipelineInfo pipeline = new PipelineInfo();
-        for(JobInfo task : taskList) {
-            pipeline.addJob(task);
-        }
-        
-        // get task list with dependencies        
-        return pipeline;
     }
     
     public void sendJobs(PipelineInfo pipeline) throws InterruptedException, IOException {

@@ -23,9 +23,10 @@ public class Pareto {
      * The pareto optimal set is built by ordering by cost and adding each
      * element by time if it's not dominated by the previous point..
      * @param resources The elements to generate the pareto curve
+     * @param rs The RepositoryService ref
      * @return A pair containing the pareto curve and the remaining ResourceLists
      */
-    public static Pair<List<ResourceList>, List<ResourceList>> getParetoCurve(List<ResourceList> resources, RepositoryService rs) {
+    public static Pair<List<ResourceList>, List<ResourceList>> getParetoCurve(List<ResourceList> resources, final RepositoryService rs) {
         
         List<ResourceList> paretoCurve = new ArrayList();
         List<ResourceList> remaining = new ArrayList();
@@ -37,9 +38,9 @@ public class Pareto {
             // returns 1 if r2 before r1 and -1 otherwise
             @Override
             public int compare(ResourceList r1, ResourceList r2) {
-                if (r2.getMaxTime() < r1.getMaxTime())
+                if (r2.getMaxTime(rs) < r1.getMaxTime(rs))
                     return 1;
-                if (r2.getMaxTime() > r1.getMaxTime())
+                if (r2.getMaxTime(rs) > r1.getMaxTime(rs))
                     return -1;
                 return 0;
             }
@@ -99,9 +100,9 @@ public class Pareto {
             }
         });
         
-        double max = Double.MAX_VALUE;
+        double max = Double.POSITIVE_INFINITY;
         for (Pair<Double, Double> pair : old) {
-            if (pair.second < max) {
+            if (pair.second <= max) {
                 max = pair.second;
                 newPareto.add(pair);
             }

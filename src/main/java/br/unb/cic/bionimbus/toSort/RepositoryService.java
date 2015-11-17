@@ -10,20 +10,14 @@ import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
-import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.mortbay.log.Log;
 
 /**
@@ -91,14 +85,9 @@ public class RepositoryService extends AbstractBioService {
             return null;
         }
         
-        // return modes
-        String data = cms.getData(Path.MODES.getFullPath(serviceId), null);
-        try {
-            return average(new ObjectMapper().readValue(data, List.class));
-        } catch (IOException ex) {
-            Logger.getLogger(RepositoryService.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
+        // return modes average
+        List<String> data = cms.getChildren(Path.MODES.getFullPath(serviceId), null);
+        return average(data);
     }
     
     /**
@@ -137,10 +126,14 @@ public class RepositoryService extends AbstractBioService {
      */
     public void addServiceToZookeeper (PluginService service) {
         // create father node
-        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_SERVICE.getFullPath(String.valueOf(service.getId())), service.toString());
+        cms.createZNode(CreateMode.PERSISTENT, Path.PREFIX_SERVICE.getFullPath(String.valueOf(service.getId())), service.toString());
         
         // create history structure
-        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().HISTORY.getFullPath(String.valueOf(service.getId())), null);
+        cms.createZNode(CreateMode.PERSISTENT, Path.MODES.getFullPath(String.valueOf(service.getId())), null);
+        
+        // add preset mode if there is one
+        if (service.getPresetMode() != null)
+            cms.createZNode(CreateMode.PERSISTENT, Path.PREFIX_MODES.getFullPath(String.valueOf(service.getId()), "0"), service.getPresetMode().toString());
     }
     
     /**
@@ -149,10 +142,10 @@ public class RepositoryService extends AbstractBioService {
      * @param resource Resource to be added
      */
     public void addPeerToZookeeper (PluginInfo resource) {
-        cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.PREFIX_PEER.getFullPath(resource.getId()), resource.toString());
-        cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.STATUS.getFullPath(resource.getId()), null);
-        cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.SCHED.getFullPath(resource.getId()), null);
-        cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.TASKS.getFullPath(resource.getId()), null);
+        cms.createZNode(CreateMode.PERSISTENT, Path.PREFIX_PEER.getFullPath(resource.getId()), resource.toString());
+        cms.createZNode(CreateMode.PERSISTENT, Path.STATUS.getFullPath(resource.getId()), null);
+        cms.createZNode(CreateMode.PERSISTENT, Path.SCHED.getFullPath(resource.getId()), null);
+        cms.createZNode(CreateMode.PERSISTENT, Path.TASKS.getFullPath(resource.getId()), null);
     }
     
     @Override
@@ -190,11 +183,13 @@ public class RepositoryService extends AbstractBioService {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
-    private Double average(List<Double> ds) {
+    private Double average(List<String> ls) {
         double sum = 0;
-        for (Double d : ds) {
-            sum += d;
+        Integer count = 1;
+        for (String s : ls) {
+            sum += Double.parseDouble(cms.getData(Path.PREFIX_MODES.getFullPath(count.toString(), s.substring(5)), null));
+            count++;
         }
-        return sum/ds.size();
+        return sum/ls.size();
     }
 }

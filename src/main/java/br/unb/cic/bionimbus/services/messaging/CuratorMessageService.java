@@ -56,7 +56,6 @@ public class CuratorMessageService implements CloudMessageService {
         COUNT("/count"),
         END("/end"),
         FILES("/files"),
-        HISTORY("/history"),
         LATENCY("/latency"),
         MODES("/modes"),
         PEERS("/peers"), 
@@ -64,12 +63,12 @@ public class CuratorMessageService implements CloudMessageService {
         PIPELINES("/pipelines"),
         PIPELINE_FLAG("/flag"),
         PREFIX_FILE("/file_"),
+        PREFIX_MODES("/mode_"),
         PREFIX_PEER("/peer_"), 
         PREFIX_PENDING_FILE("/pending_file_"),
         PREFIX_PIPELINE("/pipeline_"),
         PREFIX_SERVICE("/service_"),
         PREFIX_TASK("/task_"),
-        PRESET("/PRESET"),
         ROOT("/"), 
         SCHED("/sched"),
         SEPARATOR("/"),
@@ -78,7 +77,6 @@ public class CuratorMessageService implements CloudMessageService {
         START("/start"),
         STATUS("/STATUS"),
         STATUSWAITING("/STATUSWAITING"),
-        STEP("/step"),
         TASKS("/tasks"), 
         UNDERSCORE("_");
         
@@ -95,7 +93,9 @@ public class CuratorMessageService implements CloudMessageService {
          * and SERVICES there will be no input. For the PREFIX_TASK case, the 
          * first argument must be the plugin id and the second, the task id. For
          * the PREFIX_FILE case the first argument is the plugin id and the 
-         * second, the file id.
+         * second, the file id. For the PREFIX_MODES case, the first argument must
+         * be the service id and the second, the id/count_number of the history 
+         * value.
          * @return 
          */
         public String getFullPath(String ... args) {
@@ -118,10 +118,8 @@ public class CuratorMessageService implements CloudMessageService {
                 case PIPELINES: return "" + PIPELINES;
                 case SERVICES: return "" + SERVICES;
                 case PREFIX_SERVICE: return "" + SERVICES + PREFIX_SERVICE + args[0];
-                case HISTORY: return "" + SERVICES + PREFIX_SERVICE + args[0] + HISTORY;
-                case STEP: return "" + SERVICES + PREFIX_SERVICE + args[0] + STEP;
                 case MODES: return "" + SERVICES + PREFIX_SERVICE + args[0] + MODES;
-                case PRESET: return "" + SERVICES + PREFIX_SERVICE + args[0] + MODES + PRESET;
+                case PREFIX_MODES: return "" + SERVICES + PREFIX_SERVICE + args[0] + MODES + PREFIX_MODES + args[1];
             }
             return "";
         }
