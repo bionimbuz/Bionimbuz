@@ -25,7 +25,7 @@ public class Pareto {
      * @param resources The elements to generate the pareto curve
      * @return A pair containing the pareto curve and the remaining ResourceLists
      */
-    public static Pair<List<ResourceList>, List<ResourceList>> getParetoCurve(List<ResourceList> resources) {
+    public static Pair<List<ResourceList>, List<ResourceList>> getParetoCurve(List<ResourceList> resources, RepositoryService rs) {
         
         List<ResourceList> paretoCurve = new ArrayList();
         List<ResourceList> remaining = new ArrayList();
@@ -47,7 +47,7 @@ public class Pareto {
         
         // for all remaining pairs
         for (ResourceList resource : resources) {
-            double execCost = resource.getFullCost();
+            double execCost = resource.getFullCost(rs);
             // if second argument is less than or equal to the limit
             if (execCost <= limitCost) {
                 // add to the curve and set it as the new limit

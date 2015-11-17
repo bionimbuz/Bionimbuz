@@ -29,7 +29,7 @@ public class PipelineInfo {
     }
     
     public PipelineInfo(List<JobInfo> jobs) {
-        this.jobs = new ArrayList<JobInfo>();
+        this.jobs = new ArrayList<JobInfo>(jobs);
     }
     
     public String getId() {

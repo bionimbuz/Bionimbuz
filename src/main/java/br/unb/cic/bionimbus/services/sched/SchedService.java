@@ -164,6 +164,8 @@ public class SchedService extends AbstractBioService implements Runnable {
         
         // Caso nao exista nenhum pipeline pendente da a chance para o escalonador
         // realocar as tarefas.
+        LOGGER.info("[SchedService] scheduleJob");
+        System.out.println("[SchedService] scheduleJob");
         if (!pendingJobs.isEmpty()) {
             cloudMap.clear();
             cloudMap.putAll(getPeers());
@@ -761,6 +763,7 @@ public class SchedService extends AbstractBioService implements Runnable {
 
                                 // add jobs to pendingJobs list
                                 System.out.println("[SchedService] TODO: enforce jobs dependencies");
+                                System.out.println("[SchedService] " + pipeline.getJobs().size() + " jobs added");
                                 pendingJobs.addAll(pipeline.getJobs());
                                 
                                 // remove pipeline from zookeeper

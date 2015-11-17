@@ -122,14 +122,6 @@ public class JobInfo {
     }
     
     public Double getWorstExecution() {
-//        if (worstExecution == null) {
-//            List<Double> history = rs.getTaskHistory(serviceId);
-//            double max = 0d;
-//            for (Double ex : history)
-//                if (ex > max)
-//                    max = ex;
-//            worstExecution = max;
-//        }
         return worstExecution;
     }
     

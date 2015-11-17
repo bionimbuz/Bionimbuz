@@ -32,12 +32,12 @@ public class ResourceList {
         }
     }
 
-    public Double getFullCost() {
+    public Double getFullCost(RepositoryService rs) {
 
         Double cost = (double) 0;
 
         for (Resource resource : resources) {
-            cost += resource.getCost();
+            cost += resource.getCost(rs);
         }
 
         return cost;
@@ -75,8 +75,8 @@ public class ResourceList {
         return resources.equals(((ResourceList) obj).resources);
     }
 
-    public String result() {
-        return getFullCost() + ", " + getAvgTime() + ", " + getMaxTime();
+    public String result(RepositoryService rs) {
+        return getFullCost(rs) + ", " + getAvgTime() + ", " + getMaxTime();
     }
     
     @Override

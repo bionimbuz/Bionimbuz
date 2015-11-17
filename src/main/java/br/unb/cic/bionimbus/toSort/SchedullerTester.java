@@ -95,26 +95,26 @@ public class SchedullerTester {
                 e.printStackTrace();
             }
         } else {
-            RandomTestGenerator gen = new RandomTestGenerator();
+            FromMockFileTestGenerator gen = new FromMockFileTestGenerator();
             List<PipelineInfo> pipelines = gen.getPipelinesTemplates();
             List<PluginService> services = gen.getServicesTemplates();
             List<PluginInfo> resources = gen.getResourceTemplates();
             
             // flush test data
-            System.out.println("[SchedTester] flushing test data");
-            PrintWriter pwr = new PrintWriter("pipelines.txt", "UTF-8");
-            for (PipelineInfo p : pipelines)
-                pwr.println(p.toString());
-            PrintWriter swr = new PrintWriter("services.txt", "UTF-8");
-            for (PluginService s : services)
-                swr.println(s.toString());
-            PrintWriter rwr = new PrintWriter("resources.txt", "UTF-8");
-            for (PluginInfo r : resources)
-                rwr.println(r.toString());
+//            System.out.println("[SchedTester] flushing test data");
+//            PrintWriter pwr = new PrintWriter("pipelines.txt", "UTF-8");
+//            for (PipelineInfo p : pipelines)
+//                pwr.println(p.toString());
+//            PrintWriter swr = new PrintWriter("services.txt", "UTF-8");
+//            for (PluginService s : services)
+//                swr.println(s.toString());
+//            PrintWriter rwr = new PrintWriter("resources.txt", "UTF-8");
+//            for (PluginInfo r : resources)
+//                rwr.println(r.toString());
             
             // add data to zookeeper
             tester.addServices(services);
-            tester.addResources(resources);
+//            tester.addResources(resources);
             
             System.out.println("[SchedTester] starting testing with " + pipelines.size() + " pipelines");
             
@@ -122,7 +122,7 @@ public class SchedullerTester {
             PipelineInfo fst = pipelines.get(0);
             tester.sendJobs(fst);
             pipelines.remove(fst);
-            System.out.println("[SchedTester] First pipeline " + fst.getId() + " sent, " + pipelines.size() + " remaining");
+            System.out.println("[SchedTester] First pipeline " + fst.getId() + " with " + fst.getJobs().size() + " jobs sent, " + pipelines.size() + " remaining");
             
             // busy waiting to wait for node to exists
             while(!tester.cms.getZNodeExist(Path.PREFIX_PIPELINE.getFullPath(fst.getId()), null)){
@@ -247,7 +247,6 @@ public class SchedullerTester {
             job.setLocalId(config.getHost().getAddress());
             job.setServiceId(jobInfo.getServiceId());
             job.setTimestamp(jobInfo.getTimestamp());
-            job.setWorstExecution(jobInfo.getWorstExecution());
             List<Pair> listPair = new ArrayList<Pair>();
             for (br.unb.cic.bionimbus.utils.Pair<String, Long> pairInfo : jobInfo.getInputs()) {
                 Pair pair = new Pair();

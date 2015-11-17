@@ -175,10 +175,10 @@ public class C99Supercolider extends SchedPolicy {
 
         // set the pareto lists for the pruning
         node = root;
-        node.addToPareto(best.getAvgTime(), best.getFullCost());
+        node.addToPareto(best.getAvgTime(), best.getFullCost(rs));
         while (!node.visiting.isEmpty()) {
             node = node.visiting.peek();
-            node.addToPareto(best.getAvgTime(), best.getFullCost());
+            node.addToPareto(best.getAvgTime(), best.getFullCost(rs));
         }
 
         return root;
@@ -248,11 +248,11 @@ public class C99Supercolider extends SchedPolicy {
 //            System.out.println("beforeLast: " + beforeLast.id);
             beforeLast.visiting.poll();
             beforeLast.visitedCount++;
-            beforeLast.addToPareto(node.rl.getMaxTime(), node.rl.getFullCost());
+            beforeLast.addToPareto(node.rl.getMaxTime(), node.rl.getFullCost(rs));
 
             // backtrack the pareto results needed for pruning
             while (!backtrackStack.isEmpty()) {
-                backtrackStack.pop().addToPareto(node.rl.getMaxTime(), node.rl.getFullCost());
+                backtrackStack.pop().addToPareto(node.rl.getMaxTime(), node.rl.getFullCost(rs));
             }
         }
     }
@@ -331,7 +331,7 @@ public class C99Supercolider extends SchedPolicy {
             // if there still are nodes to visit, run them recursively
             if ((n.visiting.size() + n.toVisit.size()) > 0) {
                 // prune child node if possible
-                if (n.prunable && (n.rl.getMaxTime() > node.getMaxt() || n.rl.getFullCost() > node.getMaxc())) {
+                if (n.prunable && (n.rl.getMaxTime() > node.getMaxt() || n.rl.getFullCost(rs) > node.getMaxc())) {
 //                    System.out.println("Node " + n.id + " depth " + depth + " pruned");
                     iterator.remove();
                     node.prunedChildren++;
@@ -360,7 +360,7 @@ public class C99Supercolider extends SchedPolicy {
                     if (updateBest(n)) {
                         s3best++;
                     }
-                    node.addToPareto(n.rl.getMaxTime(), n.rl.getFullCost());
+                    node.addToPareto(n.rl.getMaxTime(), n.rl.getFullCost(rs));
                     node.visitedCount++;
 
                     // remove node from visiting list
@@ -412,7 +412,7 @@ public class C99Supercolider extends SchedPolicy {
         }
 
         // generate a pareto curve and also get the remaining ResourceLists
-        Pair<List<ResourceList>, List<ResourceList>> rlPair = Pareto.getParetoCurve(rls);
+        Pair<List<ResourceList>, List<ResourceList>> rlPair = Pareto.getParetoCurve(rls, rs);
         List<ResourceList> pareto = rlPair.first;
         List<ResourceList> remaining = rlPair.second;
 
@@ -455,7 +455,7 @@ public class C99Supercolider extends SchedPolicy {
         ResourceList newRl = new ResourceList(node.rl);
         lrl.add(newRl);
 
-        Pair<List<ResourceList>, List<ResourceList>> ret = Pareto.getParetoCurve(lrl);
+        Pair<List<ResourceList>, List<ResourceList>> ret = Pareto.getParetoCurve(lrl, rs);
 
         // it there is no remaining elements it means that this node has a new good solution
         if (ret.second.isEmpty()) {
@@ -630,10 +630,10 @@ public class C99Supercolider extends SchedPolicy {
                         if (r2.getMaxTime() > r1.getMaxTime()) {
                             return -1;
                         } else {
-                            if (r2.getFullCost() < r1.getFullCost()) {
+                            if (r2.getFullCost(null) < r1.getFullCost(null)) {
                                 return 1;
                             }
-                            if (r2.getFullCost() > r1.getFullCost()) {
+                            if (r2.getFullCost(null) > r1.getFullCost(null)) {
                                 return -1;
                             }
                         }
@@ -712,7 +712,7 @@ public class C99Supercolider extends SchedPolicy {
                         scheduler.outOfMemory + "\t" + 
                         finished + "\t[";
                 for (ResourceList rll : scheduler.bestList) {
-                    result += rll.result() + "; ";
+                    result += rll.result(null) + "; ";
                 }
                 result += "]\t";
                 for (ResourceList rll : scheduler.bestList) {

@@ -53,11 +53,14 @@ public class Resource {
         return cycles/clock;
     }
     
-    public Double getCost() {
+    public Double getCost(RepositoryService rs) {
         float cycles = 0;
         
         for (JobInfo task : allocatedTasks)
-            cycles += task.getWorstExecution();
+            if (rs != null)
+                cycles += rs.getWorstExecution(task.getServiceId());
+            else
+                cycles += task.getWorstExecution();
         
         return cost*cycles/clock;
     }
@@ -74,7 +77,7 @@ public class Resource {
 
     @Override
     public String toString() {
-        return "Id: " + id + ", Time: " + getExecTime() + ", Cost: " + getCost();
+        return "Id: " + id + ", Time: " + getExecTime() + ", Cost: " + getCost(null);
     }
     
     public String getAlloc() {

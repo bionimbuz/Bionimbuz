@@ -94,6 +94,8 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
         
         // push taskList to the pipelineTemplates
         PipelineInfo p = new PipelineInfo(Arrays.asList(taskList));
+        System.out.println("[TestGen] taskList " + taskList.length);
+        System.out.println("[TestGen] pipeline " + p.getJobs().size());
         pipelinesTemplates.add(p);
     }
     

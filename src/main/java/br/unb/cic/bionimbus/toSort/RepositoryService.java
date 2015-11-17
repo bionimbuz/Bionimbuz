@@ -12,7 +12,6 @@ import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import java.io.IOException;
@@ -24,6 +23,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.mortbay.log.Log;
 
 /**
@@ -83,9 +83,7 @@ public class RepositoryService extends AbstractBioService {
      * @param serviceId id of requested service
      * @return 
      */
-    public List<Double> getTaskHistory (String serviceId) {
-        List<Double> maximas = new ArrayList<Double>();
-
+    public Double getWorstExecution(String serviceId) {
         // check if service is supported
         if(!cms.getZNodeExist(Path.PREFIX_SERVICE.getFullPath(serviceId), null)) {
             // problem: task not supported
@@ -96,26 +94,11 @@ public class RepositoryService extends AbstractBioService {
         // return modes
         String data = cms.getData(Path.MODES.getFullPath(serviceId), null);
         try {
-            return new ObjectMapper().readValue(data, List.class);
+            return average(new ObjectMapper().readValue(data, List.class));
         } catch (IOException ex) {
             Logger.getLogger(RepositoryService.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        
-        // get histogram from task taskId
-//        for(String task : cms.getChildren(PREFIX_TASK+taskId, null)) {
-//            String count = cms.getData(PREFIX_TASK+taskId+SEPARATOR+task+COUNT, null);
-//            String intervalStart = cms.getData(PREFIX_TASK+taskId+SEPARATOR+task+START, null);
-//            currentHistory.put(Long.valueOf(intervalStart), Long.valueOf(count));
-//        }
-        
-        // apply moving average
-        
-        
-        // get all local maximas
-        
-        
-        return maximas;
+        return null;
     }
     
     /**
@@ -205,5 +188,13 @@ public class RepositoryService extends AbstractBioService {
     @Override
     public void event(WatchedEvent eventType) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    private Double average(List<Double> ds) {
+        double sum = 0;
+        for (Double d : ds) {
+            sum += d;
+        }
+        return sum/ds.size();
     }
 }
