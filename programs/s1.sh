@@ -1,3 +1,3 @@
 # MOCK
-cat inp0 >> out1
-echo "s1 " >> out1
+cat $1 >> $2
+echo "s1 " >> $2

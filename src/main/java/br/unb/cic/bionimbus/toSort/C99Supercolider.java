@@ -805,14 +805,14 @@ public class C99Supercolider extends SchedPolicy {
         return finished;
     }
 
+    /**********************************************************/
+    /************************* TODO ***************************/
+    /**********************************************************/
+    
     /**
-     * ********************************************************
-     */
-    /**
-     * *********************** TODO ***************************
-     */
-    /**
-     * ********************************************************
+     * 
+     * @param jobs
+     * @return 
      */
     @Override
     public HashMap<JobInfo, PluginInfo> schedule(List<JobInfo> jobs) {
@@ -843,12 +843,12 @@ public class C99Supercolider extends SchedPolicy {
 
     @Override
     public void jobDone(PluginTask task) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        // nothing to do so far
     }
 
     @Override
     public String getPolicyName() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return "C99Supercolider";
     }
 
 }

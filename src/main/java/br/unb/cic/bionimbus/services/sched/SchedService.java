@@ -685,7 +685,7 @@ public class SchedService extends AbstractBioService implements Runnable {
 //        } catch (InterruptedException ex) {
 //            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
 //        }
-        
+        System.out.println("[SchedService] task finished: " + task.getId());
         
     }
     
