@@ -3,7 +3,7 @@ package br.unb.cic.bionimbus.services;
 import br.unb.cic.bionimbus.avro.rpc.RpcServer;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
-import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import br.unb.cic.bionimbus.toSort.RepositoryService;
 import com.codahale.metrics.MetricRegistry;
@@ -47,17 +47,17 @@ public class ServiceManager {
     
     public void createZnodeZK(String id) throws IOException, InterruptedException, KeeperException {
         // create root peer node if does not exists
-        if (!cms.getZNodeExist(CuratorMessageService.Path.PEERS.toString(), null))
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.PEERS.toString(), "");
+        if (!cms.getZNodeExist(Path.PEERS.toString(), null))
+            cms.createZNode(CreateMode.PERSISTENT, Path.PEERS.toString(), "");
         
         // add current instance as a peer
-        cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.PREFIX_PEER.getFullPath(id), null);
-        cms.createZNode(CreateMode.EPHEMERAL, CuratorMessageService.Path.STATUS.getFullPath(id), null);
+        cms.createZNode(CreateMode.PERSISTENT, Path.PREFIX_PEER.getFullPath(id), null);
+        cms.createZNode(CreateMode.EPHEMERAL, Path.STATUS.getFullPath(id), null);
         
         // create services repository node
-        if(!cms.getZNodeExist(cms.getPath().SERVICES.getFullPath(), null)) {
+        if(!cms.getZNodeExist(Path.SERVICES.getFullPath(), null)) {
             // create history root
-            cms.createZNode(CreateMode.PERSISTENT, cms.getPath().SERVICES.getFullPath(), "");
+            cms.createZNode(CreateMode.PERSISTENT, Path.SERVICES.getFullPath(), "");
         }
     }
     
@@ -66,14 +66,14 @@ public class ServiceManager {
      */
     private void clearZookeeper(){
         
-        if (cms.getZNodeExist(cms.getPath().PIPELINES.getFullPath(), null))
-            cms.delete(cms.getPath().PIPELINES.getFullPath());
-        if (cms.getZNodeExist(cms.getPath().PENDING_SAVE.getFullPath(), null))
-            cms.delete(cms.getPath().PENDING_SAVE.toString());
-        if (cms.getZNodeExist(cms.getPath().PEERS.getFullPath(), null))
-            cms.delete(cms.getPath().PEERS.toString());
-        if (cms.getZNodeExist(cms.getPath().SERVICES.getFullPath(), null))
-            cms.delete(cms.getPath().SERVICES.toString());
+        if (cms.getZNodeExist(Path.PIPELINES.getFullPath(), null))
+            cms.delete(Path.PIPELINES.getFullPath());
+        if (cms.getZNodeExist(Path.PENDING_SAVE.getFullPath(), null))
+            cms.delete(Path.PENDING_SAVE.toString());
+        if (cms.getZNodeExist(Path.PEERS.getFullPath(), null))
+            cms.delete(Path.PEERS.toString());
+        if (cms.getZNodeExist(Path.SERVICES.getFullPath(), null))
+            cms.delete(Path.SERVICES.toString());
     }
     
     public void register(Service service) {
