@@ -62,16 +62,6 @@ public class PluginTask implements PluginOps {
         this.pluginExec = pluginExec;
     }
     
-    public String getPluginTaskPathZk() {
-        return pluginTaskPathZk;
-    }
-
-    public void setPluginTaskPathZk(String pathZk) {
-        this.pluginTaskPathZk = pathZk;
-    }
-
-    
-    
     @Override
     public boolean equals(Object object) {
         if (this == object)

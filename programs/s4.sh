@@ -1,3 +1,3 @@
 # MOCK
-cat out1 >> out4
-echo "s4 " >> out4
+cat $1 >> $2
+echo "s4 " >> $2

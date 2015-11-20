@@ -59,6 +59,11 @@ public class ServiceManager {
             // create history root
             cms.createZNode(CreateMode.PERSISTENT, Path.SERVICES.getFullPath(), "");
         }
+        
+        // create finished tasks node if it doesn't exists
+        if(!cms.getZNodeExist(Path.FINISHED_TASKS.getFullPath(), null)) {
+            cms.createZNode(CreateMode.PERSISTENT, Path.FINISHED_TASKS.getFullPath(), "");
+        }
     }
     
     /**
@@ -74,6 +79,8 @@ public class ServiceManager {
             cms.delete(Path.PEERS.toString());
         if (cms.getZNodeExist(Path.SERVICES.getFullPath(), null))
             cms.delete(Path.SERVICES.toString());
+        if (cms.getZNodeExist(Path.FINISHED_TASKS.getFullPath(), null))
+            cms.delete(Path.FINISHED_TASKS.toString());
     }
     
     public void register(Service service) {

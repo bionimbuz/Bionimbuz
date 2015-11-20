@@ -56,6 +56,7 @@ public class CuratorMessageService implements CloudMessageService {
         COUNT("/count"),
         END("/end"),
         FILES("/files"),
+        FINISHED_TASKS("/finished_tasks"),
         LATENCY("/latency"),
         MODES("/modes"),
         PEERS("/peers"), 
@@ -63,6 +64,7 @@ public class CuratorMessageService implements CloudMessageService {
         PIPELINES("/pipelines"),
         PIPELINE_FLAG("/flag"),
         PREFIX_FILE("/file_"),
+        PREFIX_FINISHED_TASK("/task_"),
         PREFIX_MODES("/mode_"),
         PREFIX_PEER("/peer_"), 
         PREFIX_PENDING_FILE("/pending_file_"),
@@ -120,6 +122,8 @@ public class CuratorMessageService implements CloudMessageService {
                 case PREFIX_SERVICE: return "" + SERVICES + PREFIX_SERVICE + args[0];
                 case MODES: return "" + SERVICES + PREFIX_SERVICE + args[0] + MODES;
                 case PREFIX_MODES: return "" + SERVICES + PREFIX_SERVICE + args[0] + MODES + PREFIX_MODES + args[1];
+                case FINISHED_TASKS: return  "" + FINISHED_TASKS;
+                case PREFIX_FINISHED_TASK: return  "" + FINISHED_TASKS + PREFIX_FINISHED_TASK + args[1];
             }
             return "";
         }

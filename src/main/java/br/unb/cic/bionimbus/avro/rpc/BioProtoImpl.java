@@ -124,7 +124,7 @@ public class BioProtoImpl implements BioProto {
                     datasTask = cms.getData(cms.getPath().PREFIX_TASK.getFullPath(plugin.getId(),task.substring(5, task.length())),null);
                     if(datasTask!=null){
                         PluginTask pluginTask = mapper.readValue(datasTask, PluginTask.class);
-                        allJobs.append(i).append(" - Job ").append(pluginTask.getJobInfo().getId().toString()).append(" : ").append(pluginTask.getState().toString()).append("\n ");
+                        allJobs.append(i).append(" - Job ").append(pluginTask.getId().toString()).append(" : ").append(pluginTask.getState().toString()).append("\n ");
                     }
                     i++;
                 }

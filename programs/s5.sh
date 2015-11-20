@@ -1,5 +1,5 @@
 # MOCK
-cat out2 >> out5
-echo " \n" >> out5
-cat out3 >> out5
-echo "s5 " >> out5
+cat $1 >> $3
+echo " \n" >> $3
+cat $2 >> $3
+echo "s5 " >> $3

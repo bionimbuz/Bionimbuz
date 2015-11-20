@@ -31,7 +31,7 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
         
         // get pipeline file path
         String pathHome = System.getProperty("user.dir");
-        String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
+        String path = (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
         try {
             BufferedReader br = new BufferedReader(new FileReader(path+"pipelineSample.txt"));
 

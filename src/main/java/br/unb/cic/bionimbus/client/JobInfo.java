@@ -133,7 +133,7 @@ public class JobInfo {
         dependencies.add(id);
     }
     
-    public List<String> getDependencyList () {
+    public List<String> getDependencies () {
         return dependencies;
     }
 

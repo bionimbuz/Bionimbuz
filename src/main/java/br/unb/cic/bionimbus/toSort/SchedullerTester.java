@@ -152,6 +152,7 @@ public class SchedullerTester {
             }
             job.setInputs(listPair);
             job.setOutputs(jobInfo.getOutputs());
+            job.setDependencies(jobInfo.getDependencies());
 
             listjob.add(job);
         }
