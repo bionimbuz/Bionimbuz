@@ -37,18 +37,16 @@ public class Upload implements Command {
             br.unb.cic.bionimbus.avro.gen.FileInfo info = new br.unb.cic.bionimbus.avro.gen.FileInfo();
             String path = file.getPath();
             
-            //Not encrypt inputfiles.txt
             if(!file.getPath().contains("inputfiles.txt")) {
-                AESEncryptor aes = new AESEncryptor();
-                //Overwrite the file with the encrypt version          
+                AESEncryptor aes = new AESEncryptor();          
                 aes.encrypt(path);
             }
             
+            String hashFile = Hash.calculateSha3(path);                        
+            info.setHash(hashFile);  
             info.setFileId(file.getName());
             info.setName(file.getName());
-            info.setSize(file.length());
-            String hashFile = Hash.sha3(path);                        
-            info.setHash(hashFile);                        
+            info.setSize(file.length());                      
              
             //Verifica se existe o arquivo, e se existir vefica se é do mesmo tamanho
             if (shell.getProxy().getIpFile(info.getName()).isEmpty() || shell.getProxy().checkFileSize(info.getName()) != info.getSize()){

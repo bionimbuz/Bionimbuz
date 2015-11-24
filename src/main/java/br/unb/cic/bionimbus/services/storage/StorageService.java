@@ -152,12 +152,12 @@ public class StorageService extends AbstractBioService {
                     pluginFile.setName(file.getName());
                     pluginFile.setPath(file.getPath());
 
-                    List<String> listIds = new ArrayList<String>();
+                    List<String> listIds = new ArrayList<>();
                     listIds.add(config.getId());
 
                     pluginFile.setPluginId(listIds);
                     pluginFile.setSize(file.length());
-                    pluginFile.setHash(Hash.sha3(file.getAbsolutePath()));
+                    pluginFile.setHash(Hash.calculateSha3(file.getPath()));
                     //cria um novo znode para o arquivo e adiciona o watcher
                     cms.createZNode(CreateMode.PERSISTENT, Path.PREFIX_FILE.getFullPath(config.getId(), pluginFile.getId()), pluginFile.toString());
                     cms.getData(Path.PREFIX_FILE.getFullPath(config.getId(), pluginFile.getId()), new UpdatePeerData(cms, this));
@@ -169,21 +169,6 @@ public class StorageService extends AbstractBioService {
         } catch (Exception ex) {
             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    /**
-     * Retorna o hash de um arquivo. Usado para verificar a integridade do
-     * arquivo.
-     *
-     * @param path
-     * @return
-     * @throws java.security.NoSuchAlgorithmException
-     * @throws java.io.IOException
-     */
-    public String getFileHash(String path) throws NoSuchAlgorithmException, IOException {
-        //Produz o hash do arquivo
-        String hashFile = Hash.sha3(path);
-        return hashFile;
     }
 
     /**
@@ -397,8 +382,7 @@ public class StorageService extends AbstractBioService {
 
             //Verifica se a máquina que recebeu essa requisição não é a que está armazenando o arquivo
             if (!config.getAddress().equals(ipPluginFile)) {
-                RpcClient rpcClient = new AvroClient("http", "164.41.209.89", PORT);
-                //RpcClient rpcClient = new AvroClient("http", ipPluginFile, PORT);
+                RpcClient rpcClient = new AvroClient("http", ipPluginFile, PORT);
                 String filePeerHash = rpcClient.getProxy().getFileHash(fileUploaded.getName());
 
                 //Verifica se o arquivo foi corretamente transferido ao nó. Só faz a verificação caso o arquivo não seja saída de uma execução.
@@ -406,7 +390,6 @@ public class StorageService extends AbstractBioService {
                     successUpload = true;
                     try {
                         if (rpcClient.getProxy().verifyFile(file, fileUploaded.getPluginId()) && cms.getZNodeExist(Path.PREFIX_FILE.getFullPath(idPluginFile, fileUploaded.getId()), null)) {
-                            rpcClient.getProxy().notifyReply(fileUploaded.getName(), ipPluginFile);
                             //Remova o arquivo do PENDING FILE já que ele foi upado
                             cms.delete(Path.PREFIX_PENDING_FILE.getFullPath(fileUploaded.getId()));
                         }
@@ -417,7 +400,7 @@ public class StorageService extends AbstractBioService {
                 }
             } else {
                 if (checkFilePeer(fileUploaded)) {
-                    String filePeerHash = getFileHash(fileUploaded.getName());
+                    String filePeerHash = Hash.calculateSha3(fileUploaded.getPath());
                     //Verifica se o arquivo foi corretamente transferido ao nó. Só faz a verificação caso o arquivo não seja saída de uma execução.
                     if (Integrity.verifyHashes(filePeerHash, fileUploaded.getHash())) {
                         successUpload = true;
@@ -557,7 +540,7 @@ public class StorageService extends AbstractBioService {
             info.setFileId(file.getName());
             info.setName(file.getName());
             info.setSize(file.length());
-            info.setHash(Hash.sha3(file.getAbsolutePath()));
+            info.setHash(Hash.calculateSha3(file.getAbsolutePath()));
 
             PluginFile pluginFile = new PluginFile(info);
             /*
@@ -621,7 +604,6 @@ public class StorageService extends AbstractBioService {
                             break;
                         }
                     }
-
                 }
             }
         }

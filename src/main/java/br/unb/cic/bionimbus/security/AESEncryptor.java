@@ -45,6 +45,7 @@ public class AESEncryptor {
         outFile.flush();
         outFile.close();
         
+        //Sobreescreve o arquivo
         File file =  new File(filePath);        
         File oldFile = new File(filePath + "_old");
         file.renameTo(oldFile);
