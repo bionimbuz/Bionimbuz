@@ -5,7 +5,7 @@ rpc_port: 8080
 rpc_protocol: http
 # ZooKeeper connection string (comma separated)
 
-zookeeper_hosts: 164.41.209.88:2181
+zookeeper_hosts: 164.41.209.89:2181
 client: false
 plugin: linux
 server-path: /home/zoonimbus/zoonimbusProject

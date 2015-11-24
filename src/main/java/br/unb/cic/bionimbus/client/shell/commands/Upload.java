@@ -47,7 +47,7 @@ public class Upload implements Command {
             info.setFileId(file.getName());
             info.setName(file.getName());
             info.setSize(file.length());
-            String hashFile = Hash.SHA1File(path);                        
+            String hashFile = Hash.sha3(path);                        
             info.setHash(hashFile);                        
              
             //Verifica se existe o arquivo, e se existir vefica se é do mesmo tamanho

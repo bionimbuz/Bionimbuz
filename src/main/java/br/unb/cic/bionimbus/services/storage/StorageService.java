@@ -159,7 +159,7 @@ public class StorageService extends AbstractBioService {
 
                     pluginFile.setPluginId(listIds);
                     pluginFile.setSize(file.length());
-                    pluginFile.setHash(Hash.SHA1File(file.getAbsolutePath()));
+                    pluginFile.setHash(Hash.sha3(file.getAbsolutePath()));
                     //cria um novo znode para o arquivo e adiciona o watcher
                     cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.PREFIX_FILE.getFullPath(config.getId(), pluginFile.getId(), ""), pluginFile.toString());
                     cms.getData(CuratorMessageService.Path.PREFIX_FILE.getFullPath(config.getId(), pluginFile.getId(), ""), new UpdatePeerData(cms, this));
@@ -184,7 +184,7 @@ public class StorageService extends AbstractBioService {
      */
     public String getFileHash(String path) throws NoSuchAlgorithmException, IOException {
         //Produz o hash do arquivo
-        String hashFile = Hash.SHA1File(path);
+        String hashFile = Hash.sha3(path);
         return hashFile;
     }
 
@@ -395,8 +395,8 @@ public class StorageService extends AbstractBioService {
 
             //Verifica se a máquina que recebeu essa requisição não é a que está armazenando o arquivo
             if (!config.getAddress().equals(ipPluginFile)) {
-                //RpcClient rpcClient = new AvroClient("http", "164.41.209.89", PORT);
-                RpcClient rpcClient = new AvroClient("http", ipPluginFile, PORT);
+                RpcClient rpcClient = new AvroClient("http", "164.41.209.89", PORT);
+                //RpcClient rpcClient = new AvroClient("http", ipPluginFile, PORT);
                 String filePeerHash = rpcClient.getProxy().getFileHash(fileUploaded.getName());
 
                 //Verifica se o arquivo foi corretamente transferido ao nó. Só faz a verificação caso o arquivo não seja saída de uma execução.
@@ -555,7 +555,7 @@ public class StorageService extends AbstractBioService {
             info.setFileId(file.getName());
             info.setName(file.getName());
             info.setSize(file.length());
-            info.setHash(Hash.SHA1File(file.getAbsolutePath()));
+            info.setHash(Hash.sha3(file.getAbsolutePath()));
 
             PluginFile pluginFile = new PluginFile(info);
             /*
