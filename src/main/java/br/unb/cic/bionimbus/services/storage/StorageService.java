@@ -400,8 +400,10 @@ public class StorageService extends AbstractBioService {
                 }
             } else {
                 if (checkFilePeer(fileUploaded)) {
-                    String filePeerHash = Hash.calculateSha3(fileUploaded.getPath());
-                    //Verifica se o arquivo foi corretamente transferido ao nó. Só faz a verificação caso o arquivo não seja saída de uma execução.
+                    String pathHome = System.getProperty("user.dir");
+                    String path = (pathHome.substring(pathHome.length()).equals("/") ? pathHome + "data-folder/" : pathHome + "/data-folder/");                    
+                    String filePeerHash = Hash.calculateSha3(path + fileUploaded.getName());
+                    //Verifica se o arquivo foi corretamente transferido ao nó.
                     if (Integrity.verifyHashes(filePeerHash, fileUploaded.getHash())) {
                         successUpload = true;
                         if (cms.getZNodeExist(Path.PREFIX_FILE.getFullPath(idPluginFile, fileUploaded.getId()), null) && !existReplication(file.getName())) {
