@@ -5,22 +5,9 @@
  */
 package br.unb.cic.bionimbus.security;
 
-import com.amazonaws.util.IOUtils;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
-import java.util.Scanner;
-import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.jcajce.provider.digest.SHA3;
-import static sun.security.krb5.Confounder.bytes;
 
 /**
  *
@@ -28,7 +15,7 @@ import static sun.security.krb5.Confounder.bytes;
  */
 public class Hash {
     
-    public static String sha3(String path) throws IOException {
+    public static String calculateSha3(String path) throws IOException {
         FileInputStream fis = new FileInputStream(path);
         byte[] dataBytes = new byte[256];
 
