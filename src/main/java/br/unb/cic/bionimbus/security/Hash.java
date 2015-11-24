@@ -5,11 +5,22 @@
  */
 package br.unb.cic.bionimbus.security;
 
+import com.amazonaws.util.IOUtils;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
+import java.util.Scanner;
+import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.jcajce.provider.digest.SHA3;
+import static sun.security.krb5.Confounder.bytes;
 
 /**
  *
@@ -17,18 +28,17 @@ import java.security.NoSuchAlgorithmException;
  */
 public class Hash {
     
-    @SuppressWarnings("empty-statement")
-    public static String SHA1File(String path) throws FileNotFoundException, NoSuchAlgorithmException, IOException {
-        MessageDigest md = MessageDigest.getInstance("SHA1");
+    public static String sha3(String path) throws IOException {
         FileInputStream fis = new FileInputStream(path);
-        byte[] dataBytes = new byte[1024];
+        byte[] dataBytes = new byte[256];
 
         int nread = 0; 
 
+        SHA3.DigestSHA3 md = new SHA3.DigestSHA3(256);
         while ((nread = fis.read(dataBytes)) != -1) {
           md.update(dataBytes, 0, nread);
-        };
-
+        }
+        
         byte[] mdbytes = md.digest();
 
         //Convert the byte to hex format

@@ -452,5 +452,10 @@
             <version>2.7.1</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.53</version>
+        </dependency>
     </dependencies>
 </project>
