@@ -234,7 +234,7 @@ protocol BioProto {
     string id;
     string path;
     string name;
-    string hash;
+    string hash;    
    long size;
     array<string> pluginId;
   }

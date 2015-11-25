@@ -420,7 +420,7 @@ public class BioProtoImpl implements BioProto {
         
         return new ArrayList<NodeInfo>(nodes.values());
     }
-
+    
     /**
      * Passa PluginList para StorageService aqui
      * @param list
@@ -514,5 +514,4 @@ public class BioProtoImpl implements BioProto {
     public void setWatcher(String idPlugin) {
 //        storageService.starWatchers(idPlugin);
     }
-
 }
