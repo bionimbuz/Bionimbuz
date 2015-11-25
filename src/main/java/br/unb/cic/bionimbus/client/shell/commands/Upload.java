@@ -82,7 +82,7 @@ public class Upload implements Command {
                     }
                 }
                 if (no != null) {
-                    List<String> dest = new ArrayList<String>();
+                    List<String> dest = new ArrayList<>();
                     dest.add(no.getPeerId());
                     nodesdisp.remove(no);
                     
