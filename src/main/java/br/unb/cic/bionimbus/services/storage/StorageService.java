@@ -40,12 +40,15 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static javax.swing.UIManager.put;
 import org.apache.avro.AvroRemoteException;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+import static org.apache.velocity.texen.util.FileUtil.file;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.codehaus.jackson.map.ObjectMapper;
+import static org.mortbay.jetty.HttpMethods.HEAD;
 
 @Singleton
 public class StorageService extends AbstractBioService {
@@ -274,10 +277,14 @@ public class StorageService extends AbstractBioService {
     /**
      * Retorna o tamanho do arquivo, dado o nome do mesmo.
 <<<<<<< HEAD
+<<<<<<< HEAD
      * NOTE: listFiles never used. Revise this code.
 =======
      *
 >>>>>>> Refactor message of integrity verification
+=======
+     *
+>>>>>>> 115c7e1667a31e9eb0c63dfc4b51032be9b7aa65
      * @param file O nome do arquivo
      * @return O tamanho do arquivo
      */
