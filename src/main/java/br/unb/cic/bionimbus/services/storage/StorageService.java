@@ -55,14 +55,14 @@ public class StorageService extends AbstractBioService {
     private final ScheduledExecutorService executorService = Executors
             .newScheduledThreadPool(1, new BasicThreadFactory.Builder()
                     .namingPattern("StorageService-%d").build());
-    private Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
-    private final Map<String, PluginFile> savedFiles = new ConcurrentHashMap<String, PluginFile>();
+    private Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<>();
+    private final Map<String, PluginFile> savedFiles = new ConcurrentHashMap<>();
 //    private Set<String> pendingSaveFiles = new HashSet<String>();
     private final File dataFolder = new File("data-folder"); //TODO: remover hard-coded e colocar em node.yaml e injetar em StorageService
     private final Double MAXCAPACITY = 0.9;
     private final int PORT = 8080;
     private final int REPLICATIONFACTOR = 2;
-    private final List<String> listFile = new ArrayList<String>();
+    private final List<String> listFile = new ArrayList<>();
 
     @Inject
     public StorageService(final CloudMessageService cms, MetricRegistry metricRegistry) {
@@ -227,12 +227,12 @@ public class StorageService extends AbstractBioService {
      * @throws java.io.IOException
      */
     public Map<String, List<String>> getFiles() throws IOException {
-        Map<String, List<String>> mapFiles = new HashMap<String, List<String>>();
+        Map<String, List<String>> mapFiles = new HashMap<>();
         List<String> listFiles;
         checkFiles();
 
         for (PluginInfo plugin : getPeers().values()) {
-            listFiles = new ArrayList<String>();
+            listFiles = new ArrayList<>();
             for (String file : cms.getChildren(plugin.getPath_zk() + CuratorMessageService.Path.FILES.toString(), new UpdatePeerData(cms, this))) {
                 listFiles.add(file.substring(5, file.length()));
             }
@@ -625,7 +625,7 @@ public class StorageService extends AbstractBioService {
      * @return - Lista com peers que podem receber o arquivo
      */
     public List<NodeInfo> getNodeDisp(long lengthFile) {
-        List<NodeInfo> nodesdisp = new ArrayList<NodeInfo>();
+        List<NodeInfo> nodesdisp = new ArrayList<>();
         Collection<PluginInfo> cloudPlugin = getPeers().values();
         nodesdisp.clear();
         for (PluginInfo plugin : cloudPlugin) {
@@ -669,7 +669,7 @@ public class StorageService extends AbstractBioService {
      */
     public List<PluginFile> getFilesPeer(String pluginId) {
         List<String> children;
-        List<PluginFile> filesPeerSelected = new ArrayList<PluginFile>();
+        List<PluginFile> filesPeerSelected = new ArrayList<>();
         //NECESSARIO atualizar a lista de arquivo local , a lista do zookeeper com os arquivos locais. Não é feito em nenhum momento
         //caso não seja chamado a checkFiles();
         checkFiles();
