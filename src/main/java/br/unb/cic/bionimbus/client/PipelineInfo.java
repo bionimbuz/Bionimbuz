@@ -5,7 +5,7 @@
  */
 package br.unb.cic.bionimbus.client;
 
-import br.unb.cic.bionimbus.toSort.RepositoryService;
+import br.unb.cic.bionimbus.services.RepositoryService;
 import br.unb.cic.bionimbus.utils.Pair;
 import java.io.IOException;
 import java.util.ArrayList;

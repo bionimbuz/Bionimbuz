@@ -10,7 +10,6 @@ import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.toSort.Listeners;
-import br.unb.cic.bionimbus.toSort.RepositoryService;
 import com.google.inject.Singleton;
 import java.io.IOException;
 import java.util.List;

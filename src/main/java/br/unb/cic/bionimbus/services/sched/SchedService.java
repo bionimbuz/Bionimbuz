@@ -16,7 +16,7 @@ import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import static br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.toSort.Listeners;
-import br.unb.cic.bionimbus.toSort.RepositoryService;
+import br.unb.cic.bionimbus.services.RepositoryService;
 import br.unb.cic.bionimbus.utils.Get;
 import br.unb.cic.bionimbus.utils.Pair;
 import com.google.common.base.Preconditions;

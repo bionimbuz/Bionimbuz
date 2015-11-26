@@ -3,13 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.unb.cic.bionimbus.toSort;
+package br.unb.cic.bionimbus.services.sched.policy.impl;
 
 import br.unb.cic.bionimbus.client.JobInfo;
 import br.unb.cic.bionimbus.client.PipelineInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
+import br.unb.cic.bionimbus.tests.FromLogFileTestGenerator;
+import br.unb.cic.bionimbus.services.sched.model.Pareto;
+import br.unb.cic.bionimbus.tests.PipelineTestGenerator;
+import br.unb.cic.bionimbus.services.sched.model.Resource;
+import br.unb.cic.bionimbus.services.sched.model.ResourceList;
+import br.unb.cic.bionimbus.services.sched.model.SearchNode;
 import br.unb.cic.bionimbus.utils.Pair;
 import java.io.File;
 import java.io.FileNotFoundException;

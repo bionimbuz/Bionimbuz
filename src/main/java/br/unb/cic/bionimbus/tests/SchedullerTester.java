@@ -1,4 +1,4 @@
-package br.unb.cic.bionimbus.toSort;
+package br.unb.cic.bionimbus.tests;
 
 import br.unb.cic.bionimbus.avro.gen.Pair;
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
@@ -12,14 +12,11 @@ import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
+import br.unb.cic.bionimbus.services.RepositoryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -103,7 +100,7 @@ public class SchedullerTester {
 
         // add data to zookeeper
         tester.addServices(services);
-//            tester.addResources(resources);
+//        tester.addResources(resources);
 
         System.out.println("[SchedTester] starting testing with " + pipelines.size() + " pipelines");
 
