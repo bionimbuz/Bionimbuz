@@ -1,5 +1,6 @@
 package br.unb.cic.bionimbus.services;
 
+import br.unb.cic.bionimbus.persistence.EntityManagerProducer;
 import javax.servlet.http.HttpServlet;
 
 import com.codahale.metrics.servlets.AdminServlet;
@@ -31,7 +32,6 @@ public class HttpServer {
                 @Override
                 public void run() {
                     try {
-                        System.out.println("starting http server on port " + port);
                         server.start();
 //                        server.join();
                     } catch (InterruptedException e) {
@@ -70,15 +70,26 @@ public class HttpServer {
         sh.setInitParameter("com.sun.jersey.config.property.resourceConfigClass", "com.sun.jersey.api.core.PackagesResourceConfig");
         sh.setInitParameter("com.sun.jersey.config.property.packages", "br.unb.cic.bionimbus.p2p.plugin.proxy");
 
-        context.addEventListener(contextListener);
+        // Sets the InitParameter telling what is the REST application
+        sh.setInitParameter("javax.ws.rs.Application", "br.unb.cic.bionimbus.rest.application.RestApplication");
 
+        context.addEventListener(contextListener);
         context.addServlet(sh, "/*");
 
-        if (servlet != null)
+        if (servlet != null) {
             context.addServlet(new ServletHolder(servlet), "/file");
+        }
 
         // Coda Hale Metrics
         context.addServlet(new ServletHolder(new AdminServlet()), "/admin/*");
+
+        try {
+            // Initialize EntityManager to prevent lazy creation
+            EntityManagerProducer.initialize();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 

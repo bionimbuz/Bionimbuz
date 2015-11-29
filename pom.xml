@@ -34,7 +34,8 @@
         <resteasy.version>3.0.11.Final</resteasy.version>
         <jackson.version>2.5.2</jackson.version>
         <hibernate.version>4.3.10.Final</hibernate.version>
-        <mysql.version></mysql.version>
+        <mysql.version>5.1.35</mysql.version>
+        <spring.version>3.2.4.RELEASE</spring.version>
     </properties>
 
     <repositories>
@@ -294,14 +295,20 @@
             </exclusions>
         </dependency>
         
+        <!-- Spring Security -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        
         <!-- MySql -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.35</version>
+            <version>${mysql.version}</version>
         </dependency>
-
-        
+       
         <!-- Amazon AWS -->
         <dependency>
             <groupId>com.amazonaws</groupId>
