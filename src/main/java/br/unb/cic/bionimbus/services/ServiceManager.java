@@ -14,9 +14,12 @@ import java.util.List;
 import java.util.Set;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class ServiceManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceManager.class);
     
     private final Set<Service> services = new LinkedHashSet<Service> ();
     private final CloudMessageService cms;
@@ -40,8 +43,8 @@ public class ServiceManager {
     }
     
     public void connectZK(String hosts) throws IOException, InterruptedException {
-        System.out.println("conectando ao ZooKeeperService...");
         cms.connect(hosts);
+        LOGGER.info("BioNimbuZ conectado ao ZooKeeperService");
     }
     
     public void createZnodeZK(String id) throws IOException, InterruptedException, KeeperException {
@@ -92,8 +95,14 @@ public class ServiceManager {
     
     public void startAll(BioNimbusConfig config, List<Listeners> listeners) {
         try {
-            rpcServer.start();
+            // Starts RPC server
+            rpcServer.start();            
+            LOGGER.info("Servidor Avro RPC server inicializado");
+            
+            // Starts HTTP server
             httpServer.start();
+            LOGGER.info("Servidor HTTP inicializado");
+
             connectZK(config.getZkHosts());
             //limpando o servicor zookeeper caso não tenha peer on-line ao inciar servidor zooNimbus
             clearZookeeper();
@@ -104,9 +113,11 @@ public class ServiceManager {
             }
             
         } catch (Exception e) {
+            LOGGER.error("[Exception] ServiceManager.startAll()");
             e.printStackTrace();
             System.exit(0);
         }
         
+        LOGGER.info("Servicos inicializados");
     }
 }
