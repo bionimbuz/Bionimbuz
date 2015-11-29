@@ -48,7 +48,7 @@ public class UserResource extends BaseResource {
         User requestUser = loginRequest.getUser();
         LoginResponse response = new LoginResponse();
 
-        LOGGER.trace("Login request received: [login: " + requestUser.getLogin() + ", password: " + requestUser.getPassword() + "]");
+        LOGGER.info("Requisicao de Login recebida: [login: " + requestUser.getLogin() + ", password: " + requestUser.getPassword().toString().charAt(0) + "*****]");
 
         // Verifies if the request user exists on database
         User responseUser = null;
@@ -56,8 +56,9 @@ public class UserResource extends BaseResource {
         try {
             responseUser = userDao.findByLogin(requestUser.getLogin());
         } catch (NoResultException e) {
-            LOGGER.info("User " + requestUser.getLogin() + " not found");
+            LOGGER.info("Usuario " + requestUser.getLogin() + " nao encontrado");
         } catch (Exception e) {
+            LOGGER.error("[Exception] UserResource.login()");
             e.printStackTrace();
         }
 
@@ -89,7 +90,7 @@ public class UserResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public LogoutResponse logout(LogoutRequest logoutRequest) {
-        LOGGER.info("Logout request received: [login: " + logoutRequest.getUser().getLogin() + "]");
+        LOGGER.info("Requisicao de Logout recebida: [login: " + logoutRequest.getUser().getLogin() + "]");
 
         LogoutResponse response = new LogoutResponse();
 
@@ -105,7 +106,7 @@ public class UserResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public SignUpResponse signUp(SignUpRequest request) {
-        LOGGER.info("Signup request received. Login: " + request.getUser().getLogin());
+        LOGGER.info("Solicitacao de cadastro recebida. [login: " + request.getUser().getLogin() + "]");
 
         userDao.exists(request.getUser().getLogin());
 
