@@ -1,50 +1,84 @@
-Bionimbuz
-=========
- 
-image:https://travis-ci.org/bionimbuz/Bionimbuz.svg?branch=master["Build Status", link="https://travis-ci.org/bionimbuz/Bionimbuz"]
-image:http://codecov.io/github/bionimbuz/Bionimbuz/coverage.svg?branch=master["Coverage", link="http://codecov.io/github/bionimbuz/Bionimbuz"]
 
-Plataforma de Federação de Nuvens
+image:https://travis-ci.org/bionimbuz/Bionimbuz.svg?branch=master["Build Status", link="https://travis-ci.org/bionimbuz/Bionimbuz"] image:http://codecov.io/github/bionimbuz/Bionimbuz/coverage.svg?branch=master["Coverage", link="http://codecov.io/github/bionimbuz/Bionimbuz"]
+
+image:https://raw.githubusercontent.com/vramos91/BionimbuzClient/master/WebContent/resources/img/logo_bionimbuz.jpg["BioNimbuz",link="https://raw.githubusercontent.com/vramos91/BionimbuzClient/master/WebContent/resources/img/logo_bionimbuz.jpg"]
+
+#### Universidade de Brasília
+#### Departamento de Ciência da Computação
+#### Introdução
+O software computacional BioNimbuZ é desenvolvido e mantido por alunos de Graduação e Mestrado da Universidade de Brasília. Seu objetivo é criar uma plataforma de execução de workflows em Bioinformática que utiliza a infraestrutura provida por uma Federação de Nuvens.  Uma Federação de Nuvens Computacionais possibilita a utilização simultânea das diversas infraestruturas existentes nas várias instituições provedoras destes serviços (Microsoft Azure, Amazon EC2 entre outras), além de permitir a utilização dos recursos oferecidos pelas nuvens públicas. Este trabalho tem como objetivo propor uma arquitetura de federação de nuvens computacionais híbrida, denominada BioNimbuZ, capaz de executar aplicações e workflows de bioinformática de maneira transparente, flexível, eficiente e tolerante a falhas, com grande capacidade de processamento e de armazenamento. 
+
+#### Instalação
+Para compilar, realizar o build e executar o ambiente do BioNimbuZ, seguir o passo-a-passo descrito abaixo.
+
+##### 1. Máquina virtual
+Configurar uma máquina virtual Linux com usuário 'zoonimbus'. Utilizamos a distribuição Linux em sua versão 14.04
+
+##### 2. Java
+Instalar e configurar o Java:
 ----------------------------------------------------------------------------------------------------------------------
-Ordem dos comandos de instalação
---Zookeeper--
-http://ftp.unicamp.br/pub/apache/zookeeper/stable/zookeeper-3.4.6.tar.gz
-Descompacte na pasta opt/zookeeper/
-Configure o arquivo /opt/zookeeper/conf/zoo.cfg
-altere a linha  dataDir=/opt/zookeeper/ 
-salve e feche o arquivo
-Inicie o zookeeper com o comando sudo /opt/zookeeper/bin/zkServer.sh start
-pronto zookeeper executando, mais detalhes olhe a documentação: https://zookeeper.apache.org/doc/r3.4.6/zookeeperStarted.html#sc_InstallingSingleMode
-
---Java--
 sudo add-apt-repository ppa:webupd8team/java	
 sudo apt-get update
 sudo apt-get install oracle-jdk7-installer
-
---dstat--
-sudo apt-get install dstat
-
---GCC--
+----------------------------------------------------------------------------------------------------------------------
+##### 3. Zookeeper
+Apache ZooKeeper é um serviço centralizado para gerenciar e sincronizar informações de configuração em um ambiente computacional distribuído.
+----------------------------------------------------------------------------------------------------------------------
+3.1 Realizar o download do ZooKeeper: http://ftp.unicamp.br/pub/apache/zookeeper/stable/zookeeper-3.4.6.tar.gz
+3.2 Descompacte na pasta opt/zookeeper/
+3.3 Configure o arquivo /opt/zookeeper/conf/zoo.cfg
+3.4 Altere a linha  dataDir=/opt/zookeeper/ 
+3.5 Salve e feche o arquivo
+3.6 Inicie o zookeeper com o comando sudo /opt/zookeeper/bin/zkServer.sh start
+3.7 Pronto! O servidor ZooKeeper está executando, mais detalhes na documentação: https://zookeeper.apache.org/doc/r3.4.6/zookeeperStarted.html#sc_InstallingSingleMode
+----------------------------------------------------------------------------------------------------------------------
+##### 4. IDE de desenvolvimento Java
+Utilizamos o Netbeans 8.0.1 para desenvolvimento.
+Download:
+----------------------------------------------------------------------------------------------------------------------
+https://netbeans.org/downloads/start.html?platform=linux&lang=pt_BR&option=javaee
+----------------------------------------------------------------------------------------------------------------------
+##### 5. Maven
+Apache Maven é um software de gerenciamento de projetos.
+----------------------------------------------------------------------------------------------------------------------
+sudo apt-get install maven2
+----------------------------------------------------------------------------------------------------------------------
+##### 6. GCC
+----------------------------------------------------------------------------------------------------------------------
 sudo apt-get install gcc
-
---BOWTIE--
+----------------------------------------------------------------------------------------------------------------------
+##### 7. dstat
+Dstat possibilita a visualização de recursos do sistema instantaneamente. 
+----------------------------------------------------------------------------------------------------------------------
+sudo apt-get install dstat
+----------------------------------------------------------------------------------------------------------------------
+##### 8. Bowtie
+"Bowtie is an ultrafast, memory-efficient short read aligner"
+----------------------------------------------------------------------------------------------------------------------
 sudo apt-get install bowtie
-
---BEDTOOLS--
+----------------------------------------------------------------------------------------------------------------------
+##### 9. BedTools
+"Bedtools utilities are a swiss-army knife of tools for a wide-range of genomics analysis tasks"
+----------------------------------------------------------------------------------------------------------------------
 sudo apt-get install bedtools
-
---UNZIP--
+----------------------------------------------------------------------------------------------------------------------
+##### 10. unzip
+Descompactador de arquivos
+----------------------------------------------------------------------------------------------------------------------
 sudo apt-get install unzip
-
---CRIANDO PASTA DO PROJETO----
+----------------------------------------------------------------------------------------------------------------------
+#### Criando pasta do projeto
+No caminho /home/zoonimbus crie a pasta zoonimbusProject (caminho completo: /home/zoonimbus/zoonimbusProject/)
+----------------------------------------------------------------------------------------------------------------------
 mkdir /home/zoonimbus/zoonimbusProject 
+----------------------------------------------------------------------------------------------------------------------
 ---Compacte os arquivos a seguir e envie via sftp---
 scp zoonimbus@10.0.0.1:/path/to/file.txt localfile.txt
------------------------------------------------------------------------------------------------------------------------------
------Configurar Zoonimbus -------
+
+Configurar Zoonimbus
 	
 OB: COLOCAR TODOS OS ARQUIVOS LISTADOS NA PASTA zoonimbusProject/
-
+-------------------------------------------------------------------------------------------------------------
 enviar as pastas exported-folders
 enviar as pastas data-folder
 enviar as pastas pipeline
@@ -52,37 +86,40 @@ enviar as pastas services
 enviar as pastas programs
 enviar as pastas conf
 enviar bionimbus-1.0-SNAPSHOT-bundle.jar gerado na target
+-------------------------------------------------------------------------------------------------------------
 
-
-***********
 Para executar o Zoonimbus, o servidor zookeeper deve ser inciado.
-
+-------------------------------------------------------------------------------------------------------------
 1- Alterar conf/node.yaml com as configurações de ip do servidor zookeer, ip, etc
 2- Estar na pasta zoonimbusProject/
 3- Servidor: executar o comando "sh exported-folders/bin/server.sh"
 4- Cliente: executar o comando "sh exported-folders/bin/client.sh"
 5- Pipeline: executar o comando "sh exported-folders/bin/client-pipeline.sh"
-***********
 -------------------------------------------------------------------------------------------------------------
 --Configurar a amazon para acessar ssh sem a pem--
-
 1- acessar a maquina na amazon
+-------------------------------------------------------------------------------------------------------------
 ssh -i zoonimbuskey.pem ubuntu@54.213.0.109
-
+-------------------------------------------------------------------------------------------------------------
 2-sudo su , com o root acesse o arquivo sshd_conf
+-------------------------------------------------------------------------------------------------------------
 nano /etc/ssh/sshd_config 
+-------------------------------------------------------------------------------------------------------------
 e adicione a linha na parte de Authentification 
-
+-------------------------------------------------------------------------------------------------------------
 PasswordAuthentication yes
 comentar as linhas
 #RSAAuthentication yes
 #PubkeyAuthentication yes
 
 ctrl+o, enter, ctrl+x
-
-3- sudo /etc/init.d/ssh restart
-
+-------------------------------------------------------------------------------------------------------------
+3 - Reinicie o seriço SSH
+-------------------------------------------------------------------------------------------------------------
+sudo /etc/init.d/ssh restart
+-------------------------------------------------------------------------------------------------------------
 criar usuário zoonimbus, senha: 
 Adicionar o usuario zoonimbus
 sudo adduser zoonimbus sudo
 liberar as portas : 2181,9999,80,8080,9191,22
+-------------------------------------------------------------------------------------------------------------
