@@ -31,7 +31,7 @@ public class CuratorMessageService implements CloudMessageService {
     private volatile Path path = CuratorMessageService.Path.ROOT;
     
     public CuratorMessageService() {
-        LOGGER.info("Criando Curator service...");  
+        LOGGER.info("Starting Curator Message Service...");  
     }
     
     @Override
@@ -40,6 +40,7 @@ public class CuratorMessageService implements CloudMessageService {
         
         client = CuratorFrameworkFactory.newClient(connectionString, retryPolicy);
         client.start();
+        LOGGER.info("Curator Message Service started!");
     }
     
     @Override

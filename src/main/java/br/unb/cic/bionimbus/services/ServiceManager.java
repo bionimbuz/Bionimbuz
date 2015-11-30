@@ -22,7 +22,9 @@ public class ServiceManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceManager.class);
     
     private final Set<Service> services = new LinkedHashSet<Service> ();
+    
     private final CloudMessageService cms;
+    
     private final RepositoryService rs;
     
     private final RpcServer rpcServer;
@@ -44,7 +46,7 @@ public class ServiceManager {
     
     public void connectZK(String hosts) throws IOException, InterruptedException {
         cms.connect(hosts);
-        LOGGER.info("BioNimbuZ conectado ao ZooKeeperService");
+        LOGGER.info("Connected to ZooKeeper service on port 2181");
     }
     
     public void createZnodeZK(String id) throws IOException, InterruptedException, KeeperException {
@@ -93,11 +95,11 @@ public class ServiceManager {
         try {
             // Starts RPC server
             rpcServer.start();            
-            LOGGER.info("Servidor Avro RPC server inicializado");
+            LOGGER.info("RPC Avro Server initialized on port 8080");
             
             // Starts HTTP server
             httpServer.start();
-            LOGGER.info("Servidor HTTP inicializado");
+            LOGGER.info("HTTP Server initialized on port 8181");
 
             connectZK(config.getZkHosts());
             //limpando o servicor zookeeper caso não tenha peer on-line ao inciar servidor zooNimbus
@@ -114,6 +116,6 @@ public class ServiceManager {
             System.exit(0);
         }
         
-        LOGGER.info("Servicos inicializados");
+        LOGGER.info("All services are online");
     }
 }
