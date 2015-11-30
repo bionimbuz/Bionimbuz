@@ -7,7 +7,22 @@
 
     <context-param>
         <param-name>resteasy.resources</param-name>
-        <param-value>br.unb.cic.bionimbus.rest.resource</param-value>
+        <param-value>br.unb.cic.bionimbus.rest.resource.PingResource</param-value>
+    </context-param>
+    
+    <context-param>
+        <param-name>resteasy.resources</param-name>
+        <param-value>br.unb.cic.bionimbus.rest.resource.UserResource</param-value>
+    </context-param>
+    
+    <context-param>
+        <param-name>resteasy.resources</param-name>
+        <param-value>br.unb.cic.bionimbus.rest.resource.FileResource</param-value>
+    </context-param>
+    
+    <context-param>
+        <param-name>resteasy.resources</param-name>
+        <param-value>br.unb.cic.bionimbus.rest.resource.PingResource</param-value>
     </context-param>
     
     <context-param>
