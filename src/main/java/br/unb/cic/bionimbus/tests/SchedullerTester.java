@@ -50,10 +50,11 @@ public class SchedullerTester {
     private void initCommunication() {
         cms = new CuratorMessageService();
         try {
-            Enumeration<InetAddress> inet = NetworkInterface.getByName("wlan0").getInetAddresses();
-            String ip = "";
-            while (inet.hasMoreElements())
-                ip = inet.nextElement().toString();
+            Enumeration<InetAddress> inet = NetworkInterface.getByName("eth0").getInetAddresses();
+            String ip = "1164.41.209.95";
+            if (ip.equals(""))
+                while (inet.hasMoreElements())
+                    ip = inet.nextElement().toString();
             cms.connect(ip.substring(1)+":2181");
         } catch (SocketException ex) {
             java.util.logging.Logger.getLogger(SchedullerTester.class.getName()).log(Level.SEVERE, null, ex);
@@ -160,8 +161,8 @@ public class SchedullerTester {
                             // set new watcher with remaining pipelines
                             remaining.remove(pipeline);
                             System.out.println("[SentPipeline] Pipeline " + pipeline.getId() + " sent, " + remaining.size() + " remaining");
-                            while(!cms.getZNodeExist(Path.PREFIX_PIPELINE.getFullPath(pipeline.getId()), null)){}
-                            cms.getChildren(Path.PREFIX_PIPELINE.getFullPath(pipeline.getId()), new SendPipeline(cms, st, remaining, pipeline.getId()));
+                            while(!cms.getZNodeExist(Path.NODE_PIPELINE.getFullPath(pipeline.getId()), null)){}
+                            cms.getChildren(Path.NODE_PIPELINE.getFullPath(pipeline.getId()), new SendPipeline(cms, st, remaining, pipeline.getId()));
                         } else {
                             System.out.println("[SentPipeline] No more pipelines");
                         }
@@ -212,9 +213,9 @@ public class SchedullerTester {
         System.out.println("[SchedTester] First pipeline " + fst.getId() + " with " + fst.getJobs().size() + " jobs sent, " + pipelines.size() + " remaining");
 
         // busy waiting to wait for node to exists
-        while(!tester.cms.getZNodeExist(Path.PREFIX_PIPELINE.getFullPath(fst.getId()), null)){
+        while(!tester.cms.getZNodeExist(Path.NODE_PIPELINE.getFullPath(fst.getId()), null)){
         System.out.println("[SchedTester] waiting node creation");}
-        tester.cms.getChildren(Path.PREFIX_PIPELINE.getFullPath(fst.getId()), new SendPipeline(tester.cms, tester, pipelines, fst.getId()));
+        tester.cms.getChildren(Path.NODE_PIPELINE.getFullPath(fst.getId()), new SendPipeline(tester.cms, tester, pipelines, fst.getId()));
 
         System.out.println("[SchedTester] waiting forever");
         while(true){}

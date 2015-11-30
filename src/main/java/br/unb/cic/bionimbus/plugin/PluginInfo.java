@@ -1,6 +1,7 @@
 package br.unb.cic.bionimbus.plugin;
 
 import br.unb.cic.bionimbus.p2p.Host;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -77,8 +78,7 @@ public class PluginInfo implements PluginOps {
      * @return o endereço do plugin(peer) no zk de acordo com seu id 
      */
     public String getPath_zk() {
-        path_zk ="/peers/peer_"+id;
-        return path_zk;
+         return Path.NODE_PEER.getFullPath(id);
     }
     public void setPath_zk(String path_zk) {
         this.path_zk =path_zk;

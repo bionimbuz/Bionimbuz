@@ -151,7 +151,7 @@ public class AcoSched extends SchedPolicy {
     
     @Override
     public void jobDone(PluginTask task) {
-        String datas = getDatasZookeeper(cms.getPath().PREFIX_PEER.getFullPath(task.getPluginExec()), SCHED);
+        String datas = getDatasZookeeper(cms.getPath().NODE_PEER.getFullPath(task.getPluginExec()), SCHED);
         
         ArrayList<Double> listAcoDatas;
         ObjectMapper mapper = new ObjectMapper();
@@ -167,7 +167,7 @@ public class AcoSched extends SchedPolicy {
             listAcoDatas.set(9, (listAcoDatas.get(8) + (listAcoDatas.get(9))));
             
             //grava novamente os dados no zookeeper
-            setDatasZookeeper(cms.getPath().PREFIX_PEER.getFullPath(task.getPluginExec()), SCHED, listAcoDatas.toString());
+            setDatasZookeeper(cms.getPath().NODE_PEER.getFullPath(task.getPluginExec()), SCHED, listAcoDatas.toString());
         } catch (IOException ex) {
             Logger.getLogger(AcoSched.class.getName()).log(Level.SEVERE, null, ex);
         }
