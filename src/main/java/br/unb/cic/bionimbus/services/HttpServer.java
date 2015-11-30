@@ -61,6 +61,14 @@ public class HttpServer {
     }
 
     public HttpServer(int port, HttpServlet servlet, MetricsServletContextListener contextListener) {
+        try {
+            // Initialize EntityManager to prevent lazy creation
+            EntityManagerProducer.initialize();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
         this.port = port;
         this.proxyServlet = servlet;
 
@@ -76,6 +84,10 @@ public class HttpServer {
         context.setContextPath("/");
         context.setParentLoaderPriority(true);
 
+        ServletHolder restServlet = context.addServlet(HttpServletDispatcher.class,  "/*");
+        restServlet.setInitOrder(0);
+        // restServlet.setInitParameter("javax.ws.rs.Application", "br.unb.cic.bionimbus.rest.application.RestApplication");
+        
         server.setHandler(context);
         
         try {
