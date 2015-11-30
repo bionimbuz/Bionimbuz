@@ -8,10 +8,13 @@ package br.unb.cic.bionimbus.tests;
 import br.unb.cic.bionimbus.client.JobInfo;
 import br.unb.cic.bionimbus.client.PipelineInfo;
 import br.unb.cic.bionimbus.plugin.PluginService;
+import br.unb.cic.bionimbus.security.AESEncryptor;
 import static com.sun.corba.se.impl.util.Utility.printStackTrace;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -22,6 +25,12 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
     public FromMockFileTestGenerator() {
         String pathHome = System.getProperty("user.dir");
         String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
+        AESEncryptor aes = new AESEncryptor();          
+        try {
+            aes.decrypt(path+"resSample.txt");
+        } catch (Exception ex) {
+            Logger.getLogger(FromMockFileTestGenerator.class.getName()).log(Level.SEVERE, null, ex);
+        }
         this.resFile = path+"resSample.txt";
     }
     
@@ -32,6 +41,12 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
         // get pipeline file path
         String pathHome = System.getProperty("user.dir");
         String path = (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
+        AESEncryptor aes = new AESEncryptor();          
+        try {
+            aes.decrypt(path+"pipelineSample.txt");
+        } catch (Exception ex) {
+            Logger.getLogger(FromMockFileTestGenerator.class.getName()).log(Level.SEVERE, null, ex);
+        }        
         try {
             BufferedReader br = new BufferedReader(new FileReader(path+"pipelineSample.txt"));
 
@@ -101,11 +116,16 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
     
     @Override
     protected void generateServicesTemplates() {
-        JobInfo taskList[] = null;
-        
+        JobInfo taskList[] = null;        
         // get service file path
         String pathHome = System.getProperty("user.dir");
         String path = (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
+        AESEncryptor aes = new AESEncryptor();          
+        try {
+            aes.decrypt(path+"servicesSample.txt");
+        } catch (Exception ex) {
+            Logger.getLogger(FromMockFileTestGenerator.class.getName()).log(Level.SEVERE, null, ex);
+        }
         try {
             BufferedReader br = new BufferedReader(new FileReader(path+"servicesSample.txt"));
             
