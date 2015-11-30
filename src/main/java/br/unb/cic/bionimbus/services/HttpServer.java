@@ -8,9 +8,6 @@ import com.google.inject.Inject;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
@@ -33,13 +30,12 @@ public class HttpServer {
                 @Override
                 public void run() {
                     try {
-                        System.out.println("Iniciando servidor");
+                        // Starts the Server
                         server.start();
-
-                        System.out.println("Executando join()");
+                        
+                        // Join to main Thread
                         server.join();
 
-                        System.out.println("Apos join");
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     } catch (Exception e) {
@@ -67,21 +63,34 @@ public class HttpServer {
     }
 
     public HttpServer(int port, HttpServlet servlet, MetricsServletContextListener contextListener) {
+        try {
+            // Initialize EntityManager to prevent lazy creation
+            EntityManagerProducer.initialize();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
         this.port = port;
         this.proxyServlet = servlet;
 
         server = new Server(port);
-
+        
         WebAppContext context = new WebAppContext();
 
-        context.setDescriptor("/conf/web.xml");
-        context.setResourceBase("./src/main/java/br/unb/cic/bionimbus/rest/resource");
-        context.setContextPath("/");
+        // context.setDescriptor("./src/main/WEB-INF/web.xml");
+        context.setResourceBase("/home/zoonimbus/zoonimbusProject/src/main/java/br/unb/cic/bionimbus/rest/resource");
+        // context.setContextPath("/");
 
+        context.setClassLoader(Thread.currentThread().getContextClassLoader());
         context.setParentLoaderPriority(true);
 
+        ServletHolder restServlet = context.addServlet(HttpServletDispatcher.class,  "/*");
+        restServlet.setInitOrder(0);
+        // restServlet.setInitParameter("javax.ws.rs.Application", "br.unb.cic.bionimbus.rest.application.RestApplication");
+        
         server.setHandler(context);
-
+        
         /*
         Context context = new Context();
         ServletHolder sh = new ServletHolder(ServletContainer.class);
@@ -120,13 +129,7 @@ public class HttpServer {
         // Coda Hale Metrics
         context.addServlet(new ServletHolder(new AdminServlet()), "/admin/*");
          */
-        try {
-            // Initialize EntityManager to prevent lazy creation
-            EntityManagerProducer.initialize();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        
 
     }
 
