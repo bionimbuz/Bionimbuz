@@ -3,16 +3,17 @@ package br.unb.cic.bionimbus.services;
 import br.unb.cic.bionimbus.persistence.EntityManagerProducer;
 import javax.servlet.http.HttpServlet;
 
-import com.codahale.metrics.servlets.AdminServlet;
 import com.google.inject.Inject;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.servlet.Context;
-import org.mortbay.jetty.servlet.ServletHolder;
-
-import com.sun.jersey.spi.container.servlet.ServletContainer;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.webapp.WebAppContext;
+import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 
 public class HttpServer {
 
@@ -32,8 +33,13 @@ public class HttpServer {
                 @Override
                 public void run() {
                     try {
+                        System.out.println("Iniciando servidor");
                         server.start();
-//                        server.join();
+
+                        System.out.println("Executando join()");
+                        server.join();
+
+                        System.out.println("Apos join");
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     } catch (Exception e) {
@@ -57,7 +63,7 @@ public class HttpServer {
 
     @Inject
     public HttpServer(MetricsServletContextListener contextListener) {
-        this(9191, null, contextListener);
+        this(8181, null, contextListener);
     }
 
     public HttpServer(int port, HttpServlet servlet, MetricsServletContextListener contextListener) {
@@ -65,24 +71,55 @@ public class HttpServer {
         this.proxyServlet = servlet;
 
         server = new Server(port);
-        Context context = new Context(server, "/", Context.SESSIONS);
+
+        WebAppContext context = new WebAppContext();
+
+        context.setDescriptor("/conf/web.xml");
+        context.setResourceBase("./src/main/java/br/unb/cic/bionimbus/rest/resource");
+        context.setContextPath("/");
+
+        context.setParentLoaderPriority(true);
+
+        server.setHandler(context);
+
+        /*
+        Context context = new Context();
         ServletHolder sh = new ServletHolder(ServletContainer.class);
+        
         sh.setInitParameter("com.sun.jersey.config.property.resourceConfigClass", "com.sun.jersey.api.core.PackagesResourceConfig");
         sh.setInitParameter("com.sun.jersey.config.property.packages", "br.unb.cic.bionimbus.p2p.plugin.proxy");
-
+        
+        ServletContextHandler context = new ServletContextHandler();
+        ServletHolder sh = new ServletHolder(HttpServletDispatcher.class);
+        
+        
+        ServletHolder sh = new ServletHolder(HttpServletDispatcher.class);
+        ServletHandler handler = new ServletHandler();
+        
+        ContextHandler context = new ContextHandler();
+        
+        context.setContextPath("/*");
+        context.setResourceBase(".");
+        context.setClassLoader(Thread.currentThread().getContextClassLoader());
+        context.setHandler(handler);
+        
+        server.setHandler(handler);
+        
         // Sets the InitParameter telling what is the REST application
-        sh.setInitParameter("javax.ws.rs.Application", "br.unb.cic.bionimbus.rest.application.RestApplication");
-
+        sh.setInitParameter("javax.ws.rs.Application", "br.unb.cic.bionimbus.rest.application.RestApplication");        
+        
+        handler.addServletWithMapping(sh, "/*");
+        
         context.addEventListener(contextListener);
-        context.addServlet(sh, "/*");
 
         if (servlet != null) {
-            context.addServlet(new ServletHolder(servlet), "/file");
+           context.addServlet(sh, "/*");
+           context.addServlet(new ServletHolder(servlet), "/file");
         }
-
+           
         // Coda Hale Metrics
         context.addServlet(new ServletHolder(new AdminServlet()), "/admin/*");
-
+         */
         try {
             // Initialize EntityManager to prevent lazy creation
             EntityManagerProducer.initialize();
@@ -94,6 +131,6 @@ public class HttpServer {
     }
 
     public static void main(String[] args) throws Exception {
-        new HttpServer(9191, null, null).start();
+        new HttpServer(8181, null, null).start();
     }
 }
