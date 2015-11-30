@@ -1,7 +1,8 @@
-
-image:https://travis-ci.org/bionimbuz/Bionimbuz.svg?branch=bionimbuz_webapp["Build Status", link="https://travis-ci.org/bionimbuz/Bionimbuz"] image:http://codecov.io/github/bionimbuz/Bionimbuz/coverage.svg?branch=bionimbuz_webapp["Coverage", link="http://codecov.io/github/bionimbuz/Bionimbuz"]
-
-image:https://raw.githubusercontent.com/vramos91/BionimbuzClient/master/WebContent/resources/img/logo_bionimbuz.jpg["BioNimbuz",link="https://raw.githubusercontent.com/vramos91/BionimbuzClient/master/WebContent/resources/img/logo_bionimbuz.jpg"]
+# Bionimbuz
+=========
+ 
+image:https://travis-ci.org/bionimbuz/Bionimbuz.svg?branch=master["Build Status", link="https://travis-ci.org/bionimbuz/Bionimbuz"]
+image:http://codecov.io/github/bionimbuz/Bionimbuz/coverage.svg?branch=master["Coverage", link="http://codecov.io/github/bionimbuz/Bionimbuz"]
 
 #### Universidade de Brasília
 #### Departamento de Ciência da Computação
@@ -135,7 +136,12 @@ comentar as linhas
 
 ctrl+o, enter, ctrl+x
 -------------------------------------------------------------------------------------------------------------
-##### 3. Reinicie o serviço SSH
+3 - Reinicie o seriço SSH
 -------------------------------------------------------------------------------------------------------------
 sudo /etc/init.d/ssh restart
+-------------------------------------------------------------------------------------------------------------
+criar usuário zoonimbus, senha: 
+Adicionar o usuario zoonimbus
+sudo adduser zoonimbus sudo
+liberar as portas : 2181,9999,80,8080,9191,22
 -------------------------------------------------------------------------------------------------------------
