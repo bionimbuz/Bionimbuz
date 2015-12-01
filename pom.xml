@@ -457,11 +457,5 @@
             <artifactId>bcprov-jdk15on</artifactId>
             <version>1.53</version>
         </dependency>
-        <dependency>
-            <groupId>br.unb.cic.bionimbus</groupId>
-            <artifactId>bionimbus</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <type>jar</type>
-        </dependency>
     </dependencies>
 </project>

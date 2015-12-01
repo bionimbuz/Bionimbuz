@@ -632,9 +632,6 @@ public class SchedService extends AbstractBioService implements Runnable {
         checkFilesPlugin();
         //verifica se o arquivo existe no plugin se não cria a solicitação de transfêrencia do arquivo
         if (!existFilesCloud(task.getJobInfo().getInputs())) {
-//            if (task.getState() == PluginTaskState.PENDING) {
-//                task.setState(PluginTaskState.WAITING);
-//            }
             task.setState(PluginTaskState.ERRO);
             System.out.println("[SchedService] executeTasks: task " + task.getId() + " error.");
             return;

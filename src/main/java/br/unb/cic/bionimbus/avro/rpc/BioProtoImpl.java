@@ -171,9 +171,9 @@ public class BioProtoImpl implements BioProto {
             String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
             AESEncryptor aes = new AESEncryptor();
             //Not decrypt inputfiles.txt
-            if(!filename.contains("inputfiles.txt")) {
-                aes.decrypt(path + filename);
-            }
+            //if(!filename.contains("inputfiles.txt")) {
+            aes.decrypt(path + filename);
+            //}
         } catch (IOException | NoSuchAlgorithmException ex) {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {

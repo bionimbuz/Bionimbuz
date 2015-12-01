@@ -47,7 +47,7 @@ public class AESEncryptor {
         
         //Sobreescreve o arquivo
         File file =  new File(filePath);        
-        File oldFile = new File(filePath + "_old");
+        File oldFile = new File(filePath + ".old");
         file.renameTo(oldFile);
         file.delete();       
         File newFile = new File(filePath + ".aes");
@@ -82,5 +82,14 @@ public class AESEncryptor {
         file.delete();
         File newFile = new File(filePath + ".aes");
         newFile.renameTo(file);
+    }
+    
+    public void setCorrectFilePath(String filePath) {
+        File file =  new File(filePath);          
+        File newFile = new File(filePath + ".aes");
+        file.renameTo(newFile);
+        File oldFile = new File(filePath + ".old");
+        oldFile.renameTo(file);
+        oldFile.delete();
     }
 }
