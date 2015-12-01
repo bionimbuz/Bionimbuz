@@ -12,8 +12,11 @@ O software computacional BioNimbuZ é desenvolvido e mantido por alunos de Gradu
 Para compilar, realizar o build e executar o ambiente do BioNimbuZ, seguir o passo-a-passo descrito abaixo.
 
 ##### 1. Máquina virtual
-Configurar uma máquina virtual Linux com usuário 'zoonimbus'. Utilizamos a distribuição Linux em sua versão 14.04
-
+Configurar uma máquina virtual Linux com usuário 'zoonimbus'. Utilizamos a distribuição Linux em sua versão 14.04.
+No caminho /home/zoonimbus crie a pasta zoonimbusProject (caminho completo: /home/zoonimbus/zoonimbusProject/)
+----------------------------------------------------------------------------------------------------------------------
+mkdir /home/zoonimbus/zoonimbusProject 
+----------------------------------------------------------------------------------------------------------------------
 ##### 2. Java
 Instalar e configurar o Java:
 ----------------------------------------------------------------------------------------------------------------------
@@ -67,17 +70,30 @@ Descompactador de arquivos
 ----------------------------------------------------------------------------------------------------------------------
 sudo apt-get install unzip
 ----------------------------------------------------------------------------------------------------------------------
-#### Criando pasta do projeto
-No caminho /home/zoonimbus crie a pasta zoonimbusProject (caminho completo: /home/zoonimbus/zoonimbusProject/)
-----------------------------------------------------------------------------------------------------------------------
-mkdir /home/zoonimbus/zoonimbusProject 
-----------------------------------------------------------------------------------------------------------------------
----Compacte os arquivos a seguir e envie via sftp---
-scp zoonimbus@10.0.0.1:/path/to/file.txt localfile.txt
 
-Configurar Zoonimbus
-	
-OB: COLOCAR TODOS OS ARQUIVOS LISTADOS NA PASTA zoonimbusProject/
+#### Passo-a-passo para execução em instâncias na nuvem (Amazon, Azure, Google, ...)
+Primeiramente é necessário configurar a máquina conforme os passos acima (não sendo necessária a instalação do Netbeans, pois não 
+haverá desenvolvimento nas instâncias na nuvem). Criar a mesma estrutura de diretórios 
+----------------------------------------------------------------------------------------------------------------------
+/home/zoonimbus/zoonimbusProject
+                        |
+   			+ src
+   			+ target
+   			+ conf
+   			+ exported-folders
+   			+ ...
+----------------------------------------------------------------------------------------------------------------------
+Com tudo instalado, realizar os seguintes passos:
+
+##### Liberar portas
+Na configuração do provedor de serviço, liberar as portas: 2181,9999,80,8080,9191,22
+
+##### Compacte os arquivos do projeto e os envie utilizando scp para máquina do provedor
+----------------------------------------------------------------------------------------------------------------------
+scp zoonimbus@<ip_nuvem>:/path/to/file localfile
+----------------------------------------------------------------------------------------------------------------------
+
+##### Arquivos à serem enviados:
 -------------------------------------------------------------------------------------------------------------
 enviar as pastas exported-folders
 enviar as pastas data-folder
@@ -88,22 +104,27 @@ enviar as pastas conf
 enviar bionimbus-1.0-SNAPSHOT-bundle.jar gerado na target
 -------------------------------------------------------------------------------------------------------------
 
-Para executar o Zoonimbus, o servidor zookeeper deve ser inciado.
+##### Executando o BioNimbuZ na nuvem
+Para iniciar a execução o servidor zookeeper deve ser iniciado.
 -------------------------------------------------------------------------------------------------------------
-1- Alterar conf/node.yaml com as configurações de ip do servidor zookeer, ip, etc
-2- Estar na pasta zoonimbusProject/
-3- Servidor: executar o comando "sh exported-folders/bin/server.sh"
-4- Cliente: executar o comando "sh exported-folders/bin/client.sh"
-5- Pipeline: executar o comando "sh exported-folders/bin/client-pipeline.sh"
+1 - Alterar conf/node.yaml com as configurações de ip do servidor zookeer, ip, etc
+2 - Entrar na pasta zoonimbusProject/
+3 - Servidor: executar o comando "sh exported-folders/bin/server.sh"
+4 - Cliente: executar o comando "sh exported-folders/bin/client.sh" (** migrando para aplicação Web)
+5 - Pipeline: executar o comando "sh exported-folders/bin/client-pipeline.sh" (** migrando para aplicação Web)
 -------------------------------------------------------------------------------------------------------------
---Configurar a amazon para acessar ssh sem a pem--
-1- acessar a maquina na amazon
+
+#### Configurar a amazon para acessar ssh sem a o arquivo de chaves privadas (pem)
+
+##### 1. Acessar a maquina na amazon
 -------------------------------------------------------------------------------------------------------------
-ssh -i zoonimbuskey.pem ubuntu@54.213.0.109
+ssh -i zoonimbuskey.pem ubuntu@<ip_nuvem>:~/
 -------------------------------------------------------------------------------------------------------------
-2-sudo su , com o root acesse o arquivo sshd_conf
+
+##### 2. Alterar arquivo sshd_conf
+Acesse o arquivo:
 -------------------------------------------------------------------------------------------------------------
-nano /etc/ssh/sshd_config 
+sudo nano /etc/ssh/sshd_config 
 -------------------------------------------------------------------------------------------------------------
 e adicione a linha na parte de Authentification 
 -------------------------------------------------------------------------------------------------------------
@@ -114,12 +135,7 @@ comentar as linhas
 
 ctrl+o, enter, ctrl+x
 -------------------------------------------------------------------------------------------------------------
-3 - Reinicie o seriço SSH
+##### 3. Reinicie o serviço SSH
 -------------------------------------------------------------------------------------------------------------
 sudo /etc/init.d/ssh restart
--------------------------------------------------------------------------------------------------------------
-criar usuário zoonimbus, senha: 
-Adicionar o usuario zoonimbus
-sudo adduser zoonimbus sudo
-liberar as portas : 2181,9999,80,8080,9191,22
 -------------------------------------------------------------------------------------------------------------
