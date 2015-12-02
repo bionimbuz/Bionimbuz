@@ -91,7 +91,7 @@ public class UserResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public LogoutResponse logout(LogoutRequest logoutRequest) {
-        LOGGER.info("Requisicao de Logout recebida: [login: " + logoutRequest.getUser().getLogin() + "]");
+        LOGGER.info("Logout request received: [login: " + logoutRequest.getUser().getLogin() + "]");
 
         LogoutResponse response = new LogoutResponse();
 
