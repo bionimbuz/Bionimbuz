@@ -17,11 +17,19 @@ public class EntityManagerProducer {
 
     /**
      * Initializes EntityManager to prevent lazy creation
+     * @throws java.lang.Exception
      */
-    public static void initialize() {
+    public static void initialize() throws Exception {
         factory = Persistence.createEntityManagerFactory("bionimbuz_pu");
 
-        manager = factory.createEntityManager();
+        if (manager == null) {
+            manager = factory.createEntityManager();
+            
+            return;
+        }
+        
+        // It shouldn't be null at this time... If it is = Exception
+        throw new Exception();
     }
 
     /**
@@ -33,6 +41,7 @@ public class EntityManagerProducer {
         factory = Persistence.createEntityManagerFactory("bionimbuz_pu");
 
         if (manager == null) {
+            System.out.println("Creating entity manager...");
             manager = factory.createEntityManager();
         }
 
