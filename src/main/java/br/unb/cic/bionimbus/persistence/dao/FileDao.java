@@ -41,7 +41,7 @@ public class FileDao extends BaseDao<UploadedFileInfo> {
      */
     @Override
     public List<UploadedFileInfo> list() {
-        TypedQuery<UploadedFileInfo> query = manager.createQuery("SELECT u FROM FileInfo u", UploadedFileInfo.class);
+        TypedQuery<UploadedFileInfo> query = manager.createQuery("SELECT u FROM UploadedFileInfo u", UploadedFileInfo.class);
 
         return query.getResultList();
     }
@@ -82,7 +82,7 @@ public class FileDao extends BaseDao<UploadedFileInfo> {
      */
     @Override
     public UploadedFileInfo findById(Long id) {
-        TypedQuery<UploadedFileInfo> query = manager.createQuery("SELECT u FROM FileInfo u WHERE u.id = := id", UploadedFileInfo.class);
+        TypedQuery<UploadedFileInfo> query = manager.createQuery("SELECT u FROM UploadedFileInfo u WHERE u.id = := id", UploadedFileInfo.class);
         query.setParameter("id", id);
 
         return query.getSingleResult();
@@ -95,7 +95,7 @@ public class FileDao extends BaseDao<UploadedFileInfo> {
      * @return
      */
     public List<UploadedFileInfo> listByUserId(Long userId) {
-        TypedQuery<UploadedFileInfo> query = manager.createQuery("SELECT u FROM FileInfo u WHERE u.userId = :userId", UploadedFileInfo.class);
+        TypedQuery<UploadedFileInfo> query = manager.createQuery("SELECT u FROM UploadedFileInfo u WHERE u.userId = :userId", UploadedFileInfo.class);
         query.setParameter("userId", userId);
 
         return query.getResultList();
