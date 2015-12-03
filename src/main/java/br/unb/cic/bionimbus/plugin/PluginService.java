@@ -12,7 +12,7 @@ public class PluginService {
     private String id;
     private String path;
     private Double presetMode = null;
-    
+
     // NOT USED
     private String name;
     private List<String> arguments;
@@ -27,7 +27,7 @@ public class PluginService {
     public void setId(String id) {
         this.id = id;
     }
-    
+
     public Double getPresetMode() {
         return presetMode;
     }
@@ -35,7 +35,7 @@ public class PluginService {
     public void setPresetMode(Double presetMode) {
         this.presetMode = presetMode;
     }
-    
+
     // NOT USED
     public String getName() {
         return name;
@@ -44,7 +44,7 @@ public class PluginService {
     public void setName(String name) {
         this.name = name;
     }
-    
+
     // NOT USED
     public List<String> getArguments() {
         return arguments;
@@ -53,7 +53,7 @@ public class PluginService {
     public void setArguments(List<String> arguments) {
         this.arguments = arguments;
     }
-    
+
     // NOT USED
     public List<String> getInput() {
         return input;
@@ -62,7 +62,7 @@ public class PluginService {
     public void setInput(List<String> input) {
         this.input = input;
     }
-    
+
     // NOT USED
     public List<String> getOutput() {
         return output;
@@ -71,7 +71,7 @@ public class PluginService {
     public void setOutput(List<String> output) {
         this.output = output;
     }
-    
+
     // NOT USED
     public String getInfo() {
         return info;
@@ -88,13 +88,15 @@ public class PluginService {
     public void setPath(String path) {
         this.path = path;
     }
-    
+
     @Override
     public boolean equals(Object object) {
-        if (this == object)
+        if (this == object) {
             return true;
-        if (!(object instanceof PluginService))
+        }
+        if (!(object instanceof PluginService)) {
             return false;
+        }
 
         PluginService other = (PluginService) object;
         return id == other.id;
@@ -111,7 +113,7 @@ public class PluginService {
             return new ObjectMapper().writeValueAsString(this);
         } catch (Exception ex) {
             Logger.getLogger(PluginService.class.getName()).log(Level.SEVERE, null, ex);
-        } 
+        }
         return null;
     }
 }

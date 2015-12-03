@@ -7,9 +7,9 @@ package br.unb.cic.bionimbus.toSort;
 
 /**
  *
- * @author willian
- * Solução paleativa, para juntar Plugin e service Obs: a config e o P2Pservice obtinham listeners 
+ * @author willian Solução paleativa, para juntar Plugin e service Obs: a config
+ * e o P2Pservice obtinham listeners
  */
 public interface Listeners {
-    
+
 }

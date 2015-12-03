@@ -131,10 +131,11 @@ public final class SimpleShell {
     public void setIp(String ip) {
         this.ip = ip;
     }
+
     public String getIp() {
         return this.ip;
     }
-    
+
     public void setConnected(boolean connected) {
         this.connected = connected;
     }
@@ -165,6 +166,7 @@ public final class SimpleShell {
     public BioProto getProxy() throws IOException {
         return rpcClient.getProxy();
     }
+
     public void close() throws IOException {
         try {
             rpcClient.close();

@@ -14,8 +14,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created with IntelliJ IDEA.
- * User: edward
+ * Created with IntelliJ IDEA. User: edward
  */
 public class UsageExample {
 

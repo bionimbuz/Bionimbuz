@@ -16,6 +16,7 @@ import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 
 public class SchedTester {
+
     private final ConcurrentHashMap<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
     private final Map<String, JobInfo> pendingJobs = new ConcurrentHashMap<String, JobInfo>();
     private final Map<String, JobInfo> runningJobs = new ConcurrentHashMap<String, JobInfo>();
@@ -24,11 +25,10 @@ public class SchedTester {
 
     private static final Logger LOG = LoggerFactory.getLogger(SchedService.class);
 
-
     private PluginInfo generatePlugin(String id, int numCores, int latency, int numOccupied) {
         PluginInfo p = new PluginInfo();
         p.setId(id);
-        p.setLatency((double)latency);
+        p.setLatency((double) latency);
         p.setNumCores(numCores);
         p.setNumOccupied(numOccupied);
         ArrayList<PluginService> services = new ArrayList<PluginService>();
@@ -129,7 +129,9 @@ public class SchedTester {
 
     private void scheduleJobs() {
 
-        if (!pendingJobs.isEmpty()) return;
+        if (!pendingJobs.isEmpty()) {
+            return;
+        }
 
         LOG.info("--- Inicio de escalonamento ---");
         final Map<JobInfo, PluginInfo> schedMap = null;//getPolicy().schedule(pendingJobs.values());

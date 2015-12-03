@@ -19,36 +19,37 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class ServiceManager {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceManager.class);
-    
-    private final Set<Service> services = new LinkedHashSet<Service> ();
-    
+
+    private final Set<Service> services = new LinkedHashSet<Service>();
+
     private final CloudMessageService cms;
-    
+
     private final RepositoryService rs;
-    
+
     private final RpcServer rpcServer;
-    
+
     private final HttpServer httpServer;
-    
+
     @Inject
     private MetricRegistry metricRegistry;
-    
+
     @Inject
     public ServiceManager(Set<Service> services, CloudMessageService cms, RepositoryService rs, RpcServer rpcServer, HttpServer httpServer) {
         this.cms = cms;
         this.rs = rs;
         this.rpcServer = rpcServer;
         this.httpServer = httpServer;
-        
+
         this.services.addAll(services);
     }
-    
+
     public void connectZK(String hosts) throws IOException, InterruptedException {
         cms.connect(hosts);
         LOGGER.info("Connected to ZooKeeper service on port 2181");
     }
-    
+
     public void createZnodeZK(String id) throws IOException, InterruptedException, KeeperException {
         //create root bionimbuz if does not exists
         if (!cms.getZNodeExist(Path.ROOT.getFullPath(), null))
@@ -61,25 +62,26 @@ public class ServiceManager {
         // add current instance as a peer
         cms.createZNode(CreateMode.PERSISTENT, Path.NODE_PEER.getFullPath(id), null);
         cms.createZNode(CreateMode.EPHEMERAL, Path.STATUS.getFullPath(id), null);
-        
+
         // create services repository node
-        if(!cms.getZNodeExist(Path.SERVICES.getFullPath(), null)) {
+        if (!cms.getZNodeExist(Path.SERVICES.getFullPath(), null)) {
             // create history root
             cms.createZNode(CreateMode.PERSISTENT, Path.SERVICES.getFullPath(), "");
         }
-        
+
         // create finished tasks node if it doesn't exists
-        if(!cms.getZNodeExist(Path.FINISHED_TASKS.getFullPath(), null)) {
+        if (!cms.getZNodeExist(Path.FINISHED_TASKS.getFullPath(), null)) {
             cms.createZNode(CreateMode.PERSISTENT, Path.FINISHED_TASKS.getFullPath(), "");
         }
     }
-    
+
     /**
-     * Responsável pela limpeza do servidor a cada nova conexão onde o todos os plug-ins havia ficado indisponíveis.
+     * Responsável pela limpeza do servidor a cada nova conexão onde o todos os
+     * plug-ins havia ficado indisponíveis.
      */
-    private void clearZookeeper(){
-        
-        if (cms.getZNodeExist(Path.PIPELINES.getFullPath(), null))
+    private void clearZookeeper() {
+
+        if (cms.getZNodeExist(Path.PIPELINES.getFullPath(), null)) {
             cms.delete(Path.PIPELINES.getFullPath());
         if (cms.getZNodeExist(Path.PENDING_SAVE.getFullPath(), null))
             cms.delete(Path.PENDING_SAVE.getFullPath());
@@ -90,17 +92,17 @@ public class ServiceManager {
         if (cms.getZNodeExist(Path.FINISHED_TASKS.getFullPath(), null))
             cms.delete(Path.FINISHED_TASKS.getFullPath());
     }
-    
+
     public void register(Service service) {
         services.add(service);
     }
-    
+
     public void startAll(BioNimbusConfig config, List<Listeners> listeners) {
         try {
             // Starts RPC server
-            rpcServer.start();            
+            rpcServer.start();
             LOGGER.info("RPC Avro Server initialized on port 8080");
-            
+
             // Starts HTTP server
             httpServer.start();
             LOGGER.info("HTTP Server initialized on port 8181");
@@ -109,17 +111,17 @@ public class ServiceManager {
             //limpando o servicor zookeeper caso não tenha peer on-line ao inciar servidor zooNimbus
             clearZookeeper();
             createZnodeZK(config.getId());
-            
+
             for (Service service : services) {
                 service.start(config, listeners);
             }
-            
+
         } catch (Exception e) {
             LOGGER.error("[Exception] ServiceManager.startAll()");
             e.printStackTrace();
             System.exit(0);
         }
-        
+
         LOGGER.info("All services are online");
     }
 }

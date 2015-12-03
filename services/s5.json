@@ -1,1 +1,9 @@
-{"id": 5, "name": "s5", "arguments": ["args:%I1%I2%O1"], "input": ["out2", "out3"], "output": ["out5"], "info": "MOCK", "path": "./programs/s5.sh"}
+{
+    "id": 5,
+    "name": "s5",
+    "arguments": ["args:%I1%I2%O1"],
+    "input": ["out2", "out3"],
+    "output": ["out5"],
+    "info": "MOCK",
+    "path": "./programs/s5.sh"
+}

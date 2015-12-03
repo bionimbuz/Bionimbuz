@@ -10,19 +10,19 @@ import org.codehaus.jackson.map.ObjectMapper;
 public class PluginInfo implements PluginOps {
 
     private String id;
-    
+
     private String InstanceName;
-    
+
     private String path_zk;
-    
+
     private int privateCloud;
-    
+
     private Host host;
 
     private long uptime;
 
     private Double latency = 0d;
-    
+
     private double costpergiga;
 
     private long timestamp;
@@ -32,13 +32,13 @@ public class PluginInfo implements PluginOps {
     private Integer numNodes;
 
     private Integer numOccupied;
-    
+
     private Double ranking = 0d;
 
     private Float fsSize;
 
     private double storagecost;
-    
+
     private Float fsFreeSize;
 
     private Double memoryTotal;
@@ -46,12 +46,12 @@ public class PluginInfo implements PluginOps {
     private Double memoryFree;
 
     private Double currentFrequencyCore;
-    
+
     // frequency in Hz
     private Double factoryFrequencyCore;
 
     private List<PluginService> services;
-    
+
     private double costPerHour = Double.MAX_VALUE;
 
     public PluginInfo() {
@@ -64,7 +64,7 @@ public class PluginInfo implements PluginOps {
     public void setId(String id) {
         this.id = id;
     }
-    
+
     public String getInstanceName() {
         return InstanceName;
     }
@@ -75,13 +75,15 @@ public class PluginInfo implements PluginOps {
 
     /**
      * Endereço do plugin(peer) no zookeeper.
-     * @return o endereço do plugin(peer) no zk de acordo com seu id 
+     *
+     * @return o endereço do plugin(peer) no zk de acordo com seu id
      */
     public String getPath_zk() {
          return Path.NODE_PEER.getFullPath(id);
     }
+
     public void setPath_zk(String path_zk) {
-        this.path_zk =path_zk;
+        this.path_zk = path_zk;
     }
 
     public Host getHost() {
@@ -91,7 +93,7 @@ public class PluginInfo implements PluginOps {
     public void setHost(Host host) {
         this.host = host;
     }
-    
+
     public double getCostPerGiga() {
         return costpergiga;
     }
@@ -106,16 +108,16 @@ public class PluginInfo implements PluginOps {
 
     public void setUptime(long uptime) {
         this.uptime = uptime;
-            
+
     }
-   
+
     public Double getLatency() {
         return latency;
     }
 
     public void setLatency(Double latency) {
         this.latency = latency;
-            
+
     }
 
     public double getStorageCost() {
@@ -183,12 +185,13 @@ public class PluginInfo implements PluginOps {
     }
 
     public PluginService getService(String serviceId) {
-        for (PluginService service : getServices())
-            if (service.getId().equals(serviceId))
+        for (PluginService service : getServices()) {
+            if (service.getId().equals(serviceId)) {
                 return service;
+            }
+        }
         return null;
     }
-
 
     public Double getRanking() {
         return ranking;
@@ -205,7 +208,7 @@ public class PluginInfo implements PluginOps {
     public void setCurrentFrequencyCore(Double frequencyCore) {
         this.currentFrequencyCore = frequencyCore;
     }
-    
+
     public Double getFactoryFrequencyCore() {
         return factoryFrequencyCore;
     }
@@ -232,8 +235,9 @@ public class PluginInfo implements PluginOps {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object)
+        if (this == object) {
             return true;
+        }
 
         if (!(object instanceof PluginInfo)) {
             return false;
@@ -251,27 +255,28 @@ public class PluginInfo implements PluginOps {
     public void setPrivateCloud(int privateCloud) {
         this.privateCloud = privateCloud;
     }
-    
-    public void setCostPerHour (double costPerHour) {
+
+    public void setCostPerHour(double costPerHour) {
         this.costPerHour = costPerHour;
     }
 
-    public double getCostPerHour () {
+    public double getCostPerHour() {
         return costPerHour;
     }
-    
+
     @Override
     public int hashCode() {
         return id.hashCode();
     }
+
     //Alterado para retornar os valores que serão gravados no znode peer old: id
     @Override
-    public String toString() {  
+    public String toString() {
         try {
             return new ObjectMapper().writeValueAsString(this);
         } catch (Exception ex) {
             Logger.getLogger(PluginInfo.class.getName()).log(Level.SEVERE, null, ex);
-        } 
+        }
         return null;
     }
 }

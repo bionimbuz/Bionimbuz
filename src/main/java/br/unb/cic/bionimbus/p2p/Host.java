@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package br.unb.cic.bionimbus.p2p;
 
 import com.google.common.base.Objects;
@@ -25,7 +24,7 @@ public final class Host implements Comparable<Host> {
     private int port;
 
     // o json decoder precisa deste construtor vazio
-    Host() {   
+    Host() {
     }
 
     public Host(String address, int port) {
@@ -57,11 +56,13 @@ public final class Host implements Comparable<Host> {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
+        }
 
-        if (!(obj instanceof Host))
+        if (!(obj instanceof Host)) {
             return false;
+        }
 
         Host other = (Host) obj;
 

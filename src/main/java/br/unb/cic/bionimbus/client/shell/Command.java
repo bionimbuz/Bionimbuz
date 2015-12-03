@@ -10,5 +10,4 @@ public interface Command {
 
     public void setOriginalParamLine(String param);
 
-
 }

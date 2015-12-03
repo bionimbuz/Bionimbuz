@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URL;
 
-
 public class AvroClient implements RpcClient {
 
     private final int port;
@@ -19,7 +18,7 @@ public class AvroClient implements RpcClient {
     private final String transport;
     private NettyTransceiver nettyClient;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AvroClient.class); 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AvroClient.class);
 
     public AvroClient(String transport, String address, int port) {
         this.port = port;
@@ -44,10 +43,9 @@ public class AvroClient implements RpcClient {
 
     @Override
     public BioProto getProxy() throws IOException {
-        if ("netty".equalsIgnoreCase(transport)){
-             return getNettyTransport();
-        }
-        else {
+        if ("netty".equalsIgnoreCase(transport)) {
+            return getNettyTransport();
+        } else {
             return getHttpTransport();
         }
     }
@@ -56,12 +54,11 @@ public class AvroClient implements RpcClient {
     public void close() throws Exception {
         LOGGER.debug("Closing Avro RPC client");
         // only Netty protocol needs explicit close
-        if ("netty".equalsIgnoreCase(transport)){
+        if ("netty".equalsIgnoreCase(transport)) {
             nettyClient.close();
         }
     }
 
-    
     public static void main(String[] args) throws IOException {
 
         BioProto proxy = new AvroClient("http", "localhost", 8080).getProxy();
@@ -73,6 +70,4 @@ public class AvroClient implements RpcClient {
         System.out.println("end");
     }
 
-  
-    
 }

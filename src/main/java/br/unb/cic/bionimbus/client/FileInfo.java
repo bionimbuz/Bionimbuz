@@ -4,10 +4,12 @@ import java.util.UUID;
 
 /**
  * Classe que gera as informações do arquivo na parte cliente;
+ *
  * @author breno-linux
  */
 public class FileInfo {
-    private String id= UUID.randomUUID().toString();
+
+    private String id = UUID.randomUUID().toString();
     private String name;
     private long size;
 
