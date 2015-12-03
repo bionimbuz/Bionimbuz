@@ -18,15 +18,10 @@ import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 import br.unb.cic.bionimbus.persistence.dao.FileDao;
 import br.unb.cic.bionimbus.rest.request.UploadRequest;
 import br.unb.cic.bionimbus.rest.response.UploadResponse;
-import java.util.logging.Level;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Path("/rest/file/")
 public class FileResource extends BaseResource {
-
     private static final String UPLOADED_FILES_DIRECTORY = FileSystemView.getFileSystemView().getHomeDirectory() + "/zoonimbusProject/data-folder/uploaded-files/";
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileResource.class);
     private final FileDao fileDao;
 
     public FileResource() {
@@ -48,16 +43,16 @@ public class FileResource extends BaseResource {
 //		}
 
         try {
-            LOGGER.info("Requisicao de upload recebida (Nome do arquivo: " + request.getFileInfo().getName());
+            LOGGER.info("Upload request received [filename=" + request.getFileInfo().getName() + "]");
 
             // Writes file on disk
             writeFile(request.getData(), request.getFileInfo().getName());
+            
         } catch (IOException e) {
-            LOGGER.error("[IOException] FileResource.handleUploadedFile()");
-            e.printStackTrace();
+            LOGGER.error("[IOException - " + e.getMessage() + "] FileResource.handleUploadedFile()");
+            
         } catch (Exception e) {
-            LOGGER.error("[Exception] FileResource.handleUploadedFile()");
-            e.printStackTrace();
+            LOGGER.error("[Exception - " + e.getMessage() + "] FileResource.handleUploadedFile()");
         }
 
         // Creates an UserFile using FileInfo from request and persists on Database
@@ -87,7 +82,7 @@ public class FileResource extends BaseResource {
 
         FileOutputStream fop = new FileOutputStream(file);
 
-        LOGGER.info("Arquivo criado (Caminho: " + UPLOADED_FILES_DIRECTORY + filename + ")");
+        LOGGER.info("File created. [path=" + UPLOADED_FILES_DIRECTORY + filename + "]");
 
         fop.write(content);
         fop.flush();
