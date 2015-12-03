@@ -10,6 +10,7 @@
 
 rpc_port: 8080
 rpc_protocol: http
+<<<<<<< HEAD
 zookeeper_hosts: 192.168.252.133:2181
 client: false
 plugin: linux
@@ -17,3 +18,12 @@ server-path: /home/zoonimbus/zoonimbusProject
 address: 192.168.252.133
 cost_per_giga: 0
 host: {"address": "192.168.252.133", "port":8080}
+=======
+zookeeper_hosts: 192.168.252.132:2181
+client: false
+plugin: linux
+server-path: /home/zoonimbus/zoonimbusProject
+address: 192.168.252.132
+cost_per_giga: 0
+host: {"address": "192.168.252.132", "port":8080}
+>>>>>>> 8ae3dc36ba5804133ff8d566738d139469e05f8b
