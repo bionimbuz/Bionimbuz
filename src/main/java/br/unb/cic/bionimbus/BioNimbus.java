@@ -22,6 +22,7 @@ import static com.google.inject.Guice.createInjector;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
 
 public class BioNimbus {
 
@@ -41,7 +42,7 @@ public class BioNimbus {
 
         config.setId(UUID.randomUUID().toString());
         List<Listeners> listeners = new CopyOnWriteArrayList<Listeners>();
-        
+
         if (!config.isClient()) {
             LinuxGetInfo getinfo = new LinuxGetInfo();
             PluginInfo infopc = getinfo.call();
@@ -50,11 +51,10 @@ public class BioNimbus {
 
             infopc.setHost(config.getHost());
             infopc.setPrivateCloud(config.getPrivateCloud());
-                
-                
+
             final Plugin plugin = getPlugin(config.getInfra(), config);
-            if (plugin instanceof LinuxPlugin){
-                ((LinuxPlugin)plugin).setMyInfo(infopc);
+            if (plugin instanceof LinuxPlugin) {
+                ((LinuxPlugin) plugin).setMyInfo(infopc);
             }
             plugin.start();
 
@@ -62,8 +62,8 @@ public class BioNimbus {
 
         final Injector injector = createInjector(new ServiceModule());
 
-            ServiceManager manager = injector.getInstance(ServiceManager.class);
-            manager.startAll(config, listeners);
+        ServiceManager manager = injector.getInstance(ServiceManager.class);
+        manager.startAll(config, listeners);
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
