@@ -17,6 +17,7 @@ public class EntityManagerProducer {
 
     /**
      * Initializes EntityManager to prevent lazy creation
+     *
      * @throws java.lang.Exception
      */
     public static void initialize() throws Exception {
@@ -24,10 +25,10 @@ public class EntityManagerProducer {
 
         if (manager == null) {
             manager = factory.createEntityManager();
-            
+
             return;
         }
-        
+
         // It shouldn't be null at this time... If it is = Exception
         throw new Exception();
     }

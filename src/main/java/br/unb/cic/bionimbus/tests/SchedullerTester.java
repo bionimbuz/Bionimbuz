@@ -60,7 +60,7 @@ public class SchedullerTester {
             java.util.logging.Logger.getLogger(SchedullerTester.class.getName()).log(Level.SEVERE, null, ex);
         }
         rs = new RepositoryService(cms);
-        
+
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
         try {
@@ -77,17 +77,19 @@ public class SchedullerTester {
         }
 
     }
-    
-    public void addServices (List<PluginService> services) {
-        for (PluginService service : services)
+
+    public void addServices(List<PluginService> services) {
+        for (PluginService service : services) {
             rs.addServiceToZookeeper(service);
+        }
     }
-    
-    public void addResources (List<PluginInfo> resources) {
-        for (PluginInfo resource : resources)
+
+    public void addResources(List<PluginInfo> resources) {
+        for (PluginInfo resource : resources) {
             rs.addPeerToZookeeper(resource);
+        }
     }
-    
+
     public void sendJobs(PipelineInfo pipeline) throws InterruptedException, IOException {
 //        communication.sendReq(new JobReqMessage(p2p.getPeerNode(), jobs), P2PMessageType.JOBRESP);
 //        JobRespMessage resp = (JobRespMessage) communication.getResp();
@@ -112,7 +114,7 @@ public class SchedullerTester {
 
             listjob.add(job);
         }
-        
+
         br.unb.cic.bionimbus.avro.gen.PipelineInfo avroPipeline = new br.unb.cic.bionimbus.avro.gen.PipelineInfo();
         avroPipeline.setId(pipeline.getId());
         avroPipeline.setJobs(listjob);
@@ -127,8 +129,8 @@ public class SchedullerTester {
             System.out.println(event);
         }
     }
-    
-    public static class SendPipeline implements Watcher  {
+
+    public static class SendPipeline implements Watcher {
 
         private final CloudMessageService cms;
         private final SchedullerTester st;
@@ -144,12 +146,13 @@ public class SchedullerTester {
 
         /**
          * Recebe as notificações de evento do zookeeper.
+         *
          * @param event evento que identifica a mudança realizada no zookeeper
          */
         @Override
-        public void process(WatchedEvent event){
+        public void process(WatchedEvent event) {
             System.out.println("[SentPipeline] Event got: " + event.toString());
-            switch(event.getType()){
+            switch (event.getType()) {
                 case NodeDeleted:
                     try {
                         if (!remaining.isEmpty()) {
@@ -176,13 +179,13 @@ public class SchedullerTester {
                     System.out.println("[SendPipeline] Received other event: " + event.getPath());
 
             }
-        } 
+        }
     }
-    
+
     public static void main(String[] args) throws InterruptedException, IOException {
         SchedullerTester tester = new SchedullerTester();
         boolean fileTest = false;
-        
+
         FromMockFileTestGenerator gen = new FromMockFileTestGenerator();
         List<PipelineInfo> pipelines = gen.getPipelinesTemplates();
         List<PluginService> services = gen.getServicesTemplates();
@@ -199,7 +202,6 @@ public class SchedullerTester {
 //            PrintWriter rwr = new PrintWriter("resources.txt", "UTF-8");
 //            for (PluginInfo r : resources)
 //                rwr.println(r.toString());
-
         // add data to zookeeper
         tester.addServices(services);
 //        tester.addResources(resources);
@@ -218,6 +220,7 @@ public class SchedullerTester {
         tester.cms.getChildren(Path.NODE_PIPELINE.getFullPath(fst.getId()), new SendPipeline(tester.cms, tester, pipelines, fst.getId()));
 
         System.out.println("[SchedTester] waiting forever");
-        while(true){}
+        while (true) {
+        }
     }
 }

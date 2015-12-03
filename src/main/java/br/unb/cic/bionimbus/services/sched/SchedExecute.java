@@ -15,40 +15,37 @@ import java.util.logging.Logger;
  *
  * @author gabriel
  */
-public class SchedExecute extends Thread{
-    
-    private final Queue<PluginTask> runningJobs = new ConcurrentLinkedQueue<PluginTask> ();
-    
+public class SchedExecute extends Thread {
+
+    private final Queue<PluginTask> runningJobs = new ConcurrentLinkedQueue<PluginTask>();
+
     private boolean taskExecuted;
-    
- 
+
     private String service;
 
     public SchedExecute() {
     }
 
-    public boolean executeTask(PluginTask task, String service){
-        taskExecuted =false;
+    public boolean executeTask(PluginTask task, String service) {
+        taskExecuted = false;
         this.service = service;
         runningJobs.add(task);
         return taskExecuted;
-    } 
-    
-    
-        @Override
-        public void run() {
-            while (true) {
-                if(!runningJobs.isEmpty()){
-                    PluginTask task = runningJobs.remove();
-                    try {
-                        Runtime.getRuntime().exec(service+ " -i " + task.getJobInfo().getInputs() + " -o " + task.getJobInfo().getOutputs());
-                    } catch (IOException ex) {
-                        Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    taskExecuted = true;
-                }
-            }              
     }
-    
-    
+
+    @Override
+    public void run() {
+        while (true) {
+            if (!runningJobs.isEmpty()) {
+                PluginTask task = runningJobs.remove();
+                try {
+                    Runtime.getRuntime().exec(service + " -i " + task.getJobInfo().getInputs() + " -o " + task.getJobInfo().getOutputs());
+                } catch (IOException ex) {
+                    Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                taskExecuted = true;
+            }
+        }
+    }
+
 }

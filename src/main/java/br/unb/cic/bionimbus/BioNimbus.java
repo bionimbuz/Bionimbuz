@@ -74,7 +74,7 @@ public class BioNimbus {
 
         // !!! MEDIDA PALEATIVA !!! Para nao ter que trocar o node.yaml toda vez
         config.setZkConnString(InetAddress.getLocalHost().getHostAddress() + ":2181");
-        
+
         LOGGER.debug("config = " + config);
 
         new BioNimbus(config);

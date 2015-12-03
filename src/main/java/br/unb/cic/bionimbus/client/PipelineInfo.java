@@ -20,18 +20,19 @@ import org.codehaus.jackson.map.ObjectMapper;
  * @author willian
  */
 public class PipelineInfo {
+
     private String id = UUID.randomUUID().toString();
 
     final private List<JobInfo> jobs;
-    
+
     public PipelineInfo() {
         jobs = new ArrayList<JobInfo>();
     }
-    
+
     public PipelineInfo(List<JobInfo> jobs) {
         this.jobs = new ArrayList<JobInfo>(jobs);
     }
-    
+
     public String getId() {
         return id;
     }
@@ -43,7 +44,7 @@ public class PipelineInfo {
     public List<JobInfo> getJobs() {
         return jobs;
     }
-    
+
     public void addJob(JobInfo job) {
         jobs.add(job);
     }
@@ -55,7 +56,7 @@ public class PipelineInfo {
         } catch (IOException ex) {
             Logger.getLogger(PipelineInfo.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return null;
     }
 }

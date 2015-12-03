@@ -28,7 +28,7 @@ public class MscTool {
 //    private static StringBuilder result = new  StringBuilder();
 
     private RpcClient rpcClient;
-    private BioNimbusConfig config ;
+    private BioNimbusConfig config;
 
     public MscTool() {
         initCommunication();
@@ -36,14 +36,15 @@ public class MscTool {
 
     private void initCommunication() {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        
+
         try {
 
             config = mapper.readValue(new File("conf/node.yaml"), BioNimbusConfig.class);
             rpcClient = new AvroClient(config.getRpcProtocol(), config.getHost().getAddress(), config.getRpcPort());
-            if(rpcClient.getProxy().ping())
+            if (rpcClient.getProxy().ping()) {
                 LOG.info("client is connected.");
-            
+            }
+
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(MscTool.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
@@ -51,19 +52,20 @@ public class MscTool {
         }
 
     }
-    
+
     private List<String> readFileNames() throws IOException {
         ArrayList<String> list = new ArrayList<String>();
         String pathHome = System.getProperty("user.dir");
-        String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
-        BufferedReader br = new BufferedReader(new FileReader(path+"inputfiles.txt"));
+        String path = (pathHome.substring(pathHome.length()).equals("/") ? pathHome + "data-folder/" : pathHome + "/data-folder/");
+        BufferedReader br = new BufferedReader(new FileReader(path + "inputfiles.txt"));
         String line;
-        while ((line = br.readLine()) != null)
+        while ((line = br.readLine()) != null) {
             list.add(line);
+        }
         return list;
     }
 
-    private void uploadFile(String name) throws IOException, InterruptedException, Exception{
+    private void uploadFile(String name) throws IOException, InterruptedException, Exception {
         File file = new File(name);
         FileInfo info = new FileInfo();
         info.setName(file.getName());
@@ -81,37 +83,37 @@ public class MscTool {
         List<NodeInfo> nodesdisp = new ArrayList<NodeInfo>();
 
         List<NodeInfo> pluginList = rpcClient.getProxy().getPeersNode();
-        rpcClient.getProxy().setFileInfo(info,"uploadTesteMscTool");
+        rpcClient.getProxy().setFileInfo(info, "uploadTesteMscTool");
         for (NodeInfo plugin : pluginList) {
-            Float prioridade = plugin.getFreesize()*new Float("0,9");
-            if (prioridade>info.getSize()){
+            Float prioridade = plugin.getFreesize() * new Float("0,9");
+            if (prioridade > info.getSize()) {
                 plugin.setLatency(Ping.calculo(plugin.getAddress()));
                 nodesdisp.add(plugin);
-            }    
+            }
         }
         //Retorna a lista dos nos ordenados como melhores, passando a latência calculada
-        nodesdisp = new ArrayList<NodeInfo>(rpcClient.getProxy().callStorage(nodesdisp)); 
+        nodesdisp = new ArrayList<NodeInfo>(rpcClient.getProxy().callStorage(nodesdisp));
 
-        NodeInfo no=null;
+        NodeInfo no = null;
         Iterator<NodeInfo> it = nodesdisp.iterator();
         while (it.hasNext() && no == null) {
-                NodeInfo node = (NodeInfo)it.next();
+            NodeInfo node = (NodeInfo) it.next();
 
-            Put conexao = new Put(node.getAddress(),file.getPath());                
-                if(conexao.startSession()){
-                    no = node;
-                }
+            Put conexao = new Put(node.getAddress(), file.getPath());
+            if (conexao.startSession()) {
+                no = node;
             }
-        if(no != null){
+        }
+        if (no != null) {
             List<String> dest = new ArrayList<String>();
             dest.add(no.getPeerId());
             nodesdisp.remove(no);
 
-            rpcClient.getProxy().fileSent(info,dest);
+            rpcClient.getProxy().fileSent(info, dest);
         }
     }
 
-    public void uploadFiles() throws IOException, InterruptedException,Exception {
+    public void uploadFiles() throws IOException, InterruptedException, Exception {
         List<String> fileNames = readFileNames();
         for (String name : fileNames) {
             uploadFile(name);
@@ -119,9 +121,11 @@ public class MscTool {
     }
 
     private PluginFile getPluginFile(String file, Collection<PluginFile> cloudFiles) throws FileNotFoundException {
-        for (PluginFile pluginFile : cloudFiles)
-            if (pluginFile.getName().equals(file))
+        for (PluginFile pluginFile : cloudFiles) {
+            if (pluginFile.getName().equals(file)) {
                 return pluginFile;
+            }
+        }
         throw new FileNotFoundException(file);
     }
 
@@ -139,7 +143,6 @@ public class MscTool {
         long timeInit = System.currentTimeMillis();
         List<Pipeline> list = getPipelines();
         List<Pipeline> sending = new ArrayList<Pipeline>(list);
-
 
         while (!list.isEmpty()) {
 
@@ -162,20 +165,23 @@ public class MscTool {
                 }
             }
 
-            if ((count > 0) && (count < 4))
+            if ((count > 0) && (count < 4)) {
                 sendJobs(jobs);
+            }
 
             Collection<PluginFile> files = listCloudFiles();
             List<Pipeline> auxList = new ArrayList<Pipeline>(list);
-            
+
             // send next job of a pipeline after the first is done
             for (Pipeline pipeline : auxList) {
                 String file = pipeline.getCurrentOutput();
-                if (file == null)
+                if (file == null) {
                     continue;
+                }
                 for (PluginFile pluginFile : files) {
-                    if (!pluginFile.getName().equals(file))
+                    if (!pluginFile.getName().equals(file)) {
                         continue;
+                    }
                     JobInfo job = pipeline.nextJob(pluginFile);
                     if (job != null) {
                         List<JobInfo> jobList = new ArrayList<JobInfo>();
@@ -190,9 +196,9 @@ public class MscTool {
 
             TimeUnit.SECONDS.sleep(10);
         }
-        long timeExec = (System.currentTimeMillis() - timeInit)/1000;
+        long timeExec = (System.currentTimeMillis() - timeInit) / 1000;
 //        result.append("\nTempo de execução :").append(result);
-        LOG.info("Pipeline - Tempo de envio para execução: "+timeExec);
+        LOG.info("Pipeline - Tempo de envio para execução: " + timeExec);
         try {
             rpcClient.close();
         } catch (Exception ex) {
@@ -200,15 +206,15 @@ public class MscTool {
         }
     }
 
-    private Collection<PluginFile> listCloudFiles() throws InterruptedException ,IOException{
+    private Collection<PluginFile> listCloudFiles() throws InterruptedException, IOException {
 //        communication.sendReq(new ListReqMessage(p2p.getPeerNode()), P2PMessageType.LISTRESP);
 //        ListRespMessage listResp = (ListRespMessage) communication.getResp();
-        Collection<PluginFile> collection = new ArrayList<PluginFile> ();
-        for(br.unb.cic.bionimbus.avro.gen.PluginFile info : rpcClient.getProxy().listFiles()){
+        Collection<PluginFile> collection = new ArrayList<PluginFile>();
+        for (br.unb.cic.bionimbus.avro.gen.PluginFile info : rpcClient.getProxy().listFiles()) {
             PluginFile file = new PluginFile();
             file.setId(info.getId());
             file.setName(info.getName());
-            file.setPath("data-folder/"+info.getPath());
+            file.setPath("data-folder/" + info.getPath());
             file.setPluginId(info.getPluginId());
             file.setSize(info.getSize());
             collection.add(file);
@@ -216,19 +222,19 @@ public class MscTool {
         return collection;
     }
 
-    private void sendJobs(List<JobInfo> jobs) throws InterruptedException,IOException {
+    private void sendJobs(List<JobInfo> jobs) throws InterruptedException, IOException {
 //        communication.sendReq(new JobReqMessage(p2p.getPeerNode(), jobs), P2PMessageType.JOBRESP);
 //        JobRespMessage resp = (JobRespMessage) communication.getResp();
         List<br.unb.cic.bionimbus.avro.gen.JobInfo> listjob = new ArrayList<br.unb.cic.bionimbus.avro.gen.JobInfo>();
-        for(JobInfo jobInfo : jobs){
+        for (JobInfo jobInfo : jobs) {
             br.unb.cic.bionimbus.avro.gen.JobInfo job = new br.unb.cic.bionimbus.avro.gen.JobInfo();
             job.setArgs(jobInfo.getArgs());
             job.setId(jobInfo.getId());
             job.setLocalId(config.getHost().getAddress());
             job.setServiceId(jobInfo.getServiceId());
             job.setTimestamp(jobInfo.getTimestamp());
-            List<Pair> listPair =  new ArrayList<Pair>();
-            for(br.unb.cic.bionimbus.utils.Pair<String,Long> pairInfo : jobInfo.getInputs()){
+            List<Pair> listPair = new ArrayList<Pair>();
+            for (br.unb.cic.bionimbus.utils.Pair<String, Long> pairInfo : jobInfo.getInputs()) {
                 Pair pair = new Pair();
                 pair.first = pairInfo.first;
                 pair.second = pairInfo.second;
@@ -236,7 +242,7 @@ public class MscTool {
             }
             job.setInputs(listPair);
             job.setOutputs(jobInfo.getOutputs());
-            
+
             listjob.add(job);
         }
 
@@ -252,7 +258,7 @@ public class MscTool {
         try {
             //tool.uploadFiles();
             tool.runJobs();
-            
+
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

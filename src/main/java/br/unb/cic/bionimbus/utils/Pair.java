@@ -27,8 +27,9 @@ public class Pair<F, S> {
     }
 
     public boolean equals(Object object) {
-        if (this == object)
+        if (this == object) {
             return true;
+        }
 
         if (!(object instanceof Pair)) {
             return false;

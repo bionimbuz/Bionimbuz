@@ -59,7 +59,7 @@ public class AvroServer implements RpcServer {
             Server httpServer = new Server(port);
 
             SpecificResponder responder = new SpecificResponder(BioProto.class, bioProto);
-            
+
             // QueuedThreadPool is jetty's thread pool implementation;
             // this lets us give it a name.
             QueuedThreadPool qtp = new QueuedThreadPool();
@@ -68,13 +68,13 @@ public class AvroServer implements RpcServer {
             qtp.setMaxThreads(maxThreads);
             qtp.setMaxIdleTimeMs(maxIdleTimeMs);
             httpServer.setThreadPool(qtp);
-            
+
             // Creates Responder Servlet
             Servlet servlet = new ResponderServlet(responder);
-            
+
             // Creates Context adding a holder
             new Context(httpServer, "/").addServlet(new ServletHolder(servlet), "/*");
-            
+
             // Return the early created Server
             return httpServer;
         } catch (Exception e) {

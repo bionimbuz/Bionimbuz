@@ -13,43 +13,43 @@ public class BioNimbusConfig {
 
 //    @JsonIgnore
     private String id;
-    
+
     @JsonIgnore
     private String infra;
-    
+
     @JsonIgnore
     private String address;
-    
+
     @JsonIgnore
     private String plugin;
-    
+
     //retirar seeds
     @JsonIgnore
-   private Set<Host> seeds = new HashSet<Host>();
-    
+    private Set<Host> seeds = new HashSet<Host>();
+
     @JsonIgnore
     private boolean client = false;
-  
+
     @JsonProperty("private_cloud")
     private int privateCloud;
-    
+
     @JsonProperty("rpc_protocol")
     private String rpcProtocol;
-    
+
     @JsonProperty("rpc_port")
     private Integer rpcPort;
-    
+
     @JsonProperty("cost_per_giga")
     private double costpergiga;
-    
+
     @JsonProperty("zookeeper_hosts")
     private String zkHosts;
     //retirar Host
     private Host host;
-    
+
     @JsonProperty("server-path")
     private String serverPath = "";
-    
+
     private String proxyHost = "localhost";
     private int proxyPort = 8080;
 
@@ -93,7 +93,6 @@ public class BioNimbusConfig {
         this.proxyPort = proxyPort;
     }
 
-    
     public String getInfra() {
         return infra;
     }
@@ -105,6 +104,7 @@ public class BioNimbusConfig {
     public void setHost(Host host) {
         this.host = host;
     }
+
     public Host getHost() {
         return host;
     }
@@ -140,7 +140,7 @@ public class BioNimbusConfig {
     public void setCostPerGiga(double costpergiga) {
         this.costpergiga = costpergiga;
     }
-    
+
     public String getServerPath() {
         return serverPath;
     }
@@ -177,12 +177,10 @@ public class BioNimbusConfig {
         this.privateCloud = privateCloud;
     }
 
-    
-    
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-//                .add("id", id)
+                //                .add("id", id)
                 .add("rpc-protocol", rpcProtocol)
                 .add("rpc-port", rpcPort)
                 .add("zkHosts", zkHosts)

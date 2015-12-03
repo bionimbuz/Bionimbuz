@@ -9,6 +9,7 @@ import com.jcraft.jsch.SftpException;
 
 /**
  * Classe com os metodos para a realização de um upload na federação
+ *
  * @author Deric
  */
 public class Put {
@@ -32,9 +33,11 @@ public class Put {
     }
 
     /**
-     * Método que realiza a conexão entre o cliente e o servidor ou entre servidores,
-     * para upar um arquivo em um peer.
-     * @return - true se o upload foi realizado com sucesso, false caso contrário
+     * Método que realiza a conexão entre o cliente e o servidor ou entre
+     * servidores, para upar um arquivo em um peer.
+     *
+     * @return - true se o upload foi realizado com sucesso, false caso
+     * contrário
      * @throws JSchException
      * @throws SftpException
      */
@@ -61,9 +64,9 @@ public class Put {
              */
             //sftpChannel.chmod(777, path);
             System.out.println("\n Uploading file.....\n\n\n");
-                sftpChannel.put(path, pathDest);
-                sftpChannel.exit();
-                session.disconnect();
+            sftpChannel.put(path, pathDest);
+            sftpChannel.exit();
+            session.disconnect();
 
         } catch (JSchException a) {
             return false;
