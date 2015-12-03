@@ -55,11 +55,12 @@ public class UserResource extends BaseResource {
 
         try {
             responseUser = userDao.findByLogin(requestUser.getLogin());
+            
         } catch (NoResultException e) {
             LOGGER.info("User " + requestUser.getLogin() + " not found");
+            
         } catch (Exception e) {
-            LOGGER.error("[Exception] UserResource.login()");
-            e.printStackTrace();
+            LOGGER.error("[Exception - " + e.getMessage() + "] UserResource.login()");
         }
 
         if (responseUser != null && (requestUser.getPassword().equals(responseUser.getPassword()))) {
