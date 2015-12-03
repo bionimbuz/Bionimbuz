@@ -19,6 +19,7 @@ import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
 import br.unb.cic.bionimbus.toSort.Listeners;
 
 import static com.google.inject.Guice.createInjector;
+import java.net.InetAddress;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -71,6 +72,9 @@ public class BioNimbus {
         final String configFile = System.getProperty("config.file", "conf/node.yaml");
         BioNimbusConfig config = loadHostConfig(configFile);
 
+        // !!! MEDIDA PALEATIVA !!! Para nao ter que trocar o node.yaml toda vez
+        config.setZkConnString(InetAddress.getLocalHost().getHostAddress() + ":2181");
+        
         LOGGER.debug("config = " + config);
 
         new BioNimbus(config);
