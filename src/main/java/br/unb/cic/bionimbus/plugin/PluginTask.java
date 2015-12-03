@@ -11,13 +11,13 @@ import org.codehaus.jackson.map.ObjectMapper;
 public class PluginTask implements PluginOps {
 
     private PluginTaskState state = PluginTaskState.WAITING;
-    
+
     private Float tempExec = 0f;
-    
+
     private String pluginExec;
 
     private String id = UUID.randomUUID().toString();
-    
+
     private String pluginTaskPathZk;
 
     private JobInfo jobInfo;
@@ -61,11 +61,12 @@ public class PluginTask implements PluginOps {
     public void setPluginExec(String pluginExec) {
         this.pluginExec = pluginExec;
     }
-    
+
     @Override
     public boolean equals(Object object) {
-        if (this == object)
+        if (this == object) {
             return true;
+        }
 
         if (!(object instanceof PluginTask)) {
             return false;
@@ -81,7 +82,6 @@ public class PluginTask implements PluginOps {
         return id.hashCode();
     }
 
-
     @Override
     public String toString() {
         try {
@@ -89,7 +89,7 @@ public class PluginTask implements PluginOps {
         } catch (IOException ex) {
             Logger.getLogger(JobInfo.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return null;
     }
 }

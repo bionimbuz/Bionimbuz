@@ -1,7 +1,7 @@
 /*
 * To change this template, choose Tools | Templates
 * and open the template in the editor.
-*/
+ */
 package br.unb.cic.bionimbus.services.storage;
 
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
@@ -24,32 +24,31 @@ import org.codehaus.jackson.map.ObjectMapper;
  * @author deric
  */
 public class StoragePolicy {
-    
+
     private double peso_latency = 0.5;
     private double peso_space = 0.2;
     private double peso_uptime = 0.3;
     private List<NodeInfo> nodes = new ArrayList<NodeInfo>();
     Collection<PluginInfo> best = new ArrayList<PluginInfo>();
-    
+
     /**
      * Calcular o custo de armazenamento de uma nuvem //ta passando so 1 plugin
      *
      * @param zkService
      * @param pluginList
-     * @return 
+     * @return
      */
     public List<NodeInfo> calcBestCost(CloudMessageService cms, Collection<PluginInfo> pluginList) {
-        
+
         double cost;
         double uptime;
         double freesize;
         double costpergiga = 0;
-        
+
         /*
         * Calculando os custos de armazenamento dos peers
         * Custo = (Espaço livre + Uptime) * Latencia
-        */
-        
+         */
         for (PluginInfo plugin : pluginList) {
             String datastring = cms.getData(cms.getPath().PREFIX_PEER.getFullPath(plugin.getId()), null);
             try {
@@ -58,7 +57,7 @@ public class StoragePolicy {
             } catch (IOException ex) {
                 Logger.getLogger(StoragePolicy.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
+
             uptime = plugin.getUptime() / 1000;
             freesize = (plugin.getFsFreeSize() / 1024 / 1024 / 1024);
             cost = (((freesize * peso_space)
@@ -67,20 +66,20 @@ public class StoragePolicy {
             cost = cost + costpergiga;
             /*
             * Seta o custo de armazenamento no peer
-            */
+             */
             plugin.setStorageCost(cost);
             cms.setData(plugin.getPath_zk(), plugin.toString());
         }
         /*
         * Converte o tipo de list para facilitar o ordenamento dos dados
-        */
+         */
         List<PluginInfo> plugin = SwapTypePlugin(pluginList);
         sortPlugins(plugin);
-        
+
         /*
         * Converte a lista ordenada em NodeInfo, um objeto menor e que contem somente os dados necessarios
         * para a resolução da politica de armazenamento
-        */
+         */
         for (PluginInfo plug : plugin) {
             NodeInfo node = new NodeInfo();
             node.setAddress(plug.getHost().getAddress());
@@ -90,9 +89,9 @@ public class StoragePolicy {
         }
 
         return nodes;
-        
+
     }
-    
+
     /**
      * Sort para ordenar os melhores peers para armazenar os dados de acordo com
      * o custo de armazenamento das nuvens.
@@ -101,10 +100,10 @@ public class StoragePolicy {
      * @return
      */
     public List<PluginInfo> sortPlugins(List<PluginInfo> plugins) {
-        
+
         /*
         * Metodo Sort para ordenar os plugins de acordo com o custo de armazenamento
-        */
+         */
         Collections.sort(plugins, new Comparator() {
             @Override
             public int compare(Object o1, Object o2) {
@@ -113,10 +112,10 @@ public class StoragePolicy {
                 return p1.getStorageCost() < p2.getStorageCost() ? -1 : (p1.getStorageCost() > p2.getStorageCost() ? +1 : 0);
             }
         });
-        
+
         return plugins;
     }
-    
+
     /**
      * Método para receber a map com os plugins e converter em List, para ficar
      * mais fácil o tratamento dos dados
@@ -126,7 +125,7 @@ public class StoragePolicy {
      */
     public List<PluginInfo> SwapTypePlugin(Collection<PluginInfo> plugins) {
         List<PluginInfo> plugin = new ArrayList<PluginInfo>();
-        
+
         for (PluginInfo pluginInfo : plugins) {
             plugin.add(pluginInfo);
         }

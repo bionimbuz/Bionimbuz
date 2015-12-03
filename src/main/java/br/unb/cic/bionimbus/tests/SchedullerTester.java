@@ -52,14 +52,15 @@ public class SchedullerTester {
         try {
             Enumeration<InetAddress> inet = NetworkInterface.getByName("wlan0").getInetAddresses();
             String ip = "";
-            while (inet.hasMoreElements())
+            while (inet.hasMoreElements()) {
                 ip = inet.nextElement().toString();
-            cms.connect(ip.substring(1)+":2181");
+            }
+            cms.connect(ip.substring(1) + ":2181");
         } catch (SocketException ex) {
             java.util.logging.Logger.getLogger(SchedullerTester.class.getName()).log(Level.SEVERE, null, ex);
         }
         rs = new RepositoryService(cms);
-        
+
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
         try {
@@ -76,17 +77,19 @@ public class SchedullerTester {
         }
 
     }
-    
-    public void addServices (List<PluginService> services) {
-        for (PluginService service : services)
+
+    public void addServices(List<PluginService> services) {
+        for (PluginService service : services) {
             rs.addServiceToZookeeper(service);
+        }
     }
-    
-    public void addResources (List<PluginInfo> resources) {
-        for (PluginInfo resource : resources)
+
+    public void addResources(List<PluginInfo> resources) {
+        for (PluginInfo resource : resources) {
             rs.addPeerToZookeeper(resource);
+        }
     }
-    
+
     public void sendJobs(PipelineInfo pipeline) throws InterruptedException, IOException {
 //        communication.sendReq(new JobReqMessage(p2p.getPeerNode(), jobs), P2PMessageType.JOBRESP);
 //        JobRespMessage resp = (JobRespMessage) communication.getResp();
@@ -111,7 +114,7 @@ public class SchedullerTester {
 
             listjob.add(job);
         }
-        
+
         br.unb.cic.bionimbus.avro.gen.PipelineInfo avroPipeline = new br.unb.cic.bionimbus.avro.gen.PipelineInfo();
         avroPipeline.setId(pipeline.getId());
         avroPipeline.setJobs(listjob);
@@ -126,8 +129,8 @@ public class SchedullerTester {
             System.out.println(event);
         }
     }
-    
-    public static class SendPipeline implements Watcher  {
+
+    public static class SendPipeline implements Watcher {
 
         private final CloudMessageService cms;
         private final SchedullerTester st;
@@ -143,12 +146,13 @@ public class SchedullerTester {
 
         /**
          * Recebe as notificações de evento do zookeeper.
+         *
          * @param event evento que identifica a mudança realizada no zookeeper
          */
         @Override
-        public void process(WatchedEvent event){
+        public void process(WatchedEvent event) {
             System.out.println("[SentPipeline] Event got: " + event.toString());
-            switch(event.getType()){
+            switch (event.getType()) {
                 case NodeDeleted:
                     try {
                         if (!remaining.isEmpty()) {
@@ -160,7 +164,8 @@ public class SchedullerTester {
                             // set new watcher with remaining pipelines
                             remaining.remove(pipeline);
                             System.out.println("[SentPipeline] Pipeline " + pipeline.getId() + " sent, " + remaining.size() + " remaining");
-                            while(!cms.getZNodeExist(Path.PREFIX_PIPELINE.getFullPath(pipeline.getId()), null)){}
+                            while (!cms.getZNodeExist(Path.PREFIX_PIPELINE.getFullPath(pipeline.getId()), null)) {
+                            }
                             cms.getChildren(Path.PREFIX_PIPELINE.getFullPath(pipeline.getId()), new SendPipeline(cms, st, remaining, pipeline.getId()));
                         } else {
                             System.out.println("[SentPipeline] No more pipelines");
@@ -175,13 +180,13 @@ public class SchedullerTester {
                     System.out.println("[SendPipeline] Received other event: " + event.getPath());
 
             }
-        } 
+        }
     }
-    
+
     public static void main(String[] args) throws InterruptedException, IOException {
         SchedullerTester tester = new SchedullerTester();
         boolean fileTest = false;
-        
+
         FromMockFileTestGenerator gen = new FromMockFileTestGenerator();
         List<PipelineInfo> pipelines = gen.getPipelinesTemplates();
         List<PluginService> services = gen.getServicesTemplates();
@@ -198,7 +203,6 @@ public class SchedullerTester {
 //            PrintWriter rwr = new PrintWriter("resources.txt", "UTF-8");
 //            for (PluginInfo r : resources)
 //                rwr.println(r.toString());
-
         // add data to zookeeper
         tester.addServices(services);
 //        tester.addResources(resources);
@@ -212,11 +216,13 @@ public class SchedullerTester {
         System.out.println("[SchedTester] First pipeline " + fst.getId() + " with " + fst.getJobs().size() + " jobs sent, " + pipelines.size() + " remaining");
 
         // busy waiting to wait for node to exists
-        while(!tester.cms.getZNodeExist(Path.PREFIX_PIPELINE.getFullPath(fst.getId()), null)){
-        System.out.println("[SchedTester] waiting node creation");}
+        while (!tester.cms.getZNodeExist(Path.PREFIX_PIPELINE.getFullPath(fst.getId()), null)) {
+            System.out.println("[SchedTester] waiting node creation");
+        }
         tester.cms.getChildren(Path.PREFIX_PIPELINE.getFullPath(fst.getId()), new SendPipeline(tester.cms, tester, pipelines, fst.getId()));
 
         System.out.println("[SchedTester] waiting forever");
-        while(true){}
+        while (true) {
+        }
     }
 }

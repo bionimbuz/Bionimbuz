@@ -54,8 +54,9 @@ public class CloserTool {
         int readsWritten = 0;
         while ((readsWritten < readChunk * 2)
                 && ((line = br.readLine()) != null)) {
-            if (readsWritten < readChunk)
+            if (readsWritten < readChunk) {
                 w1.write(line + "\n");
+            }
             w2.write(line + "\n");
 
             count++;
@@ -73,10 +74,10 @@ public class CloserTool {
         List<NodeInfo> pluginList;
         List<NodeInfo> nodesdisp = new ArrayList<NodeInfo>();
         Double MAXCAPACITY = 0.9;
-        List<File> files = new  ArrayList<File>();
-        
+        List<File> files = new ArrayList<File>();
+
         File file0 = new File(filename);
-        
+
         int numLines = getFileNumLines(file0);
         writeSmallerFiles(file0, numLines);
         File file1 = new File(file0.getAbsolutePath() + ".1");
@@ -85,8 +86,8 @@ public class CloserTool {
         files.add(file1);
         files.add(file2);
 
-        for(File file : files){
-            if (file.exists()){
+        for (File file : files) {
+            if (file.exists()) {
 
                 br.unb.cic.bionimbus.avro.gen.FileInfo info = new br.unb.cic.bionimbus.avro.gen.FileInfo();
                 String path = file.getPath();
@@ -96,11 +97,11 @@ public class CloserTool {
                 info.setSize(file.length());
 
                 //verifica se existi, e se existir vefica se é do mesmo tamanho
-            if (rpcClient.getProxy().getIpFile(info.getName()).isEmpty() || (!rpcClient.getProxy().getIpFile(info.getName()).isEmpty()
-                    && rpcClient.getProxy().checkFileSize(info.getName()) != info.getSize())){
+                if (rpcClient.getProxy().getIpFile(info.getName()).isEmpty() || (!rpcClient.getProxy().getIpFile(info.getName()).isEmpty()
+                        && rpcClient.getProxy().checkFileSize(info.getName()) != info.getSize())) {
                     System.out.println("\n Calculando Latencia.....");
                     pluginList = rpcClient.getProxy().getPeersNode();
-                    rpcClient.getProxy().setFileInfo(info,"upload!");
+                    rpcClient.getProxy().setFileInfo(info, "upload!");
                     for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
                         NodeInfo plugin = it.next();
                         /*
@@ -117,7 +118,6 @@ public class CloserTool {
                      * Retorna a lista dos nos ordenados como melhores, passando a latência calculada
                      */
                     nodesdisp = new ArrayList<NodeInfo>(rpcClient.getProxy().callStorage(nodesdisp));
-
 
                     NodeInfo no = null;
                     Iterator<NodeInfo> it = nodesdisp.iterator();
@@ -140,12 +140,12 @@ public class CloserTool {
                          * os dados do arquivo que foi upado.
                          */
                         rpcClient.getProxy().fileSent(info, dest);
-                        LOG.info( "\n Upload Completed!!");
+                        LOG.info("\n Upload Completed!!");
                     }
 
                 } else {
-                    LOG.info("\n\n Já existe o arquivo"+ file.getName()+"com mesmo nome e tamanho na federação !!!");
-                }   
+                    LOG.info("\n\n Já existe o arquivo" + file.getName() + "com mesmo nome e tamanho na federação !!!");
+                }
             }
         }
     }
@@ -156,9 +156,9 @@ public class CloserTool {
         try {
             config = mapper.readValue(new File("conf/node.yaml"), BioNimbusConfig.class);
             rpcClient = new AvroClient(config.getRpcProtocol(), config.getHost().getAddress(), config.getRpcPort());
-            if(rpcClient.getProxy().ping()){
+            if (rpcClient.getProxy().ping()) {
                 LOG.info("client is connected.");
-            }else{
+            } else {
                 LOG.info("client isn't connected.");
                 return;
             }
@@ -167,7 +167,6 @@ public class CloserTool {
         }
 
         TimeUnit.SECONDS.sleep(40);
-         
 
         List<JobInfo> jobList = new ArrayList<JobInfo>();
         for (int i = 0; i < numJobs; i++) {
@@ -176,29 +175,28 @@ public class CloserTool {
             job.setId(null);
             job.setServiceId("1001");
             job.setArgs("%O1 e_coli %I1");
-            if ((i % 3) == 0){
+            if ((i % 3) == 0) {
                 pairs.add(new Pair(idFull, Long.valueOf(0)));
-            }else if ((i % 3) == 1){
+            } else if ((i % 3) == 1) {
                 pairs.add(new Pair(idMedium, Long.valueOf(0)));
-            }else if ((i % 3) == 2){
+            } else if ((i % 3) == 2) {
                 pairs.add(new Pair(idSmall, Long.valueOf(0)));
-                
+
             }
-            
+
             job.setInputs(pairs);
-            
-            List<String>  listOut =new ArrayList<String>();
+
+            List<String> listOut = new ArrayList<String>();
             listOut.add("output-" + i + ".txt");
             job.setOutputs(listOut);
-            
-            
+
             jobList.add(job);
-            
+
         }
 
         LOG.info("Enviando " + jobList.size() + " jobs.");
 //        String saida = rpcClient.getProxy().startJob(jobList,"");
-        
+
 //        LOG.info("Job " + saida + " started succesfully");
     }
 

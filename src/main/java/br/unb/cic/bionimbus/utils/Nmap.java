@@ -16,7 +16,8 @@ import java.util.regex.Pattern;
  * @author zoonimbus
  */
 public class Nmap {
-     /**
+
+    /**
      * Método para realizar um ping no ip de destino para que seja calculada a
      * latência.
      *
@@ -33,12 +34,12 @@ public class Nmap {
         String teste;
         Matcher matcher;
         Runtime r = Runtime.getRuntime();
-        Process p = r.exec(new String []{"nmap",host});
-        BufferedReader in = new BufferedReader(new  InputStreamReader(p.getInputStream()));
+        Process p = r.exec(new String[]{"nmap", host});
+        BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
         Pattern pattern = Pattern.compile("(?<=\\().*.(?=s latency)");
-        
+
         TimeUnit.MILLISECONDS.sleep(500);
-        if(in.ready()){
+        if (in.ready()) {
             while ((teste = in.readLine()) != null && times < 4) {
                 if (times == 3) {
                     matcher = pattern.matcher(teste);
@@ -52,11 +53,10 @@ public class Nmap {
                         System.out.println("I didn't found the text");
                     }
                 }
-                times+=1;
+                times += 1;
             }
         }
         p.destroy();
         return Double.MAX_VALUE;
     }
 }
-

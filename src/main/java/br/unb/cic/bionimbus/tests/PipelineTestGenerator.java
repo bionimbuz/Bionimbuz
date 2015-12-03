@@ -16,51 +16,53 @@ import java.util.List;
  * @author willian
  */
 public abstract class PipelineTestGenerator {
-    
+
     protected List<PipelineInfo> pipelinesTemplates;
     protected List<PluginService> servicesTemplates;
     protected List<PluginInfo> resourceTemplates;
-    
-    protected abstract void generatePipelineTemplates();    
+
+    protected abstract void generatePipelineTemplates();
+
     protected abstract void generateResourcesTemplates();
+
     protected abstract void generateServicesTemplates();
 
-    public List<PipelineInfo> getPipelinesTemplates () {
+    public List<PipelineInfo> getPipelinesTemplates() {
         if (pipelinesTemplates == null) {
             pipelinesTemplates = new ArrayList<PipelineInfo>();
             generatePipelineTemplates();
         }
-        
+
         return pipelinesTemplates;
     }
-    
-    public List<PluginService> getServicesTemplates () {
+
+    public List<PluginService> getServicesTemplates() {
         if (servicesTemplates == null) {
             servicesTemplates = new ArrayList<PluginService>();
             generateServicesTemplates();
         }
-        
+
         return servicesTemplates;
     }
-    
-    public List<PluginInfo> getResourceTemplates () {
+
+    public List<PluginInfo> getResourceTemplates() {
         if (resourceTemplates == null) {
             resourceTemplates = new ArrayList<PluginInfo>();
             generateResourcesTemplates();
         }
-        
+
         return resourceTemplates;
     }
-    
+
     // main implemented solely to test the tests generator
     public static void main(String[] args) {
         PipelineTestGenerator gen = new FromMockFileTestGenerator();
-        
+
         System.out.println("Pipeline size: " + gen.getPipelinesTemplates().size());
         System.out.println("Services size: " + gen.getServicesTemplates().size());
         System.out.println("Resource size: " + gen.getResourceTemplates().size());
-        
-        int i=0;
+
+        int i = 0;
         for (PipelineInfo p : gen.getPipelinesTemplates()) {
             System.out.print(p.getJobs().size() + ",");
             //System.out.println("Pipeline " + i + " - size: " + p.getJobs().size());

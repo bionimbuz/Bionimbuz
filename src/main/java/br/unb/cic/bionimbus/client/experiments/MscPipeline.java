@@ -46,7 +46,6 @@ public class MscPipeline implements Pipeline {
 //        job.addInput("s1.fa", new Long(114503237));
 //        job.addOutput(outputFiles.get(1));
 //        jobs.add(job);
-        
         // sam2bed
         job = new JobInfo(null);
         job.setArgs("%I1%O1");
@@ -55,7 +54,6 @@ public class MscPipeline implements Pipeline {
         job.setServiceId("1112");
         job.addOutput(outputFiles.get(1));
         jobs.add(job);
-      
 
         // genome2interval
         job = new JobInfo(null);
@@ -80,8 +78,9 @@ public class MscPipeline implements Pipeline {
 
     @Override
     public String getCurrentOutput() {
-        if (stage == -1)
+        if (stage == -1) {
             return null;
+        }
         return outputFiles.get(stage);
     }
 
@@ -106,11 +105,12 @@ public class MscPipeline implements Pipeline {
                 auxJob.addInput(pluginFile.getId(), pluginFile.getSize());
             }
             job = jobs.get(stage);
-            if (pluginFile != null && stage != 2)
-                // adicionamos a saida de um passo como entrada do seguinte
-                // menos a saida do sam2bed, que nao e' entrada para o passo seguinte (genome2interval),
-                // mas somente para o alem desse (coverageBed).
+            if (pluginFile != null && stage != 2) // adicionamos a saida de um passo como entrada do seguinte
+            // menos a saida do sam2bed, que nao e' entrada para o passo seguinte (genome2interval),
+            // mas somente para o alem desse (coverageBed).
+            {
                 job.addInput(pluginFile.getId(), pluginFile.getSize());
+            }
         }
         return job;
     }

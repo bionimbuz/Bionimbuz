@@ -22,11 +22,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
-
 public abstract class AbstractPlugin implements Plugin, Runnable {
 
     private String id;
-    
+
     private BioNimbusConfig config;
 
     private Future<PluginInfo> futureInfo = null;
@@ -52,7 +51,7 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
     private final ConcurrentMap<String, Pair<String, Integer>> inputFiles = new ConcurrentHashMap<String, Pair<String, Integer>>();
 
     private final ConcurrentMap<String, PluginFile> pluginFiles = new ConcurrentHashMap<String, PluginFile>();
-        
+
     @Inject
     public AbstractPlugin(final BioNimbusConfig config) throws IOException {
         //id provisório
@@ -70,10 +69,10 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
 
 //    private String getId() {
     public String getId() {
-        
+
         return id;
     }
-    
+
     public BioNimbusConfig getConfig() {
         return config;
     }
@@ -89,21 +88,20 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
     public PluginInfo getMyInfo() {
         return myInfo;
     }
+
     //private void setMyInfo(PluginInfo info) {
     public void setMyInfo(PluginInfo info) {
         myInfo = info;
 
     }
 
-
     private void setErrorString(String errorString) {
         this.errorString = errorString;
     }
 
-
     @Override
     public void start() {
-        
+
         schedExecutorService.scheduleAtFixedRate(this, 0, 3, TimeUnit.SECONDS);
     }
 
@@ -123,18 +121,20 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
 
     private void checkGetInfo() {
         myCount++;
-        if (myCount < 10)
+        if (myCount < 10) {
             return;
+        }
         myCount = 0;
 
-        Future<PluginInfo> futureinfo= getFutureInfo();
+        Future<PluginInfo> futureinfo = getFutureInfo();
         if (futureInfo == null) {
             setFutureInfo(startGetInfo());
             return;
         }
 
-        if (!futureInfo.isDone())
+        if (!futureInfo.isDone()) {
             return;
+        }
 
         try {
             PluginInfo newInfo = futureInfo.get();
@@ -159,8 +159,9 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
         for (Pair<PluginTask, Future<PluginTask>> pair : executingTasks.values()) {
             futureTask = pair.second;
 
-            if (!futureTask.isDone())
+            if (!futureTask.isDone()) {
                 continue;
+            }
 
             try {
                 task = futureTask.get();
@@ -184,7 +185,7 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
                     count++;
                 }
                 endingTasks.put(task.getId(), new Pair<PluginTask, Integer>(task, count));
-            } 
+            }
         }
     }
 
@@ -192,9 +193,10 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
 
         for (Future<PluginFile> f : pendingSaves) {
 
-            if (!f.isDone())
+            if (!f.isDone()) {
                 continue;
-                
+            }
+
             try {
                 PluginFile file = f.get();
                 List<String> pluginIds = new ArrayList<String>();
@@ -216,8 +218,9 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
 
         for (Future<PluginGetFile> f : pendingGets) {
 
-            if (!f.isDone())
+            if (!f.isDone()) {
                 continue;
+            }
 
             try {
                 PluginGetFile get = f.get();

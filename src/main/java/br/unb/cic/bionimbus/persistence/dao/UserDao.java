@@ -15,6 +15,7 @@ public class UserDao extends BaseDao<User> {
 
     /**
      * Persists a new user
+     *
      * @param user
      */
     @Override
@@ -44,6 +45,7 @@ public class UserDao extends BaseDao<User> {
 
     /**
      * Updates an User
+     *
      * @param user
      */
     @Override
@@ -53,6 +55,7 @@ public class UserDao extends BaseDao<User> {
 
     /**
      * Deletes an User
+     *
      * @param user
      */
     @Override
@@ -62,8 +65,9 @@ public class UserDao extends BaseDao<User> {
 
     /**
      * Finds an user by ID
+     *
      * @param id
-     * @return 
+     * @return
      */
     @Override
     public User findById(Long id) {

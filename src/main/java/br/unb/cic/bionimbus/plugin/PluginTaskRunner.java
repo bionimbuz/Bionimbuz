@@ -17,19 +17,17 @@ public class PluginTaskRunner implements Callable<PluginTask> {
     private final PluginService service;
     private final String path;
     private final CloudMessageService cms;
-    private final String PATHFILES="/data-folder/";
+    private final String PATHFILES = "/data-folder/";
     private static final Logger LOGGER = LoggerFactory.getLogger(PluginTaskRunner.class.getSimpleName());
 
-
     public PluginTaskRunner(AbstractPlugin plugin, PluginTask task,
-                            PluginService service, String path,CloudMessageService cms) {
+            PluginService service, String path, CloudMessageService cms) {
         this.service = service;
         this.task = task;
         this.path = path;
         this.cms = cms;
     }
 
-    
     @Override
     public PluginTask call() throws Exception {
 
@@ -40,14 +38,14 @@ public class PluginTaskRunner implements Callable<PluginTask> {
             String input = pair.first;
             //linha comentada pois arquivos de entrada não ficam mais no AbstractPlugin
 //            args = args.replaceFirst("%I" + i, path + File.pathSeparator + plugin.getInputFiles().get(input).first);
-            args = args.replaceFirst("%I" + i, path+PATHFILES + input+" ");
+            args = args.replaceFirst("%I" + i, path + PATHFILES + input + " ");
             i++;
         }
 
         List<String> outputs = task.getJobInfo().getOutputs();
         i = 1;
         for (String output : outputs) {
-            args = args.replaceFirst("%O" + i, " "+path+PATHFILES + output);
+            args = args.replaceFirst("%O" + i, " " + path + PATHFILES + output);
             i++;
         }
         Process p;
@@ -56,37 +54,39 @@ public class PluginTaskRunner implements Callable<PluginTask> {
 //                        p = Runtime.getRuntime().exec(path+service.getPath().substring(1,service.getPath().length()) + " " + args);
 
             task.setState(PluginTaskState.RUNNING);
-           
-            if(cms!=null)
+
+            if (cms != null) {
                 cms.setData(Path.PREFIX_TASK.getFullPath(task.getPluginExec(), task.getJobInfo().getId()), task.toString());
-            
+            }
+
             BufferedReader saidaSucesso = new BufferedReader(new InputStreamReader(p.getInputStream()));
             BufferedReader saidaErro = new BufferedReader(new InputStreamReader(p.getErrorStream()));
             String line;
-            int j=0;
-            while ((line = saidaSucesso.readLine()) != null && j<6) {
-                System.out.println("Job "+task.getJobInfo().getId()+". Saída: "+line);
+            int j = 0;
+            while ((line = saidaSucesso.readLine()) != null && j < 6) {
+                System.out.println("Job " + task.getJobInfo().getId() + ". Saída: " + line);
                 j++;
-                
+
             }
             while ((line = saidaErro.readLine()) != null) {
-                LOGGER.error("ERRO job ID:" + task.getJobInfo().getId()+"-  Arquivo de saída: "+task.getJobInfo().getOutputs()+", Resposta :"+line);
+                LOGGER.error("ERRO job ID:" + task.getJobInfo().getId() + "-  Arquivo de saída: " + task.getJobInfo().getOutputs() + ", Resposta :" + line);
 
             }
-            
-            if(p.waitFor()==0){
-                long time =System.currentTimeMillis();
+
+            if (p.waitFor() == 0) {
+                long time = System.currentTimeMillis();
                 task.setTimeExec(((float) (time - task.getJobInfo().getTimestamp()) / 1000));
-                LOGGER.info("Tempo final do job de saída: "+task.getJobInfo().getOutputs()+" - MileSegundos: " + time);
+                LOGGER.info("Tempo final do job de saída: " + task.getJobInfo().getOutputs() + " - MileSegundos: " + time);
 
                 task.setState(PluginTaskState.DONE);
-            }else {
+            } else {
                 task.setTimeExec(((float) (System.currentTimeMillis() - task.getJobInfo().getTimestamp()) / 1000));
                 task.setState(PluginTaskState.ERRO);
-            }   
+            }
 
-            if(cms!=null)
+            if (cms != null) {
                 cms.setData(Path.PREFIX_TASK.getFullPath(task.getPluginExec(), task.getJobInfo().getId()), task.toString());
+            }
 
         } catch (Exception e) {
             e.printStackTrace();

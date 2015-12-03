@@ -77,7 +77,7 @@ public class HttpServer {
         context.setParentLoaderPriority(true);
 
         server.setHandler(context);
-        
+
         try {
             // Initialize EntityManager to prevent lazy creation
             EntityManagerProducer.initialize();

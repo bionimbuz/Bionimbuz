@@ -13,11 +13,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created with IntelliJ IDEA.
- * User: edward
+ * Created with IntelliJ IDEA. User: edward
  */
 public class UsageExample {
-/*
+    /*
     private static final CopyOnWriteArraySet<String> peers = new CopyOnWriteArraySet<String>();
 
     private static ZooKeeperService zkService = new ZooKeeperService();
@@ -101,5 +100,5 @@ public class UsageExample {
 			}
         }
     }
-*/
+     */
 }

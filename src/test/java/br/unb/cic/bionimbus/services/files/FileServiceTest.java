@@ -10,9 +10,8 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Created with IntelliJ IDEA.
- * User: edward
- * To change this template use File | Settings | File Templates.
+ * Created with IntelliJ IDEA. User: edward To change this template use File |
+ * Settings | File Templates.
  */
 @Ignore //These tests cannot run in the Continuous Integration Enviroment
 public class FileServiceTest extends TestCase {

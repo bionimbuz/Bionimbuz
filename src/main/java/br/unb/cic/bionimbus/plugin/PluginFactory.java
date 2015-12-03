@@ -16,8 +16,9 @@ public class PluginFactory {
 //            if (pluginType.equals("hadoop"))
 //                REF = new HadoopPlugin();
 //            else 
-            if (pluginType.equals("linux"))
+            if (pluginType.equals("linux")) {
                 REF = new LinuxPlugin(config);
+            }
 //            else if (pluginType.equals("sge")) {
 //                REF = new SGEPlugin(config);
 //            }

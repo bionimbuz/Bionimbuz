@@ -13,7 +13,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 public class JobInfo {
 
     private String id = UUID.randomUUID().toString();
-    
+
     public long testId;
 
     private String localId;
@@ -21,34 +21,36 @@ public class JobInfo {
     private String serviceId;
 
     private String args = "";
-    
+
     // inputs = [{input.id, input.size}]
     final private List<Pair<String, Long>> inputs = new ArrayList<Pair<String, Long>>();
 
     final private List<String> outputs = new ArrayList<String>();
 
     private long timestamp;
-    
+
     private Double worstExecution = null;
-    
-    final private List<String> dependencies = new ArrayList<String>(); 
-    
+
+    final private List<String> dependencies = new ArrayList<String>();
+
     private RepositoryService rs;
 
-    public JobInfo() {}
-    
+    public JobInfo() {
+    }
+
     public JobInfo(RepositoryService rs) {
         this.rs = rs;
     }
-    
+
     /**
      * This constructor is for testing purposes only
-     * @param worstExecution 
+     *
+     * @param worstExecution
      */
     public JobInfo(double worstExecution) {
         this.worstExecution = worstExecution;
     }
-    
+
     public String getId() {
         return id;
     }
@@ -112,19 +114,20 @@ public class JobInfo {
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
-    
+
     /**
      * To be used only by avro
+     *
      * @param worstExecution
      */
     public void setWorstExecution(double worstExecution) {
         this.worstExecution = worstExecution;
     }
-    
+
     public Double getWorstExecution() {
         return worstExecution;
     }
-    
+
 //    /**
 //     * Add a dependency to be executed beforehand
 //     * @param id The unique id of a job
@@ -132,8 +135,8 @@ public class JobInfo {
     public void addDependency(String id) {
         dependencies.add(id);
     }
-    
-    public List<String> getDependencies () {
+
+    public List<String> getDependencies() {
         return dependencies;
     }
 
@@ -144,11 +147,10 @@ public class JobInfo {
         } catch (IOException ex) {
             Logger.getLogger(JobInfo.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return null;
     }
-    
-    
+
 }
 
 //menas de 163 linhas

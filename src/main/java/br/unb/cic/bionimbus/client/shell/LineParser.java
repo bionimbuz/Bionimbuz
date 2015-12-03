@@ -65,8 +65,9 @@ public class LineParser {
                         sb.append(c);
                         break;
                     case BUILDING:
-                        if (sb.length() > 0)
+                        if (sb.length() > 0) {
                             stack.push(sb.toString());
+                        }
                         sb = new StringBuilder();
                         state = State.NEW;
                         continue;
@@ -81,8 +82,9 @@ public class LineParser {
         }
 
         // armazena o resto
-        if (sb.length() > 0)
+        if (sb.length() > 0) {
             stack.push(sb.toString());
+        }
 
         return stack;
     }

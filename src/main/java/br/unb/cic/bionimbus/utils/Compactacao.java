@@ -11,11 +11,11 @@ import org.xerial.snappy.SnappyOutputStream;
 
 public class Compactacao {
 
-	public static String compactar(String path) throws IOException {
-		
-		String compressed = path + ".cpt";
-		
-		FileOutputStream fos = new FileOutputStream(compressed);
+    public static String compactar(String path) throws IOException {
+
+        String compressed = path + ".cpt";
+
+        FileOutputStream fos = new FileOutputStream(compressed);
         SnappyOutputStream sout = new SnappyOutputStream(fos);
 
         FileInputStream fis = new FileInputStream(path);
@@ -34,21 +34,21 @@ public class Compactacao {
         orig.close();
         fos.flush();
         fos.close();
-        
+
         return compressed;
 
-	}
-	
-	public static String descompactar(String path) throws IOException {
-		
-		String decompressed = path.replaceAll(".cpt","");
-		
-		FileOutputStream fos = new FileOutputStream(decompressed);
+    }
+
+    public static String descompactar(String path) throws IOException {
+
+        String decompressed = path.replaceAll(".cpt", "");
+
+        FileOutputStream fos = new FileOutputStream(decompressed);
 
         FileInputStream fis = new FileInputStream(path);
         SnappyInputStream siut = new SnappyInputStream(fis);
         BufferedInputStream input = new BufferedInputStream(siut);
-        
+
         byte[] tmp = new byte[1024];
         for (int readBytes = 0; (readBytes = input.read(tmp)) != -1;) {
             fos.write(tmp, 0, readBytes);
@@ -57,9 +57,9 @@ public class Compactacao {
         siut.close();
         fos.flush();
         fos.close();
-        
+
         return decompressed;
-        
-	}
+
+    }
 
 }

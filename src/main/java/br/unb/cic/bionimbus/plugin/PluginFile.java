@@ -8,29 +8,29 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * Classe que recebe os dados do arquivo enviado pelo cliente
+ *
  * @author breno-linux
  */
-
 public class PluginFile {
 
-    public PluginFile(){
+    public PluginFile() {
     }
-    
-    public PluginFile(FileInfo filenode){
+
+    public PluginFile(FileInfo filenode) {
         this.id = filenode.getFileId();
-        this.name= filenode.getName();
-        this.size =filenode.getSize();
+        this.name = filenode.getName();
+        this.size = filenode.getSize();
     }
     private String id;
 
     private String path;
-    
+
     private String name;
 
     private long size;
-    
+
     private String service;
-    
+
     private List<String> pluginId;
 
     public String getId() {
@@ -91,12 +91,13 @@ public class PluginFile {
      */
     public void setService(String service) {
         this.service = service;
-    }    
-    
+    }
+
     @Override
     public boolean equals(Object object) {
-        if (this == object)
+        if (this == object) {
             return true;
+        }
 
         if (!(object instanceof PluginFile)) {
             return false;
@@ -114,11 +115,11 @@ public class PluginFile {
 
     @Override
     public String toString() {
-         try {
+        try {
             return new ObjectMapper().writeValueAsString(this);
         } catch (Exception ex) {
             Logger.getLogger(PluginInfo.class.getName()).log(Level.SEVERE, null, ex);
-        } 
-         return null;
+        }
+        return null;
     }
 }
