@@ -24,10 +24,12 @@ public class UserDao extends BaseDao<User> {
             manager.getTransaction().begin();
             manager.persist(user);
             manager.getTransaction().commit();
+            
         } catch (Exception e) {
+            manager.getTransaction().rollback();
+            
             LOGGER.error("[Exception] UserDao.persist()");
             e.printStackTrace();
-            manager.getTransaction().rollback();
         }
     }
 

@@ -8,7 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * 
+ * Object model of a file sent from the user web application
  * @author Vinicius
  */
 @Entity
