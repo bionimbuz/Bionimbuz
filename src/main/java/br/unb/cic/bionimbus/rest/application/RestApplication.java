@@ -24,10 +24,11 @@ public class RestApplication extends Application {
     private static Set services = new HashSet();
 
     /**
-     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! !!! IMPORTANT !!!
-     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Everytime a class that
-     * defines a resource is created, it's ESSENCIAL that is added to Services
-     * Set
+     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+     * !!!                  IMPORTANT               !!!
+     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+     * Everytime a class that defines a resource is created, 
+     * it's ESSENCIAL that is added to Services Set
      */
     @SuppressWarnings("unchecked")
     public RestApplication() {

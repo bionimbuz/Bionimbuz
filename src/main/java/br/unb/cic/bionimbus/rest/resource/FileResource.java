@@ -43,10 +43,10 @@ public class FileResource extends BaseResource {
 //		}
 
         try {
-            LOGGER.info("Upload request received [filename=" + request.getFileInfo().getName() + "]");
+            LOGGER.info("Upload request received [filename=" + request.getUploadedFileInfo().getName() + "]");
 
             // Writes file on disk
-            writeFile(request.getData(), request.getFileInfo().getName());
+            writeFile(request.getData(), request.getUploadedFileInfo().getName());
             
         } catch (IOException e) {
             LOGGER.error("[IOException - " + e.getMessage() + "] FileResource.handleUploadedFile()");
@@ -55,8 +55,8 @@ public class FileResource extends BaseResource {
             LOGGER.error("[Exception - " + e.getMessage() + "] FileResource.handleUploadedFile()");
         }
 
-        // Creates an UserFile using FileInfo from request and persists on Database
-        fileDao.persist(request.getFileInfo());
+        // Creates an UserFile using UploadadeFileInfo from request and persists on Database
+        fileDao.persist(request.getUploadedFileInfo());
 
         return new UploadResponse();
     }
@@ -73,7 +73,6 @@ public class FileResource extends BaseResource {
      * @throws IOException
      */
     private void writeFile(byte[] content, String filename) throws IOException {
-
         File file = new File(UPLOADED_FILES_DIRECTORY + filename);
 
         if (!file.exists()) {
