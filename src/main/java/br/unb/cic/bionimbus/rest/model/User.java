@@ -13,104 +13,123 @@ import javax.persistence.Transient;
 
 /**
  * Models an User entity
- * 
+ *
  * @author monstrim
  */
 @Entity
 @Table(name = "tb_users")
 public class User implements Serializable {
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
 
-	@Column(unique = true)
-	private String login;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
-	private String password;
+    @Column(unique = true)
+    private String login;
 
-	private String nome;
+    private String password;
 
-	private String cpf;
+    private String nome;
 
-	private String email;
+    private String cpf;
 
-	private String celphone;
+    private String email;
 
-	private String securityToken;
+    private String celphone;
 
-	@Transient
-	private List<UploadedFileInfo> files;
+    private String securityToken;
 
-	public Long getId() {
-		return id;
-	}
+    private Long storageUsage;
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    @Transient
+    private List<UploadedFileInfo> files;
 
-	public String getLogin() {
-		return login;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setLogin(String login) {
-		this.login = login;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public String getLogin() {
+        return login;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public void setLogin(String login) {
+        this.login = login;
+    }
 
-	public String getNome() {
-		return nome;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	public void setNome(String nome) {
-		this.nome = nome;
-	}
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-	public String getCpf() {
-		return cpf;
-	}
+    public String getNome() {
+        return nome;
+    }
 
-	public void setCpf(String cpf) {
-		this.cpf = cpf;
-	}
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public String getCpf() {
+        return cpf;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
+    }
 
-	public String getCelphone() {
-		return celphone;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public void setCelphone(String celphone) {
-		this.celphone = celphone;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public String getSecurityToken() {
-		return securityToken;
-	}
+    public String getCelphone() {
+        return celphone;
+    }
 
-	public void setSecurityToken(String securityToken) {
-		this.securityToken = securityToken;
-	}
+    public void setCelphone(String celphone) {
+        this.celphone = celphone;
+    }
 
-	public List<UploadedFileInfo> getFiles() {
-		return files;
-	}
+    public String getSecurityToken() {
+        return securityToken;
+    }
 
-	public void setFiles(List<UploadedFileInfo> files) {
-		this.files = files;
-	}
+    public void setSecurityToken(String securityToken) {
+        this.securityToken = securityToken;
+    }
+
+    public Long getStorageUsage() {
+        return storageUsage;
+    }
+
+    public void setStorageUsage(Long storageUsage) {
+        this.storageUsage = storageUsage;
+    }
+
+    public void addStorageUsage(Long usage) {
+        this.storageUsage += usage;
+    }
+
+    public void subtractStorageUsage(Long usage) {
+        this.storageUsage -= usage;
+    }
+
+    public List<UploadedFileInfo> getFiles() {
+        return files;
+    }
+
+    public void setFiles(List<UploadedFileInfo> files) {
+        this.files = files;
+    }
 
 }

@@ -12,7 +12,7 @@ import br.unb.cic.bionimbus.rest.model.UploadedFileInfo;
 public class UploadRequest implements RequestInfo {
 
     private byte[] data;
-    private UploadedFileInfo fileInfo;
+    private UploadedFileInfo uploadedFileInfo;
 
     public UploadRequest() {
     }
@@ -21,8 +21,8 @@ public class UploadRequest implements RequestInfo {
         return data;
     }
 
-    public UploadedFileInfo getFileInfo() {
-        return fileInfo;
+    public UploadedFileInfo getUploadedFileInfo() {
+        return uploadedFileInfo;
     }
 
     @FormParam("file")
@@ -33,8 +33,8 @@ public class UploadRequest implements RequestInfo {
 
     @FormParam("file_info")
     @PartType(MediaType.APPLICATION_JSON)
-    public void setFileInfo(UploadedFileInfo fileInfo) {
-        this.fileInfo = fileInfo;
+    public void setUploadedFileInfo(UploadedFileInfo uploadedFileInfo) {
+        this.uploadedFileInfo = uploadedFileInfo;
     }
 
 }

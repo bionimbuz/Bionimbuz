@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.TypedQuery;
 
 import br.unb.cic.bionimbus.rest.model.UploadedFileInfo;
+import br.unb.cic.bionimbus.rest.model.User;
 
 /**
  * Class that is responsible to operate over the database the UserFile elements
@@ -14,7 +15,6 @@ import br.unb.cic.bionimbus.rest.model.UploadedFileInfo;
  *
  */
 public class FileDao extends BaseDao<UploadedFileInfo> {
-
     /**
      * Persists an user file on database
      *
@@ -23,9 +23,14 @@ public class FileDao extends BaseDao<UploadedFileInfo> {
     @Override
     public void persist(UploadedFileInfo fileInfo) {
         try {
+            // Persists file
             manager.getTransaction().begin();
             manager.persist(fileInfo);
             manager.getTransaction().commit();
+
+            // Updates user storage usage
+            User user = manager.find(User.class, fileInfo.getUserId());
+            user.addStorageUsage(fileInfo.getSize());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -99,6 +104,22 @@ public class FileDao extends BaseDao<UploadedFileInfo> {
         query.setParameter("userId", userId);
 
         return query.getResultList();
+    }
+
+    public void updateStorageUsage(Long userId, Long sizeKB) {
+        User user = manager.find(User.class, userId);
+
+        if ((user.getStorageUsage() + sizeKB) > 1) {
+
+        }
+    }
+
+    public void subtractStorageUsage(Long userId, Long sizeKB) {
+        User user = manager.find(User.class, userId);
+
+        if ((user.getStorageUsage() + sizeKB) > 1) {
+
+        }
     }
 
 }
