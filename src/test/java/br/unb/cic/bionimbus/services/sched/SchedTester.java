@@ -33,7 +33,7 @@ public class SchedTester {
         p.setNumOccupied(numOccupied);
         ArrayList<PluginService> services = new ArrayList<PluginService>();
         PluginService ps = new PluginService();
-        ps.setId("1");
+        ps.setId(1);
         services.add(ps);
         p.setServices(services);
         return p;
