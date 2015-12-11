@@ -398,10 +398,7 @@ public class StorageService extends AbstractBioService {
                         } catch (SftpException ex) {
                             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                    } catch (JSchException ex) {
-                        Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (SftpException ex) {
-                        Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                   
                     }
 
                 }
@@ -426,21 +423,56 @@ public class StorageService extends AbstractBioService {
                 //verifica se arquivo existe
                 if (data == null || data.trim().isEmpty()){
                     System.out.println(">>>>>>>>>> NÃO EXISTEM DADOS PARA PATH " + Path.PENDING_SAVE.getFullPath());
+                    continue;
+                }
+                 PluginFile fileplugin = mapper.readValue(data, PluginFile.class);
                 
+                //verifica se é um arquivo de saída de uma execução e se o arquivo foi gerado nesse recurso
+                if(fileplugin.getService()!=null && fileplugin.getService().equals(SchedService.class.getSimpleName()) && fileplugin.getPluginId().get(0).equals(config.getId())){
+                    //adiciona o arquivo a lista do zookeeper
+                    checkFiles();
+                }
                 while(cont < 6){
                     if(fileplugin.getPluginId().size() == REPLICATIONFACTOR){
                         cms.delete(Path.PENDING_SAVE.getFullPath(fileplugin.getId()));
+                        break;
+                    }
+                    String address = getIpContainsFile(fileplugin.getName());
+                    if(!address.isEmpty() && !address.equals(config.getAddress())){
+                        RpcClient rpcClient = new AvroClient("http", address, PORT);
+                        rpcClient.getProxy().notifyReply(fileplugin.getName(), address);
+                        try {
+                            rpcClient.close();    
                             if(existReplication(fileplugin.getName())){
                                 cms.delete(Path.NODE_PENDING_FILE.getFullPath(fileplugin.getId()));
-                        try {
-                            replication(fileplugin.getName(), address);
-                        } catch (JSchException ex) {
-                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (SftpException ex) {
+                                break;    
+                            }
+                            else{
+                                cont++;
+                            }
+                        } catch (Exception ex) {
                             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                        if(existReplication(fileplugin.getName())){
-                            cms.delete(Path.NODE_PENDING_FILE.getFullPath(fileplugin.getId()));
+                    }
+                    else{
+                            try {
+                                replication(fileplugin.getName(), address);
+                            } catch (JSchException ex) {
+                                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (SftpException ex) {
+                                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            if(existReplication(fileplugin.getName())){
+                                cms.delete(Path.NODE_PENDING_FILE.getFullPath(fileplugin.getId()));
+                                break;
+                            }
+                            else{
+                                cont++;
+                            }
+                    }
+                }
+            }catch (IOException ex) {
+                Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
             }
             //verifica se exite replicação quando houver mais de um peer
             if (getPeers().size() != 1) {
@@ -629,6 +661,10 @@ public class StorageService extends AbstractBioService {
         for (PluginInfo plugin : temp) {
             if(cms.getZNodeExist(Path.STATUS.getFullPath(plugin.getId(), null, null), null))
                 cms.getData(Path.STATUS.getFullPath(plugin.getId()), new UpdatePeerData(cms, this));
+        }
+    }
+     /**
+     * Método que recebe um evento do zookeeper caso os znodes setados nessa classe sofra alguma alteração, criado, deletado, modificado, trata os eventos de acordo com o tipo do mesmo
      * @param eventType
      */
     @Override
@@ -642,6 +678,14 @@ public class StorageService extends AbstractBioService {
                         verifyPlugins();
                     }
                 }else if (eventType.getPath().equals(Path.PENDING_SAVE.toString())) {
+                    //chamada para checar a pending_save apenas quando uma alerta para ela for lançado
+//                       try{
+//                            checkingPendingSave();
+//                        }
+//                        catch (IOException ex) {
+//                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+//                        }
+                }
                 break;
             case NodeDeleted:
                 if (eventType.getPath().contains(Path.STATUS.toString())) {
@@ -655,11 +699,22 @@ public class StorageService extends AbstractBioService {
                             
                             StringBuilder info = new StringBuilder(cms.getData(Path.STATUSWAITING.getFullPath(peerId), null));
                             
+                            //verifica se recurso já foi recuperado ou está sendo recuperado por outro recurso
+                            if (!info.toString().contains("S") /*&& !info.toString().contains("L")*/) {
+                                
+                                //bloqueio para recuperar tarefas sem que outros recursos realizem a mesma operação
                                 // cms.setData(Path.STATUSWAITING.getFullPath(peerId), info.append("L").toString());
                                 
+                                //Verificar pluginid para gravar
+                                for (PluginFile fileExcluded : getFilesPeer(peerId)) {
+                                    String idPluginExcluded = null;
+                                    for (String idPlugin : fileExcluded.getPluginId()) {
+                                        if (peerId.equals(idPlugin)&&!idPlugin.equals(config.getId())) {
+                                            idPluginExcluded = idPlugin;
+                                            break;
                                         }
                                     }
-
+                                    
                                     if (fileExcluded.getPluginId().size() > 1) {
                                         fileExcluded.getPluginId().remove(idPluginExcluded);
                                     }
@@ -673,12 +728,19 @@ public class StorageService extends AbstractBioService {
                                 //    info.deleteCharAt(info.indexOf("L"));
                                 info.append("S");
                                 cms.setData(Path.STATUSWAITING.getFullPath(peerId), info.toString());
-                                
-                        } catch (InterruptedException ex) {
+                                //nao é necessário chamar esse método aqui, ele será chamado se for necessário ao receber um alerta de watcher
+                                //                            checkingPendingSave();
+                            }
+                        } catch (AvroRemoteException ex) {
+                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (KeeperException ex) {
+                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
+                        }   catch (InterruptedException ex) {
                             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
                         } catch (IOException ex) {
                             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-                        }
+                        } 
+                       
                     }
                     break;
                 }
