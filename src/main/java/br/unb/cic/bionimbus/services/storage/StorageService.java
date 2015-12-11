@@ -427,18 +427,13 @@ public class StorageService extends AbstractBioService {
                 }
                  PluginFile fileplugin = mapper.readValue(data, PluginFile.class);
                 
-                //verifica se é um arquivo de saída de uma execução e se o arquivo foi gerado nesse recurso
-                if(fileplugin.getService()!=null && fileplugin.getService().equals(SchedService.class.getSimpleName()) && fileplugin.getPluginId().get(0).equals(config.getId())){
-                    //adiciona o arquivo a lista do zookeeper
-                    checkFiles();
+                    continue;
                 }
+                PluginFile fileplugin = mapper.readValue(data, PluginFile.class);
+
                 while(cont < 6){
                     if(fileplugin.getPluginId().size() == REPLICATIONFACTOR){
                         cms.delete(Path.PENDING_SAVE.getFullPath(fileplugin.getId()));
-                        break;
-                    }
-                    String address = getIpContainsFile(fileplugin.getName());
-                    if(!address.isEmpty() && !address.equals(config.getAddress())){
                         RpcClient rpcClient = new AvroClient("http", address, PORT);
                         rpcClient.getProxy().notifyReply(fileplugin.getName(), address);
                         try {
@@ -448,9 +443,6 @@ public class StorageService extends AbstractBioService {
                                 break;    
                             }
                             else{
-                                cont++;
-                            }
-                        } catch (Exception ex) {
                             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
@@ -469,8 +461,6 @@ public class StorageService extends AbstractBioService {
                             else{
                                 cont++;
                             }
-                    }
-                }
             }catch (IOException ex) {
                 Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -665,10 +655,6 @@ public class StorageService extends AbstractBioService {
     }
      /**
      * Método que recebe um evento do zookeeper caso os znodes setados nessa classe sofra alguma alteração, criado, deletado, modificado, trata os eventos de acordo com o tipo do mesmo
-     * @param eventType
-     */
-    @Override
-    public void event(WatchedEvent eventType) {
         String path = eventType.getPath();
         switch (eventType.getType()) {
 
@@ -678,10 +664,6 @@ public class StorageService extends AbstractBioService {
                         verifyPlugins();
                     }
                 }else if (eventType.getPath().equals(Path.PENDING_SAVE.toString())) {
-                    //chamada para checar a pending_save apenas quando uma alerta para ela for lançado
-//                       try{
-//                            checkingPendingSave();
-//                        }
 //                        catch (IOException ex) {
 //                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
 //                        }
@@ -699,26 +681,15 @@ public class StorageService extends AbstractBioService {
                             
                             StringBuilder info = new StringBuilder(cms.getData(Path.STATUSWAITING.getFullPath(peerId), null));
                             
-                            //verifica se recurso já foi recuperado ou está sendo recuperado por outro recurso
-                            if (!info.toString().contains("S") /*&& !info.toString().contains("L")*/) {
-                                
-                                //bloqueio para recuperar tarefas sem que outros recursos realizem a mesma operação
                                 // cms.setData(Path.STATUSWAITING.getFullPath(peerId), info.append("L").toString());
                                 
-                                //Verificar pluginid para gravar
-                                for (PluginFile fileExcluded : getFilesPeer(peerId)) {
-                                    String idPluginExcluded = null;
                                     for (String idPlugin : fileExcluded.getPluginId()) {
-                                        if (peerId.equals(idPlugin)&&!idPlugin.equals(config.getId())) {
+                                        if (peerId.equals(idPlugin) && !idPlugin.equals(config.getId())) {
                                             idPluginExcluded = idPlugin;
                                             break;
                                         }
                                     }
                                     
-                                    if (fileExcluded.getPluginId().size() > 1) {
-                                        fileExcluded.getPluginId().remove(idPluginExcluded);
-                                    }
-
                                     setPendingFile(fileExcluded);
                                     fileExcluded.setService("storagePeerDown");
                                     fileUploaded(fileExcluded);
@@ -731,10 +702,6 @@ public class StorageService extends AbstractBioService {
                                 //nao é necessário chamar esse método aqui, ele será chamado se for necessário ao receber um alerta de watcher
                                 //                            checkingPendingSave();
                             }
-                        } catch (AvroRemoteException ex) {
-                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (KeeperException ex) {
-                            Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
                         }   catch (InterruptedException ex) {
                             Logger.getLogger(StorageService.class.getName()).log(Level.SEVERE, null, ex);
                         } catch (IOException ex) {
