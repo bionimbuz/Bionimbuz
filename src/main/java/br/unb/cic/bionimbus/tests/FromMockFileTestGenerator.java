@@ -44,13 +44,14 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
         String path = (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
         AESEncryptor aes = new AESEncryptor();          
         try {
-            //TO-DO: Remove comment after William Final Commit
+            //TO-DO: Remove comment after Willian Final Commit
             //aes.decrypt(path+"pipelineSample.txt");
         } catch (Exception ex) {
             Logger.getLogger(FromMockFileTestGenerator.class.getName()).log(Level.SEVERE, null, ex);
-        }        
+        }
+        
         try {
-            BufferedReader br = new BufferedReader(new FileReader(path+"pipelineSample.txt"));
+            BufferedReader br = new BufferedReader(new FileReader(path + "pipelineSample.txt"));
 
             // get first line: number of tasks
             String line = br.readLine();

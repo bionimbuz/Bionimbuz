@@ -27,7 +27,7 @@ public abstract class PipelineTestGenerator {
 
     public List<PipelineInfo> getPipelinesTemplates () {
         if (pipelinesTemplates == null) {
-            pipelinesTemplates = new ArrayList<PipelineInfo>();
+            pipelinesTemplates = new ArrayList<>();
             generatePipelineTemplates();
         }
         
@@ -36,7 +36,7 @@ public abstract class PipelineTestGenerator {
     
     public List<PluginService> getServicesTemplates () {
         if (servicesTemplates == null) {
-            servicesTemplates = new ArrayList<PluginService>();
+            servicesTemplates = new ArrayList<>();
             generateServicesTemplates();
         }
         
@@ -45,7 +45,7 @@ public abstract class PipelineTestGenerator {
     
     public List<PluginInfo> getResourceTemplates () {
         if (resourceTemplates == null) {
-            resourceTemplates = new ArrayList<PluginInfo>();
+            resourceTemplates = new ArrayList<>();
             generateResourcesTemplates();
         }
         

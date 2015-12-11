@@ -518,7 +518,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                 List<String> filesChildren;
                 //verifica se é a primeira vez que é executado e então cria o watcher e inicia a lista
                 if (mapFilesPlugin == null) {
-                    mapFilesPlugin = new HashMap<String, PluginFile>();
+                    mapFilesPlugin = new HashMap<>();
                     filesChildren = cms.getChildren(Path.FILES.getFullPath(myLinuxPlugin.getMyInfo().getId()), new UpdatePeerData(cms, this));
                 } else {
                     filesChildren = cms.getChildren(Path.FILES.getFullPath(myLinuxPlugin.getMyInfo().getId()), null);
@@ -630,12 +630,14 @@ public class SchedService extends AbstractBioService implements Runnable {
         System.out.println("[SchedService] Recebimento do pedido de execução da tarefa!");
         //TODO otimiza chamada de checagem dos arquivos
         checkFilesPlugin();
-        //verifica se o arquivo existe no plugin se não cria a solicitação de transfêrencia do arquivo
-        if (!existFilesCloud(task.getJobInfo().getInputs())) {
-            task.setState(PluginTaskState.ERRO);
-            System.out.println("[SchedService] executeTasks: task " + task.getId() + " error.");
-            return;
-        }
+
+// CORREÇÂO: CRIAR NÓ FILES E REFAZER ESSA FUNÇÃO
+//        //verifica se o arquivo existe no plugin se não cria a solicitação de transfêrencia do arquivo
+//        if (!existFilesCloud(task.getJobInfo().getInputs())) {
+//            task.setState(PluginTaskState.ERRO);
+//            System.out.println("[SchedService] executeTasks: task " + task.getId() + " error.");
+//            return;
+//        }
         if (!existFiles(task.getJobInfo().getInputs())) {
             requestFile(task.getJobInfo().getInputs());
             System.out.println("[SchedService] executeTasks: task " + task.getId() + " files not present.");

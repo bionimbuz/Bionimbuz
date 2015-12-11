@@ -74,16 +74,18 @@ public class ServiceManager {
      */
     private void clearZookeeper(){
         
-        if (cms.getZNodeExist(Path.PIPELINES.getFullPath(), null))
-            cms.delete(Path.PIPELINES.getFullPath());
-        if (cms.getZNodeExist(Path.PENDING_SAVE.getFullPath(), null))
-            cms.delete(Path.PENDING_SAVE.getFullPath());
-        if (cms.getZNodeExist(Path.PEERS.getFullPath(), null))
-            cms.delete(Path.PEERS.getFullPath());
-        if (cms.getZNodeExist(Path.SERVICES.getFullPath(), null))
-            cms.delete(Path.SERVICES.getFullPath());
-        if (cms.getZNodeExist(Path.FINISHED_TASKS.getFullPath(), null))
-            cms.delete(Path.FINISHED_TASKS.getFullPath());
+        if (cms.getZNodeExist(Path.ROOT.getFullPath(), null))
+            cms.delete(Path.ROOT.getFullPath());
+//        if (cms.getZNodeExist(Path.PIPELINES.getFullPath(), null))
+//            cms.delete(Path.PIPELINES.getFullPath());
+//        if (cms.getZNodeExist(Path.PENDING_SAVE.getFullPath(), null))
+//            cms.delete(Path.PENDING_SAVE.getFullPath());
+//        if (cms.getZNodeExist(Path.PEERS.getFullPath(), null))
+//            cms.delete(Path.PEERS.getFullPath());
+//        if (cms.getZNodeExist(Path.SERVICES.getFullPath(), null))
+//            cms.delete(Path.SERVICES.getFullPath());
+//        if (cms.getZNodeExist(Path.FINISHED_TASKS.getFullPath(), null))
+//            cms.delete(Path.FINISHED_TASKS.getFullPath());
     }
     
     public void register(Service service) {

@@ -20,12 +20,14 @@ public class Resource {
     public final Double clock;
     public final Double cost;
     private final List<JobInfo> allocatedTasks;
+    private final List<JobInfo> preAllocatedTasks;
 
     public Resource(String id, Double clock, Double cost) {
         this.id = id;
         this.clock = clock;
         this.cost = cost;
         allocatedTasks = new ArrayList();
+        preAllocatedTasks = new ArrayList();
     }
     
     // Copy constructor
@@ -34,6 +36,7 @@ public class Resource {
         this.clock = resource.clock;
         this.cost = resource.cost;
         allocatedTasks = new ArrayList(resource.getAllocatedTasks());
+        preAllocatedTasks = new ArrayList(resource.getPreAllocatedTasks());
     }
     
     
@@ -41,14 +44,29 @@ public class Resource {
         allocatedTasks.add(task);
     }
     
+    public void addTask(JobInfo task) {
+        preAllocatedTasks.add(task);
+    }
+    
     public List<JobInfo> getAllocatedTasks() {
         return allocatedTasks;
     }
     
+    public List<JobInfo> getPreAllocatedTasks() {
+        return preAllocatedTasks;
+    }
+    
+    /**
+     * Get execution time for all allocated and pre allocated tasks
+     * @param rs RepositoryService
+     * @return execTime in seconds
+     */
     public Double getExecTime(RepositoryService rs) {
         double cycles = 0;
         
-        for (JobInfo task : allocatedTasks)
+        ArrayList<JobInfo> tasks = new ArrayList<>(allocatedTasks);
+        tasks.addAll(preAllocatedTasks);
+        for (JobInfo task : tasks)
             if (rs != null)
                 cycles += rs.getWorstExecution(task.getServiceId());
             else
@@ -58,8 +76,6 @@ public class Resource {
     }
     
     public Double getCost(RepositoryService rs) {
-        float cycles = 0;
-        
         return cost*getExecTime(rs);
     }
 
@@ -75,7 +91,7 @@ public class Resource {
 
     @Override
     public String toString() {
-        return "Id: " + id + ", Time: " + getExecTime(null) + ", Cost: " + getCost(null);
+        return "Id: " + id + ", Time: " + getExecTime(null) + ", Cost: " + getCost(null) + ", " + allocatedTasks.size() + "Tasks: " + allocatedTasks.toString();
     }
     
     public String getAlloc() {

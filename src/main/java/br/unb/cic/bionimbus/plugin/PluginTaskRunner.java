@@ -53,6 +53,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
         }
         Process p;
         try {
+            System.out.println("[PluginTaskRunner] exec: " + service.getPath() + " " + args);
             p = Runtime.getRuntime().exec(service.getPath() + " " + args);
 //                        p = Runtime.getRuntime().exec(path+service.getPath().substring(1,service.getPath().length()) + " " + args);
 

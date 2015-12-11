@@ -50,8 +50,8 @@ public class SchedullerTester {
     private void initCommunication() {
         cms = new CuratorMessageService();
         try {
-            Enumeration<InetAddress> inet = NetworkInterface.getByName("eth0").getInetAddresses();
-            String ip = "1164.41.209.95";
+            Enumeration<InetAddress> inet = NetworkInterface.getByName("wlan0").getInetAddresses();
+            String ip = "";
             if (ip.equals(""))
                 while (inet.hasMoreElements())
                     ip = inet.nextElement().toString();
@@ -91,7 +91,7 @@ public class SchedullerTester {
     public void sendJobs(PipelineInfo pipeline) throws InterruptedException, IOException {
 //        communication.sendReq(new JobReqMessage(p2p.getPeerNode(), jobs), P2PMessageType.JOBRESP);
 //        JobRespMessage resp = (JobRespMessage) communication.getResp();
-        List<br.unb.cic.bionimbus.avro.gen.JobInfo> listjob = new ArrayList<br.unb.cic.bionimbus.avro.gen.JobInfo>();
+        List<br.unb.cic.bionimbus.avro.gen.JobInfo> listjob = new ArrayList<>();
         for (JobInfo jobInfo : pipeline.getJobs()) {
             br.unb.cic.bionimbus.avro.gen.JobInfo job = new br.unb.cic.bionimbus.avro.gen.JobInfo();
             job.setArgs(jobInfo.getArgs());
@@ -99,7 +99,7 @@ public class SchedullerTester {
             job.setLocalId(config.getHost().getAddress());
             job.setServiceId(jobInfo.getServiceId());
             job.setTimestamp(jobInfo.getTimestamp());
-            List<Pair> listPair = new ArrayList<Pair>();
+            List<Pair> listPair = new ArrayList<>();
             for (br.unb.cic.bionimbus.utils.Pair<String, Long> pairInfo : jobInfo.getInputs()) {
                 Pair pair = new Pair();
                 pair.first = pairInfo.first;

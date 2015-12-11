@@ -12,7 +12,6 @@ import br.unb.cic.bionimbus.security.Integrity;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
-import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.services.sched.SchedService;
 import br.unb.cic.bionimbus.toSort.Listeners;
@@ -40,15 +39,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static javax.swing.UIManager.put;
 import org.apache.avro.AvroRemoteException;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
-import static org.apache.velocity.texen.util.FileUtil.file;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.codehaus.jackson.map.ObjectMapper;
-import static org.mortbay.jetty.HttpMethods.HEAD;
 
 @Singleton
 public class StorageService extends AbstractBioService {
@@ -94,8 +90,8 @@ public class StorageService extends AbstractBioService {
             listeners.add(this);
         }
         //Criando pastas zookeeper para o módulo de armazenamento
-        if (!cms.getZNodeExist(Path.PENDING_SAVE.toString(), null))
-            cms.createZNode(CreateMode.PERSISTENT, Path.PENDING_SAVE.toString(), null);
+        if (!cms.getZNodeExist(Path.PENDING_SAVE.getFullPath(), null))
+            cms.createZNode(CreateMode.PERSISTENT, Path.PENDING_SAVE.getFullPath(), null);
         if (!cms.getZNodeExist(Path.FILES.getFullPath(config.getId()), null))
             cms.createZNode(CreateMode.PERSISTENT, Path.FILES.getFullPath(config.getId()), "");
 
@@ -140,8 +136,9 @@ public class StorageService extends AbstractBioService {
 
     /**
      * Verifica os arquivos que existem no recurso.
+     * Alterado para synchronized para evitar condição de corrida.
      */
-    public void checkFiles() {
+    public synchronized void checkFiles() {
         try {
             if (!dataFolder.exists()) {
 //                System.out.println(" (CheckFiles) dataFolder " + dataFolder + " doesn't exists, creating...");
