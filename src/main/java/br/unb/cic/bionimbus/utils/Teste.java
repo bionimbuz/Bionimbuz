@@ -5,7 +5,6 @@
 package br.unb.cic.bionimbus.utils;
 
 import br.unb.cic.bionimbus.plugin.PluginFile;
-import br.unb.cic.bionimbus.services.ZooKeeperService;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
@@ -53,20 +52,20 @@ public class Teste implements Watcher{
 //         String content =
      }
     public static void main(String[] args) throws IOException {
-       ZooKeeperService zk =new ZooKeeperService();
-        PluginFile file = new PluginFile();
-        file.setId("abc.pdf");
-        file.setName("abc.pdf");
-        file.setSize(154L);
-        
-        try {
-            zk.connect("192.168.1.121");
-            zk.createPersistentZNode("/pending_save","");
-//            zk.getData("/pending_save", );
-            zk.createPersistentZNode("/pending_save/files", file.toString());
-            
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Teste.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//       ZooKeeperService zk =new ZooKeeperService();
+//        PluginFile file = new PluginFile();
+//        file.setId("abc.pdf");
+//        file.setName("abc.pdf");
+//        file.setSize(154L);
+//        
+//        try {
+//            zk.connect("192.168.1.121");
+//            zk.createPersistentZNode("/pending_save","");
+////            zk.getData("/pending_save", );
+//            zk.createPersistentZNode("/pending_save/files", file.toString());
+//            
+//        } catch (InterruptedException ex) {
+//            Logger.getLogger(Teste.class.getName()).log(Level.SEVERE, null, ex);
+//        }
     }
 }

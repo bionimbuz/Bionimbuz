@@ -45,12 +45,16 @@ public class ServiceManager {
     }
     
     public void createZnodeZK(String id) throws IOException, InterruptedException, KeeperException {
+        //create root bionimbuz if does not exists
+        if (!cms.getZNodeExist(Path.ROOT.getFullPath(), null))
+            cms.createZNode(CreateMode.PERSISTENT, Path.ROOT.getFullPath(), "");
+        
         // create root peer node if does not exists
-        if (!cms.getZNodeExist(Path.PEERS.toString(), null))
-            cms.createZNode(CreateMode.PERSISTENT, Path.PEERS.toString(), "");
+        if (!cms.getZNodeExist(Path.PEERS.getFullPath(), null))
+            cms.createZNode(CreateMode.PERSISTENT, Path.PEERS.getFullPath(), "");
         
         // add current instance as a peer
-        cms.createZNode(CreateMode.PERSISTENT, Path.PREFIX_PEER.getFullPath(id), null);
+        cms.createZNode(CreateMode.PERSISTENT, Path.NODE_PEER.getFullPath(id), null);
         cms.createZNode(CreateMode.EPHEMERAL, Path.STATUS.getFullPath(id), null);
         
         // create services repository node
@@ -73,13 +77,13 @@ public class ServiceManager {
         if (cms.getZNodeExist(Path.PIPELINES.getFullPath(), null))
             cms.delete(Path.PIPELINES.getFullPath());
         if (cms.getZNodeExist(Path.PENDING_SAVE.getFullPath(), null))
-            cms.delete(Path.PENDING_SAVE.toString());
+            cms.delete(Path.PENDING_SAVE.getFullPath());
         if (cms.getZNodeExist(Path.PEERS.getFullPath(), null))
-            cms.delete(Path.PEERS.toString());
+            cms.delete(Path.PEERS.getFullPath());
         if (cms.getZNodeExist(Path.SERVICES.getFullPath(), null))
-            cms.delete(Path.SERVICES.toString());
+            cms.delete(Path.SERVICES.getFullPath());
         if (cms.getZNodeExist(Path.FINISHED_TASKS.getFullPath(), null))
-            cms.delete(Path.FINISHED_TASKS.toString());
+            cms.delete(Path.FINISHED_TASKS.getFullPath());
     }
     
     public void register(Service service) {

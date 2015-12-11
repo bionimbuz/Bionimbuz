@@ -50,10 +50,11 @@ public class SchedullerTester {
     private void initCommunication() {
         cms = new CuratorMessageService();
         try {
-            Enumeration<InetAddress> inet = NetworkInterface.getByName("wlan0").getInetAddresses();
-            String ip = "";
-            while (inet.hasMoreElements())
-                ip = inet.nextElement().toString();
+            Enumeration<InetAddress> inet = NetworkInterface.getByName("eth0").getInetAddresses();
+            String ip = "1164.41.209.95";
+            if (ip.equals(""))
+                while (inet.hasMoreElements())
+                    ip = inet.nextElement().toString();
             cms.connect(ip.substring(1)+":2181");
         } catch (SocketException ex) {
             java.util.logging.Logger.getLogger(SchedullerTester.class.getName()).log(Level.SEVERE, null, ex);
@@ -75,48 +76,6 @@ public class SchedullerTester {
             java.util.logging.Logger.getLogger(MscTool.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-    }
-
-    public static void main(String[] args) throws InterruptedException, IOException {
-        SchedullerTester tester = new SchedullerTester();
-        boolean fileTest = false;
-        
-        FromMockFileTestGenerator gen = new FromMockFileTestGenerator();
-        List<PipelineInfo> pipelines = gen.getPipelinesTemplates();
-        List<PluginService> services = gen.getServicesTemplates();
-        List<PluginInfo> resources = gen.getResourceTemplates();
-
-        // flush test data
-//            System.out.println("[SchedTester] flushing test data");
-//            PrintWriter pwr = new PrintWriter("pipelines.txt", "UTF-8");
-//            for (PipelineInfo p : pipelines)
-//                pwr.println(p.toString());
-//            PrintWriter swr = new PrintWriter("services.txt", "UTF-8");
-//            for (PluginService s : services)
-//                swr.println(s.toString());
-//            PrintWriter rwr = new PrintWriter("resources.txt", "UTF-8");
-//            for (PluginInfo r : resources)
-//                rwr.println(r.toString());
-
-        // add data to zookeeper
-        tester.addServices(services);
-//        tester.addResources(resources);
-
-        System.out.println("[SchedTester] starting testing with " + pipelines.size() + " pipelines");
-
-        // perform all tests
-        PipelineInfo fst = pipelines.get(0);
-        tester.sendJobs(fst);
-        pipelines.remove(fst);
-        System.out.println("[SchedTester] First pipeline " + fst.getId() + " with " + fst.getJobs().size() + " jobs sent, " + pipelines.size() + " remaining");
-
-        // busy waiting to wait for node to exists
-        while(!tester.cms.getZNodeExist(Path.PREFIX_PIPELINE.getFullPath(fst.getId()), null)){
-        System.out.println("[SchedTester] waiting node creation");}
-        tester.cms.getChildren(Path.PREFIX_PIPELINE.getFullPath(fst.getId()), new SendPipeline(tester.cms, tester, pipelines, fst.getId()));
-
-        System.out.println("[SchedTester] waiting forever");
-        while(true){}
     }
     
     public void addServices (List<PluginService> services) {
@@ -202,8 +161,8 @@ public class SchedullerTester {
                             // set new watcher with remaining pipelines
                             remaining.remove(pipeline);
                             System.out.println("[SentPipeline] Pipeline " + pipeline.getId() + " sent, " + remaining.size() + " remaining");
-                            while(!cms.getZNodeExist(Path.PREFIX_PIPELINE.getFullPath(pipeline.getId()), null)){}
-                            cms.getChildren(Path.PREFIX_PIPELINE.getFullPath(pipeline.getId()), new SendPipeline(cms, st, remaining, pipeline.getId()));
+                            while(!cms.getZNodeExist(Path.NODE_PIPELINE.getFullPath(pipeline.getId()), null)){}
+                            cms.getChildren(Path.NODE_PIPELINE.getFullPath(pipeline.getId()), new SendPipeline(cms, st, remaining, pipeline.getId()));
                         } else {
                             System.out.println("[SentPipeline] No more pipelines");
                         }
@@ -218,5 +177,47 @@ public class SchedullerTester {
 
             }
         } 
+    }
+    
+    public static void main(String[] args) throws InterruptedException, IOException {
+        SchedullerTester tester = new SchedullerTester();
+        boolean fileTest = false;
+        
+        FromMockFileTestGenerator gen = new FromMockFileTestGenerator();
+        List<PipelineInfo> pipelines = gen.getPipelinesTemplates();
+        List<PluginService> services = gen.getServicesTemplates();
+        List<PluginInfo> resources = gen.getResourceTemplates();
+
+        // flush test data
+//            System.out.println("[SchedTester] flushing test data");
+//            PrintWriter pwr = new PrintWriter("pipelines.txt", "UTF-8");
+//            for (PipelineInfo p : pipelines)
+//                pwr.println(p.toString());
+//            PrintWriter swr = new PrintWriter("services.txt", "UTF-8");
+//            for (PluginService s : services)
+//                swr.println(s.toString());
+//            PrintWriter rwr = new PrintWriter("resources.txt", "UTF-8");
+//            for (PluginInfo r : resources)
+//                rwr.println(r.toString());
+
+        // add data to zookeeper
+        tester.addServices(services);
+//        tester.addResources(resources);
+
+        System.out.println("[SchedTester] starting testing with " + pipelines.size() + " pipelines");
+
+        // perform all tests
+        PipelineInfo fst = pipelines.get(0);
+        tester.sendJobs(fst);
+        pipelines.remove(fst);
+        System.out.println("[SchedTester] First pipeline " + fst.getId() + " with " + fst.getJobs().size() + " jobs sent, " + pipelines.size() + " remaining");
+
+        // busy waiting to wait for node to exists
+        while(!tester.cms.getZNodeExist(Path.NODE_PIPELINE.getFullPath(fst.getId()), null)){
+        System.out.println("[SchedTester] waiting node creation");}
+        tester.cms.getChildren(Path.NODE_PIPELINE.getFullPath(fst.getId()), new SendPipeline(tester.cms, tester, pipelines, fst.getId()));
+
+        System.out.println("[SchedTester] waiting forever");
+        while(true){}
     }
 }
