@@ -81,7 +81,7 @@ public class ServiceManager {
      */
     private void clearZookeeper() {
 
-        if (cms.getZNodeExist(Path.PIPELINES.getFullPath(), null)) {
+        if (cms.getZNodeExist(Path.PIPELINES.getFullPath(), null)) 
             cms.delete(Path.PIPELINES.getFullPath());
         if (cms.getZNodeExist(Path.PENDING_SAVE.getFullPath(), null))
             cms.delete(Path.PENDING_SAVE.getFullPath());

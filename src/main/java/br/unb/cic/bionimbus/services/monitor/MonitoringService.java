@@ -94,7 +94,7 @@ public class MonitoringService extends AbstractBioService implements Runnable {
                         if(plugins.size()<getPeers().size()){
                             verifyPlugins();
                         }
-                    }
+                    
                     System.out.print(path + "= NodeChildrenChanged");
                     break;
                 case NodeDeleted:
