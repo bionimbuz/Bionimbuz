@@ -172,10 +172,9 @@ public class BioProtoImpl implements BioProto {
             AESEncryptor aes = new AESEncryptor();
             //Not decrypt inputfiles.txt
             //if(!filename.contains("inputfiles.txt")) {
-            aes.decrypt(path + filename);
+            //TO-DO: Remove comment after William Final Commit
+            //aes.decrypt(path + filename);
             //}
-        } catch (IOException | NoSuchAlgorithmException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }

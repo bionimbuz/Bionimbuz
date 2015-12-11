@@ -39,7 +39,8 @@ public class Upload implements Command {
             String path = file.getPath();
 
             //if (!file.getPath().contains("inputfiles.txt")) {
-            aes.encrypt(path);
+            //TO-DO: Remove comment after William Final Commit
+            //aes.encrypt(path);
             //}
 
             String hashFile = Hash.calculateSha3(path);

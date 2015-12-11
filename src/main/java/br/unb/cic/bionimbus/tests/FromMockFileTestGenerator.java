@@ -27,7 +27,8 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
         String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
         AESEncryptor aes = new AESEncryptor();          
         try {
-            aes.decrypt(path+"resSample.txt");
+            //TO-DO: Remove comment after William Final Commit
+            //aes.decrypt(path+"resSample.txt");
         } catch (Exception ex) {
             Logger.getLogger(FromMockFileTestGenerator.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -43,7 +44,8 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
         String path = (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
         AESEncryptor aes = new AESEncryptor();          
         try {
-            aes.decrypt(path+"pipelineSample.txt");
+            //TO-DO: Remove comment after William Final Commit
+            //aes.decrypt(path+"pipelineSample.txt");
         } catch (Exception ex) {
             Logger.getLogger(FromMockFileTestGenerator.class.getName()).log(Level.SEVERE, null, ex);
         }        
@@ -122,7 +124,8 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
         String path = (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
         AESEncryptor aes = new AESEncryptor();          
         try {
-            aes.decrypt(path+"servicesSample.txt");
+            //TO-DO: Remove comment after William Final Commit
+            //aes.decrypt(path+"servicesSample.txt");
         } catch (Exception ex) {
             Logger.getLogger(FromMockFileTestGenerator.class.getName()).log(Level.SEVERE, null, ex);
         }
