@@ -260,7 +260,7 @@ public class StorageService extends AbstractBioService {
 
         for (Iterator<PluginInfo> it = getPeers().values().iterator(); it.hasNext();) {
             PluginInfo plugin = it.next();
-            listFiles = cms.getChildren(Path.NODE_PEER.getFullPath(plugin.getId()) + Path.FILES.getFullPath(), null);
+            listFiles = cms.getChildren(Path.FILES.getFullPath(plugin.getId()), null);
             for (String checkfile : listFiles) {
                 if (file.equals(checkfile)) {
                     return plugin.getHost().getAddress();

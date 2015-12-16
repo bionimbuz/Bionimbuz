@@ -40,7 +40,7 @@ public class BioNimbus {
     public BioNimbus(BioNimbusConfig config) throws IOException, InterruptedException {
 
         config.setId(UUID.randomUUID().toString());
-        List<Listeners> listeners = new CopyOnWriteArrayList<Listeners>();
+        List<Listeners> listeners = new CopyOnWriteArrayList<>();
         
         if (!config.isClient()) {
             LinuxGetInfo getinfo = new LinuxGetInfo();
@@ -62,8 +62,8 @@ public class BioNimbus {
 
         final Injector injector = createInjector(new ServiceModule());
 
-            ServiceManager manager = injector.getInstance(ServiceManager.class);
-            manager.startAll(config, listeners);
+        ServiceManager manager = injector.getInstance(ServiceManager.class);
+        manager.startAll(config, listeners);
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {

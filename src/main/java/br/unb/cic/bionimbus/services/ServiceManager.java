@@ -98,7 +98,9 @@ public class ServiceManager {
             httpServer.start();
             connectZK(config.getZkHosts());
             //limpando o servicor zookeeper caso não tenha peer on-line ao inciar servidor zooNimbus
-            clearZookeeper();
+            if (!config.isClient())
+                clearZookeeper();
+            
             createZnodeZK(config.getId());
             
             for (Service service : services) {
