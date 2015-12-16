@@ -2,6 +2,7 @@ package br.unb.cic.bionimbus.services;
 
 import br.unb.cic.bionimbus.avro.rpc.RpcServer;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.toSort.Listeners;
@@ -54,8 +55,7 @@ public class ServiceManager {
             cms.createZNode(CreateMode.PERSISTENT, Path.PEERS.getFullPath(), "");
         
         // add current instance as a peer
-        cms.createZNode(CreateMode.PERSISTENT, Path.NODE_PEER.getFullPath(id), null);
-        cms.createZNode(CreateMode.EPHEMERAL, Path.STATUS.getFullPath(id), null);
+        rs.addPeerToZookeeper(new PluginInfo(id));
         
         // create services repository node
         if(!cms.getZNodeExist(Path.SERVICES.getFullPath(), null)) {

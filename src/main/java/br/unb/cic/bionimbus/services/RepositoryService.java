@@ -159,7 +159,7 @@ public class RepositoryService extends AbstractBioService {
      */
     public void addPeerToZookeeper (PluginInfo resource) {
         cms.createZNode(CreateMode.PERSISTENT, Path.NODE_PEER.getFullPath(resource.getId()), resource.toString());
-        cms.createZNode(CreateMode.PERSISTENT, Path.STATUS.getFullPath(resource.getId()), null);
+        cms.createZNode(CreateMode.EPHEMERAL, Path.STATUS.getFullPath(resource.getId()), null);
         cms.createZNode(CreateMode.PERSISTENT, Path.SCHED.getFullPath(resource.getId()), null);
         cms.createZNode(CreateMode.PERSISTENT, Path.TASKS.getFullPath(resource.getId()), null);
     }

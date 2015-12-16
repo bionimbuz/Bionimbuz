@@ -59,7 +59,7 @@ public class SchedService extends AbstractBioService implements Runnable {
     private RpcClient rpcClient;
     
     // change this to select scheduling policy
-    private final SchedPolicy.Policy policy = SchedPolicy.Policy.ACO_SCHED;
+    private final SchedPolicy.Policy policy = SchedPolicy.Policy.C99SUPERCOLIDER;
     private String idPlugin;
     
     private LinuxPlugin myLinuxPlugin;
@@ -451,7 +451,7 @@ public class SchedService extends AbstractBioService implements Runnable {
             }
             
             //adiconando watch para cada peer, realizará recuperação de task escalonadas caso o plugin fique off-line
-            cms.getData(plugin.getPath_zk() + Path.STATUS, new UpdatePeerData(cms, this));
+            cms.getData(Path.STATUS.getFullPath(plugin.getId()), new UpdatePeerData(cms, this));
         }
         
     }
