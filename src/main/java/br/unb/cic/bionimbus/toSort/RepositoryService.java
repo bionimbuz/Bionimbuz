@@ -25,7 +25,6 @@ import org.mortbay.log.Log;
 public class RepositoryService {
     
     private final CloudMessageService cms;
-    
     private static final String ROOT_REPOSITORY = CuratorMessageService.Path.HISTORY.toString();
     private static final String PREFIX_TASK = ROOT_REPOSITORY + CuratorMessageService.Path.PREFIX_TASK.toString();
     private static final String SEPARATOR = CuratorMessageService.Path.SEPARATOR.toString();
@@ -45,8 +44,9 @@ public class RepositoryService {
         return Collections.unmodifiableList(null);
     }
     
-    public float getInstanceCost(int instId) {
-        return 0;
+    //Essa função retorna o preço da máquina virtual, a partir do seu id
+    public double getInstanceCost(int instId) {
+        return null;
     }
     
     // TODO: criar uma classe para arvores (arvores em java parecem ser demasiadamente/desnecessariamente complicadas)
