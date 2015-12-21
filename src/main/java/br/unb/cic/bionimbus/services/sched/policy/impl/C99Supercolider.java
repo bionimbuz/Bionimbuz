@@ -58,15 +58,17 @@ public class C99Supercolider extends SchedPolicy {
 
     private ResourceList best;
     private List<JobInfo> jobs;
-    private final List<ResourceList> bestList = new ArrayList<ResourceList>();
+    private final List<ResourceList> bestList = new ArrayList<>();
     private int s2best = 0;
     private int s3best = 0;
     private int beam = 0;
-    // between 0 and 1
-    //        time  cost
+    
+    // alpha between 0 and 1
+    //              time  cost
     private final double alpha = 0.5d;
+    
     public Long id = 0l;
-    private final List<ResourceList> solutionsList = new ArrayList<ResourceList>();
+    private final List<ResourceList> solutionsList = new ArrayList<>();
     private long prunableNodes = 0;
     private long pruned = 0;
     private long removedFromSearch = 0;
@@ -109,9 +111,9 @@ public class C99Supercolider extends SchedPolicy {
         
         try {
             execLock.lock();
-            root = stageOne(rl, new LinkedList<JobInfo>(jobs));
+            root = stageOne(rl, new LinkedList<>(jobs));
 //                recursiveSeachNodePrint(root, 0);
-            stageTwo(root, new LinkedList<JobInfo>(jobs));
+            stageTwo(root, new LinkedList<>(jobs));
 //                recursiveSeachNodePrint(root, 0);
             this.jobs = jobs;
             stageThree(root, rl.resources.size());
@@ -211,12 +213,12 @@ public class C99Supercolider extends SchedPolicy {
 
         // rework every i allocation
         for (int i = 0; i < jobs.size(); i++) {
-            Queue<JobInfo> jobsCopy = new LinkedList<JobInfo>(jobs);
+            Queue<JobInfo> jobsCopy = new LinkedList<>(jobs);
             int k = i;
             node = root;
             depth = 1;
 
-            Stack<SearchNode> backtrackStack = new Stack<SearchNode>();
+            Stack<SearchNode> backtrackStack = new Stack<>();
 
             // run scheduler for jobsCopy list
             while (!jobsCopy.isEmpty()) {
@@ -406,7 +408,7 @@ public class C99Supercolider extends SchedPolicy {
      * above description.
      */
     private Queue<SearchNode> generatePriorityQueue(JobInfo job, ResourceList rl, long depth) {
-        List<ResourceList> rls = new ArrayList<ResourceList>();
+        List<ResourceList> rls = new ArrayList<>();
 
         // Generate a list of ResourceList on which a task is allocated to 
         // every single resource. A single ResourceList can't have more than
@@ -423,7 +425,7 @@ public class C99Supercolider extends SchedPolicy {
         List<ResourceList> remaining = rlPair.second;
 
         // create an ordered queue by how pareto-optimal a solution is
-        Queue<SearchNode> priorityQueue = new LinkedList<SearchNode>();
+        Queue<SearchNode> priorityQueue = new LinkedList<>();
         while (!pareto.isEmpty()) {
             ResourceList currentBest = Pareto.getParetoOptimal(pareto, alpha);
             pareto.remove(currentBest);
@@ -433,7 +435,7 @@ public class C99Supercolider extends SchedPolicy {
 
         // create another queue with the remaining solutions, thus, 
         // guaranteeing completeness 
-        Queue<SearchNode> remainingQueue = new LinkedList<SearchNode>();
+        Queue<SearchNode> remainingQueue = new LinkedList<>();
         for (ResourceList r : remaining) {
             SearchNode n = new SearchNode(r, id, depth);
             n.prunable = true;
@@ -457,7 +459,7 @@ public class C99Supercolider extends SchedPolicy {
      * @return True if it's a new best, false otherwise.
      */
     boolean updateBest(SearchNode node) {
-        List<ResourceList> lrl = new ArrayList<ResourceList>(solutionsList);
+        List<ResourceList> lrl = new ArrayList<>(solutionsList);
         ResourceList newRl = new ResourceList(node.rl);
         lrl.add(newRl);
 
@@ -789,7 +791,7 @@ public class C99Supercolider extends SchedPolicy {
             System.out.println("job was interrupted");
             scheduler.outOfMemory = true;
         } catch (ExecutionException e) {
-            System.out.println("caught exception: " + e.getCause());
+            System.out.println("caught exception: " + e.toString());
             System.out.println(Utility.getStackTrace(e));
             finished = false;
             scheduler.outOfMemory = true;
@@ -804,7 +806,6 @@ public class C99Supercolider extends SchedPolicy {
             System.out.println("timeout - task finished");
         } finally {
             hedge = null;
-            future = null;
             System.gc();
         }
 
@@ -824,7 +825,7 @@ public class C99Supercolider extends SchedPolicy {
     public HashMap<JobInfo, PluginInfo> schedule(List<JobInfo> jobs) {
         schedule(rs.getCurrentResourceList(), jobs);
 
-        HashMap<JobInfo, PluginInfo> sched = new HashMap<JobInfo, PluginInfo>();
+        HashMap<JobInfo, PluginInfo> sched = new HashMap<>();
         Map<String, PluginInfo> peers = rs.getPeers();
 
         for (Resource r : best.resources) {

@@ -2,6 +2,7 @@ package br.unb.cic.bionimbus.services;
 
 import br.unb.cic.bionimbus.avro.rpc.RpcServer;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.toSort.Listeners;
@@ -60,9 +61,8 @@ public class ServiceManager {
             cms.createZNode(CreateMode.PERSISTENT, Path.PEERS.getFullPath(), "");
         
         // add current instance as a peer
-        cms.createZNode(CreateMode.PERSISTENT, Path.NODE_PEER.getFullPath(id), null);
-        cms.createZNode(CreateMode.EPHEMERAL, Path.STATUS.getFullPath(id), null);
-
+        rs.addPeerToZookeeper(new PluginInfo(id));
+        
         // create services repository node
         if (!cms.getZNodeExist(Path.SERVICES.getFullPath(), null)) {
             // create history root
@@ -79,18 +79,20 @@ public class ServiceManager {
      * Responsável pela limpeza do servidor a cada nova conexão onde o todos os
      * plug-ins havia ficado indisponíveis.
      */
-    private void clearZookeeper() {
-
-        if (cms.getZNodeExist(Path.PIPELINES.getFullPath(), null)) 
-            cms.delete(Path.PIPELINES.getFullPath());
-        if (cms.getZNodeExist(Path.PENDING_SAVE.getFullPath(), null))
-            cms.delete(Path.PENDING_SAVE.getFullPath());
-        if (cms.getZNodeExist(Path.PEERS.getFullPath(), null))
-            cms.delete(Path.PEERS.getFullPath());
-        if (cms.getZNodeExist(Path.SERVICES.getFullPath(), null))
-            cms.delete(Path.SERVICES.getFullPath());
-        if (cms.getZNodeExist(Path.FINISHED_TASKS.getFullPath(), null))
-            cms.delete(Path.FINISHED_TASKS.getFullPath());
+    private void clearZookeeper(){
+        
+        if (cms.getZNodeExist(Path.ROOT.getFullPath(), null))
+            cms.delete(Path.ROOT.getFullPath());
+//        if (cms.getZNodeExist(Path.PIPELINES.getFullPath(), null))
+//            cms.delete(Path.PIPELINES.getFullPath());
+//        if (cms.getZNodeExist(Path.PENDING_SAVE.getFullPath(), null))
+//            cms.delete(Path.PENDING_SAVE.getFullPath());
+//        if (cms.getZNodeExist(Path.PEERS.getFullPath(), null))
+//            cms.delete(Path.PEERS.getFullPath());
+//        if (cms.getZNodeExist(Path.SERVICES.getFullPath(), null))
+//            cms.delete(Path.SERVICES.getFullPath());
+//        if (cms.getZNodeExist(Path.FINISHED_TASKS.getFullPath(), null))
+//            cms.delete(Path.FINISHED_TASKS.getFullPath());
     }
 
     public void register(Service service) {
@@ -109,7 +111,9 @@ public class ServiceManager {
 
             connectZK(config.getZkHosts());
             //limpando o servicor zookeeper caso não tenha peer on-line ao inciar servidor zooNimbus
-            clearZookeeper();
+            if (!config.isClient())
+                clearZookeeper();
+            
             createZnodeZK(config.getId());
 
             for (Service service : services) {

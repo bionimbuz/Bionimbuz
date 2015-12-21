@@ -1,1 +1,1 @@
-{"id": "2043430392832afb","host":{"address": "192.168.1.115","port":9999},"client":true,"seeds":[{"address":"192.168.1.115","port": 9999},{"address": "192.168.1.111","port": 9999}],"serverPath": "","zookeeper_hosts": "192.168.1.115:2181"}
+{"id":"2043430392832afb", "host":{"address": "192.168.1.115", "port": 9999}, "client": true, "seeds": [{"address":"192.168.1.115","port":9999},{"address":"192.168.1.111","port":9999}], "serverPath": "","zookeeper_hosts":"192.168.1.115:2181", "cost":"0.35"}

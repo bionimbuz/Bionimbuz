@@ -61,6 +61,5 @@ public abstract class AbstractBioService implements Service, Runnable, Listeners
         }
 
         return cloudMap;
-    }
-
+    }  
 }

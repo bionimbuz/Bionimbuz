@@ -3,8 +3,8 @@
 {serviceId:2, args:%I1%O1, inputs:[out1], outputs:[out2]}
 {serviceId:3, args:%I1%O1, inputs:[out1], outputs:[out3]}
 {serviceId:4, args:%I1%O1, inputs:[out1], outputs:[out4]}
-{serviceId:5, args:%I1%I2%O1, inputs:[out2, out3], outputs:[out5]}
-{serviceId:6, args:%I1%I2%O1, inputs:[out4, out5], outputs:[out6]}
+{serviceId:5, args:%I1%I2%O1, inputs:[out2,out3], outputs:[out5]}
+{serviceId:6, args:%I1%I2%O1, inputs:[out4,out5], outputs:[out6]}
 0,0,0,0,0,0
 1,0,0,0,0,0
 1,0,0,0,0,0

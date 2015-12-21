@@ -5,22 +5,27 @@
  */
 package br.unb.cic.bionimbus.services;
 
+import br.unb.cic.bionimbus.client.JobInfo;
 import br.unb.cic.bionimbus.services.sched.model.ResourceList;
 import br.unb.cic.bionimbus.services.sched.model.Resource;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginService;
-import br.unb.cic.bionimbus.services.AbstractBioService;
+import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.mortbay.log.Log;
 
 /**
@@ -102,8 +107,16 @@ public class RepositoryService extends AbstractBioService {
 
         for (Map.Entry<String, PluginInfo> peer : getPeers().entrySet()) {
             Resource r = new Resource(peer.getValue().getId(),
-                    peer.getValue().getFactoryFrequencyCore(),
-                    peer.getValue().getCostPerHour());
+                        peer.getValue().getFactoryFrequencyCore(),
+                        peer.getValue().getCostPerHour());
+            for (String taskId : cms.getChildren(Path.TASKS.getFullPath(peer.getValue().getId()), null)) {
+                try {
+                    PluginTask job = new ObjectMapper().readValue(cms.getData(Path.NODE_TASK.getFullPath(peer.getValue().getId(), taskId), null), PluginTask.class);
+                    r.addTask(job.getJobInfo());
+                } catch (IOException ex) {
+                    Logger.getLogger(RepositoryService.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
             System.out.println("[RepositoryService] resource converted: " + r.toString());
             resources.resources.add(r);
         }
@@ -142,7 +155,7 @@ public class RepositoryService extends AbstractBioService {
      */
     public void addPeerToZookeeper (PluginInfo resource) {
         cms.createZNode(CreateMode.PERSISTENT, Path.NODE_PEER.getFullPath(resource.getId()), resource.toString());
-        cms.createZNode(CreateMode.PERSISTENT, Path.STATUS.getFullPath(resource.getId()), null);
+        cms.createZNode(CreateMode.EPHEMERAL, Path.STATUS.getFullPath(resource.getId()), null);
         cms.createZNode(CreateMode.PERSISTENT, Path.SCHED.getFullPath(resource.getId()), null);
         cms.createZNode(CreateMode.PERSISTENT, Path.TASKS.getFullPath(resource.getId()), null);
     }

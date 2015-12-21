@@ -24,7 +24,7 @@ public class MscPipeline implements Pipeline {
         outputFiles.add(input.getName() + "-coverage.out");
 
         // bowtie
-        JobInfo job = new JobInfo(null);
+        JobInfo job = new JobInfo();
         job.setArgs("%I1%I2%O1");
         job.setTimestamp(0l);
 //        job.setId(null);
@@ -47,7 +47,7 @@ public class MscPipeline implements Pipeline {
 //        job.addOutput(outputFiles.get(1));
 //        jobs.add(job);
         // sam2bed
-        job = new JobInfo(null);
+        job = new JobInfo();
         job.setArgs("%I1%O1");
         job.setTimestamp(0l);
 //        job.setId(null);
@@ -56,7 +56,7 @@ public class MscPipeline implements Pipeline {
         jobs.add(job);
 
         // genome2interval
-        job = new JobInfo(null);
+        job = new JobInfo();
         job.setArgs("%I110000%O1");
         job.setTimestamp(0l);
 //        job.setId(null);
@@ -67,7 +67,7 @@ public class MscPipeline implements Pipeline {
         jobs.add(job);
 
         // coverageBed
-        job = new JobInfo(null);
+        job = new JobInfo();
         job.setArgs("%I1%I2%O1");
         job.setTimestamp(0l);
 //        job.setId(null);

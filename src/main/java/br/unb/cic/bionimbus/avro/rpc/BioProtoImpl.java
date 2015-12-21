@@ -4,6 +4,8 @@ import br.unb.cic.bionimbus.avro.gen.BioProto;
 import br.unb.cic.bionimbus.avro.gen.FileInfo;
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.plugin.*;
+import br.unb.cic.bionimbus.security.AESEncryptor;
+import br.unb.cic.bionimbus.security.Hash;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.sched.SchedService;
@@ -13,6 +15,7 @@ import com.google.inject.Inject;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.logging.Level;
 import org.slf4j.Logger;
@@ -39,7 +42,7 @@ public class BioProtoImpl implements BioProto {
     private final CloudMessageService cms;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SchedService.class.getSimpleName());
-
+    
     private Map<String, NodeInfo> nodes = new HashMap<String, NodeInfo>();
 
     @Inject
@@ -162,7 +165,47 @@ public class BioProtoImpl implements BioProto {
 
     /**
      *
-     * @return @throws AvroRemoteException
+     * @param filename
+     */
+    @Override
+    public void decryptPluginFile(String filename) {
+        try {
+            String pathHome = System.getProperty("user.dir");
+            String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
+            AESEncryptor aes = new AESEncryptor();
+            //Not decrypt inputfiles.txt
+            //if(!filename.contains("inputfiles.txt")) {
+            //TO-DO: Remove comment after William Final Commit
+            //aes.decrypt(path + filename);
+            //}
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+     /**
+     * 
+     * @param fileName
+     * @return lista com nome dos arquivos
+     * @throws AvroRemoteException 
+     */
+    @Override
+    public String getFileHash(String fileName) throws org.apache.avro.AvroRemoteException{        
+        try {
+            String pathHome = System.getProperty("user.dir");
+            String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
+            String hash = Hash.calculateSha3(path + fileName);
+            return hash;
+        } catch (IOException ex) {        
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
+    /**
+     * 
+     * @return
+     * @throws AvroRemoteException 
      */
     @Override
     public List<br.unb.cic.bionimbus.avro.gen.PluginFile> listFiles() throws AvroRemoteException {
@@ -176,6 +219,7 @@ public class BioProtoImpl implements BioProto {
                 file.setName(fileInfo.getName());
                 //retorno com getName  para o path porque avro não reconhece barra(/), adicionar data-folder/
                 //ao receber o retono deste método
+                file.setHash(fileInfo.getHash());
                 file.setPath(fileInfo.getName());
                 file.setPluginId(fileInfo.getPluginId());
                 file.setSize(fileInfo.getSize());
@@ -188,12 +232,35 @@ public class BioProtoImpl implements BioProto {
     }
 
     /**
-     * Retorna o ip que contém o arquivo informado @param file. Se não encontrar
-     * o arquivo retorna null
-     *
-     * @param file - Nome do arquivo requisitado
-     * @return - Ip de onde o arquivo se encontra, ou caso não encontre retorna
-     * null;
+     * 
+     * @param pluginId
+     * @return
+     * @throws AvroRemoteException 
+     */
+    @Override
+    public List<br.unb.cic.bionimbus.avro.gen.PluginFile> listFilesPlugin(String pluginId) throws AvroRemoteException {
+            HashSet<br.unb.cic.bionimbus.avro.gen.PluginFile> listFiles = new HashSet<br.unb.cic.bionimbus.avro.gen.PluginFile>();
+            br.unb.cic.bionimbus.avro.gen.PluginFile file;
+            for(PluginFile fileInfo : storageService.getFilesPeer(pluginId)){
+                file = new  br.unb.cic.bionimbus.avro.gen.PluginFile();
+                file.setId(fileInfo.getId());
+                file.setName(fileInfo.getName());
+                file.setPath(fileInfo.getName());
+                file.setPluginId(fileInfo.getPluginId());
+                file.setSize(fileInfo.getSize());
+                file.setHash(fileInfo.getHash());
+                listFiles.add(file);
+            }    
+        List<br.unb.cic.bionimbus.avro.gen.PluginFile> listFile = new ArrayList<br.unb.cic.bionimbus.avro.gen.PluginFile>(listFiles);
+
+        return listFile;
+    }
+    
+    /**
+     * Retorna o ip que contém o arquivo informado @param file.
+     * Se não encontrar o arquivo retorna null
+     * @param file - Nome do arquivo requisitado 
+     * @return - Ip de onde o arquivo se encontra, ou caso não encontre retorna null;
      */
     @Override
     public String getIpFile(String file) {
@@ -318,9 +385,8 @@ public class BioProtoImpl implements BioProto {
         } catch (AvroRemoteException ex) {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        return null;
-
+        
+        return null;    
     }
 
     @Override
@@ -355,7 +421,7 @@ public class BioProtoImpl implements BioProto {
 
         return new ArrayList<NodeInfo>(nodes.values());
     }
-
+    
     /**
      * Passa PluginList para StorageService aqui
      *
@@ -372,12 +438,10 @@ public class BioProtoImpl implements BioProto {
     }
 
     /**
-     * Método que cria o znode do arquivo no diretório /pending_save/file_"id_do
-     * arquivo" com as informações de arquivos que clientes querem enviar;
-     *
-     * @param file informações do arquivo:id,nome e tamanho
-     * @param kindString Tipo de serviço que está requisitando o arquivo
-     */
+     * Método que cria o znode do arquivo no diretório /pending_save/file_"id_do arquivo" com as informações de arquivos que clientes querem enviar;
+     * @param file informações do arquivo:id,nome, tamanho e hash
+     * @param kindString Tipo de serviço que está requisitando o arquivo 
+     */  
     @Override
     public void setFileInfo(FileInfo file, String kindString) {
         PluginFile filePlugin = new PluginFile(file);
@@ -407,25 +471,25 @@ public class BioProtoImpl implements BioProto {
      *
      * @param fileSucess informações do arquivo:id,nome e tamanho
      * @param dest lista com os plugins de destino
+     * @return 
      */
     @Override
-    public synchronized void fileSent(FileInfo fileSucess, List<String> dest) {
+    public String fileSent(FileInfo fileSucess, List<String> dest){
         PluginFile file = new PluginFile(fileSucess);
         file.setPluginId(dest);
         String pathHome = System.getProperty("user.dir");
-        String path = (pathHome.substring(pathHome.length()).equals("/") ? pathHome + "data-folder/" : pathHome + "/data-folder/");
-        file.setPath(path + file.getName());
+        String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
+        file.setPath(path+file.getName());
+        String retorno = "File uploaded.";
         try {
-            storageService.fileUploaded(file);
-        } catch (KeeperException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
+            retorno = storageService.fileUploaded(file);
+            return retorno;
+        } catch (KeeperException | InterruptedException | IOException | NoSuchAlgorithmException | SftpException ex) {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return retorno;
     }
-
+    
     /**
      * Método que notifica o peer para fazer a replicação
      *
@@ -435,12 +499,8 @@ public class BioProtoImpl implements BioProto {
     @Override
     public void notifyReply(String filename, String address) {
         try {
-            storageService.replication(filename, address);
-        } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (JSchException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SftpException ex) {
+            storageService.replication(filename,address);
+        } catch (IOException | JSchException | SftpException | NoSuchAlgorithmException ex) {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -463,5 +523,4 @@ public class BioProtoImpl implements BioProto {
     public void setWatcher(String idPlugin) {
 //        storageService.starWatchers(idPlugin);
     }
-
 }

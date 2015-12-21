@@ -21,7 +21,7 @@ import br.unb.cic.bionimbus.rest.response.UploadResponse;
 
 @Path("/rest/file/")
 public class FileResource extends BaseResource {
-    private static final String UPLOADED_FILES_DIRECTORY = FileSystemView.getFileSystemView().getHomeDirectory() + "/zoonimbusProject/data-folder/uploaded-files/";
+    private static final String UPLOADED_FILES_DIRECTORY = FileSystemView.getFileSystemView().getHomeDirectory() + "/zoonimbusProject/data-folder/";
     private final FileDao fileDao;
 
     public FileResource() {

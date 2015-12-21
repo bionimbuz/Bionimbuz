@@ -6,6 +6,7 @@ import br.unb.cic.bionimbus.plugin.linux.LinuxGetInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
@@ -55,10 +56,11 @@ public class DiscoveryService extends AbstractBioService {
             PluginInfo infopc = getinfo.call();
 
             infopc.setId(config.getId());
-
-            if (start) {
-                // LinuxPlugin está contido nesse metodo, e deveria ser mandado 
-                // para o linuxplugin Bionimbus.java
+            infopc.setCostPerHour(config.getCost());
+            
+            if(start){
+            // LinuxPlugin está contido nesse metodo, e deveria ser mandado 
+            // para o linuxplugin Bionimbus.java
                 LinuxPlugin linuxPlugin = new LinuxPlugin(config);
 
                 infopc.setHost(config.getHost());
@@ -70,13 +72,13 @@ public class DiscoveryService extends AbstractBioService {
                 //definindo myInfo após a primeira leitura dos dados
                 linuxPlugin.setMyInfo(infopc);
                 listeners.add(linuxPlugin);
-            } else {
-                String data = cms.getData(infopc.getPath_zk(), null);
-                if (data == null || data.trim().isEmpty()) {
-                    System.out.println("znode vazio para path " + infopc.getPath_zk());
+            }else{
+                String data = cms.getData(Path.NODE_PEER.getFullPath(infopc.getId()), null);
+                if (data == null || data.trim().isEmpty()){
+                    System.out.println("znode vazio para path " + Path.NODE_PEER.getFullPath(infopc.getId()));
                     return;
                 }
-
+                    
                 PluginInfo plugin = new ObjectMapper().readValue(data, PluginInfo.class);
                 plugin.setFsFreeSize(infopc.getFsFreeSize());
                 plugin.setMemoryFree(infopc.getMemoryFree());
@@ -85,8 +87,8 @@ public class DiscoveryService extends AbstractBioService {
                 infopc = plugin;
             }
             //armazenando dados do plugin no zookeeper
-            cms.setData(infopc.getPath_zk(), infopc.toString());
-
+            cms.setData(Path.NODE_PEER.getFullPath(infopc.getId()), infopc.toString());
+            
         } catch (IOException ex) {
             Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
         }

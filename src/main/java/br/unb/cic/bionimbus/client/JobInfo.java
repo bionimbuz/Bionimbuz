@@ -1,6 +1,5 @@
 package br.unb.cic.bionimbus.client;
 
-import br.unb.cic.bionimbus.services.RepositoryService;
 import br.unb.cic.bionimbus.utils.Pair;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,25 +22,18 @@ public class JobInfo {
     private String args = "";
 
     // inputs = [{input.id, input.size}]
-    final private List<Pair<String, Long>> inputs = new ArrayList<Pair<String, Long>>();
+    final private List<Pair<String, Long>> inputs = new ArrayList<>();
 
-    final private List<String> outputs = new ArrayList<String>();
+    final private List<String> outputs = new ArrayList<>();
 
     private long timestamp;
 
     private Double worstExecution = null;
-
-    final private List<String> dependencies = new ArrayList<String>();
-
-    private RepositoryService rs;
-
-    public JobInfo() {
-    }
-
-    public JobInfo(RepositoryService rs) {
-        this.rs = rs;
-    }
-
+    
+    final private List<String> dependencies = new ArrayList<>(); 
+    
+    public JobInfo() {}
+    
     /**
      * This constructor is for testing purposes only
      *
@@ -96,7 +88,7 @@ public class JobInfo {
                 break;
             }
         }
-        inputs.add(new Pair<String, Long>(id, size));
+        inputs.add(new Pair<>(id, size));
     }
 
     public List<String> getOutputs() {

@@ -42,8 +42,8 @@ public class BioNimbus {
     public BioNimbus(BioNimbusConfig config) throws IOException, InterruptedException {
 
         config.setId(UUID.randomUUID().toString());
-        List<Listeners> listeners = new CopyOnWriteArrayList<Listeners>();
-
+        List<Listeners> listeners = new CopyOnWriteArrayList<>();
+        
         if (!config.isClient()) {
             LinuxGetInfo getinfo = new LinuxGetInfo();
             PluginInfo infopc = getinfo.call();
