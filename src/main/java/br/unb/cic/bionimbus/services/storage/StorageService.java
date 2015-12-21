@@ -664,7 +664,7 @@ public class StorageService extends AbstractBioService {
     /**
      * Método que recebe um evento do zookeeper caso os znodes setados nessa
      * classe sofra alguma alteração, criado, deletado, modificado, trata os
-     * eventos de acordo com o tipo do mesmo
+     * eventos de acordo com o tipo do mesmo.
      *
      * @param eventType
      */
