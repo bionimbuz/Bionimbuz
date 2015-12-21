@@ -50,6 +50,9 @@ public class BioNimbusConfig {
     @JsonProperty("server-path")
     private String serverPath = "";
     
+    @JsonProperty("cost")
+    private Double cost;
+    
     private String proxyHost = "localhost";
     private int proxyPort = 8080;
 
@@ -176,8 +179,14 @@ public class BioNimbusConfig {
     public void setPrivateCloud(int privateCloud) {
         this.privateCloud = privateCloud;
     }
-
     
+    public Double getCost() {
+        return cost;
+    }
+
+    public void SetCost(Double cost) {
+        this.cost = cost;
+    }
     
     @Override
     public String toString() {
@@ -192,6 +201,7 @@ public class BioNimbusConfig {
                 .add("private_cloud", privateCloud)
                 .add("cost_per_giga", costpergiga)
                 .add("server-path", serverPath)
+                .add("cost", cost)
                 .toString();
     }
 

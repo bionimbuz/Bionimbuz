@@ -33,6 +33,7 @@ public class ServiceModule extends AbstractModule {
         serviceBinder.addBinding().to(StorageService.class);
         serviceBinder.addBinding().to(SchedService.class);
         serviceBinder.addBinding().to(MonitoringService.class);
+        serviceBinder.addBinding().to(RepositoryService.class);
         
         // para mudar a implementação de CloudMessageService usada: alterar argumento do metodo to()
         bind(CloudMessageService.class).to(CuratorMessageService.class);

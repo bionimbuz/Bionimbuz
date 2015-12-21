@@ -11,7 +11,7 @@ public class Connect implements Command {
 
     public static final String NAME = "connect";
     private final SimpleShell shell;
-    private int port = 8080;
+    private int port = 8080; 
 
     public Connect(SimpleShell shell) {
         this.shell = shell;
@@ -25,7 +25,6 @@ public class Connect implements Command {
             return "Invalid arguments\nusage: connect <address> ";
         }
 
-        
         String hostname = params[0];
         RpcClient rpcClient = new AvroClient("http", hostname, port);
 

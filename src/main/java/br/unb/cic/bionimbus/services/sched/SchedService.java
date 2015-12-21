@@ -3,6 +3,7 @@ package br.unb.cic.bionimbus.services.sched;
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.client.PipelineInfo;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
@@ -12,9 +13,10 @@ import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
+import static br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
-import br.unb.cic.bionimbus.services.storage.Ping;
 import br.unb.cic.bionimbus.toSort.Listeners;
+import br.unb.cic.bionimbus.services.RepositoryService;
 import br.unb.cic.bionimbus.utils.Get;
 import br.unb.cic.bionimbus.utils.Pair;
 import com.google.common.base.Preconditions;
@@ -31,6 +33,9 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import static org.apache.zookeeper.Watcher.Event.EventType.NodeChildrenChanged;
+import static org.apache.zookeeper.Watcher.Event.EventType.NodeDataChanged;
+import static org.apache.zookeeper.Watcher.Event.EventType.NodeDeleted;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,41 +44,33 @@ import org.slf4j.LoggerFactory;
 public class SchedService extends AbstractBioService implements Runnable {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(SchedService.class.getSimpleName());
-    private final ConcurrentHashMap<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
+    private final ConcurrentHashMap<String, PluginInfo> cloudMap = new ConcurrentHashMap<>();
     private final ScheduledExecutorService schedExecService = Executors
             .newScheduledThreadPool(1, new BasicThreadFactory.Builder()
                     .namingPattern("SchedService-%d").build());
-    private final Queue<PluginTask> relocateTasks = new ConcurrentLinkedQueue<PluginTask>();
-    private final Map<String, JobInfo> pendingJobs = new ConcurrentHashMap<String, JobInfo>();
-    private final Map<String, Pair<PluginInfo, PluginTask>> waitingTask = new ConcurrentHashMap<String, Pair<PluginInfo, PluginTask>>();
+    private final Queue<PluginTask> relocateTasks = new ConcurrentLinkedQueue<>();
+    private final List<JobInfo> pendingJobs = new ArrayList<>();
+    private final List<JobInfo> dependentJobs = new ArrayList<>();
+    private final Map<String, Pair<PluginInfo, PluginTask>> waitingTask = new ConcurrentHashMap<>();
     private Map<String, PluginFile> mapFilesPlugin;
-    private final Map<String, JobInfo> jobsWithNoService = new ConcurrentHashMap<String, JobInfo>();
+    private final Map<String, JobInfo> jobsWithNoService = new ConcurrentHashMap<>();
 //    private final Queue<PluginTask> runningJobs = new ConcurrentLinkedQueue<PluginTask>();
-    private final Map<String, PluginInfo> cancelingJobs = new ConcurrentHashMap<String, PluginInfo>();
+    private final Map<String, PluginInfo> cancelingJobs = new ConcurrentHashMap<>();
     private RpcClient rpcClient;
     
-    private final Integer policy = 0;
+    // change this to select scheduling policy
+    private final SchedPolicy.Policy policy = SchedPolicy.Policy.C99SUPERCOLIDER;
     private String idPlugin;
     
     private LinuxPlugin myLinuxPlugin;
     private SchedPolicy schedPolicy;
-    private static final String STATUS = "/STATUS";
-    private static final String STATUSWAITING = "/STATUSWAITING";
-    private static final String ROOT_PEER = "/peers";
-    private static final String SCHED = "/sched";
-    private static final String JOBS = "/jobs";
-    private static final String LATENCY = "/latency";
-    private static final String TASKS = "/tasks";
-    private static final String PREFIX_JOB = "/job_";
-    private static final String PREFIX_TASK = "/task_";
-    private static final String SEPARATOR = "/";
     
     @Inject
-    public SchedService(final CloudMessageService cms) {
+    public SchedService(final CloudMessageService cms, final RepositoryService rs) {
         Preconditions.checkNotNull(cms);
+        Preconditions.checkNotNull(rs);
         this.cms = cms;
-        
-        
+        this.rs = rs;
     }
     
     public synchronized SchedPolicy getPolicy() {
@@ -90,20 +87,21 @@ public class SchedService extends AbstractBioService implements Runnable {
      */
     private void setPolicy() {
 //        try {
-        String dataPolicy = cms.getData(JOBS, null);
-        if (dataPolicy != null && !dataPolicy.isEmpty()) {
-            schedPolicy = SchedPolicy.getInstance(new Integer(dataPolicy), cloudMap);
-        }
+//        String dataPolicy = cms.getData(JOBS.toString(), null);
+//        if (dataPolicy != null && !dataPolicy.isEmpty()) {
+//            schedPolicy = SchedPolicy.getInstance(new Integer(dataPolicy), cloudMap);
+//        }
 //        } catch (KeeperException ex) {
 //            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
 //        } catch (InterruptedException ex) {
 //            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
 //        }
+        
+        throw new UnsupportedOperationException("METHOD COMMENTED");
     }
     
     @Override
     public void run() {
-        
         checkTasks();
     }
     
@@ -116,20 +114,23 @@ public class SchedService extends AbstractBioService implements Runnable {
 //        }
         idPlugin = this.config.getId();
         
-        //inicia o valor do zk na politica de escalonamento
-        getPolicy().schedule(null, cms);
+        getPolicy().setRs(rs);
         
-        cms.createZNode(CreateMode.PERSISTENT, JOBS, policy.toString());
-        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().SCHED.getFullPath(idPlugin, "", ""), null);
-        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().TASKS.getFullPath(idPlugin, "", ""), null);
-        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().SIZE_JOBS.getFullPath(idPlugin, "", ""), null);
+        //inicia o valor do zk na politica de escalonamento
+        getPolicy().setCms(cms);
+        
+        if (!cms.getZNodeExist(Path.PIPELINES.getFullPath(), null))
+            cms.createZNode(CreateMode.PERSISTENT, Path.PIPELINES.getFullPath(), policy.toString());
+        cms.createZNode(CreateMode.PERSISTENT, Path.SCHED.getFullPath(idPlugin), null);
+        cms.createZNode(CreateMode.PERSISTENT, Path.TASKS.getFullPath(idPlugin), null);
+        cms.createZNode(CreateMode.PERSISTENT, Path.SIZE_JOBS.getFullPath(idPlugin), null);
         
         cloudMap.putAll(getPeers());
         try {
             //adicona watchers para receber um alerta quando um novo job for criado para ser escalonado, e uma nova requisição de latência existir
-            cms.getChildren(JOBS, new UpdatePeerData(cms, this));
-            cms.getData(JOBS, new UpdatePeerData(cms, this));
-            cms.getChildren(ROOT_PEER, new UpdatePeerData(cms, this));
+            cms.getChildren(Path.PIPELINES.getFullPath(), new UpdatePeerData(cms, this));
+            cms.getData(Path.PIPELINES.getFullPath(), new UpdatePeerData(cms, this));
+            cms.getChildren(Path.PEERS.getFullPath(), new UpdatePeerData(cms, this));
             
             
             checkMyPlugin();
@@ -152,48 +153,50 @@ public class SchedService extends AbstractBioService implements Runnable {
      * Executa a rotina de escalonamento, após o zookeeper disparar um aviso que
      * um novo job foi criado para ser escalonado.
      */
-    private void scheduleJobs() throws InterruptedException, KeeperException {
-        HashMap<JobInfo, PluginInfo> schedMap = null;
+    private synchronized void scheduleJobs() throws InterruptedException, KeeperException {
+        HashMap<JobInfo, PluginInfo> schedMap;
         
-        // Caso nao exista nenhum job pendente da a chance do escalonador
+        // Caso nao exista nenhum pipeline pendente da a chance para o escalonador
         // realocar as tarefas.
-        if (!getPendingJobs().isEmpty()) {
+        LOGGER.info("[SchedService] scheduleJob");
+        System.out.println("[SchedService] scheduleJob");
+        if (!pendingJobs.isEmpty()) {
             cloudMap.clear();
             cloudMap.putAll(getPeers());
-            LOGGER.info("Número de plugins: "+cloudMap.size());
-            //realiza a requisicao dos valores da lantênia antes de escalonar um job
-            schedMap = getPolicy().schedule(getPendingJobs().values(), cms);
-            
+            LOGGER.info("[SchedService] Número de plugins: "+cloudMap.size());
+            //realiza a requisicao dos valores da lantência antes de escalonar um job
+
+            // sched all pending jobs
+            schedMap = getPolicy().schedule(pendingJobs);
+
             for (Map.Entry<JobInfo, PluginInfo> entry : schedMap.entrySet()) {
                 JobInfo jobInfo = entry.getKey();
-                
-                LOGGER.info(">>>  Tempo de escalonamento: " + (System.currentTimeMillis() - jobInfo.getTimestamp())+" milesegundos");
-                
+
                 PluginInfo pluginInfo = entry.getValue();
                 PluginTask task = new PluginTask();
                 task.setJobInfo(jobInfo);
                 if (pluginInfo != null) {
-                    LOGGER.info(">> SCHEDULE JobID: " + jobInfo.getId()+ " , saida:("+jobInfo.getOutputs()+") escalonado para peer_" + pluginInfo.getId());
-                    
+                    LOGGER.info("[SchedService] SCHEDULE JobID: " + jobInfo.getId()+ " , saida:("+jobInfo.getOutputs()+") escalonado para peer_" + pluginInfo.getId());
+
                     task.setState(PluginTaskState.PENDING);
                     task.setPluginExec(pluginInfo.getId());
-                    task.setPluginTaskPathZk(pluginInfo.getPath_zk() + SCHED + TASKS + PREFIX_TASK + task.getId());
                     //adiciona o job na lista de execução do servidor zookeeper
-                    cms.createZNode(CreateMode.PERSISTENT, task.getPluginTaskPathZk(), task.toString());
-                    
-                    //retira o job da lista de jobs para escanolamento no zookeeper
-                    cms.delete(JOBS + PREFIX_JOB + task.getJobInfo().getId());
-                    //retira o job da lista de jobs para escalonamento
-                    getPendingJobs().remove(task.getJobInfo().getId());
-//                    //adiciona a lista de jobs que aguardam execução
-//                    waitingTask.put(task.getJobInfo().getId(), new Pair<PluginInfo, PluginTask>(pluginInfo,task));
-                    
+                    cms.createZNode(CreateMode.PERSISTENT, Path.NODE_TASK.getFullPath(task.getPluginExec(), jobInfo.getId()), task.toString());
+
+                    //retira o pipeline da lista de pipelines para escanolamento no zookeeper
+//                    cms.delete(cms.getPath().NODE_PIPELINE.getFullPath(pipeline.getId()));
+                    //retira o pipelineda lista de jobs para escalonamento
+                    pendingJobs.remove(jobInfo);
+                    //adiciona a lista de jobs que aguardam execução
+                    waitingTask.put(task.getId(), new Pair<>(pluginInfo,task));
+                    LOGGER.info("JobID: " + jobInfo.getId() + " escalonado para " + pluginInfo.getId());
                 } else {
                     LOGGER.info("JobID: " + jobInfo.getId() + " não escalonado");
                 }
             }
             //chamada recursiva para escalonar todos os jobs enviados, só é chamada após um
-//            scheduleJobs();
+            scheduleJobs();
+            
         }
     }
     
@@ -203,14 +206,17 @@ public class SchedService extends AbstractBioService implements Runnable {
      */
     public void setLatencyPlugins(JobInfo job) {
         
-        HashMap<String,Double> pluginIdLatency = new  HashMap<String,Double>();
+        HashMap<String,Double> pluginIdLatency = new  HashMap<>();
         try {
-            for (PluginInfo plugin : getPeers().values()) {
-                //calcula a latencia e regula para segundos
-                pluginIdLatency.put(plugin.getId(),Ping.calculo(plugin.getHost().getAddress())/1000);
-                
-            }
-            cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_JOB.getFullPath("", "", job.getId())+LATENCY, new ObjectMapper().writeValueAsString(pluginIdLatency));
+//            if(!cms.getZNodeExist(cms.getPath().PREFIX_JOB.getFullPath("", "", job.getId())+LATENCY, false)) {
+//                for (PluginInfo plugin : getPeers().values()) {
+//                    //calcula a latencia e regula para segundos
+//                    pluginIdLatency.put(plugin.getId(),Ping.calculo(plugin.getHost().getAddress())/1000);
+//
+//                }
+//                cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_JOB.getFullPath("", "", job.getId())+LATENCY, new ObjectMapper().writeValueAsString(pluginIdLatency));
+//            }
+            throw new IOException("REMOVE COMMENTS");
             
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
@@ -223,24 +229,23 @@ public class SchedService extends AbstractBioService implements Runnable {
      *
      * OBS: não utilizado
      *
-     * @param origin
      * @param jobId
      */
     public void cancelJob(String jobId) {
-        if (getPendingJobs().containsKey(jobId)) {
-            getPendingJobs().remove(jobId);
-            //excluir o job do zookeeper TO DO
-        } else if (waitingTask.containsKey(jobId)) {
-            waitingTask.remove(jobId);
-        }
-//        try {
-        cms.delete(JOBS + PREFIX_JOB + jobId);
-        
-//        } catch (KeeperException ex) {
-//            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+//        if (getPendingJobs().containsKey(jobId)) {
+//            getPendingJobs().remove(jobId);
+//            //excluir o job do zookeeper TO DO
+//        } else if (waitingTask.containsKey(jobId)) {
+//            waitingTask.remove(jobId);
 //        }
+////        try {
+//        cms.delete(JOBS.toString() + PREFIX_JOB.toString() + jobId);
+//        
+////        } catch (KeeperException ex) {
+////            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+////        } catch (InterruptedException ex) {
+////            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+////        }
     }
     
     /**
@@ -250,14 +255,14 @@ public class SchedService extends AbstractBioService implements Runnable {
      * @param task
      */
     private synchronized void finishCancelJob(PluginTask task) {
-        getCancelingJobs().remove(task.getId());
-        System.out.println("Task canceled " + task.getId());
-        
-        relocateTasks.add(task);
-        // Verifica se todas as requisicoes de cancelamento foram realizadas.
-        // TODO: Provavelmente se o usuario cancelar o job na mao essa
-        // funcao vai buggar. Mas dado o tempo que temos acho que eh a melhor
-        // solucao.
+//        getCancelingJobs().remove(task.getId());
+//        System.out.println("Task canceled " + task.getId());
+//        
+//        relocateTasks.add(task);
+//        // Verifica se todas as requisicoes de cancelamento foram realizadas.
+//        // TODO: Provavelmente se o usuario cancelar o job na mao essa
+//        // funcao vai buggar. Mas dado o tempo que temos acho que eh a melhor
+//        // solucao.
     }
     
     /**
@@ -288,6 +293,8 @@ public class SchedService extends AbstractBioService implements Runnable {
      * Recebe uma lista de PluginsTasks para serem relançadas ao escalonamento.
      *
      * @param tasks lista das tarefas
+     * @throws org.apache.zookeeper.KeeperException
+     * @throws java.lang.InterruptedException
      */
     public void relocateTasks(Collection<PluginTask> tasks) throws KeeperException, InterruptedException {
         relocateTasks.addAll(tasks);
@@ -296,12 +303,14 @@ public class SchedService extends AbstractBioService implements Runnable {
         while (!relocateTasks.isEmpty()) {
             PluginTask task = relocateTasks.remove();
             try {
-                cms.createZNode(CreateMode.PERSISTENT, JOBS + PREFIX_JOB + task.getJobInfo().getId(), task.getJobInfo().toString());
+//                cms.createZNode(CreateMode.PERSISTENT, JOBS + PREFIX_JOB + task.getJobInfo().getId(), task.getJobInfo().toString());
+                throw new KeeperException.UnimplementedException();
                 
             } catch (Exception ex) {
 
-                StringBuilder datas = new StringBuilder(cms.getData(cms.getPath().STATUSWAITING.getFullPath(task.getPluginExec(), "", ""), null));
-                cms.setData(cms.getPath().STATUSWAITING.getFullPath(task.getPluginExec(), "", ""), datas.append("E").toString());
+//                StringBuilder datas = new StringBuilder(cms.getData(cms.getPath().STATUSWAITING.getFullPath(task.getPluginExec(), "", ""), null));
+//                cms.setData(cms.getPath().STATUSWAITING.getFullPath(task.getPluginExec(), "", ""), datas.append("E").toString());
+                System.out.println("[SchedService] COMMENTED cms.setData");
                 tasks.add(task);
                 java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -318,15 +327,15 @@ public class SchedService extends AbstractBioService implements Runnable {
      * @param peerPath
      */
     private void repairTask(String peerPath) {
-        Collection<PluginTask> repairTasks = new LinkedList<PluginTask>();
+        Collection<PluginTask> repairTasks = new LinkedList<>();
         try {
             StringBuilder dataStatus = new StringBuilder();
             
-            if (!cms.getZNodeExist(peerPath + STATUSWAITING, false)) {
-                cms.createZNode(CreateMode.PERSISTENT, peerPath + STATUSWAITING, "");
+            if (!cms.getZNodeExist(peerPath + Path.STATUSWAITING, null)) {
+                cms.createZNode(CreateMode.PERSISTENT, peerPath + Path.STATUSWAITING, "");
             }
             
-            dataStatus.append(cms.getData(peerPath + STATUSWAITING, null));
+            dataStatus.append(cms.getData(peerPath + Path.STATUSWAITING, null));
             
             //verifica se recurso já foi recuperado ou está sendo recuperado por outro recurso
             if (dataStatus.toString().contains("E") || dataStatus.toString().contains("B")) {
@@ -334,13 +343,13 @@ public class SchedService extends AbstractBioService implements Runnable {
             }
             
             //bloqueio para recuperar tarefas sem que outros recursos realizem a mesma operação
-            cms.setData(peerPath + STATUSWAITING, dataStatus.append("B").toString());
+            cms.setData(peerPath + Path.STATUSWAITING, dataStatus.append("B").toString());
             
-            List<String> tasksChildren = cms.getChildren(peerPath + SCHED + TASKS, null);
+            List<String> tasksChildren = cms.getChildren(peerPath + Path.SCHED + Path.TASKS, null);
             
             for (String taskChild : tasksChildren) {
                 ObjectMapper mapper = new ObjectMapper();
-                PluginTask pluginTask = mapper.readValue(cms.getData(peerPath + SCHED + TASKS + SEPARATOR + taskChild, null), PluginTask.class);
+                PluginTask pluginTask = mapper.readValue(cms.getData(peerPath + Path.SCHED + Path.TASKS + "/" + taskChild, null), PluginTask.class);
                 if (pluginTask.getState() != PluginTaskState.DONE && pluginTask.getState() != PluginTaskState.ERRO) {
                     repairTasks.add(pluginTask);
                 }
@@ -349,7 +358,7 @@ public class SchedService extends AbstractBioService implements Runnable {
             
             //retira bloqueio de uso e sinaliza que as tarefas do plugin foram recuperadas
             dataStatus.deleteCharAt(dataStatus.indexOf("B")).toString();
-            cms.setData(peerPath + STATUSWAITING, dataStatus.append("E").toString());
+            cms.setData(peerPath + Path.STATUSWAITING, dataStatus.append("E").toString());
             
         } catch (KeeperException ex) {
             java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
@@ -380,16 +389,16 @@ public class SchedService extends AbstractBioService implements Runnable {
      */
     private void checkPeers() {
 //        try {
-        List<String> listPeers = cms.getChildren(ROOT_PEER, null);
-        for (String peerPath : listPeers) {
+        List<String> listPeers = cms.getChildren(Path.PEERS.getFullPath(), null);
+        for (String peerId : listPeers) {
             
-            if (!cms.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUS, false)
-                    && !cms.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, false)) {
-                cms.createZNode(CreateMode.PERSISTENT, ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, "");
+            if (!cms.getZNodeExist(Path.STATUS.getFullPath(peerId), null)
+                    && !cms.getZNodeExist(Path.STATUSWAITING.getFullPath(peerId), null)) {
+                cms.createZNode(CreateMode.PERSISTENT,Path.STATUSWAITING.getFullPath(peerId), "");
             }
-            if (cms.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, false)) {
-                if (!cms.getData(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, null).contains("E")) {
-                    repairTask(ROOT_PEER + SEPARATOR + peerPath);
+            if (cms.getZNodeExist(Path.STATUSWAITING.getFullPath(peerId), null)) {
+                if (!cms.getData(Path.STATUSWAITING.getFullPath(peerId), null).contains("E")) {
+                    repairTask(Path.NODE_PEER.getFullPath(peerId));
                 }
             }
             
@@ -413,28 +422,28 @@ public class SchedService extends AbstractBioService implements Runnable {
      * @throws IOException
      */
     private void checkWaitingTasks() throws KeeperException, InterruptedException, IOException {
-        List<PluginInfo> plgs = new ArrayList<PluginInfo>(getPeers().values());
+        List<PluginInfo> plgs = new ArrayList<>(getPeers().values());
         List<String> listTasks;
         Watcher watcher;
-        System.out.println("..checkWaitingTasks..");
+        System.out.println("[SchedService] Checking waiting tasks");
         
         for (PluginInfo plugin : plgs) {
             
             System.out.println(myLinuxPlugin.getMyInfo().getId());
             //cria watch para ser adicionado no znode que contém as tarefas escanoladas desse plugin
             if (myLinuxPlugin.getMyInfo().getId().equals(plugin.getId())) {
-                System.out.println("checkWaitingTasks : watcher adicionado no plugin " + plugin.getId());
+                System.out.println("[SchedService] checkWaitingTasks : watcher adicionado no plugin " + plugin.getId());
                 watcher = new UpdatePeerData(cms, this);
             } else {
                 watcher = null;
             }
-            listTasks = cms.getChildren(cms.getPath().TASKS.getFullPath(plugin.getId(), "", ""), watcher);
+            listTasks = cms.getChildren(Path.TASKS.getFullPath(plugin.getId()), watcher);
             
             for (String task : listTasks) {
                 ObjectMapper mapper = new ObjectMapper();
-                PluginTask pluginTask = mapper.readValue(cms.getData(cms.getPath().PREFIX_TASK.getFullPath(plugin.getId(), "", task.substring(5, task.length())), null), PluginTask.class);
+                PluginTask pluginTask = mapper.readValue(cms.getData(Path.NODE_TASK.getFullPath(plugin.getId(), task), null), PluginTask.class);
                 
-                waitingTask.put(pluginTask.getJobInfo().getId(), new Pair<PluginInfo, PluginTask>(plugin, pluginTask));
+                waitingTask.put(pluginTask.getId(), new Pair<>(plugin, pluginTask));
                 if (pluginTask.getState() == PluginTaskState.DONE) {
                     finalizeTask(pluginTask);
                 }
@@ -442,7 +451,7 @@ public class SchedService extends AbstractBioService implements Runnable {
             }
             
             //adiconando watch para cada peer, realizará recuperação de task escalonadas caso o plugin fique off-line
-            cms.getData(plugin.getPath_zk() + STATUS, new UpdatePeerData(cms, this));
+            cms.getData(Path.STATUS.getFullPath(plugin.getId()), new UpdatePeerData(cms, this));
         }
         
     }
@@ -464,20 +473,33 @@ public class SchedService extends AbstractBioService implements Runnable {
         List<String> tasksChildren = cms.getChildren(taskPath, null);
         
         for (String taskChild : tasksChildren) {
-            String datasTask = cms.getData(taskPath + SEPARATOR + taskChild, null);
+            String datasTask = cms.getData(taskPath + "/" + taskChild, null);
             
             PluginTask task = mapper.readValue(datasTask, PluginTask.class);
             //verifica se a tarefa já estava na lista para não adicionar mais de um watcher
-            if (!waitingTask.containsKey(task.getJobInfo().getId())) {
+            if (!waitingTask.containsKey(task.getId())) {
                 //adiciona um watcher na task que foi escanolada
-                cms.getData(taskPath + SEPARATOR + taskChild, new UpdatePeerData(cms, this));
+                cms.getData(taskPath + "/" + taskChild, new UpdatePeerData(cms, this));
                 if (task.getState() == PluginTaskState.PENDING) {
-                    waitingTask.put(task.getJobInfo().getId(), new Pair<PluginInfo, PluginTask>(cloudMap.get(task.getPluginExec()), task));
+                    waitingTask.put(task.getId(), new Pair<>(cloudMap.get(task.getPluginExec()), task));
                     pluginTask = task;
                 }
             }
         }
         return pluginTask;
+    }
+    
+    private void decryptFiles(List<Pair<String, Long>> inputs) throws Exception {
+        try {
+            //realiza uma chama rpc para decriptografar os arquivos que serao usados pela task
+            rpcClient = new AvroClient(config.getRpcProtocol(), myLinuxPlugin.getMyInfo().getHost().getAddress(), myLinuxPlugin.getMyInfo().getHost().getPort());
+            for(Pair<String, Long> pair : inputs) {
+                rpcClient.getProxy().decryptPluginFile(pair.first);
+            }
+            rpcClient.close();
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     /**
@@ -492,22 +514,22 @@ public class SchedService extends AbstractBioService implements Runnable {
             rpcClient = new AvroClient(config.getRpcProtocol(), myLinuxPlugin.getMyInfo().getHost().getAddress(), myLinuxPlugin.getMyInfo().getHost().getPort());
             rpcClient.getProxy().listFilesName();
             rpcClient.close();
-            if (cms.getZNodeExist(myLinuxPlugin.getMyInfo().getPath_zk() + cms.getPath().FILES.toString(), false)) {
+            if (cms.getZNodeExist(Path.FILES.getFullPath(myLinuxPlugin.getMyInfo().getId()), null)) {
                 List<String> filesChildren;
                 //verifica se é a primeira vez que é executado e então cria o watcher e inicia a lista
                 if (mapFilesPlugin == null) {
-                    mapFilesPlugin = new HashMap<String, PluginFile>();
-                    filesChildren = cms.getChildren(myLinuxPlugin.getMyInfo().getPath_zk() + cms.getPath().FILES.toString(), new UpdatePeerData(cms, this));
+                    mapFilesPlugin = new HashMap<>();
+                    filesChildren = cms.getChildren(Path.FILES.getFullPath(myLinuxPlugin.getMyInfo().getId()), new UpdatePeerData(cms, this));
                 } else {
-                    filesChildren = cms.getChildren(myLinuxPlugin.getMyInfo().getPath_zk() + cms.getPath().FILES.toString(), null);
+                    filesChildren = cms.getChildren(Path.FILES.getFullPath(myLinuxPlugin.getMyInfo().getId()), null);
                 }
                 ObjectMapper mapper = new ObjectMapper();
                 
                 for (String fileChild : filesChildren) {
-                    String datasFile = cms.getData(myLinuxPlugin.getMyInfo().getPath_zk() + cms.getPath().FILES.toString() + SEPARATOR + fileChild, null);
+                    String datasFile = cms.getData(Path.NODE_FILE.getFullPath(myLinuxPlugin.getMyInfo().getId(), fileChild), null);
                     PluginFile file = mapper.readValue(datasFile, PluginFile.class);
                     //Verificar o que é esse LONG TO DO
-                    Pair<String, Long> pair = new Pair<String, Long>(file.getId(), file.getSize());
+                    Pair<String, Long> pair = new Pair<>(file.getId(), file.getSize());
                     //verifica se o arquivo já estava na lista
                     if (!mapFilesPlugin.containsKey(pair.first)) {
                         mapFilesPlugin.put(pair.first, file);
@@ -532,6 +554,7 @@ public class SchedService extends AbstractBioService implements Runnable {
      * satisfizer essas condições.
      */
     private void checkStatusTask() {
+        System.out.println("[SchedService] checkStatusTask");
         for (Pair<PluginInfo, PluginTask> pair : waitingTask.values()) {
             if (myLinuxPlugin.getMyInfo().getId().equals(pair.first.getId()) && pair.second.getState() == PluginTaskState.PENDING) {
                 try {
@@ -550,6 +573,7 @@ public class SchedService extends AbstractBioService implements Runnable {
      */
     private void checkTasks() {
         try {
+            System.out.println("[SchedService] checkTasks");
             if (waitingTask!=null && !waitingTask.isEmpty()) {
                 for (Pair<PluginInfo, PluginTask> pair : waitingTask.values()) {
                     if (pair.first.getHost().getAddress().equals(myLinuxPlugin.getMyInfo().getHost().getAddress())) {
@@ -562,15 +586,35 @@ public class SchedService extends AbstractBioService implements Runnable {
                     }
                 }
             }
-            if(pendingJobs!=null &&  !pendingJobs.isEmpty()){
-                System.out.println("(checkTasks)>>Tamanho da lista de JOBS para execução :  "+getPendingJobs().size());
-                for(JobInfo job : pendingJobs.values()){
-                    if(!cms.getZNodeExist(JOBS+PREFIX_JOB+job.getId()+LATENCY, true)){
-                        setLatencyPlugins(job);
+            
+            // check if any dependent task can be executed
+            if (dependentJobs!=null && !dependentJobs.isEmpty()) {
+                List<String> finishedJobs = cms.getChildren(Path.FINISHED_TASKS.getFullPath(), null);
+                for (Iterator<JobInfo> it = dependentJobs.iterator(); it.hasNext();) {
+                JobInfo j = it.next();
+                    // remove finished dependencies
+                    for (Iterator<String> it2 = j.getDependencies().iterator(); it2.hasNext();) {
+                        String d = it2.next();
+                        for (String f : finishedJobs) {
+                            if (f.equals(d)) {
+                                it2.remove();
+                            }
+                        }
                     }
+                    // if there are no more dependencies put j on pendingJobs
+                    if (j.getDependencies().isEmpty()) {
+                        pendingJobs.add(j);
+                        it.remove();
+                    }   
                 }
+            }
+            
+            // schedule jobs if there are any
+            if(pendingJobs!=null &&  !pendingJobs.isEmpty()){
+                System.out.println("[SchedService] Tamanho da lista de JOBS para execução :  " + pendingJobs.size());
                 scheduleJobs();
             }
+            
         } catch (Exception ex) {
             java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -583,26 +627,29 @@ public class SchedService extends AbstractBioService implements Runnable {
      * @param task
      */
     private void executeTasks(PluginTask task) throws Exception {
-        System.out.println("Recebimento do pedido de execução da tarefa!");
-        //TODO otimiza chamada de checage dos arquivos
+        System.out.println("[SchedService] Recebimento do pedido de execução da tarefa!");
+        //TODO otimiza chamada de checagem dos arquivos
         checkFilesPlugin();
-        //verifica se o arquivo existe no plugin se não cria a solicitação de transfêrencia do arquivo
-        if (!existFilesCloud(task.getJobInfo().getInputs())) {
-//            if (task.getState() == PluginTaskState.PENDING) {
-//                task.setState(PluginTaskState.WAITING);
-//            }
-            task.setState(PluginTaskState.ERRO);
-            return;
-        }
+
+// CORREÇÂO: CRIAR NÓ FILES E REFAZER ESSA FUNÇÃO
+//        //verifica se o arquivo existe no plugin se não cria a solicitação de transfêrencia do arquivo
+//        if (!existFilesCloud(task.getJobInfo().getInputs())) {
+//            task.setState(PluginTaskState.ERRO);
+//            System.out.println("[SchedService] executeTasks: task " + task.getId() + " error.");
+//            return;
+//        }
         if (!existFiles(task.getJobInfo().getInputs())) {
             requestFile(task.getJobInfo().getInputs());
+            System.out.println("[SchedService] executeTasks: task " + task.getId() + " files not present.");
         }
         if (existFiles(task.getJobInfo().getInputs())) {
+            decryptFiles(task.getJobInfo().getInputs());
             myLinuxPlugin.startTask(task, cms);
+            System.out.println("[SchedService] executeTasks: task " + task.getId() + " started.");
         } else {
             task.setState(PluginTaskState.WAITING);
+            System.out.println("[SchedService] executeTasks: task " + task.getId() + " waiting.");
         }
-        
     }
     
     /**
@@ -615,12 +662,14 @@ public class SchedService extends AbstractBioService implements Runnable {
      */
     private boolean existFiles(List<Pair<String, Long>> listInputFiles) {
         
+        if (listInputFiles.isEmpty())
+            return true;
+        
         for (Pair<String, Long> fileInput : listInputFiles) {
             if (mapFilesPlugin.containsKey(fileInput.first)) {
                 return true;
             }
         }
-        
         return false;
     }
     
@@ -649,18 +698,18 @@ public class SchedService extends AbstractBioService implements Runnable {
      * @param pathTask endereço do znode, task executada.
      */
     private void finalizeTask(PluginTask task) {
-        if (waitingTask.containsKey(task.getJobInfo().getId())) {
-            waitingTask.remove(task.getJobInfo().getId());
+        if (waitingTask.containsKey(task.getId())) {
+            waitingTask.remove(task.getId());
         }
         
 //        try {
         getPolicy().jobDone(task);
-        cms.delete(task.getPluginTaskPathZk());
+        cms.delete(Path.NODE_TASK.getFullPath(task.getPluginExec(), task.getJobInfo().getId()));
         //chamada de método para atualizar a lista de arquivos
         // TODO ajustar a Storage para realizar alguma foram de atualização dos arquivos após uma execução.
         checkFilesPlugin();
         //cria um znode efêmero para exibir jobs finalizados, é efêmero para poder ser apagado quando peer ficar off-line
-        cms.createZNode(CreateMode.EPHEMERAL, task.getPluginTaskPathZk(), task.toString());
+        cms.createZNode(CreateMode.PERSISTENT, Path.NODE_FINISHED_TASK.getFullPath(task.getPluginExec(), task.getJobInfo().getId()), task.toString());
         
         LOGGER.info("Tempo de execução job -"+ task.getJobInfo().getOutputs()+"- Segundos: " + task.getTimeExec() + " , Minutos: " + task.getTimeExec() / 60);
 //        } catch (KeeperException ex) {
@@ -668,7 +717,7 @@ public class SchedService extends AbstractBioService implements Runnable {
 //        } catch (InterruptedException ex) {
 //            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
 //        }
-        
+        System.out.println("[SchedService] task finished: " + task.getId());
         
     }
     
@@ -686,18 +735,16 @@ public class SchedService extends AbstractBioService implements Runnable {
 //        try {
         for (Iterator<PluginInfo> it = getPeers().values().iterator(); it.hasNext();) {
             PluginInfo plugin = it.next();
-            listFiles = cms.getChildren(plugin.getPath_zk() + cms.getPath().FILES.toString(), null);
+            listFiles = cms.getChildren(Path.FILES.getFullPath(plugin.getId()), null);
             for (String checkfile : listFiles) {
-                
                 //atualizar
                 
-                String idfile = checkfile.substring(5, checkfile.length());
-                if (file.equals(idfile)) {
+//                String idfile = checkfile.substring(5, checkfile.length());
+                if (file.equals(checkfile)) {
                     return plugin.getHost().getAddress();
                 }
             }
-        }
-//        } catch (KeeperException ex) {
+        }//        } catch (KeeperException ex) {
 //            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
 //        } catch (InterruptedException ex) {
 //            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
@@ -722,38 +769,45 @@ public class SchedService extends AbstractBioService implements Runnable {
                 case NodeChildrenChanged:
                     
                     String datas;
-                    //reconhece um alerta de um novo job
-                    if (eventType.getPath().contains(JOBS)) {
-                        System.out.println(">>>>>>Recebimento de um alerta para um job, NodeChildrenChanged<<<<<");
-                        List<String> children;
-                        children = cms.getChildren(eventType.getPath(), null);
-                        if (!children.isEmpty()) {
-                            for (String child : children) {
+                    //reconhece um alerta de um novo pipeline
+                    if (eventType.getPath().contains(Path.PIPELINES.toString())) {
+                        System.out.println("[SchedService] Recebimento de um alerta para um pipeline, NodeChildrenChanged");
+                        
+                        // get all pipelines
+                        List<String> pipelinesId = cms.getChildren(eventType.getPath(), null);
+                        
+                        if (!pipelinesId.isEmpty()) {
+                            
+                            // get pipelines and add them to pendingPipelines
+                            for (String pipelineReady : pipelinesId) {                            
                                 ObjectMapper mapper = new ObjectMapper();
-                                datas = cms.getData(eventType.getPath() + "/" + child, null);
-                                JobInfo job = mapper.readValue(datas, JobInfo.class);
-                                
-                                //rotina para criar bloqueio para que nenhuma outra máquina selecione o job para escalonar       ->>>comentado para verificar problema de concorrência
-//                                if (!cms.getZNodeExist(cms.getPath().LOCK_JOB.getFullPath("", "", job.getId()), true)) {
-                                if(job.getLocalId().equals(myLinuxPlugin.getMyInfo().getHost().getAddress())){
-//                                    String result = cms.createEphemeralZNode(cms.getPath().LOCK_JOB.getFullPath("", "", job.getId()), "");
-                                    setLatencyPlugins(job);
-//                                    if (result != null) {
-                                    if (!getPendingJobs().containsKey(job.getId())) {
-                                        getPendingJobs().put(job.getId(), job);
-                                        System.out.println("(NodeChildrenChanged)>>Tamanho da lista de JOBS para execução :  "+getPendingJobs().size());
-                                    }
-//                                    }
+                                datas = cms.getData(Path.NODE_PIPELINE.getFullPath(pipelineReady), null);
+                                PipelineInfo pipeline = mapper.readValue(datas, PipelineInfo.class);
+
+                                // add independent jobs to pendingJobs list and jobs with 
+                                // any dependency to the dependentJobs list
+                                int i=0;
+                                for (JobInfo j : pipeline.getJobs()) {
+                                    if (j.getDependencies().isEmpty()) {
+                                        pendingJobs.add(j);
+                                        i++;
+                                    } else
+                                        dependentJobs.add(j);
                                 }
+                                System.out.println("[SchedService] " + i + " independent jobs added");
+                                System.out.println("[SchedService] " + (pipeline.getJobs().size() - i) + " jobs with dependency added");
+                                
+                                // remove pipeline from zookeeper
+                                cms.delete(Path.NODE_PIPELINE.getFullPath(pipelineReady));
                             }
-                            if (!getPendingJobs().isEmpty()) {
+
+                            if (!pendingJobs.isEmpty()) {
                                 scheduleJobs();
                             }
-                            
                         }
                         
-                    } else if (eventType.getPath().contains(SCHED + TASKS)) {
-                        System.out.println(">>>>>>Recebimento de um alerta para uma TAREFA, NodeChildrenChanged<<<<<");
+                    } else if (eventType.getPath().contains(Path.SCHED.toString() + Path.TASKS)) {
+                        System.out.println("[SchedService] Recebimento de um alerta para uma TAREFA");
                         //verifica qual foi o job colocado para ser executado
                         PluginTask pluginTask = getNewTask(eventType.getPath());
                         //verifica se um existe algum novo pluginTask
@@ -765,10 +819,10 @@ public class SchedService extends AbstractBioService implements Runnable {
                             checkStatusTask();
                         }
                         
-                    } else if (eventType.getPath().contains(cms.getPath().FILES.toString())) {
+                    } else if (eventType.getPath().contains(Path.FILES.toString())) {
                         checkFilesPlugin();
                         
-                    } else if (eventType.getPath().equals(ROOT_PEER)) {
+                    } else if (eventType.getPath().equals(Path.PEERS.toString())) {
                         if (cloudMap.size() < getPeers().size()) {
                             verifyPlugins();
                         }
@@ -777,17 +831,18 @@ public class SchedService extends AbstractBioService implements Runnable {
                     break;
                 case NodeDataChanged:
                     //reconhece o alerta como uma mudança na política de escalonamento
-                    if (eventType.getPath().contains(JOBS) && !eventType.getPath().contains(PREFIX_JOB)) {
-                        setPolicy();
+//                    if (eventType.getPath().contains(JOBS.getCodigo()) && !eventType.getPath().contains(PREFIX_JOB.toString())) {
+//                        setPolicy();
                         
                         //reconhece a mudança no estado da tarefa
-                    } else if (cms.getZNodeExist(eventType.getPath(), false)) {
+//                    } else 
+                    if (cms.getZNodeExist(eventType.getPath(), null)) {
                         datas = cms.getData(eventType.getPath(), null);
                         PluginTask pluginTask = (PluginTask) convertString(PluginTask.class, datas);
                         
                         //retirar depois testes, exibi a tarefa que está em execução
                         if (pluginTask.getState() == PluginTaskState.RUNNING) {
-                            System.out.println("Task está rodando: " + pluginTask.getPluginTaskPathZk());
+                            System.out.println("Task está rodando: " + Path.NODE_TASK.getFullPath(pluginTask.getPluginExec(), pluginTask.getId()));
                         }
                         if (pluginTask.getState() == PluginTaskState.DONE) {
                             finalizeTask(pluginTask);
@@ -799,7 +854,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                     
                     //Trata o evento de quando o zNode status for apagado, ou seja, quando um peer estiver off-line, deve recuperar os jobs
                     //que haviam sido escalonados para esse peer
-                    if (eventType.getPath().contains(STATUS)) {
+                    if (eventType.getPath().contains(Path.STATUS.toString())) {
 //                        cloudMap.clear();
 //                        cloudMap.putAll(getPeers());
 //                        schedPolicy.setCloudMap(cloudMap);
@@ -823,8 +878,8 @@ public class SchedService extends AbstractBioService implements Runnable {
         temp.removeAll(cloudMap.values());
         for (PluginInfo plugin : temp) {
 //            try {
-            if (cms.getZNodeExist(cms.getPath().STATUS.getFullPath(plugin.getId(), null, null), false)) {
-                cms.getData(cms.getPath().STATUS.getFullPath(plugin.getId(), "", ""), new UpdatePeerData(cms, this));
+            if (cms.getZNodeExist(Path.STATUS.getFullPath(plugin.getId()), null)) {
+                cms.getData(Path.STATUS.getFullPath(plugin.getId()), new UpdatePeerData(cms, this));
             }
 //            } catch (KeeperException ex) {
 //                java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
@@ -848,11 +903,7 @@ public class SchedService extends AbstractBioService implements Runnable {
         return object;
         
     }
-    
-    public synchronized Map<String, JobInfo> getPendingJobs() {
-        return pendingJobs;
-    }
-    
+
     public synchronized Map<String, PluginInfo> getCancelingJobs() {
         return cancelingJobs;
     }

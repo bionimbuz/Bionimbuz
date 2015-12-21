@@ -33,7 +33,7 @@ public class SchedTester {
         p.setNumOccupied(numOccupied);
         ArrayList<PluginService> services = new ArrayList<PluginService>();
         PluginService ps = new PluginService();
-        ps.setId(1L);
+        ps.setId("1");
         services.add(ps);
         p.setServices(services);
         return p;
@@ -51,16 +51,17 @@ public class SchedTester {
 
     public SchedPolicy getPolicy() {
         if (schedPolicy == null) {
-            schedPolicy = SchedPolicy.getInstance(1, cloudMap);
+            schedPolicy = SchedPolicy.getInstance(SchedPolicy.Policy.ACO_SCHED, cloudMap);
         }
         return schedPolicy;
     }
 
     private JobInfo generateJob(String id) {
-        JobInfo j = new JobInfo();
-        j.setId(id);
-        j.setServiceId(1L);
-        return j;
+//        JobInfo j = new JobInfo(null);
+//        j.setId(id);
+//        j.setServiceId("1");
+//        return j;]
+        return null;
     }
 
     private void addJob(JobInfo j) {
@@ -131,7 +132,7 @@ public class SchedTester {
         if (!pendingJobs.isEmpty()) return;
 
         LOG.info("--- Inicio de escalonamento ---");
-        final Map<JobInfo, PluginInfo> schedMap = getPolicy().schedule(pendingJobs.values());
+        final Map<JobInfo, PluginInfo> schedMap = null;//getPolicy().schedule(pendingJobs.values());
         for (Map.Entry<JobInfo, PluginInfo> entry : schedMap.entrySet()) {
             JobInfo jobInfo = entry.getKey();
             PluginInfo pluginInfo = entry.getValue();

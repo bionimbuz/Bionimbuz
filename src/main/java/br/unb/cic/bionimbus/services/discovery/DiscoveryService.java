@@ -6,16 +6,15 @@ import br.unb.cic.bionimbus.plugin.linux.LinuxGetInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -28,10 +27,6 @@ public class DiscoveryService extends AbstractBioService {
 
     private static final int PERIOD_SECS = 10;
     private final ScheduledExecutorService schedExecService;
-    private static final String SEPARATOR = "/";
-    private static final String STATUS = "STATUS";
-    private static final String STATUSWAITING = "STATUSWAITING";
-    private final ConcurrentMap<String, PluginInfo> map = Maps.newConcurrentMap();
 
     @Inject
     public DiscoveryService(final CloudMessageService cms) {
@@ -46,7 +41,7 @@ public class DiscoveryService extends AbstractBioService {
     }
 
     @Override
-    public void run() {    
+    public void run() {
         setDatasPluginInfo(false);
     /**
      * TODO: substituir por Guava Cache com expiração
@@ -60,6 +55,7 @@ public class DiscoveryService extends AbstractBioService {
             PluginInfo infopc= getinfo.call();
             
             infopc.setId(config.getId());
+            infopc.setCostPerHour(config.getCost());
             
             if(start){
             // LinuxPlugin está contido nesse metodo, e deveria ser mandado 
@@ -77,12 +73,11 @@ public class DiscoveryService extends AbstractBioService {
                 linuxPlugin.setMyInfo(infopc);
                 listeners.add(linuxPlugin);
             }else{
-                String data = cms.getData(infopc.getPath_zk(), null);
+                String data = cms.getData(Path.NODE_PEER.getFullPath(infopc.getId()), null);
                 if (data == null || data.trim().isEmpty()){
-                    System.out.println("znode vazio para path " + infopc.getPath_zk());
+                    System.out.println("znode vazio para path " + Path.NODE_PEER.getFullPath(infopc.getId()));
                     return;
                 }
-               
                     
                 PluginInfo plugin = new ObjectMapper().readValue(data, PluginInfo.class);
                 plugin.setFsFreeSize(infopc.getFsFreeSize());
@@ -92,7 +87,7 @@ public class DiscoveryService extends AbstractBioService {
                 infopc = plugin;
             }
             //armazenando dados do plugin no zookeeper
-            cms.setData(infopc.getPath_zk(), infopc.toString());
+            cms.setData(Path.NODE_PEER.getFullPath(infopc.getId()), infopc.toString());
             
         } catch (IOException ex) {
             Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);

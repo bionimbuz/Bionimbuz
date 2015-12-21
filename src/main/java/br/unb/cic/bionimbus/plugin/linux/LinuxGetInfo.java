@@ -23,28 +23,27 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
     public static final String CORES = "dstat -cf";
 
     public static final String CPUMHz = "grep -m 1 MHz /proc/cpuinfo";
+    
+    public static final String CPUGHz = "grep -m 1 GHz /proc/cpuinfo";
 
     public static final String MemTotal = "grep -m 1 MemTotal /proc/meminfo";
 
     public static final String MemFree = "grep -m 1 MemFree /proc/meminfo";
 
-
     private final PluginInfo pluginInfo = new PluginInfo();
 
     public LinuxGetInfo() {
     }
-    
-    
 
     @Override
     public PluginInfo call() {
         
         try {
-        getCpuInfo();
-        getMemoryInfo();
-        getDiskInfo();
-        getServices();
-        getUptime();
+            getCpuInfo();
+            getMemoryInfo();
+            getDiskInfo();
+            getServices();
+            getUptime();
         }catch(Exception ex){
             System.out.print(ex);
         }
@@ -59,10 +58,14 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
     private void getCpuInfo() {
         int nCpus = Runtime.getRuntime().availableProcessors();
         pluginInfo.setNumCores(nCpus);
+        // TODO: correct numNodes
         pluginInfo.setNumNodes(1);
         pluginInfo.setNumOccupied(getCoresOccupied(nCpus));
         String cpuInfo = execCommand(CPUMHz);
-        pluginInfo.setFrequencyCore((new Double(cpuInfo.substring(cpuInfo.indexOf(":") + 1, cpuInfo.length()).trim())) / 100000);
+        pluginInfo.setCurrentFrequencyCore((new Double(cpuInfo.substring(cpuInfo.indexOf(":") + 1, cpuInfo.length()).trim())) / 100000);
+        cpuInfo = execCommand(CPUGHz);
+        Double freq = new Double(cpuInfo.substring(cpuInfo.indexOf("@") + 1, cpuInfo.length()-3).trim())*1000000000;
+        pluginInfo.setFactoryFrequencyCore(freq);
     }
 
     /**
@@ -83,6 +86,7 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
             read = new InputStreamReader(p.getInputStream());
             buffer = new BufferedReader(read);
             
+            // magic number                                 numCpu+(4)
             while((line = buffer.readLine())!=null && count<(numCpu+4)){
                 if(count>=3){
                     columns = line.trim().split(":");

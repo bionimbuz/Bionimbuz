@@ -10,7 +10,7 @@ public class PluginInfo implements PluginOps {
 
     private String id;
     
-    private String path_zk;
+    private String InstanceName;
     
     private int privateCloud;
     
@@ -42,14 +42,21 @@ public class PluginInfo implements PluginOps {
 
     private Double memoryFree;
 
-    private Double frequencyCore;
+    private Double currentFrequencyCore;
+    
+    // frequency in Hz
+    private Double factoryFrequencyCore;
 
     private List<PluginService> services;
+    
+    private double costPerHour = Double.MAX_VALUE;
 
     public PluginInfo() {
     }
     
-    
+    public PluginInfo(String id) {
+        this.id = id;
+    }
 
     public String getId() {
         return id;
@@ -58,17 +65,13 @@ public class PluginInfo implements PluginOps {
     public void setId(String id) {
         this.id = id;
     }
-
-    /**
-     * Endereço do plugin(peer) no zookeeper.
-     * @return o endereço do plugin(peer) no zk de acordo com seu id 
-     */
-    public String getPath_zk() {
-        path_zk ="/peers/peer_"+id;
-        return path_zk;
+    
+    public String getInstanceName() {
+        return InstanceName;
     }
-    public void setPath_zk(String path_zk) {
-        this.path_zk =path_zk;
+
+    public void setInstanceName(String instanceName) {
+        this.InstanceName = instanceName;
     }
 
     public Host getHost() {
@@ -169,9 +172,9 @@ public class PluginInfo implements PluginOps {
         this.services = services;
     }
 
-    public PluginService getService(long serviceId) {
+    public PluginService getService(String serviceId) {
         for (PluginService service : getServices())
-            if (service.getId() == serviceId)
+            if (service.getId().equals(serviceId))
                 return service;
         return null;
     }
@@ -185,12 +188,20 @@ public class PluginInfo implements PluginOps {
         this.ranking = ranking;
     }
 
-    public Double getFrequencyCore() {
-        return frequencyCore;
+    public Double getCurrentFrequencyCore() {
+        return currentFrequencyCore;
     }
 
-    public void setFrequencyCore(Double frequencyCore) {
-        this.frequencyCore = frequencyCore;
+    public void setCurrentFrequencyCore(Double frequencyCore) {
+        this.currentFrequencyCore = frequencyCore;
+    }
+    
+    public Double getFactoryFrequencyCore() {
+        return factoryFrequencyCore;
+    }
+
+    public void setFactoryFrequencyCore(Double frequencyCore) {
+        this.factoryFrequencyCore = frequencyCore;
     }
 
     public Double getMemoryFree() {
@@ -230,8 +241,14 @@ public class PluginInfo implements PluginOps {
     public void setPrivateCloud(int privateCloud) {
         this.privateCloud = privateCloud;
     }
-
     
+    public void setCostPerHour (double costPerHour) {
+        this.costPerHour = costPerHour;
+    }
+
+    public double getCostPerHour () {
+        return costPerHour;
+    }
     
     @Override
     public int hashCode() {

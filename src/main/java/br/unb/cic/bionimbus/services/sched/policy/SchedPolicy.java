@@ -7,6 +7,8 @@ import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.sched.policy.impl.AHPPolicy;
 import br.unb.cic.bionimbus.services.sched.policy.impl.AcoSched;
 import br.unb.cic.bionimbus.services.sched.policy.impl.RRPolicy;
+import br.unb.cic.bionimbus.services.sched.policy.impl.C99Supercolider;
+import br.unb.cic.bionimbus.services.RepositoryService;
 import br.unb.cic.bionimbus.utils.Pair;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,6 +18,17 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 public abstract class SchedPolicy {
+    
+    protected CloudMessageService cms;
+    protected RepositoryService rs;
+    
+    public enum Policy {
+        ACO_SCHED,
+        AHP,
+        RR,
+        C99SUPERCOLIDER
+    }
+    
     private ConcurrentHashMap<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
 
     public void setCloudMap(ConcurrentHashMap<String, PluginInfo> cloudMap) {
@@ -32,33 +45,40 @@ public abstract class SchedPolicy {
      */
     public static List<SchedPolicy> getInstances() {
         List<SchedPolicy> listPolicys= new ArrayList<SchedPolicy>();
-        listPolicys.add(0,new AcoSched());
-        listPolicys.add(1,new AHPPolicy());
-        listPolicys.add(2,new RRPolicy());
+        listPolicys.add(Policy.ACO_SCHED.ordinal(),new AcoSched());
+        listPolicys.add(Policy.AHP.ordinal(),new AHPPolicy());
+        listPolicys.add(Policy.RR.ordinal(),new RRPolicy());
+        listPolicys.add(Policy.C99SUPERCOLIDER.ordinal(),new C99Supercolider());
 
         return listPolicys;
-        
-        
     }
 
     /**
      * Retorna qual o tipo de escalonador desejado com o mapa das nuvens disponíveis.
-     * 0- AcoSched (Padrão)
-     * 1- AHPPolicy
-     * 2- RRPolicy
+     * AcoSched (Padrão)
+     * AHPPolicy
+     * RRPolicy
+     * 
+     * @param policy 
      * @param cloudMap
      * @return 
      */
-    public static SchedPolicy getInstance(int numPolicy, ConcurrentHashMap<String, PluginInfo> cloudMap) {
-        SchedPolicy policy = getInstances().get(numPolicy);
-        policy.setCloudMap(cloudMap);
-        return policy;
+    public static SchedPolicy getInstance(Policy policy, ConcurrentHashMap<String, PluginInfo> cloudMap) {
+        SchedPolicy policyInst = getInstances().get(policy.ordinal());
+        policyInst.setCloudMap(cloudMap);
+        return policyInst;
     }
-
-    public abstract HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos);
     
-    public abstract HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, CloudMessageService cms);
-
+    public void setCms(CloudMessageService cms) {
+        this.cms = cms;
+    }
+    
+    public void setRs(RepositoryService rs) {
+        this.rs = rs;
+    }
+    
+    public abstract HashMap<JobInfo, PluginInfo> schedule(List<JobInfo> jobs);
+    
     public abstract List<PluginTask> relocate(Collection<Pair<JobInfo, PluginTask>> taskPairs);
 
     public abstract void cancelJobEvent(PluginTask task);

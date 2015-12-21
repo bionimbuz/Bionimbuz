@@ -7,11 +7,12 @@ package br.unb.cic.bionimbus.avro.gen;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class FileInfo extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"FileInfo\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"fields\":[{\"name\":\"fileId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"size\",\"type\":\"long\"},{\"name\":\"name\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"FileInfo\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"fields\":[{\"name\":\"fileId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"size\",\"type\":\"long\"},{\"name\":\"name\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"hash\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public java.lang.String fileId;
   @Deprecated public long size;
   @Deprecated public java.lang.String name;
+  @Deprecated public java.lang.String hash;
 
   /**
    * Default constructor.
@@ -21,10 +22,11 @@ public class FileInfo extends org.apache.avro.specific.SpecificRecordBase implem
   /**
    * All-args constructor.
    */
-  public FileInfo(java.lang.String fileId, java.lang.Long size, java.lang.String name) {
+  public FileInfo(java.lang.String fileId, java.lang.Long size, java.lang.String name, java.lang.String hash) {
     this.fileId = fileId;
     this.size = size;
     this.name = name;
+    this.hash = hash;
   }
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
@@ -34,6 +36,7 @@ public class FileInfo extends org.apache.avro.specific.SpecificRecordBase implem
     case 0: return fileId;
     case 1: return size;
     case 2: return name;
+    case 3: return hash;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -44,6 +47,7 @@ public class FileInfo extends org.apache.avro.specific.SpecificRecordBase implem
     case 0: fileId = (java.lang.String)value$; break;
     case 1: size = (java.lang.Long)value$; break;
     case 2: name = (java.lang.String)value$; break;
+    case 3: hash = (java.lang.String)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -93,6 +97,21 @@ public class FileInfo extends org.apache.avro.specific.SpecificRecordBase implem
     this.name = value;
   }
 
+  /**
+   * Gets the value of the 'hash' field.
+   */
+  public java.lang.String getHash() {
+    return hash;
+  }
+
+  /**
+   * Sets the value of the 'hash' field.
+   * @param value the value to set.
+   */
+  public void setHash(java.lang.String value) {
+    this.hash = value;
+  }
+
   /** Creates a new FileInfo RecordBuilder */
   public static br.unb.cic.bionimbus.avro.gen.FileInfo.Builder newBuilder() {
     return new br.unb.cic.bionimbus.avro.gen.FileInfo.Builder();
@@ -117,6 +136,7 @@ public class FileInfo extends org.apache.avro.specific.SpecificRecordBase implem
     private java.lang.String fileId;
     private long size;
     private java.lang.String name;
+    private java.lang.String hash;
 
     /** Creates a new Builder */
     private Builder() {
@@ -142,6 +162,10 @@ public class FileInfo extends org.apache.avro.specific.SpecificRecordBase implem
       if (isValidValue(fields()[2], other.name)) {
         this.name = data().deepCopy(fields()[2].schema(), other.name);
         fieldSetFlags()[2] = true;
+      }
+      if (isValidValue(fields()[3], other.hash)) {
+        this.hash = data().deepCopy(fields()[3].schema(), other.hash);
+        fieldSetFlags()[3] = true;
       }
     }
 
@@ -219,6 +243,31 @@ public class FileInfo extends org.apache.avro.specific.SpecificRecordBase implem
       return this;
     }
 
+    /** Gets the value of the 'hash' field */
+    public java.lang.String getHash() {
+      return hash;
+    }
+    
+    /** Sets the value of the 'hash' field */
+    public br.unb.cic.bionimbus.avro.gen.FileInfo.Builder setHash(java.lang.String value) {
+      validate(fields()[3], value);
+      this.hash = value;
+      fieldSetFlags()[3] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'hash' field has been set */
+    public boolean hasHash() {
+      return fieldSetFlags()[3];
+    }
+    
+    /** Clears the value of the 'hash' field */
+    public br.unb.cic.bionimbus.avro.gen.FileInfo.Builder clearHash() {
+      hash = null;
+      fieldSetFlags()[3] = false;
+      return this;
+    }
+
     @Override
     public FileInfo build() {
       try {
@@ -226,6 +275,7 @@ public class FileInfo extends org.apache.avro.specific.SpecificRecordBase implem
         record.fileId = fieldSetFlags()[0] ? this.fileId : (java.lang.String) defaultValue(fields()[0]);
         record.size = fieldSetFlags()[1] ? this.size : (java.lang.Long) defaultValue(fields()[1]);
         record.name = fieldSetFlags()[2] ? this.name : (java.lang.String) defaultValue(fields()[2]);
+        record.hash = fieldSetFlags()[3] ? this.hash : (java.lang.String) defaultValue(fields()[3]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

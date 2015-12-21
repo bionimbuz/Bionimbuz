@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.client.PipelineInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
-import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
 
@@ -17,7 +17,7 @@ public class BasicSchedPolicy extends SchedPolicy {
     private final int CORES_WEIGHT = 3;
     private final int NODES_WEIGHT = 2;
 
-    private List<PluginInfo> filterByService(long serviceId) {
+    private List<PluginInfo> filterByService(String serviceId) {
         ArrayList<PluginInfo> plugins = new ArrayList<PluginInfo>();
         for (PluginInfo pluginInfo : getCloudMap().values()) {
             if (pluginInfo.getService(serviceId) != null)
@@ -41,10 +41,10 @@ public class BasicSchedPolicy extends SchedPolicy {
     }
 
     @Override
-    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos) {
+    public HashMap<JobInfo, PluginInfo> schedule(List<JobInfo> jobs) {
         HashMap<JobInfo, PluginInfo> schedMap = new HashMap<JobInfo, PluginInfo>();
 
-        for (JobInfo jobInfo : jobInfos) {
+        for (JobInfo jobInfo : jobs) {
             PluginInfo resource = this.scheduleJob(jobInfo);
             schedMap.put(jobInfo, resource);
         }
@@ -79,10 +79,6 @@ public class BasicSchedPolicy extends SchedPolicy {
 
     }
 
-    @Override
-    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, CloudMessageService cms) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
     @Override
     public String getPolicyName() {
         return "Name: Política de escalonamento Básica  -  "+ BasicSchedPolicy.class.getSimpleName();

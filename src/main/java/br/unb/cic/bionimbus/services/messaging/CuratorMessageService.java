@@ -51,31 +51,34 @@ public class CuratorMessageService implements CloudMessageService {
      * Internal Enum that handles Paths for BioNimbuZ proccessing ZNodes
      */
     public enum Path {
-        
-        ROOT("/"), 
-        PREFIX_PEER("/peer_"), 
-        PEERS("/peers"), 
+        COUNT("/count"),
+        END("/end"),
         FILES("/files"),
+        FINISHED_TASKS("/finished_tasks"),
+        LATENCY("/latency"),
+        MODES("/modes"),
+        PEERS("/peers"), 
         PENDING_SAVE("/pending_save"),
-        PREFIX_PENDING_FILE("/pending_file_"),
-        JOBS("/jobs"),
-        PREFIX_FILE("/file_"),
+        PIPELINES("/pipelines"),
+        PIPELINE_FLAG("/flag"),
+        NODE_COST("/"),
+        NODE_FILE("/"),
+        NODE_FINISHED_TASK("/"),
+        NODE_MODES("/"),
+        NODE_PEER("/"), 
+        NODE_PENDING_FILE("/"),
+        NODE_PIPELINE("/"),
+        NODE_SERVICE("/"),
+        NODE_TASK("/"),
+        ROOT("/bionimbuz"), 
+        SCHED("/sched"),
+        SERVICES("/services"),
+        SIZE_JOBS("/size_jobs"),
+        START("/start"),
         STATUS("/STATUS"),
         STATUSWAITING("/STATUSWAITING"),
-        SCHED("/sched"),
-        LOCK_JOB("/LOCK"),
-        SIZE_JOBS("/size_jobs"),
-        TASKS("/tasks"), 
-        PREFIX_TASK("/task_"),
-        PREFIX_JOB("/job_"),
-        HISTORY("/history"),
-        COST_PREFIX("/cost_"),
-        START("/start"),
-        END("/end"),
-        COUNT("/count"),
-        SEPARATOR("/"),
-        UNDERSCORE("_");
-        
+        TASKS("/tasks");
+
         private final String value;
         
         private Path(String value) {
@@ -84,29 +87,40 @@ public class CuratorMessageService implements CloudMessageService {
         
         /**
          * Return the full path of a ZNode
-         * @param pluginid
-         * @param fileid
-         * @param taskid
+         * @param args Input String arguments. For the most cases there will be
+ only one id input. For cases ROOT, PENDING_SAVE, PEERS, PIPELINES 
+ and SERVICES there will be no input. For the NODE_TASK case, the 
+ first argument must be the plugin id and the second, the task id. For
+ the PREFIX_FILE case the first argument is the plugin id and the 
+ second, the file id. For the NODE_MODES case, the first argument must
+ be the service id and the second, the id/count_number of the history 
+ value.
          * @return 
          */
-        public String getFullPath(String pluginid,String fileid,String taskid) {
+        public String getFullPath(String ... args) {
             switch (this) {
                 case ROOT: return "" + this;
-                case PENDING_SAVE: return "" +PENDING_SAVE;
-                case PREFIX_PENDING_FILE: return ""+PENDING_SAVE+PREFIX_PENDING_FILE+fileid;
-                case JOBS: return ""+JOBS;   
-                case PREFIX_JOB: return ""+JOBS+PREFIX_JOB+taskid;
-                case PEERS:  return "" + PEERS;
-                case PREFIX_PEER: return ""+PEERS+PREFIX_PEER+pluginid;
-                case STATUS: return ""+PEERS+PREFIX_PEER+pluginid+STATUS;
-                case STATUSWAITING: return ""+PEERS+PREFIX_PEER+pluginid+STATUSWAITING;
-                case SCHED: return ""+PEERS+PREFIX_PEER+pluginid+SCHED;
-                case SIZE_JOBS: return ""+PEERS+PREFIX_PEER+pluginid+SCHED+SIZE_JOBS;
-                case TASKS: return ""+PEERS+PREFIX_PEER+pluginid+SCHED+TASKS;  
-                case PREFIX_TASK: return ""+PEERS+PREFIX_PEER+pluginid+SCHED+TASKS+PREFIX_TASK+taskid;
-                case FILES: return ""+PEERS+PREFIX_PEER+pluginid+FILES;
-                case PREFIX_FILE: return ""+PEERS+PREFIX_PEER+pluginid+FILES+PREFIX_FILE+fileid;
-                case LOCK_JOB: return ""+JOBS+PREFIX_JOB+taskid+LOCK_JOB;
+                case PENDING_SAVE: return "" + ROOT + PENDING_SAVE;
+                case NODE_PENDING_FILE: return "" + ROOT+ PENDING_SAVE + NODE_PENDING_FILE+args[0];
+                case PEERS:  return "" + ROOT + PEERS;
+                case NODE_PEER: return "" + ROOT + PEERS + NODE_PEER + args[0];
+                case STATUS: return "" + ROOT + PEERS + NODE_PEER + args[0] + STATUS;
+                case STATUSWAITING: return "" + ROOT + PEERS + NODE_PEER + args[0] + STATUSWAITING;
+                case SCHED: return "" + ROOT + PEERS + NODE_PEER + args[0] + SCHED;
+                case SIZE_JOBS: return "" + ROOT + PEERS + NODE_PEER + args[0] + SCHED + SIZE_JOBS;
+                case TASKS: return "" + ROOT + PEERS + NODE_PEER + args[0] + SCHED + TASKS;
+                case NODE_TASK: return "" + ROOT + PEERS + NODE_PEER + args[0] + SCHED + TASKS + NODE_TASK + args[1];
+                case FILES: return "" + ROOT + PEERS + NODE_PEER + args[0] + FILES;
+                case NODE_FILE: return "" + ROOT + PEERS + NODE_PEER + args[0] + FILES + NODE_FILE + args[1];
+                case NODE_PIPELINE: return "" + ROOT + PIPELINES + NODE_PIPELINE + args[0];
+                case PIPELINE_FLAG: return "" + ROOT + PIPELINES + NODE_PIPELINE + args[0] + PIPELINE_FLAG;
+                case PIPELINES: return "" + ROOT + PIPELINES;
+                case SERVICES: return "" + ROOT + SERVICES;
+                case NODE_SERVICE: return "" + ROOT + SERVICES + NODE_SERVICE + args[0];
+                case MODES: return "" + ROOT + SERVICES + NODE_SERVICE + args[0] + MODES;
+                case NODE_MODES: return "" + ROOT + SERVICES + NODE_SERVICE + args[0] + MODES + NODE_MODES + args[1];
+                case FINISHED_TASKS: return  "" + ROOT + FINISHED_TASKS;
+                case NODE_FINISHED_TASK: return  "" + ROOT + FINISHED_TASKS + NODE_FINISHED_TASK + args[1];
             }
             return "";
         }
@@ -131,7 +145,7 @@ public class CuratorMessageService implements CloudMessageService {
     @Override
     public void createZNode(CreateMode cm, String node, String desc) {
         try {
-            if (!getZNodeExist(node, true)) {
+            if (!getZNodeExist(node, null)) {
                 client.create().withMode(cm).
                                 withACL(ZooDefs.Ids.OPEN_ACL_UNSAFE).
                                 forPath(node, (desc == null) ? new byte[0] : desc.getBytes());
@@ -146,15 +160,15 @@ public class CuratorMessageService implements CloudMessageService {
     /**
      * Check if a ZNode exists
      * @param path
-     * @param watch
+     * @param watcher
      * @return 
      */
     @Override
-    public Boolean getZNodeExist(String path, boolean watch) {
+    public Boolean getZNodeExist(String path, Watcher watcher) {
         // Need to know how to use watchers in this method (Zookeeper Watcher or Curator Watcher?)
         Stat s = null;
         try {
-            s = client.checkExists().forPath(path);
+            s = client.checkExists().usingWatcher(watcher).forPath(path);
         } catch (Exception ex) {
             Logger.getLogger(CuratorMessageService.class.getName()).log(Level.SEVERE, null, ex);
         }    
@@ -163,7 +177,7 @@ public class CuratorMessageService implements CloudMessageService {
     }
     
     /**
-     * Get a list of children of a ZNode
+     * Get a list of children's paths of a ZNode
      * @param path
      * @param watcher
      * @return 
@@ -187,7 +201,7 @@ public class CuratorMessageService implements CloudMessageService {
      */
     @Override
     public String getData(String path, Watcher watcher){
-        byte[] data;        
+        byte[] data;
         String ret = null;
         
         try {
@@ -219,8 +233,8 @@ public class CuratorMessageService implements CloudMessageService {
      */
     @Override
     public void delete(String path) {
-        try {
-            client.delete().forPath(path);
+        try {            
+            client.delete().deletingChildrenIfNeeded().forPath(path);
         } catch (Exception ex) {
             Logger.getLogger(CuratorMessageService.class.getName()).log(Level.SEVERE, null, ex);
         }

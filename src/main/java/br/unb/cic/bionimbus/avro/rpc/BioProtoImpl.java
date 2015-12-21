@@ -3,20 +3,20 @@ package br.unb.cic.bionimbus.avro.rpc;
 import br.unb.cic.bionimbus.avro.gen.BioProto;
 import br.unb.cic.bionimbus.avro.gen.FileInfo;
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
-import br.unb.cic.bionimbus.client.JobInfo;
 import br.unb.cic.bionimbus.plugin.*;
+import br.unb.cic.bionimbus.security.AESEncryptor;
+import br.unb.cic.bionimbus.security.Hash;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.sched.SchedService;
-import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.services.storage.StorageService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,11 +38,9 @@ public class BioProtoImpl implements BioProto {
 
     private final DiscoveryService discoveryService;
     private final StorageService storageService;
-    private final SchedService schedService;
     private final CloudMessageService cms;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SchedService.class.getSimpleName());
-
     
     private Map<String, NodeInfo> nodes = new HashMap<String, NodeInfo>();
 
@@ -50,7 +48,6 @@ public class BioProtoImpl implements BioProto {
     public BioProtoImpl(DiscoveryService discoveryService, StorageService storageService, SchedService schedService, CloudMessageService cms) {
         this.discoveryService = discoveryService;
         this.storageService = storageService;
-        this.schedService = schedService;
         this.cms =  cms;
     }
 
@@ -61,34 +58,36 @@ public class BioProtoImpl implements BioProto {
     
     /**
      * Retorna o status do job solicitado.
+     * @param pipelineId id do pipeline contendo o job
      * @param jobId id do job que deve ser consultado
      * @return string com o status do job
      * @throws AvroRemoteException 
      */
     @Override
-    public String statusJob(String jobId) throws AvroRemoteException {
-        try {
-            if(cms.getChildren(cms.getPath().JOBS.getFullPath("", "", ""), null).contains("job_"+jobId)){
-                return  "Job "+jobId+" ainda não foi escalonado";
-            }else {
-                String datas =null;
-                ObjectMapper mapper = new ObjectMapper();
-                for(PluginInfo plugin : storageService.getPeers().values()){
-                    for(String task : cms.getChildren(cms.getPath().TASKS.getFullPath(plugin.getId(), "", ""), null)){
-                        datas = cms.getData(cms.getPath().PREFIX_TASK.getFullPath(plugin.getId(),"",task.substring(5, task.length())),null);
-                        if(datas!=null){
-                            PluginTask pluginTask = mapper.readValue(datas, PluginTask.class);
-                            if(pluginTask.getJobInfo().getId().equals(jobId))
-                                return "Job: "+pluginTask.getState().toString();
-                        }
-                    }
-                }
-                    
-            }
-        } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return "Job "+jobId+" não encontrado!";
+    public String statusJob(String pipelineId, String jobId) throws AvroRemoteException {
+//        try {
+//            if(cms.getChildren(cms.getPath().JOBS.getFullPath("", "", "", pipelineId), null).contains("job_"+jobId)){
+//                return  "Job "+jobId+" ainda não foi escalonado";
+//            }else {
+//                String datas =null;
+//                ObjectMapper mapper = new ObjectMapper();
+//                for(PluginInfo plugin : storageService.getPeers().values()){
+//                    for(String task : cms.getChildren(cms.getPath().TASKS.getFullPath(plugin.getId(), "", "", ""), null)){
+//                        datas = cms.getData(cms.getPath().NODE_TASK.getFullPath(plugin.getId(),"",task.substring(5, task.length()), ""),null);
+//                        if(datas!=null){
+//                            PluginTask pluginTask = mapper.readValue(datas, PluginTask.class);
+//                            if(pluginTask.getJobInfo().getId().equals(jobId))
+//                                return "Job: "+pluginTask.getState().toString();
+//                        }
+//                    }
+//                }
+//                    
+//            }
+//        } catch (IOException ex) {
+//            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        return "Job "+jobId+" não encontrado!";
+        throw new AvroRemoteException("IMPLEMENTATION REMOVED/COMMENTED");
     }
 
     /**
@@ -101,29 +100,33 @@ public class BioProtoImpl implements BioProto {
         StringBuilder allJobs = new StringBuilder();
         int i=1;
         try {
-            //verificação dos jobs ainda não escalonados
-            List<String> jobs = cms.getChildren(cms.getPath().JOBS.getFullPath("", "", ""), null);
             ObjectMapper mapper = new ObjectMapper();
-            if(jobs!=null && !jobs.isEmpty()){
-                for(String job : jobs){
-                        String jobData = cms.getData(cms.getPath().PREFIX_JOB.getFullPath("","",job.substring(4,job.length())),null);
-                        if(jobData!=null){
-                            JobInfo jobInfo = mapper.readValue(jobData, JobInfo.class);
-                                allJobs.append(i).append(" - Job ").append(jobInfo.getId()).append(" Ainda não escalonado.\n ");
-                        }
-                        i++;
-                    }
-                
+            List<String> pipelines = cms.getChildren(cms.getPath().PIPELINES.getFullPath(), null);
+            for(String pipeline : pipelines) {
+                //verificação dos jobs ainda não escalonados
+//                List<String> jobs = cms.getChildren(cms.getPath().JOBS.getFullPath("", "", "", pipeline), null);
+//                if(jobs!=null && !jobs.isEmpty()){
+//                    for(String job : jobs){
+//                        String jobData = cms.getData(cms.getPath().PREFIX_JOB.getFullPath("","",job.substring(4,job.length()), pipeline),null);
+//                        if(jobData!=null){
+//                            JobInfo jobInfo = mapper.readValue(jobData, JobInfo.class);
+//                            allJobs.append(i).append(" - Job ").append(jobInfo.getId()).append(" Ainda não escalonado.\n ");
+//                        }
+//                        i++;
+//                    }
+//                }
+                allJobs.append(i).append(" - Pipeline ").append(pipeline).append(" Ainda não escalonado.\n ");
+                i++;
             }
-            //verificação dos jobs escalonados
             
+            //verificação dos jobs escalonados
             String datasTask =null;
             for(PluginInfo plugin : storageService.getPeers().values()){
-                for(String task : cms.getChildren(cms.getPath().TASKS.getFullPath(plugin.getId(), "", ""), null)){
-                    datasTask = cms.getData(cms.getPath().PREFIX_TASK.getFullPath(plugin.getId(),"",task.substring(5, task.length())),null);
+                for(String task : cms.getChildren(cms.getPath().TASKS.getFullPath(plugin.getId()), null)){
+                    datasTask = cms.getData(cms.getPath().NODE_TASK.getFullPath(plugin.getId(),task.substring(5, task.length())),null);
                     if(datasTask!=null){
                         PluginTask pluginTask = mapper.readValue(datasTask, PluginTask.class);
-                        allJobs.append(i).append(" - Job ").append(pluginTask.getJobInfo().getId().toString()).append(" : ").append(pluginTask.getState().toString()).append("\n ");
+                        allJobs.append(i).append(" - Job ").append(pluginTask.getId().toString()).append(" : ").append(pluginTask.getState().toString()).append("\n ");
                     }
                     i++;
                 }
@@ -158,6 +161,45 @@ public class BioProtoImpl implements BioProto {
     }
     
     /**
+     *
+     * @param filename
+     */
+    @Override
+    public void decryptPluginFile(String filename) {
+        try {
+            String pathHome = System.getProperty("user.dir");
+            String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
+            AESEncryptor aes = new AESEncryptor();
+            //Not decrypt inputfiles.txt
+            //if(!filename.contains("inputfiles.txt")) {
+            //TO-DO: Remove comment after William Final Commit
+            //aes.decrypt(path + filename);
+            //}
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+     /**
+     * 
+     * @param fileName
+     * @return lista com nome dos arquivos
+     * @throws AvroRemoteException 
+     */
+    @Override
+    public String getFileHash(String fileName) throws org.apache.avro.AvroRemoteException{        
+        try {
+            String pathHome = System.getProperty("user.dir");
+            String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
+            String hash = Hash.calculateSha3(path + fileName);
+            return hash;
+        } catch (IOException ex) {        
+            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
+    /**
      * 
      * @return
      * @throws AvroRemoteException 
@@ -174,12 +216,38 @@ public class BioProtoImpl implements BioProto {
                 file.setName(fileInfo.getName());
                 //retorno com getName  para o path porque avro não reconhece barra(/), adicionar data-folder/
                 //ao receber o retono deste método
+                file.setHash(fileInfo.getHash());
                 file.setPath(fileInfo.getName());
                 file.setPluginId(fileInfo.getPluginId());
                 file.setSize(fileInfo.getSize());
                 listFiles.add(file);
             }    
         }
+        List<br.unb.cic.bionimbus.avro.gen.PluginFile> listFile = new ArrayList<br.unb.cic.bionimbus.avro.gen.PluginFile>(listFiles);
+
+        return listFile;
+    }
+    
+    /**
+     * 
+     * @param pluginId
+     * @return
+     * @throws AvroRemoteException 
+     */
+    @Override
+    public List<br.unb.cic.bionimbus.avro.gen.PluginFile> listFilesPlugin(String pluginId) throws AvroRemoteException {
+            HashSet<br.unb.cic.bionimbus.avro.gen.PluginFile> listFiles = new HashSet<br.unb.cic.bionimbus.avro.gen.PluginFile>();
+            br.unb.cic.bionimbus.avro.gen.PluginFile file;
+            for(PluginFile fileInfo : storageService.getFilesPeer(pluginId)){
+                file = new  br.unb.cic.bionimbus.avro.gen.PluginFile();
+                file.setId(fileInfo.getId());
+                file.setName(fileInfo.getName());
+                file.setPath(fileInfo.getName());
+                file.setPluginId(fileInfo.getPluginId());
+                file.setSize(fileInfo.getSize());
+                file.setHash(fileInfo.getHash());
+                listFiles.add(file);
+            }    
         List<br.unb.cic.bionimbus.avro.gen.PluginFile> listFile = new ArrayList<br.unb.cic.bionimbus.avro.gen.PluginFile>(listFiles);
 
         return listFile;
@@ -227,86 +295,76 @@ public class BioProtoImpl implements BioProto {
      */
     @Override
     public String schedPolicy(int numPolicy){
-            //verifica se escolher informar a política ou identificar qual é a política
-            if(numPolicy==-1){
-                numPolicy = new Integer(cms.getData(cms.getPath().JOBS.toString(), null));
-            }else{
-                Integer policy = numPolicy;
-                if(cms.getZNodeExist(cms.getPath().JOBS.toString(), false)){
-                    cms.setData(cms.getPath().JOBS.toString(), policy.toString());
-                }else{
-                    return "\nNão foi possível alterar  política de escalonamento. Tente mais tarde.";
-                }
-            }
-        
-        StringBuilder politicys = new StringBuilder();
-        List<SchedPolicy> listPolicy = SchedPolicy.getInstances();
-        for(SchedPolicy policy:listPolicy){
-            politicys.append("\n    ").append(policy.getPolicyName());
-        }
-        
-        
-        return "\nPolítica Atual: "+listPolicy.get(numPolicy).getPolicyName()+"\n\nPolíticas Disponíveis: "+politicys;
+//        //verifica se escolher informar a política ou identificar qual é a política
+//        if(numPolicy==-1){
+//            numPolicy = new Integer(cms.getData(cms.getPath().JOBS.toString(), null));
+//        }else{
+//            Integer policy = numPolicy;
+//            if(cms.getZNodeExist(cms.getPath().JOBS.toString(), false)){
+//                cms.setData(cms.getPath().JOBS.toString(), policy.toString());
+//            }else{
+//                return "\nNão foi possível alterar  política de escalonamento. Tente mais tarde.";
+//            }
+//        }
+//        
+//        StringBuilder politicys = new StringBuilder();
+//        List<SchedPolicy> listPolicy = SchedPolicy.getInstances();
+//        for(SchedPolicy policy:listPolicy){
+//            politicys.append("\n    ").append(policy.getPolicyName());
+//        }
+//        
+//        
+//        return "\nPolítica Atual: "+listPolicy.get(numPolicy).getPolicyName()+"\n\nPolíticas Disponíveis: "+politicys;
+        throw new UnsupportedOperationException("METOD COMMENTED");
     }
     
     @Override
     public String startJobName(String param, String ip) throws AvroRemoteException {
-        final String path = "/jobs/job_";
-        JobInfo job = new JobInfo();
-        String params[] = param.split(" ");
-        String jobId = params[0];
-        int i=1;
-            
-        job.setServiceId(Long.parseLong(jobId));
-        job.setLocalId(ip);
-        job.setTimestamp(System.currentTimeMillis());
-        while (i < params.length) {
-            if (i == 1) {
-                job.setArgs(params[i]);
-                i++;
-            } else if (params[i].equals("-i")) {
-                i++;
-                while (i < params.length && !params[i].equals("-o")) {
-                    //verifica a existência dos arquivos de entrada na federação
-                    if(!listFilesName().contains(params[i]))
-                        return "Job não foi escalonado, arquivo de entrada não existe.";
-                    
-                    job.addInput(params[i], getPluginFile(params[i]).getSize());
-                    i++;
-                }
-            } else if (params[i].equals("-o")) {
-                i++;
-                while (i < params.length) {
-                    job.addOutput(params[i]);
-                    i++;
-                }
-            }
-        }
-        LOGGER.info("Tempo de inicio do job -"+ job.getOutputs()+"- MileSegundos: " + job.getTimestamp());
-        //inclusão do job para ser escalonado
-        cms.createZNode(CreateMode.PERSISTENT, path+job.getId(), job.toString());
-        
-        return "Job enviado para o escalonamento, Id : "+job.getId()+".\nAguarde...";
+//        final String path = "/jobs/job_";
+//        JobInfo job = new JobInfo();
+//        String params[] = param.split(" ");
+//        String jobId = params[0];
+//        int i=1;
+//            
+//        job.setServiceId(Long.parseLong(jobId));
+//        job.setLocalId(ip);
+//        job.setTimestamp(System.currentTimeMillis());
+//        while (i < params.length) {
+//            if (i == 1) {
+//                job.setArgs(params[i]);
+//                i++;
+//            } else if (params[i].equals("-i")) {
+//                i++;
+//                while (i < params.length && !params[i].equals("-o")) {
+//                    //verifica a existência dos arquivos de entrada na federação
+//                    if(!listFilesName().contains(params[i]))
+//                        return "Job não foi escalonado, arquivo de entrada não existe.";
+//                    
+//                    job.addInput(params[i], getPluginFile(params[i]).getSize());
+//                    i++;
+//                }
+//            } else if (params[i].equals("-o")) {
+//                i++;
+//                while (i < params.length) {
+//                    job.addOutput(params[i]);
+//                    i++;
+//                }
+//            }
+//        }
+//        LOGGER.info("Tempo de inicio do job -"+ job.getOutputs()+"- MileSegundos: " + job.getTimestamp());
+//        //inclusão do job para ser escalonado
+//        cms.createZNode(CreateMode.PERSISTENT, path+job.getId(), job.toString());
+//        
+//        return "Job enviado para o escalonamento, Id : "+job.getId()+".\nAguarde...";
+        throw  new UnsupportedOperationException("Function commented. Also, if needed, this must be updated to new pipeline model");
     }
 
     @Override
-    public String startJob(List<br.unb.cic.bionimbus.avro.gen.JobInfo> listJob, String ip) throws AvroRemoteException {
-        //inclusão do job para ser escalonado
+    public String startPipeline(br.unb.cic.bionimbus.avro.gen.PipelineInfo pipeline) throws AvroRemoteException {
+        // generate pipeline register
+        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().NODE_PIPELINE.getFullPath(pipeline.getId()), pipeline.toString());
         
-        for (br.unb.cic.bionimbus.avro.gen.JobInfo job: listJob){
-            job.setTimestamp(System.currentTimeMillis());
-            cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_JOB.getFullPath("", "", job.getId()) , job.toString());
-            LOGGER.info("Tempo de inicio do job -"+ job.getOutputs()+"- MileSegundos: " + job.getTimestamp());
-            //tempo adicionado para latencia poder ser calculada
-            try {
-                TimeUnit.SECONDS.sleep(10);
-            } catch (InterruptedException ex) {
-                java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-        }
-
-        return "Job enviado para o escalonamento. Aguarde...";
+        return "Pipeline enviado para o escalonamento. Aguarde...";
     }
     
     private br.unb.cic.bionimbus.avro.gen.PluginFile getPluginFile(String fileName){
@@ -319,8 +377,7 @@ public class BioProtoImpl implements BioProto {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        return null;
-    
+        return null;    
     }
      
     @Override
@@ -353,7 +410,7 @@ public class BioProtoImpl implements BioProto {
         
         return new ArrayList<NodeInfo>(nodes.values());
     }
-
+    
     /**
      * Passa PluginList para StorageService aqui
      * @param list
@@ -369,7 +426,7 @@ public class BioProtoImpl implements BioProto {
     
     /**
      * Método que cria o znode do arquivo no diretório /pending_save/file_"id_do arquivo" com as informações de arquivos que clientes querem enviar;
-     * @param file informações do arquivo:id,nome e tamanho
+     * @param file informações do arquivo:id,nome, tamanho e hash
      * @param kindString Tipo de serviço que está requisitando o arquivo 
      */  
     @Override
@@ -397,26 +454,25 @@ public class BioProtoImpl implements BioProto {
      * Método avro que chama o método fileuploaded da storage para avisar que o arquivo foi enviado.
      * @param fileSucess informações do arquivo:id,nome e tamanho
      * @param dest lista com os plugins de destino
+     * @return 
      */
     @Override
-    public synchronized void fileSent(FileInfo fileSucess, List<String> dest){
+    public String fileSent(FileInfo fileSucess, List<String> dest){
         PluginFile file = new PluginFile(fileSucess);
         file.setPluginId(dest);
         String pathHome = System.getProperty("user.dir");
         String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
         file.setPath(path+file.getName());
+        String retorno = "File uploaded.";
         try {
-            storageService.fileUploaded(file);
-        } catch (KeeperException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
+            retorno = storageService.fileUploaded(file);
+            return retorno;
+        } catch (KeeperException | InterruptedException | IOException | NoSuchAlgorithmException | SftpException ex) {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return retorno;
     }
-
-
+    
     /**
      * Método que notifica o peer para fazer a replicação
      * @param filename nome do arquivo a ser replicado
@@ -426,11 +482,7 @@ public class BioProtoImpl implements BioProto {
     public void notifyReply(String filename, String address) {
         try {
             storageService.replication(filename,address);
-        } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (JSchException ex) {
-            java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SftpException ex) {
+        } catch (IOException | JSchException | SftpException | NoSuchAlgorithmException ex) {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -452,5 +504,4 @@ public class BioProtoImpl implements BioProto {
     public void setWatcher(String idPlugin) {
 //        storageService.starWatchers(idPlugin);
     }
-
 }
