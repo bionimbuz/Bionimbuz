@@ -54,11 +54,10 @@ public class PluginTaskRunner implements Callable<PluginTask> {
 //                        p = Runtime.getRuntime().exec(path+service.getPath().substring(1,service.getPath().length()) + " " + args);
 
             task.setState(PluginTaskState.RUNNING);
-
-            if (cms != null) {
-                cms.setData(Path.PREFIX_TASK.getFullPath(task.getPluginExec(), task.getJobInfo().getId()), task.toString());
-            }
-
+           
+            if(cms!=null)
+                cms.setData(Path.NODE_TASK.getFullPath(task.getPluginExec(), task.getJobInfo().getId()), task.toString());
+            
             BufferedReader saidaSucesso = new BufferedReader(new InputStreamReader(p.getInputStream()));
             BufferedReader saidaErro = new BufferedReader(new InputStreamReader(p.getErrorStream()));
             String line;
@@ -84,9 +83,8 @@ public class PluginTaskRunner implements Callable<PluginTask> {
                 task.setState(PluginTaskState.ERRO);
             }
 
-            if (cms != null) {
-                cms.setData(Path.PREFIX_TASK.getFullPath(task.getPluginExec(), task.getJobInfo().getId()), task.toString());
-            }
+            if(cms!=null)
+                cms.setData(Path.NODE_TASK.getFullPath(task.getPluginExec(), task.getJobInfo().getId()), task.toString());
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -79,7 +79,7 @@ public class RepositoryService extends AbstractBioService {
      */
     public Double getWorstExecution(String serviceId) {
         // check if service is supported
-        if (!cms.getZNodeExist(Path.PREFIX_SERVICE.getFullPath(serviceId), null)) {
+        if(!cms.getZNodeExist(Path.NODE_SERVICE.getFullPath(serviceId), null)) {
             // problem: task not supported
             Log.warn("service_" + serviceId + " not suported");
             return null;
@@ -125,15 +125,14 @@ public class RepositoryService extends AbstractBioService {
      */
     public void addServiceToZookeeper(PluginService service) {
         // create father node
-        cms.createZNode(CreateMode.PERSISTENT, Path.PREFIX_SERVICE.getFullPath(String.valueOf(service.getId())), service.toString());
-
+        cms.createZNode(CreateMode.PERSISTENT, Path.NODE_SERVICE.getFullPath(String.valueOf(service.getId())), service.toString());
+        
         // create history structure
         cms.createZNode(CreateMode.PERSISTENT, Path.MODES.getFullPath(String.valueOf(service.getId())), null);
 
         // add preset mode if there is one
-        if (service.getPresetMode() != null) {
-            cms.createZNode(CreateMode.PERSISTENT, Path.PREFIX_MODES.getFullPath(String.valueOf(service.getId()), "0"), service.getPresetMode().toString());
-        }
+        if (service.getPresetMode() != null)
+            cms.createZNode(CreateMode.PERSISTENT, Path.NODE_MODES.getFullPath(String.valueOf(service.getId()), "0"), service.getPresetMode().toString());
     }
 
     /**
@@ -141,8 +140,8 @@ public class RepositoryService extends AbstractBioService {
      *
      * @param resource Resource to be added
      */
-    public void addPeerToZookeeper(PluginInfo resource) {
-        cms.createZNode(CreateMode.PERSISTENT, Path.PREFIX_PEER.getFullPath(resource.getId()), resource.toString());
+    public void addPeerToZookeeper (PluginInfo resource) {
+        cms.createZNode(CreateMode.PERSISTENT, Path.NODE_PEER.getFullPath(resource.getId()), resource.toString());
         cms.createZNode(CreateMode.PERSISTENT, Path.STATUS.getFullPath(resource.getId()), null);
         cms.createZNode(CreateMode.PERSISTENT, Path.SCHED.getFullPath(resource.getId()), null);
         cms.createZNode(CreateMode.PERSISTENT, Path.TASKS.getFullPath(resource.getId()), null);
@@ -187,7 +186,7 @@ public class RepositoryService extends AbstractBioService {
         double sum = 0;
         Integer count = 1;
         for (String s : ls) {
-            sum += Double.parseDouble(cms.getData(Path.PREFIX_MODES.getFullPath(count.toString(), s.substring(5)), null));
+            sum += Double.parseDouble(cms.getData(Path.NODE_MODES.getFullPath(count.toString(), s), null));
             count++;
         }
         return sum / ls.size();

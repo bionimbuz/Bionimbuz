@@ -53,7 +53,6 @@ public class CuratorMessageService implements CloudMessageService {
      */
     public enum Path {
         
-        COST_PREFIX("/cost_"),
         COUNT("/count"),
         END("/end"),
         FILES("/files"),
@@ -64,24 +63,23 @@ public class CuratorMessageService implements CloudMessageService {
         PENDING_SAVE("/pending_save"),
         PIPELINES("/pipelines"),
         PIPELINE_FLAG("/flag"),
-        PREFIX_FILE("/file_"),
-        PREFIX_FINISHED_TASK("/task_"),
-        PREFIX_MODES("/mode_"),
-        PREFIX_PEER("/peer_"), 
-        PREFIX_PENDING_FILE("/pending_file_"),
-        PREFIX_PIPELINE("/pipeline_"),
-        PREFIX_SERVICE("/service_"),
-        PREFIX_TASK("/task_"),
-        ROOT("/"), 
+        NODE_COST("/"),
+        NODE_FILE("/"),
+        NODE_FINISHED_TASK("/"),
+        NODE_MODES("/"),
+        NODE_PEER("/"), 
+        NODE_PENDING_FILE("/"),
+        NODE_PIPELINE("/"),
+        NODE_SERVICE("/"),
+        NODE_TASK("/"),
+        ROOT("/bionimbuz"), 
         SCHED("/sched"),
-        SEPARATOR("/"),
         SERVICES("/services"),
         SIZE_JOBS("/size_jobs"),
         START("/start"),
         STATUS("/STATUS"),
         STATUSWAITING("/STATUSWAITING"),
-        TASKS("/tasks"), 
-        UNDERSCORE("_");
+        TASKS("/tasks");
         
         private final String value;
         
@@ -92,39 +90,39 @@ public class CuratorMessageService implements CloudMessageService {
         /**
          * Return the full path of a ZNode
          * @param args Input String arguments. For the most cases there will be
-         * only one id input. For cases ROOT, PENDING_SAVE, PEERS, PIPELINES 
-         * and SERVICES there will be no input. For the PREFIX_TASK case, the 
-         * first argument must be the plugin id and the second, the task id. For
-         * the PREFIX_FILE case the first argument is the plugin id and the 
-         * second, the file id. For the PREFIX_MODES case, the first argument must
-         * be the service id and the second, the id/count_number of the history 
-         * value.
+ only one id input. For cases ROOT, PENDING_SAVE, PEERS, PIPELINES 
+ and SERVICES there will be no input. For the NODE_TASK case, the 
+ first argument must be the plugin id and the second, the task id. For
+ the PREFIX_FILE case the first argument is the plugin id and the 
+ second, the file id. For the NODE_MODES case, the first argument must
+ be the service id and the second, the id/count_number of the history 
+ value.
          * @return 
          */
         public String getFullPath(String ... args) {
             switch (this) {
                 case ROOT: return "" + this;
-                case PENDING_SAVE: return "" +PENDING_SAVE;
-                case PREFIX_PENDING_FILE: return ""+PENDING_SAVE+PREFIX_PENDING_FILE+args[0];
-                case PEERS:  return "" + PEERS;
-                case PREFIX_PEER: return ""+PEERS+PREFIX_PEER+args[0];
-                case STATUS: return ""+PEERS+PREFIX_PEER+args[0]+STATUS;
-                case STATUSWAITING: return ""+PEERS+PREFIX_PEER+args[0]+STATUSWAITING;
-                case SCHED: return ""+PEERS+PREFIX_PEER+args[0]+SCHED;
-                case SIZE_JOBS: return ""+PEERS+PREFIX_PEER+args[0]+SCHED+SIZE_JOBS;
-                case TASKS: return ""+PEERS+PREFIX_PEER+args[0]+SCHED+TASKS;
-                case PREFIX_TASK: return ""+PEERS+PREFIX_PEER+args[0]+SCHED+TASKS+PREFIX_TASK+args[1];
-                case FILES: return ""+PEERS+PREFIX_PEER+args[0]+FILES;
-                case PREFIX_FILE: return ""+PEERS+PREFIX_PEER+args[0]+FILES+PREFIX_FILE+args[1];
-                case PREFIX_PIPELINE: return "" + PIPELINES + PREFIX_PIPELINE + args[0];
-                case PIPELINE_FLAG: return "" + PIPELINES + PREFIX_PIPELINE + args[0] + PIPELINE_FLAG;
-                case PIPELINES: return "" + PIPELINES;
-                case SERVICES: return "" + SERVICES;
-                case PREFIX_SERVICE: return "" + SERVICES + PREFIX_SERVICE + args[0];
-                case MODES: return "" + SERVICES + PREFIX_SERVICE + args[0] + MODES;
-                case PREFIX_MODES: return "" + SERVICES + PREFIX_SERVICE + args[0] + MODES + PREFIX_MODES + args[1];
-                case FINISHED_TASKS: return  "" + FINISHED_TASKS;
-                case PREFIX_FINISHED_TASK: return  "" + FINISHED_TASKS + PREFIX_FINISHED_TASK + args[1];
+                case PENDING_SAVE: return "" + ROOT + PENDING_SAVE;
+                case NODE_PENDING_FILE: return "" + ROOT+ PENDING_SAVE + NODE_PENDING_FILE+args[0];
+                case PEERS:  return "" + ROOT + PEERS;
+                case NODE_PEER: return "" + ROOT + PEERS + NODE_PEER + args[0];
+                case STATUS: return "" + ROOT + PEERS + NODE_PEER + args[0] + STATUS;
+                case STATUSWAITING: return "" + ROOT + PEERS + NODE_PEER + args[0] + STATUSWAITING;
+                case SCHED: return "" + ROOT + PEERS + NODE_PEER + args[0] + SCHED;
+                case SIZE_JOBS: return "" + ROOT + PEERS + NODE_PEER + args[0] + SCHED + SIZE_JOBS;
+                case TASKS: return "" + ROOT + PEERS + NODE_PEER + args[0] + SCHED + TASKS;
+                case NODE_TASK: return "" + ROOT + PEERS + NODE_PEER + args[0] + SCHED + TASKS + NODE_TASK + args[1];
+                case FILES: return "" + ROOT + PEERS + NODE_PEER + args[0] + FILES;
+                case NODE_FILE: return "" + ROOT + PEERS + NODE_PEER + args[0] + FILES + NODE_FILE + args[1];
+                case NODE_PIPELINE: return "" + ROOT + PIPELINES + NODE_PIPELINE + args[0];
+                case PIPELINE_FLAG: return "" + ROOT + PIPELINES + NODE_PIPELINE + args[0] + PIPELINE_FLAG;
+                case PIPELINES: return "" + ROOT + PIPELINES;
+                case SERVICES: return "" + ROOT + SERVICES;
+                case NODE_SERVICE: return "" + ROOT + SERVICES + NODE_SERVICE + args[0];
+                case MODES: return "" + ROOT + SERVICES + NODE_SERVICE + args[0] + MODES;
+                case NODE_MODES: return "" + ROOT + SERVICES + NODE_SERVICE + args[0] + MODES + NODE_MODES + args[1];
+                case FINISHED_TASKS: return  "" + ROOT + FINISHED_TASKS;
+                case NODE_FINISHED_TASK: return  "" + ROOT + FINISHED_TASKS + NODE_FINISHED_TASK + args[1];
             }
             return "";
         }

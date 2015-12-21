@@ -72,7 +72,7 @@ public class BioProtoImpl implements BioProto {
 //                ObjectMapper mapper = new ObjectMapper();
 //                for(PluginInfo plugin : storageService.getPeers().values()){
 //                    for(String task : cms.getChildren(cms.getPath().TASKS.getFullPath(plugin.getId(), "", "", ""), null)){
-//                        datas = cms.getData(cms.getPath().PREFIX_TASK.getFullPath(plugin.getId(),"",task.substring(5, task.length()), ""),null);
+//                        datas = cms.getData(cms.getPath().NODE_TASK.getFullPath(plugin.getId(),"",task.substring(5, task.length()), ""),null);
 //                        if(datas!=null){
 //                            PluginTask pluginTask = mapper.readValue(datas, PluginTask.class);
 //                            if(pluginTask.getJobInfo().getId().equals(jobId))
@@ -120,11 +120,11 @@ public class BioProtoImpl implements BioProto {
             }
 
             //verificação dos jobs escalonados
-            String datasTask = null;
-            for (PluginInfo plugin : storageService.getPeers().values()) {
-                for (String task : cms.getChildren(cms.getPath().TASKS.getFullPath(plugin.getId()), null)) {
-                    datasTask = cms.getData(cms.getPath().PREFIX_TASK.getFullPath(plugin.getId(), task.substring(5, task.length())), null);
-                    if (datasTask != null) {
+            String datasTask =null;
+            for(PluginInfo plugin : storageService.getPeers().values()){
+                for(String task : cms.getChildren(cms.getPath().TASKS.getFullPath(plugin.getId()), null)){
+                    datasTask = cms.getData(cms.getPath().NODE_TASK.getFullPath(plugin.getId(),task.substring(5, task.length())),null);
+                    if(datasTask!=null){
                         PluginTask pluginTask = mapper.readValue(datasTask, PluginTask.class);
                         allJobs.append(i).append(" - Job ").append(pluginTask.getId().toString()).append(" : ").append(pluginTask.getState().toString()).append("\n ");
                     }
@@ -303,8 +303,8 @@ public class BioProtoImpl implements BioProto {
     @Override
     public String startPipeline(br.unb.cic.bionimbus.avro.gen.PipelineInfo pipeline) throws AvroRemoteException {
         // generate pipeline register
-        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_PIPELINE.getFullPath(pipeline.getId()), pipeline.toString());
-
+        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().NODE_PIPELINE.getFullPath(pipeline.getId()), pipeline.toString());
+        
         return "Pipeline enviado para o escalonamento. Aguarde...";
     }
 

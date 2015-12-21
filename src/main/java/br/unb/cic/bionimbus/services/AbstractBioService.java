@@ -8,6 +8,7 @@ import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import com.google.inject.Singleton;
 import java.io.IOException;
@@ -40,19 +41,17 @@ public abstract class AbstractBioService implements Service, Runnable, Listeners
         List<String> children;
         cloudMap.clear();
         try {
-            cms.getPath();
-            children = cms.getChildren(cms.getPath().PEERS.getFullPath(), null);
+            children = cms.getChildren(Path.PEERS.getFullPath(), null);
 //            System.out.println("[AbstractBioService] children got: " + children.size());
             for (String pluginId : children) {
                 ObjectMapper mapper = new ObjectMapper();
-                String id = pluginId.substring(pluginId.indexOf(cms.getPath().UNDERSCORE.toString()) + 1);
-                String datas = cms.getData(cms.getPath().PREFIX_PEER.getFullPath(id), null);
+                String datas = cms.getData(Path.NODE_PEER.getFullPath(pluginId), null);
 //                System.out.println("[AbstractBioService] data got: " + datas);
                 if (datas != null && !datas.trim().isEmpty()) {
                     PluginInfo myInfo = mapper.readValue(datas, PluginInfo.class);
 //                    System.out.println("[AbstractBioService] info mapped: " + myInfo.toString());
-                    if (cms.getZNodeExist(cms.getPath().STATUS.getFullPath(id), null)) {
-                        cloudMap.put(myInfo.getId(), myInfo);
+                    if(cms.getZNodeExist(Path.STATUS.getFullPath(pluginId), null)){ 
+                       cloudMap.put(myInfo.getId(), myInfo);
 //                        System.out.println("[AbstractBioService] peer put: " + myInfo.getId());
                     }
                 }

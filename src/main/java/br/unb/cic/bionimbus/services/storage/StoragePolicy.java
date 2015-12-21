@@ -50,7 +50,7 @@ public class StoragePolicy {
         * Custo = (Espaço livre + Uptime) * Latencia
          */
         for (PluginInfo plugin : pluginList) {
-            String datastring = cms.getData(cms.getPath().PREFIX_PEER.getFullPath(plugin.getId()), null);
+            String datastring = cms.getData(cms.getPath().NODE_PEER.getFullPath(plugin.getId()), null);
             try {
                 PluginInfo plugindata = new ObjectMapper().readValue(datastring, PluginInfo.class);
                 costpergiga = plugindata.getCostPerGiga();

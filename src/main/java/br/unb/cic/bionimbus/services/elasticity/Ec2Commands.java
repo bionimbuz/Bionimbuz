@@ -47,7 +47,7 @@ public class Ec2Commands {
     public static void listinstances() throws IOException {
         Ec2Commands.setup();
 
-        System.out.println("Decrevendo instancias BioninbuZ na Amazon");
+        System.out.println("Descrevendo instancias BioNimbuZ na Amazon");
         DescribeInstancesResult describeInstancesRequest = EC2.describeInstances();
         List<Reservation> reservations = describeInstancesRequest.getReservations();
         Set<Instance> instances = new HashSet<Instance>();
