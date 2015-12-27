@@ -1,14 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package br.unb.cic.bionimbus.jobcontroller;
 
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.controller.AbstractBioController;
+import com.google.inject.Singleton;
 import java.io.IOException;
 import org.apache.zookeeper.WatchedEvent;
 import org.slf4j.Logger;
@@ -21,15 +17,16 @@ import org.slf4j.LoggerFactory;
  *
  * @author Vinicius
  */
+@Singleton
 public class JobController extends AbstractBioController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobController.class);
     private static final int AVRO_PORT = 8080;
-
     private static RpcClient rpcClient;
     private boolean isConnected = false;
 
     /**
+     * Starts JobController
      *
      * @param config
      */
@@ -47,7 +44,6 @@ public class JobController extends AbstractBioController {
         } catch (IOException ex) {
             LOGGER.error("[Exception] " + ex.getMessage());
         }
-
     }
 
     @Override

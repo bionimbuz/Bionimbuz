@@ -40,6 +40,13 @@ public class BioNimbus {
         });
     }
 
+    /**
+     * BioNimbuZ public constructor
+     *
+     * @param config
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public BioNimbus(BioNimbusConfig config) throws IOException, InterruptedException {
 
         config.setId(UUID.randomUUID().toString());
@@ -70,7 +77,11 @@ public class BioNimbus {
         ServiceManager serviceManager = serviceInjector.getInstance(ServiceManager.class);
         ControllerManager controllerManager = controllerInjector.getInstance(ControllerManager.class);
 
+        // Starts all Services
         serviceManager.startAll(config, listeners);
+
+        // Starts all Controllers
+        controllerManager.startAll(config);
 
     }
 
@@ -83,7 +94,7 @@ public class BioNimbus {
         config.setZkConnString(InetAddress.getLocalHost().getHostAddress() + ":2181");
         config.setAddress(InetAddress.getLocalHost().getHostAddress());
         // !!! Fim MEDIDA PALEATIVA !!!
-        
+
         LOGGER.debug("config = " + config);
 
         new BioNimbus(config);

@@ -22,7 +22,7 @@ public class ServiceModule extends AbstractModule {
 
         bind(BioProto.class).to(BioProtoImpl.class);
         bind(RpcServer.class).to(AvroServer.class);
-//        bind(HttpServer.class);
+//      bind(HttpServer.class);
 
         bind(MetricRegistry.class).asEagerSingleton();
         bind(HealthCheckRegistry.class).asEagerSingleton();

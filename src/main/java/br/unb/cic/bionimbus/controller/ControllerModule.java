@@ -18,8 +18,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 
 /**
+ * Guice Module to Inject on ControllerManager
  *
- * @author zoonimbus
+ * @author Vinicius
  */
 public class ControllerModule extends AbstractModule {
 

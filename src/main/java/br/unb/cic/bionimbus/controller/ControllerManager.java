@@ -5,6 +5,7 @@
  */
 package br.unb.cic.bionimbus.controller;
 
+import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.services.Service;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import com.google.inject.Inject;
@@ -36,5 +37,11 @@ public class ControllerManager {
         this.services.addAll(services);
         
         LOGGER.info("Initialing ControllerManager");
+    }
+    
+    public void startAll(BioNimbusConfig config) {
+        for (Controller controller : controllers) {
+            controller.start(config);
+        }
     }
 }
