@@ -1,6 +1,7 @@
 package br.unb.cic.bionimbus.rest.model;
 
 import java.io.Serializable;
+import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,8 +17,9 @@ import javax.persistence.Table;
 public class UploadedFileInfo implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+//    @GeneratedValue(strategy = GenerationType.AUTO)
+//    private Long id;
+    private String id;
     private Long userId;
     private String name;
     private String uploadTimestamp;
@@ -26,11 +28,11 @@ public class UploadedFileInfo implements Serializable {
     public UploadedFileInfo() {
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

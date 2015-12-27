@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static br.unb.cic.bionimbus.config.BioNimbusConfigLoader.*;
+import br.unb.cic.bionimbus.controller.ControllerManager;
+import br.unb.cic.bionimbus.controller.ControllerModule;
 import static br.unb.cic.bionimbus.plugin.PluginFactory.getPlugin;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxGetInfo;
@@ -23,7 +25,6 @@ import java.net.InetAddress;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Level;
 
 public class BioNimbus {
 
@@ -43,7 +44,7 @@ public class BioNimbus {
 
         config.setId(UUID.randomUUID().toString());
         List<Listeners> listeners = new CopyOnWriteArrayList<>();
-        
+
         if (!config.isClient()) {
             LinuxGetInfo getinfo = new LinuxGetInfo();
             PluginInfo infopc = getinfo.call();
@@ -61,10 +62,16 @@ public class BioNimbus {
 
         }
 
-        final Injector injector = createInjector(new ServiceModule());
+        // Declares Guice Injectors
+        final Injector serviceInjector = createInjector(new ServiceModule());
+        final Injector controllerInjector = createInjector(new ControllerModule());
 
-        ServiceManager manager = injector.getInstance(ServiceManager.class);
-        manager.startAll(config, listeners);
+        // Intantiates ServiceManager and Controller
+        ServiceManager serviceManager = serviceInjector.getInstance(ServiceManager.class);
+        ControllerManager controllerManager = controllerInjector.getInstance(ControllerManager.class);
+
+        serviceManager.startAll(config, listeners);
+
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -74,7 +81,9 @@ public class BioNimbus {
 
         // !!! MEDIDA PALEATIVA !!! Para nao ter que trocar o node.yaml toda vez
         config.setZkConnString(InetAddress.getLocalHost().getHostAddress() + ":2181");
-
+        config.setAddress(InetAddress.getLocalHost().getHostAddress());
+        // !!! Fim MEDIDA PALEATIVA !!!
+        
         LOGGER.debug("config = " + config);
 
         new BioNimbus(config);

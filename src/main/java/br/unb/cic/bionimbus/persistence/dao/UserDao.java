@@ -73,7 +73,10 @@ public class UserDao extends BaseDao<User> {
      */
     @Override
     public User findById(Long id) {
-        return manager.find(User.class, id);
+        User user = new User();
+        user = manager.find(User.class, id);
+        
+        return user;
     }
 
     /**

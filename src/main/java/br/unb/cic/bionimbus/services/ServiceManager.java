@@ -42,8 +42,9 @@ public class ServiceManager {
         this.rs = rs;
         this.rpcServer = rpcServer;
         this.httpServer = httpServer;
-
         this.services.addAll(services);
+
+        LOGGER.info("Initializing ServiceManager");
     }
 
     public void connectZK(String hosts) throws IOException, InterruptedException {
@@ -121,7 +122,7 @@ public class ServiceManager {
             }
 
         } catch (Exception e) {
-            LOGGER.error("[Exception] ServiceManager.startAll()");
+            LOGGER.error("[Exception] " +  e.getMessage());
             e.printStackTrace();
             System.exit(0);
         }

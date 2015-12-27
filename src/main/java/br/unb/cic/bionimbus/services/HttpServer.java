@@ -9,9 +9,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * HTTP server that will handle REST requests and responses on port 8181
+ * 
+ * @author Vinicius
+ */
 public class HttpServer {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpServer.class);
     private Server server;
     private static HttpServer REF;
     private volatile boolean running;
@@ -19,8 +26,10 @@ public class HttpServer {
     private final int port;
     private final HttpServlet proxyServlet;
 
-    private MetricsServletContextListener contextListener;
-
+    /**
+     * Starts server
+     * @throws Exception 
+     */
     public void start() throws Exception {
         if (!running) {
 
@@ -35,9 +44,9 @@ public class HttpServer {
                         server.join();
 
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        LOGGER.error("[InterruptedException] " + e.getMessage());
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LOGGER.error("[Exception] " + e.getMessage());
                     } finally {
                         running = false;
                     }
@@ -50,7 +59,7 @@ public class HttpServer {
         try {
             server.stop();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("[Exception] " + e.getMessage());
         }
         running = false;
     }
@@ -83,10 +92,15 @@ public class HttpServer {
             EntityManagerProducer.initialize();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("[Exception] " + e.getMessage());
         }
     }
 
+    /**
+     * Starts HttpServer on port 8181
+     * @param args
+     * @throws Exception 
+     */
     public static void main(String[] args) throws Exception {
         new HttpServer(8181, null, null).start();
     }
