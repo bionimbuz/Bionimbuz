@@ -1,15 +1,13 @@
 package br.unb.cic.bionimbus.rest.model;
 
 import java.io.Serializable;
-import java.util.UUID;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
  * Object model of a file sent from the user web application
+ *
  * @author Vinicius
  */
 @Entity
@@ -17,12 +15,14 @@ import javax.persistence.Table;
 public class UploadedFileInfo implements Serializable {
 
     @Id
-//    @GeneratedValue(strategy = GenerationType.AUTO)
-//    private Long id;
     private String id;
+
     private Long userId;
+
     private String name;
+
     private String uploadTimestamp;
+
     private long size;
 
     public UploadedFileInfo() {

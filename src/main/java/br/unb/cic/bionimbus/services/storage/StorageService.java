@@ -284,6 +284,7 @@ public class StorageService extends AbstractBioService {
             for (Iterator<PluginInfo> it = getPeers().values().iterator(); it.hasNext();) {
                 PluginInfo plugin = it.next();
                 listFiles = cms.getChildren(Path.FILES.getFullPath(plugin.getId()), null);
+                
                 PluginFile files = new ObjectMapper().readValue(cms.getData(Path.NODE_FILE.getFullPath(plugin.getId(), file), null), PluginFile.class);
                 return files.getSize();
             }

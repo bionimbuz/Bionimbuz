@@ -5,19 +5,14 @@
  */
 package br.unb.cic.bionimbus.rest.application;
 
-import br.unb.cic.bionimbus.avro.rpc.AvroClient;
-import br.unb.cic.bionimbus.config.BioNimbusConfig;
-import static br.unb.cic.bionimbus.config.BioNimbusConfigLoader.loadHostConfig;
 import br.unb.cic.bionimbus.rest.resource.FileResource;
 import br.unb.cic.bionimbus.rest.resource.PingResource;
 import br.unb.cic.bionimbus.rest.resource.PipelineResource;
 import br.unb.cic.bionimbus.rest.resource.UserResource;
-import java.io.IOException;
+import com.google.inject.Inject;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ws.rs.core.Application;
 import org.eclipse.jetty.util.resource.Resource;
 
@@ -28,7 +23,7 @@ import org.eclipse.jetty.util.resource.Resource;
 public class RestApplication extends Application {
 
     @SuppressWarnings("rawtypes")
-    private static Set services = new HashSet();
+    private static final Set SERVICES = new HashSet();
 
     /**
      * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! !!! IMPORTANT !!!
@@ -38,26 +33,16 @@ public class RestApplication extends Application {
      */
     @SuppressWarnings("unchecked")
     public RestApplication() {
-        final String configFile = System.getProperty("config.file", "conf/node.yaml");
-        BioNimbusConfig config = null;
-
-        try {
-            config = loadHostConfig(configFile);
-
-            services.add(new UserResource());
-            services.add(new FileResource(new AvroClient("http", config.getAddress(), 8080)));
-            services.add(new PingResource());
-            services.add(new PipelineResource());
-        } catch (IOException ex) {
-            Logger.getLogger(RestApplication.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
+        SERVICES.add(new UserResource());
+        SERVICES.add(new FileResource());
+        SERVICES.add(new PingResource());
+        SERVICES.add(new PipelineResource());
     }
 
     private static final Set<Class<?>> CLASSES;
 
     static {
-        HashSet<Class<?>> tmp = new HashSet<Class<?>>();
+        HashSet<Class<?>> tmp = new HashSet<>();
         tmp.add(Resource.class);
 
         CLASSES = Collections.unmodifiableSet(tmp);
@@ -72,11 +57,11 @@ public class RestApplication extends Application {
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     public Set getSingletons() {
-        return services;
+        return SERVICES;
     }
 
     @SuppressWarnings("rawtypes")
     public static Set getServices() {
-        return services;
+        return SERVICES;
     }
 }

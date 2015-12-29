@@ -3,9 +3,15 @@ package br.unb.cic.bionimbus.jobcontroller;
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
-import br.unb.cic.bionimbus.controller.AbstractBioController;
+import br.unb.cic.bionimbus.controller.Controller;
+import br.unb.cic.bionimbus.plugin.PluginInfo;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
+import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.zookeeper.WatchedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,13 +24,24 @@ import org.slf4j.LoggerFactory;
  * @author Vinicius
  */
 @Singleton
-public class JobController extends AbstractBioController {
-
+public class JobController implements Controller, Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(JobController.class);
     private static final int AVRO_PORT = 8080;
     private static RpcClient rpcClient;
     private boolean isConnected = false;
+    
+    protected CloudMessageService cms;
+    protected BioNimbusConfig config;
+    private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<>();
 
+    @Inject
+    public JobController(CloudMessageService cms) {
+        Preconditions.checkNotNull(cms);
+        this.cms = cms;
+        
+        LOGGER.info("JobController started");
+    }
+    
     /**
      * Starts JobController
      *
@@ -39,7 +56,6 @@ public class JobController extends AbstractBioController {
             // Test to see if hostname is reachable
             if (rpcClient.getProxy().ping()) {
                 isConnected = true;
-                LOGGER.info("[JobController] RpcClient connected");
             }
         } catch (IOException ex) {
             LOGGER.error("[Exception] " + ex.getMessage());
@@ -71,4 +87,16 @@ public class JobController extends AbstractBioController {
         LOGGER.info("JobController");
     }
 
+    /**
+     * Methods to implement
+     * - User control:
+     *  o   void logUser (User user): Keeps a HashMap<id, User> with logged user
+     *  o   void loggoutUser (User user): Deletes the loggedUsers list 
+     *  o   
+     * - Job Control
+     *  o   ArrayList<JobInfo> listJobs (void);
+     *  o   ArrayList<JobInfo> listJobsByUserId (long userId);
+     *  o   JobInfo findJobById (String jobId);
+     *  o   boolean cancelJob (String jobId);
+     */
 }

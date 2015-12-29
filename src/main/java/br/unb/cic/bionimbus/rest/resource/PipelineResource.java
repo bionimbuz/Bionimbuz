@@ -5,6 +5,8 @@
  */
 package br.unb.cic.bionimbus.rest.resource;
 
+import br.unb.cic.bionimbus.rest.request.RequestInfo;
+import br.unb.cic.bionimbus.rest.response.ResponseInfo;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -29,5 +31,12 @@ public class PipelineResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON)
     public void handlePipeline() {
         
+    }
+
+   
+
+    @Override
+    public ResponseInfo handleIncoming(RequestInfo request) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

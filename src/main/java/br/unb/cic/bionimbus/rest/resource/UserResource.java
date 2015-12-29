@@ -1,5 +1,8 @@
 package br.unb.cic.bionimbus.rest.resource;
 
+import br.unb.cic.bionimbus.avro.rpc.RpcClient;
+import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import br.unb.cic.bionimbus.jobcontroller.JobController;
 import br.unb.cic.bionimbus.persistence.dao.FileDao;
 import br.unb.cic.bionimbus.persistence.dao.UserDao;
 import br.unb.cic.bionimbus.rest.model.UploadedFileInfo;
@@ -18,10 +21,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import br.unb.cic.bionimbus.rest.request.LoginRequest;
 import br.unb.cic.bionimbus.rest.request.LogoutRequest;
+import br.unb.cic.bionimbus.rest.request.RequestInfo;
 import br.unb.cic.bionimbus.rest.request.SignUpRequest;
 import br.unb.cic.bionimbus.rest.response.LoginResponse;
 import br.unb.cic.bionimbus.rest.response.LogoutResponse;
+import br.unb.cic.bionimbus.rest.response.ResponseInfo;
 import br.unb.cic.bionimbus.rest.response.SignUpResponse;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 //import br.unb.cic.bionimbus.usercontroller.LoggedUsers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,10 +61,10 @@ public class UserResource extends BaseResource {
 
         try {
             responseUser = userDao.findByLogin(requestUser.getLogin());
-            
+
         } catch (NoResultException e) {
             LOGGER.info("User " + requestUser.getLogin() + " not found");
-            
+
         } catch (Exception e) {
             LOGGER.error("[Exception - " + e.getMessage() + "] UserResource.login()");
         }
@@ -115,5 +121,10 @@ public class UserResource extends BaseResource {
         response.setAdded(true);
 
         return response;
+    }
+
+    @Override
+    public ResponseInfo handleIncoming(RequestInfo request) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

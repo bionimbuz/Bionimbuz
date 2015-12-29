@@ -18,7 +18,9 @@ import javax.ws.rs.core.MediaType;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 
 import br.unb.cic.bionimbus.persistence.dao.FileDao;
+import br.unb.cic.bionimbus.rest.request.RequestInfo;
 import br.unb.cic.bionimbus.rest.request.UploadRequest;
+import br.unb.cic.bionimbus.rest.response.ResponseInfo;
 import br.unb.cic.bionimbus.rest.response.UploadResponse;
 import br.unb.cic.bionimbus.security.AESEncryptor;
 import br.unb.cic.bionimbus.security.Hash;
@@ -34,16 +36,19 @@ import java.util.List;
 @Path("/rest/file/")
 public class FileResource extends BaseResource {
 
-    private static final String UPLOADED_FILES_DIRECTORY = FileSystemView.getFileSystemView().getHomeDirectory() + "/zoonimbusProject/data-folder/";
+    private static final String UPLOADED_FILES_DIRECTORY = FileSystemView.getFileSystemView().getHomeDirectory() + "/zoonimbusProject/uploaded-files/";
     private final FileDao fileDao;
-    private final RpcClient rpcClient;
     private List<NodeInfo> pluginList;
     private final Double MAXCAPACITY = 0.9;
     private List<NodeInfo> nodesdisp = new ArrayList<>();
 
-    public FileResource(RpcClient rpcClient) {
+    public FileResource() {
         fileDao = new FileDao();
-        this.rpcClient = rpcClient;
+    }
+    
+    @Override
+    public ResponseInfo handleIncoming(RequestInfo request) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     /**
@@ -56,11 +61,14 @@ public class FileResource extends BaseResource {
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
-    public UploadResponse handleUploadedFile(@MultipartForm UploadRequest request) {
+    public UploadResponse handle(@MultipartForm UploadRequest request) {
         String filepath = UPLOADED_FILES_DIRECTORY + request.getUploadedFileInfo().getName();
 
         try {
             LOGGER.info("Upload request received [filename=" + request.getUploadedFileInfo().getName() + "]");
+
+            // Writes file on disk
+            writeFile(request.getData(), request.getUploadedFileInfo().getName());
 
             // Tries to write file to Zookeeper
             if (writeFileToZookeeper(filepath)) {
@@ -68,8 +76,6 @@ public class FileResource extends BaseResource {
                 // Creates an UserFile using UploadadeFileInfo from request and persists on Database
                 fileDao.persist(request.getUploadedFileInfo());
 
-                // Writes file on disk
-                writeFile(request.getData(), request.getUploadedFileInfo().getName());
             }
 
         } catch (IOException e) {
@@ -138,10 +144,10 @@ public class FileResource extends BaseResource {
             info.setName(file.getName());
             info.setSize(file.length());
 
-            System.out.println(rpcClient.getProxy().getIpFile(info.getName()));
-            System.out.println(rpcClient.getProxy().getIpFile(info.getName()).isEmpty());
-            System.out.println(rpcClient.getProxy().checkFileSize(info.getName()));
-            System.out.println(info.getSize());
+            System.out.println("ip info get name " + rpcClient.getProxy().getIpFile(info.getName()));
+            System.out.println("isempty " + rpcClient.getProxy().getIpFile(info.getName()).isEmpty());
+            System.out.println("checkfilesize " + rpcClient.getProxy().checkFileSize(info.getName()));
+            System.out.println("info.getsize " + info.getSize());
 
             //Verifica se existe o arquivo, e se existir vefica se é do mesmo tamanho
             if (rpcClient.getProxy().getIpFile(info.getName()).isEmpty() || rpcClient.getProxy().checkFileSize(info.getName()) != info.getSize()) {
@@ -205,8 +211,10 @@ public class FileResource extends BaseResource {
         }
 
         // Upload error
-        LOGGER.error("Upload error");
+        LOGGER.error("File not found");
         return false;
     }
+
+    
 
 }

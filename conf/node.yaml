@@ -1,10 +1,10 @@
 rpc_port: 8080
 rpc_protocol: http
-zookeeper_hosts: 192.168.252.150:2181
+zookeeper_hosts: 192.168.252.151:2181
 client: false
 plugin: linux
 server-path: /home/willian/NetBeansProjects/Bionimbuz
-address: 192.168.252.150
+address: 192.168.252.151
 cost_per_giga: 0
-host: {"address": "192.168.252.150", "port":8080}
+host: {"address": "192.168.252.151", "port":8080}
 cost: 0.35

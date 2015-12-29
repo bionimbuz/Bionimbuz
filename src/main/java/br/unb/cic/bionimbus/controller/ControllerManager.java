@@ -36,9 +36,13 @@ public class ControllerManager {
         this.controllers.addAll(controllers);
         this.services.addAll(services);
         
-        LOGGER.info("Initialing ControllerManager");
+        LOGGER.info("Starting ControllerManager");
     }
     
+    /**
+     * Starts all controllers
+     * @param config 
+     */
     public void startAll(BioNimbusConfig config) {
         for (Controller controller : controllers) {
             controller.start(config);
