@@ -1,7 +1,5 @@
 package br.unb.cic.bionimbus.rest.resource;
 
-import br.unb.cic.bionimbus.avro.rpc.RpcClient;
-import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.jobcontroller.JobController;
 import br.unb.cic.bionimbus.persistence.dao.FileDao;
 import br.unb.cic.bionimbus.persistence.dao.UserDao;
@@ -27,23 +25,18 @@ import br.unb.cic.bionimbus.rest.response.LoginResponse;
 import br.unb.cic.bionimbus.rest.response.LogoutResponse;
 import br.unb.cic.bionimbus.rest.response.ResponseInfo;
 import br.unb.cic.bionimbus.rest.response.SignUpResponse;
-import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 //import br.unb.cic.bionimbus.usercontroller.LoggedUsers;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Path("/rest")
-public class UserResource extends BaseResource {
-
-    // Logger
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserResource.class);
+public class UserResource extends AbstractResource {
 
     private final UserDao userDao;
     private final FileDao fileInfoDao;
 
-    public UserResource() {
-        userDao = new UserDao();
-        fileInfoDao = new FileDao();
+    public UserResource(JobController jobController) {
+        this.jobController = jobController;
+        this.userDao = new UserDao();
+        this.fileInfoDao = new FileDao();
     }
 
     @POST

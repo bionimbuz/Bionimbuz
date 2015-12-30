@@ -98,5 +98,10 @@ public class JobController implements Controller, Runnable {
      *  o   ArrayList<JobInfo> listJobsByUserId (long userId);
      *  o   JobInfo findJobById (String jobId);
      *  o   boolean cancelJob (String jobId);
+     * @return 
      */
+    
+    public BioNimbusConfig getConfig() {
+        return this.config;
+    }
 }

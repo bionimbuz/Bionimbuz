@@ -1,7 +1,7 @@
 package br.unb.cic.bionimbus.rest.resource;
 
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
-import br.unb.cic.bionimbus.avro.rpc.RpcClient;
+import br.unb.cic.bionimbus.jobcontroller.JobController;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -34,16 +34,17 @@ import java.util.Iterator;
 import java.util.List;
 
 @Path("/rest/file/")
-public class FileResource extends BaseResource {
+public class FileResource extends AbstractResource {
 
     private static final String UPLOADED_FILES_DIRECTORY = FileSystemView.getFileSystemView().getHomeDirectory() + "/zoonimbusProject/uploaded-files/";
     private final FileDao fileDao;
     private List<NodeInfo> pluginList;
     private final Double MAXCAPACITY = 0.9;
     private List<NodeInfo> nodesdisp = new ArrayList<>();
-
-    public FileResource() {
-        fileDao = new FileDao();
+    
+    public FileResource(JobController jobController) {
+        this.fileDao = new FileDao();
+        this.jobController = jobController;
     }
     
     @Override

@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Vinicius
  */
-public abstract class BaseResource implements RestResource {
+public abstract class AbstractResource implements RestResource {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(BaseResource.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractResource.class);
     protected static RpcClient rpcClient;
     protected CloudMessageService cms;
     protected BioNimbusConfig config;
@@ -35,9 +35,4 @@ public abstract class BaseResource implements RestResource {
         }
 
     }
-    /*
-    public boolean isLogged(String login) {
-        return LoggedUsers.isLogged(login);
-    }
-     */
 }

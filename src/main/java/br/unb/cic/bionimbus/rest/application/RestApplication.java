@@ -5,16 +5,20 @@
  */
 package br.unb.cic.bionimbus.rest.application;
 
+import br.unb.cic.bionimbus.BioNimbus;
+import br.unb.cic.bionimbus.jobcontroller.JobController;
+import br.unb.cic.bionimbus.rest.resource.AbstractResource;
 import br.unb.cic.bionimbus.rest.resource.FileResource;
 import br.unb.cic.bionimbus.rest.resource.PingResource;
 import br.unb.cic.bionimbus.rest.resource.PipelineResource;
 import br.unb.cic.bionimbus.rest.resource.UserResource;
-import com.google.inject.Inject;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import javax.ws.rs.core.Application;
 import org.eclipse.jetty.util.resource.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -22,22 +26,11 @@ import org.eclipse.jetty.util.resource.Resource;
  */
 public class RestApplication extends Application {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestApplication.class);
+    private static int resourceCounter = 0;
+
     @SuppressWarnings("rawtypes")
     private static final Set SERVICES = new HashSet();
-
-    /**
-     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! !!! IMPORTANT !!!
-     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Everytime a class that
-     * defines a resource is created, it's ESSENCIAL that is added to Services
-     * Set
-     */
-    @SuppressWarnings("unchecked")
-    public RestApplication() {
-        SERVICES.add(new UserResource());
-        SERVICES.add(new FileResource());
-        SERVICES.add(new PingResource());
-        SERVICES.add(new PipelineResource());
-    }
 
     private static final Set<Class<?>> CLASSES;
 
@@ -46,6 +39,26 @@ public class RestApplication extends Application {
         tmp.add(Resource.class);
 
         CLASSES = Collections.unmodifiableSet(tmp);
+    }
+
+    /**
+     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! IMPORTANT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     * Everytime a class that defines a resource is created, it's ESSENCIAL that
+     * is added to Services Set using addResource(resource)
+     */
+    @SuppressWarnings("unchecked")
+    public RestApplication() {
+        JobController jobController = BioNimbus.controllerInjector.getInstance(JobController.class);
+
+        addResource(new UserResource(jobController));
+        addResource(new FileResource(jobController));
+        addResource(new PipelineResource(jobController));
+        addResource(new PingResource());
+
+        LOGGER.info("RestApplication started with " + resourceCounter + " Resources");
+
     }
 
     @Override
@@ -63,5 +76,17 @@ public class RestApplication extends Application {
     @SuppressWarnings("rawtypes")
     public static Set getServices() {
         return SERVICES;
+    }
+
+    /**
+     * Adds a Rest Resource to the Set of Resources
+     *
+     * @param resource
+     */
+    private void addResource(AbstractResource resource) {
+        SERVICES.add(resource);
+
+        resourceCounter++;
+        LOGGER.info("Rest Resource " + resource.getClass().getSimpleName() + " added");
     }
 }

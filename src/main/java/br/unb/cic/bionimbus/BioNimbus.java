@@ -30,6 +30,9 @@ public class BioNimbus {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BioNimbus.class);
 
+    public static final Injector serviceInjector = createInjector(new ServiceModule());
+    public static final Injector controllerInjector = createInjector(new ControllerModule());
+
     static {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -68,10 +71,6 @@ public class BioNimbus {
             plugin.start();
 
         }
-
-        // Declares Guice Injectors
-        final Injector serviceInjector = createInjector(new ServiceModule());
-        final Injector controllerInjector = createInjector(new ControllerModule());
 
         // Intantiates ServiceManager and Controller
         ServiceManager serviceManager = serviceInjector.getInstance(ServiceManager.class);
