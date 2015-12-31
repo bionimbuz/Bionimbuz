@@ -25,11 +25,12 @@ import org.slf4j.LoggerFactory;
  */
 @Singleton
 public class JobController implements Controller, Runnable {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(JobController.class);
     private static final int AVRO_PORT = 8080;
     private static RpcClient rpcClient;
     private boolean isConnected = false;
-    
+
     protected CloudMessageService cms;
     protected BioNimbusConfig config;
     private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<>();
@@ -38,10 +39,10 @@ public class JobController implements Controller, Runnable {
     public JobController(CloudMessageService cms) {
         Preconditions.checkNotNull(cms);
         this.cms = cms;
-        
+
         LOGGER.info("JobController started");
     }
-    
+
     /**
      * Starts JobController
      *
@@ -87,21 +88,26 @@ public class JobController implements Controller, Runnable {
         LOGGER.info("JobController");
     }
 
-    /**
-     * Methods to implement
-     * - User control:
-     *  o   void logUser (User user): Keeps a HashMap<id, User> with logged user
-     *  o   void loggoutUser (User user): Deletes the loggedUsers list 
-     *  o   
-     * - Job Control
-     *  o   ArrayList<JobInfo> listJobs (void);
-     *  o   ArrayList<JobInfo> listJobsByUserId (long userId);
-     *  o   JobInfo findJobById (String jobId);
-     *  o   boolean cancelJob (String jobId);
-     * @return 
+    /*
+     * Methods to implement 
+     * - User control: 
+     * o void logUser (User user): Keeps a HashMap<id, User> with logged user 
+     * o void loggoutUser (User user): Deletes the loggedUsers list 
+     * 
+     * - Job Control:
+     * o ArrayList<JobInfo> listJobs (void); 
+     * o ArrayList<JobInfo> listJobsByUserId (long userId); 
+     * o JobInfo findJobById (String jobId); 
+     * o boolean cancelJob (String jobId);
+     *
      */
-    
+    /**
+     * Return BioNimbus configuration
+     *
+     * @return BioNimbusConfig
+     */
     public BioNimbusConfig getConfig() {
         return this.config;
     }
+
 }

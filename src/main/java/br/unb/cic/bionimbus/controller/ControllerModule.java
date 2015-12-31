@@ -6,6 +6,7 @@
 package br.unb.cic.bionimbus.controller;
 
 import br.unb.cic.bionimbus.jobcontroller.JobController;
+import br.unb.cic.bionimbus.jobcontroller.UserController;
 import br.unb.cic.bionimbus.services.RepositoryService;
 import br.unb.cic.bionimbus.services.Service;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
@@ -29,7 +30,11 @@ public class ControllerModule extends AbstractModule {
         // Binds Controller classes
         Multibinder<Controller> controllerBinder = Multibinder.newSetBinder(binder(), Controller.class);
         controllerBinder.addBinding().to(JobController.class);
+        controllerBinder.addBinding().to(UserController.class);
+
+        // Marks the controllers as EagerSingleton
         bind(JobController.class).asEagerSingleton();
+        bind(UserController.class).asEagerSingleton();
 
         // Binds Services classes
         Multibinder<Service> serviceBinder = Multibinder.newSetBinder(binder(), Service.class);

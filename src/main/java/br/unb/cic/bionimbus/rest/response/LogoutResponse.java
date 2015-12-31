@@ -1,10 +1,13 @@
 package br.unb.cic.bionimbus.rest.response;
 
+import org.jboss.resteasy.core.ServerResponse;
+
 /**
  * A Logout response definition
+ *
  * @author Vinicius
  */
-public class LogoutResponse implements ResponseInfo {
+public class LogoutResponse extends ServerResponse implements ResponseInfo {
 
     private boolean logoutSuccess;
 

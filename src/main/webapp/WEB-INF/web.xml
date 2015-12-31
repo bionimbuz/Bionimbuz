@@ -4,6 +4,11 @@
         <param-name>resteasy.scan</param-name>
         <param-value>true</param-value>
     </context-param>
+    
+    <context-param>
+        <param-name>resteasy.providers</param-name>
+        <param-value>br.unb.cic.bionimbus.rest.security.SecurityInterceptor</param-value>
+    </context-param>
 
     <!--    <context-param>
         <param-name>resteasy.resources</param-name>

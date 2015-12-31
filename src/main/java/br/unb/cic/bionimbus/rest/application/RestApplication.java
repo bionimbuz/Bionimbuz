@@ -21,6 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * javax.ws.rs.core.Application that defines the Rest Application for the
+ * Application Server
  *
  * @author Vinicius
  */

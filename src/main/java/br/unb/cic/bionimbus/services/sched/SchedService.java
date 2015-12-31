@@ -374,7 +374,6 @@ public class SchedService extends AbstractBioService implements Runnable {
      */
     private void checkMyPlugin() {
         for (Listeners listener : listeners) {
-            LOGGER.info(listener.toString());
             if (listener instanceof LinuxPlugin) {
                 this.myLinuxPlugin = (LinuxPlugin) listener;
             }
@@ -429,7 +428,6 @@ public class SchedService extends AbstractBioService implements Runnable {
         
         for (PluginInfo plugin : plgs) {
             
-            LOGGER.info(myLinuxPlugin.getMyInfo().getId());
             //cria watch para ser adicionado no znode que contém as tarefas escanoladas desse plugin
             if (myLinuxPlugin.getMyInfo().getId().equals(plugin.getId())) {
                 LOGGER.info("[SchedService] checkWaitingTasks : watcher adicionado no plugin " + plugin.getId());

@@ -21,11 +21,11 @@ import br.unb.cic.bionimbus.rest.request.LoginRequest;
 import br.unb.cic.bionimbus.rest.request.LogoutRequest;
 import br.unb.cic.bionimbus.rest.request.RequestInfo;
 import br.unb.cic.bionimbus.rest.request.SignUpRequest;
-import br.unb.cic.bionimbus.rest.response.LoginResponse;
 import br.unb.cic.bionimbus.rest.response.LogoutResponse;
 import br.unb.cic.bionimbus.rest.response.ResponseInfo;
 import br.unb.cic.bionimbus.rest.response.SignUpResponse;
-//import br.unb.cic.bionimbus.usercontroller.LoggedUsers;
+import javax.annotation.security.PermitAll;
+import javax.ws.rs.core.Response;
 
 @Path("/rest")
 public class UserResource extends AbstractResource {
@@ -39,13 +39,13 @@ public class UserResource extends AbstractResource {
         this.fileInfoDao = new FileDao();
     }
 
+    @PermitAll
     @POST
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public LoginResponse login(LoginRequest loginRequest) {
+    public Response login(LoginRequest loginRequest) {
         User requestUser = loginRequest.getUser();
-        LoginResponse response = new LoginResponse();
 
         LOGGER.info("Login request received: [login: " + requestUser.getLogin() + ", password: " + requestUser.getPassword().toString().charAt(0) + "*****]");
 
@@ -62,10 +62,8 @@ public class UserResource extends AbstractResource {
             LOGGER.error("[Exception - " + e.getMessage() + "] UserResource.login()");
         }
 
+        // Verifies if the user from database is null and the password is right
         if (responseUser != null && (requestUser.getPassword().equals(responseUser.getPassword()))) {
-            // Adds user to the logged users list
-            // LoggedUsers.addLoggedUser(responseUser);
-
             List<UploadedFileInfo> userFiles = fileInfoDao.listByUserId(responseUser.getId());
             responseUser.setFiles(userFiles);
 
@@ -76,13 +74,13 @@ public class UserResource extends AbstractResource {
             responseUser.setSecurityToken(secretKey);
 
             // Sets response populated user
-            response.setUser(responseUser);
+            return Response.status(200).entity(responseUser).build();
         } else {
-            response.setUser(loginRequest.getUser());
-        }
 
-        //LoggedUsers.printLoggedUsersMap();
-        return response;
+            // Else, returns the same user
+            return Response.status(200).entity(loginRequest.getUser()).build();
+
+        }
     }
 
     @POST

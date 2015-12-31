@@ -1,4 +1,4 @@
-package br.unb.cic.bionimbus.jobcontroller;
+package br.unb.cic.bionimbus.utils;
 
 import br.unb.cic.bionimbus.rest.model.User;
 import java.util.HashMap;
@@ -11,18 +11,14 @@ import java.util.HashMap;
 public class LoggedUserList {
 
     // Logged user Hash Map <id, user>
-    private final HashMap<Long, User> loggedUserMap;
-
-    public LoggedUserList() {
-        loggedUserMap = new HashMap<>();
-    }
+    private static final HashMap<Long, User> loggedUserMap = new HashMap<>();
 
     /**
      * Adds an user to the Logged User Map
      *
      * @param user
      */
-    public void add(User user) {
+    public static void add(User user) {
         loggedUserMap.put(user.getId(), user);
     }
 
@@ -31,7 +27,7 @@ public class LoggedUserList {
      *
      * @param userId
      */
-    public void remove(Long userId) {
+    public static void remove(Long userId) {
         loggedUserMap.remove(userId);
     }
 
@@ -41,7 +37,7 @@ public class LoggedUserList {
      * @param userId
      * @return
      */
-    public boolean verify(Long userId) {
+    public static boolean verify(Long userId) {
         return loggedUserMap.containsKey(userId);
     }
 
@@ -50,7 +46,7 @@ public class LoggedUserList {
      *
      * @return
      */
-    public HashMap<Long, User> getLoggedUserMap() {
+    public static HashMap<Long, User> getLoggedUserMap() {
         return loggedUserMap;
     }
 
