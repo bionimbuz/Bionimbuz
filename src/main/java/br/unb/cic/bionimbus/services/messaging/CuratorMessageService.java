@@ -239,6 +239,26 @@ public class CuratorMessageService implements CloudMessageService {
     }
 
     /**
+     * Get a list of children's paths of a ZNode
+     *
+     * @param path
+     * @param watcher
+     * @return
+     */
+    @Override
+    public int getChildrenCount(String path, Watcher watcher) {
+        int cont = 0;
+        
+        try {
+            cont = client.getChildren().usingWatcher(watcher).forPath(path).size();
+        } catch (Exception ex) {
+            LOGGER.error("[Exception] " + ex.getMessage());
+        }
+
+        return cont;
+    }
+
+    /**
      * Retrieves the data in a ZNode
      *
      * @param path
@@ -246,6 +266,7 @@ public class CuratorMessageService implements CloudMessageService {
      * @return
      */
     @Override
+
     public String getData(String path, Watcher watcher) {
         byte[] data;
         String ret = null;

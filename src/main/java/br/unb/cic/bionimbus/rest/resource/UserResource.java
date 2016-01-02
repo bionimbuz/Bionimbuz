@@ -77,7 +77,9 @@ public class UserResource extends AbstractResource {
             responseUser.setSecurityToken(secretKey);
 
             // Logs user in ZooKeeper structure
-            userController.logUser(responseUser);
+            userController.logUser(responseUser.getLogin());
+            
+            LOGGER.info("Children count: " + userController.getLoggedUsersCount());
             
             // Sets response populated user
             return Response.status(200).entity(responseUser).build();
@@ -97,8 +99,10 @@ public class UserResource extends AbstractResource {
 
         LogoutResponse response = new LogoutResponse();
 
-        // Removes the user from the logged users' list
-        //LoggedUsers.removeLoggedUser(logoutRequest.getUser().getLogin());
+        // Inform ZooKeeper of the logout
+        userController.logoutUser(logoutRequest.getUser().getLogin());
+        
+        // Set that logout was successful
         response.setLogoutSuccess(true);
 
         return response;

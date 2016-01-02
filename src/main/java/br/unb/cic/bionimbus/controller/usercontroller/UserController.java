@@ -75,13 +75,13 @@ public class UserController implements Controller, Runnable {
     /**
      * Logs an user adding a new /users/logged/{id} ZooKeeper node
      *
-     * @param user
+     * @param login
      * @return
      */
-    public boolean logUser(User user) {
+    public boolean logUser(String login) {
         // If it is registered, verifiy if it is logged or not
-        if (!cms.getZNodeExist(Path.LOGGED_USERS.getFullPath(user.getLogin()), null)) {
-            cms.createZNode(CreateMode.PERSISTENT, Path.LOGGED_USERS.getFullPath(user.getLogin()), null);
+        if (!cms.getZNodeExist(Path.LOGGED_USERS.getFullPath(login), null)) {
+            cms.createZNode(CreateMode.PERSISTENT, Path.LOGGED_USERS.getFullPath(login), null);
 
             return true;
         }
@@ -90,4 +90,13 @@ public class UserController implements Controller, Runnable {
         return true;
     }
 
+    public void logoutUser(String login) {
+        if (cms.getZNodeExist(Path.LOGGED_USERS.getFullPath(login), null)) {
+            cms.delete(Path.LOGGED_USERS.getFullPath(login));
+        }
+    }
+
+    public int getLoggedUsersCount() {
+        return cms.getChildrenCount(Path.USERS.getFullPath() + Path.LOGGED_USERS, null);
+    }
 }
