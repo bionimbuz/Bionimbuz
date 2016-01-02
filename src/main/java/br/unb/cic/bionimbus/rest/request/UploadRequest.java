@@ -3,7 +3,7 @@ package br.unb.cic.bionimbus.rest.request;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.MediaType;
 import org.jboss.resteasy.annotations.providers.multipart.PartType;
-import br.unb.cic.bionimbus.rest.model.UploadedFileInfo;
+import br.unb.cic.bionimbus.model.UploadedFileInfo;
 
 /**
  * Defines an upload request to be used in a REST request

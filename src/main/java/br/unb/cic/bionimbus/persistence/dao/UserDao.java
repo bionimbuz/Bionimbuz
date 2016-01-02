@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.persistence.TypedQuery;
 
-import br.unb.cic.bionimbus.rest.model.User;
+import br.unb.cic.bionimbus.model.User;
 
 /**
  * Class that manages database operations for User class

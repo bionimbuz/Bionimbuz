@@ -11,9 +11,8 @@ import br.unb.cic.bionimbus.controller.usercontroller.UserController;
 import br.unb.cic.bionimbus.rest.resource.AbstractResource;
 import br.unb.cic.bionimbus.rest.resource.FileResource;
 import br.unb.cic.bionimbus.rest.resource.PingResource;
-import br.unb.cic.bionimbus.rest.resource.PipelineResource;
+import br.unb.cic.bionimbus.rest.resource.WorkflowResource;
 import br.unb.cic.bionimbus.rest.resource.UserResource;
-import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -60,7 +59,7 @@ public class RestApplication extends Application {
 
         addResource(new UserResource(jobController, userController));
         addResource(new FileResource(jobController));
-        addResource(new PipelineResource(jobController));
+        addResource(new WorkflowResource(jobController));
         addResource(new PingResource());
 
         LOGGER.info("RestApplication started with " + resourceCounter + " Resources");

@@ -1,14 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package br.unb.cic.bionimbus.rest.resource;
 
 import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
 import br.unb.cic.bionimbus.rest.request.RequestInfo;
+import br.unb.cic.bionimbus.rest.request.StartWorkflowRequest;
 import br.unb.cic.bionimbus.rest.response.ResponseInfo;
-import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
+import br.unb.cic.bionimbus.rest.response.StartWorkflowResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -16,25 +12,28 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 /**
- * Class that handle sent pipeline via REST request
+ * Class that handle sent workflow via REST request
  *
  * @author Vinicius
  */
 @Path("/rest")
-public class PipelineResource extends AbstractResource {
+public class WorkflowResource extends AbstractResource {
 
-    public PipelineResource(JobController jobController) {
+    public WorkflowResource(JobController jobController) {
         this.jobController = jobController;
     }
 
-    
-    
     @POST
-    @Path("/pipeline")
+    @Path("/workflow/start/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public void handlePipeline() {
-
+    public StartWorkflowResponse startWorkflow(StartWorkflowRequest request) {
+        LOGGER.info("Dados sobre o Workflow: ");
+        LOGGER.info("Id: " + request.getWorkflow().getId());
+        LOGGER.info("Data: " + request.getWorkflow().getCreationDatestamp());
+        LOGGER.info("Tamanho: " + request.getWorkflow().getPipeline().size());
+        
+        return new StartWorkflowResponse(true);
     }
 
     @Override

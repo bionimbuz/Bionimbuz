@@ -1,6 +1,6 @@
 package br.unb.cic.bionimbus.rest.response;
 
-import br.unb.cic.bionimbus.rest.model.User;
+import br.unb.cic.bionimbus.model.User;
 
 /**
  * A Login response definition

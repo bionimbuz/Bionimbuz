@@ -1,6 +1,6 @@
 package br.unb.cic.bionimbus.utils;
 
-import br.unb.cic.bionimbus.rest.model.User;
+import br.unb.cic.bionimbus.model.User;
 import java.util.HashMap;
 
 /**

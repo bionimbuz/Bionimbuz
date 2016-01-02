@@ -1,6 +1,6 @@
 package br.unb.cic.bionimbus.rest.request;
 
-import br.unb.cic.bionimbus.rest.model.User;
+import br.unb.cic.bionimbus.model.User;
 
 /**
  * Defines a logout request to be used in a REST request

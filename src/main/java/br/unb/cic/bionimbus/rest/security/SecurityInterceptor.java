@@ -7,7 +7,7 @@ package br.unb.cic.bionimbus.rest.security;
 
 import br.unb.cic.bionimbus.BioNimbus;
 import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
-import br.unb.cic.bionimbus.rest.model.User;
+import br.unb.cic.bionimbus.model.User;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import javax.annotation.security.DenyAll;

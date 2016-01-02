@@ -7,7 +7,6 @@ package br.unb.cic.bionimbus.controller.usercontroller;
 
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.controller.Controller;
-import br.unb.cic.bionimbus.rest.model.User;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import com.google.common.base.Preconditions;
@@ -73,7 +72,7 @@ public class UserController implements Controller, Runnable {
     }
 
     /**
-     * Logs an user adding a new /users/logged/{id} ZooKeeper node
+     * Logs an user adding a new /users/logged/{login} ZooKeeper node
      *
      * @param login
      * @return
@@ -90,12 +89,22 @@ public class UserController implements Controller, Runnable {
         return true;
     }
 
+    /**
+     * Informs ZooKeeper of an user Logout deleting /users/logged/{login}
+     *
+     * @param login
+     */
     public void logoutUser(String login) {
         if (cms.getZNodeExist(Path.LOGGED_USERS.getFullPath(login), null)) {
             cms.delete(Path.LOGGED_USERS.getFullPath(login));
         }
     }
 
+    /**
+     * Get the count of logged users
+     *
+     * @return
+     */
     public int getLoggedUsersCount() {
         return cms.getChildrenCount(Path.USERS.getFullPath() + Path.LOGGED_USERS, null);
     }

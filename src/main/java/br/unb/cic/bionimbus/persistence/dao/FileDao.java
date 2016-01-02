@@ -4,8 +4,8 @@ import java.util.List;
 
 import javax.persistence.TypedQuery;
 
-import br.unb.cic.bionimbus.rest.model.UploadedFileInfo;
-import br.unb.cic.bionimbus.rest.model.User;
+import br.unb.cic.bionimbus.model.UploadedFileInfo;
+import br.unb.cic.bionimbus.model.User;
 
 /**
  * Class that is responsible to operate over the database the UserFile elements

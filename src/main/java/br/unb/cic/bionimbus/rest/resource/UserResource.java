@@ -4,8 +4,8 @@ import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
 import br.unb.cic.bionimbus.controller.usercontroller.UserController;
 import br.unb.cic.bionimbus.persistence.dao.FileDao;
 import br.unb.cic.bionimbus.persistence.dao.UserDao;
-import br.unb.cic.bionimbus.rest.model.UploadedFileInfo;
-import br.unb.cic.bionimbus.rest.model.User;
+import br.unb.cic.bionimbus.model.UploadedFileInfo;
+import br.unb.cic.bionimbus.model.User;
 import java.util.Calendar;
 import java.util.List;
 
