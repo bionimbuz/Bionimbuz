@@ -5,8 +5,12 @@
  */
 package br.unb.cic.bionimbus.controller;
 
-import br.unb.cic.bionimbus.jobcontroller.JobController;
-import br.unb.cic.bionimbus.jobcontroller.UserController;
+import br.unb.cic.bionimbus.avro.gen.BioProto;
+import br.unb.cic.bionimbus.avro.rpc.AvroServer;
+import br.unb.cic.bionimbus.avro.rpc.BioProtoImpl;
+import br.unb.cic.bionimbus.avro.rpc.RpcServer;
+import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
+import br.unb.cic.bionimbus.controller.usercontroller.UserController;
 import br.unb.cic.bionimbus.services.RepositoryService;
 import br.unb.cic.bionimbus.services.Service;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
@@ -27,6 +31,12 @@ public class ControllerModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        // If someone changes CloudMessageService implementation, need to change here too
+        bind(CloudMessageService.class).to(CuratorMessageService.class);
+
+        bind(BioProto.class).to(BioProtoImpl.class);
+        bind(RpcServer.class).to(AvroServer.class);
+
         // Binds Controller classes
         Multibinder<Controller> controllerBinder = Multibinder.newSetBinder(binder(), Controller.class);
         controllerBinder.addBinding().to(JobController.class);
@@ -43,7 +53,6 @@ public class ControllerModule extends AbstractModule {
         serviceBinder.addBinding().to(SchedService.class);
         serviceBinder.addBinding().to(MonitoringService.class);
         serviceBinder.addBinding().to(RepositoryService.class);
-        bind(CloudMessageService.class).to(CuratorMessageService.class);
     }
 
 }

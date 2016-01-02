@@ -1,6 +1,7 @@
 package br.unb.cic.bionimbus.rest.resource;
 
-import br.unb.cic.bionimbus.jobcontroller.JobController;
+import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
+import br.unb.cic.bionimbus.controller.usercontroller.UserController;
 import br.unb.cic.bionimbus.persistence.dao.FileDao;
 import br.unb.cic.bionimbus.persistence.dao.UserDao;
 import br.unb.cic.bionimbus.rest.model.UploadedFileInfo;
@@ -33,10 +34,11 @@ public class UserResource extends AbstractResource {
     private final UserDao userDao;
     private final FileDao fileInfoDao;
 
-    public UserResource(JobController jobController) {
+    public UserResource(JobController jobController, UserController userController) {
         this.jobController = jobController;
         this.userDao = new UserDao();
         this.fileInfoDao = new FileDao();
+        this.userController = userController;
     }
 
     @PermitAll
@@ -47,19 +49,20 @@ public class UserResource extends AbstractResource {
     public Response login(LoginRequest loginRequest) {
         User requestUser = loginRequest.getUser();
 
-        LOGGER.info("Login request received: [login: " + requestUser.getLogin() + ", password: " + requestUser.getPassword().toString().charAt(0) + "*****]");
+        LOGGER.info("Login request received: [login: " + requestUser.getLogin() + ", password: " + requestUser.getPassword().charAt(0) + "*****]");
 
         // Verifies if the request user exists on database
         User responseUser = null;
 
         try {
             responseUser = userDao.findByLogin(requestUser.getLogin());
-
         } catch (NoResultException e) {
             LOGGER.info("User " + requestUser.getLogin() + " not found");
-
+            
+            // Returns to Client
+            return Response.status(200).entity(loginRequest.getUser()).build();
         } catch (Exception e) {
-            LOGGER.error("[Exception - " + e.getMessage() + "] UserResource.login()");
+            LOGGER.error("[Exception] " + e.getMessage());
         }
 
         // Verifies if the user from database is null and the password is right
@@ -73,13 +76,15 @@ public class UserResource extends AbstractResource {
 
             responseUser.setSecurityToken(secretKey);
 
+            // Logs user in ZooKeeper structure
+            userController.logUser(responseUser);
+            
             // Sets response populated user
             return Response.status(200).entity(responseUser).build();
         } else {
 
             // Else, returns the same user
             return Response.status(200).entity(loginRequest.getUser()).build();
-
         }
     }
 

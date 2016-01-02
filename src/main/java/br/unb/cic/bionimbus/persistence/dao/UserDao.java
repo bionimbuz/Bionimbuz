@@ -24,12 +24,11 @@ public class UserDao extends BaseDao<User> {
             manager.getTransaction().begin();
             manager.persist(user);
             manager.getTransaction().commit();
-            
+
         } catch (Exception e) {
             manager.getTransaction().rollback();
-            
-            LOGGER.error("[Exception] UserDao.persist()");
-            e.printStackTrace();
+
+            LOGGER.error("[Exception] " + e.getMessage());
         }
     }
 
@@ -73,10 +72,7 @@ public class UserDao extends BaseDao<User> {
      */
     @Override
     public User findById(Long id) {
-        User user = new User();
-        user = manager.find(User.class, id);
-        
-        return user;
+        return manager.find(User.class, id);
     }
 
     /**

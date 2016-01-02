@@ -1,7 +1,8 @@
 package br.unb.cic.bionimbus.rest.resource;
 
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
-import br.unb.cic.bionimbus.jobcontroller.JobController;
+import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
+import br.unb.cic.bionimbus.controller.usercontroller.UserController;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

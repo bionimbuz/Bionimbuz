@@ -5,9 +5,10 @@
  */
 package br.unb.cic.bionimbus.rest.resource;
 
-import br.unb.cic.bionimbus.jobcontroller.JobController;
+import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
 import br.unb.cic.bionimbus.rest.request.RequestInfo;
 import br.unb.cic.bionimbus.rest.response.ResponseInfo;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;

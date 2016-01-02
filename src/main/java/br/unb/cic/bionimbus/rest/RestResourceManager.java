@@ -6,7 +6,7 @@
 package br.unb.cic.bionimbus.rest;
 
 import br.unb.cic.bionimbus.controller.ControllerManager;
-import br.unb.cic.bionimbus.jobcontroller.JobController;
+import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;

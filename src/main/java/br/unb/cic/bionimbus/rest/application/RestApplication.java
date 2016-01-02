@@ -6,12 +6,14 @@
 package br.unb.cic.bionimbus.rest.application;
 
 import br.unb.cic.bionimbus.BioNimbus;
-import br.unb.cic.bionimbus.jobcontroller.JobController;
+import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
+import br.unb.cic.bionimbus.controller.usercontroller.UserController;
 import br.unb.cic.bionimbus.rest.resource.AbstractResource;
 import br.unb.cic.bionimbus.rest.resource.FileResource;
 import br.unb.cic.bionimbus.rest.resource.PingResource;
 import br.unb.cic.bionimbus.rest.resource.PipelineResource;
 import br.unb.cic.bionimbus.rest.resource.UserResource;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -52,9 +54,11 @@ public class RestApplication extends Application {
      */
     @SuppressWarnings("unchecked")
     public RestApplication() {
+        // Retrieves injector from BioNimbus class
         JobController jobController = BioNimbus.controllerInjector.getInstance(JobController.class);
+        UserController userController = BioNimbus.controllerInjector.getInstance(UserController.class);
 
-        addResource(new UserResource(jobController));
+        addResource(new UserResource(jobController, userController));
         addResource(new FileResource(jobController));
         addResource(new PipelineResource(jobController));
         addResource(new PingResource());

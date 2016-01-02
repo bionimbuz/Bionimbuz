@@ -54,16 +54,18 @@ public class ServiceManager {
 
     public void createZnodeZK(String id) throws IOException, InterruptedException, KeeperException {
         //create root bionimbuz if does not exists
-        if (!cms.getZNodeExist(Path.ROOT.getFullPath(), null))
+        if (!cms.getZNodeExist(Path.ROOT.getFullPath(), null)) {
             cms.createZNode(CreateMode.PERSISTENT, Path.ROOT.getFullPath(), "");
-        
+        }
+
         // create root peer node if does not exists
-        if (!cms.getZNodeExist(Path.PEERS.getFullPath(), null))
+        if (!cms.getZNodeExist(Path.PEERS.getFullPath(), null)) {
             cms.createZNode(CreateMode.PERSISTENT, Path.PEERS.getFullPath(), "");
-        
+        }
+
         // add current instance as a peer
         rs.addPeerToZookeeper(new PluginInfo(id));
-        
+
         // create services repository node
         if (!cms.getZNodeExist(Path.SERVICES.getFullPath(), null)) {
             // create history root
@@ -74,16 +76,27 @@ public class ServiceManager {
         if (!cms.getZNodeExist(Path.FINISHED_TASKS.getFullPath(), null)) {
             cms.createZNode(CreateMode.PERSISTENT, Path.FINISHED_TASKS.getFullPath(), "");
         }
+
+        // Create /users
+        if (!cms.getZNodeExist(Path.USERS.getFullPath(), null)) {
+            cms.createZNode(CreateMode.PERSISTENT, Path.USERS.getFullPath(), "");
+        }
+        
+        // Create /users/logged
+        if (!cms.getZNodeExist(Path.USERS.getFullPath() + Path.LOGGED_USERS, null)) {
+            cms.createZNode(CreateMode.PERSISTENT, Path.USERS.getFullPath() + Path.LOGGED_USERS, "");
+        }
     }
 
     /**
      * Responsável pela limpeza do servidor a cada nova conexão onde o todos os
      * plug-ins havia ficado indisponíveis.
      */
-    private void clearZookeeper(){
-        
-        if (cms.getZNodeExist(Path.ROOT.getFullPath(), null))
+    private void clearZookeeper() {
+
+        if (cms.getZNodeExist(Path.ROOT.getFullPath(), null)) {
             cms.delete(Path.ROOT.getFullPath());
+        }
 //        if (cms.getZNodeExist(Path.PIPELINES.getFullPath(), null))
 //            cms.delete(Path.PIPELINES.getFullPath());
 //        if (cms.getZNodeExist(Path.PENDING_SAVE.getFullPath(), null))
@@ -112,9 +125,10 @@ public class ServiceManager {
 
             connectZK(config.getZkHosts());
             //limpando o servicor zookeeper caso não tenha peer on-line ao inciar servidor zooNimbus
-            if (!config.isClient())
+            if (!config.isClient()) {
                 clearZookeeper();
-            
+            }
+
             createZnodeZK(config.getId());
 
             for (Service service : services) {
@@ -122,7 +136,7 @@ public class ServiceManager {
             }
 
         } catch (Exception e) {
-            LOGGER.error("[Exception] " +  e.getMessage());
+            LOGGER.error("[Exception] " + e.getMessage());
             e.printStackTrace();
             System.exit(0);
         }

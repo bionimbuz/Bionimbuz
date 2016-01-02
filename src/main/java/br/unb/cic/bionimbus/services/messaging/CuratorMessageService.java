@@ -6,6 +6,7 @@
 package br.unb.cic.bionimbus.services.messaging;
 
 import com.google.inject.Singleton;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.CuratorFramework;
@@ -31,7 +32,7 @@ public class CuratorMessageService implements CloudMessageService {
     private volatile Path path = CuratorMessageService.Path.ROOT;
 
     public CuratorMessageService() {
-        LOGGER.info("Starting Curator Message Service...");
+        LOGGER.info("CuratorMessageService started");
     }
 
     /**
@@ -66,20 +67,23 @@ public class CuratorMessageService implements CloudMessageService {
         FILES("/files"),
         FINISHED_TASKS("/finished_tasks"),
         LATENCY("/latency"),
+        LOGGED_USERS("/logged"), // Vinicius dez/2015 > Current users
         MODES("/modes"),
-        PEERS("/peers"),
-        PENDING_SAVE("/pending_save"),
-        PIPELINES("/pipelines"),
-        PIPELINE_FLAG("/flag"),
         NODE_COST("/"),
         NODE_FILE("/"),
         NODE_FINISHED_TASK("/"),
+        NODE_LOGGED_USERS("/"), // Vinicius dez/2015
         NODE_MODES("/"),
         NODE_PEER("/"),
         NODE_PENDING_FILE("/"),
         NODE_PIPELINE("/"),
         NODE_SERVICE("/"),
+        NODE_USERS("/"),
         NODE_TASK("/"),
+        PEERS("/peers"),
+        PENDING_SAVE("/pending_save"),
+        PIPELINES("/pipelines"),
+        PIPELINE_FLAG("/flag"),
         ROOT("/bionimbuz"),
         SCHED("/sched"),
         SERVICES("/services"),
@@ -87,7 +91,8 @@ public class CuratorMessageService implements CloudMessageService {
         START("/start"),
         STATUS("/STATUS"),
         STATUSWAITING("/STATUSWAITING"),
-        TASKS("/tasks");
+        TASKS("/tasks"),
+        USERS("/users");                // Vinicius dez/2015 > Root path for users
 
         private final String value;
 
@@ -113,10 +118,18 @@ public class CuratorMessageService implements CloudMessageService {
                     return "" + this;
                 case PENDING_SAVE:
                     return "" + ROOT + PENDING_SAVE;
-                case NODE_PENDING_FILE:
-                    return "" + ROOT + PENDING_SAVE + NODE_PENDING_FILE + args[0];
                 case PEERS:
                     return "" + ROOT + PEERS;
+                case PIPELINES:
+                    return "" + ROOT + PIPELINES;
+                case SERVICES:
+                    return "" + ROOT + SERVICES;
+                case USERS:
+                    return "" + ROOT + USERS;
+                case FINISHED_TASKS:
+                    return "" + ROOT + FINISHED_TASKS;
+                case NODE_FINISHED_TASK:
+                    return "" + ROOT + FINISHED_TASKS + NODE_FINISHED_TASK + args[1];
                 case NODE_PEER:
                     return "" + ROOT + PEERS + NODE_PEER + args[0];
                 case STATUS:
@@ -135,24 +148,20 @@ public class CuratorMessageService implements CloudMessageService {
                     return "" + ROOT + PEERS + NODE_PEER + args[0] + FILES;
                 case NODE_FILE:
                     return "" + ROOT + PEERS + NODE_PEER + args[0] + FILES + NODE_FILE + args[1];
+                case NODE_PENDING_FILE:
+                    return "" + ROOT + PENDING_SAVE + NODE_PENDING_FILE + args[0];
                 case NODE_PIPELINE:
                     return "" + ROOT + PIPELINES + NODE_PIPELINE + args[0];
                 case PIPELINE_FLAG:
                     return "" + ROOT + PIPELINES + NODE_PIPELINE + args[0] + PIPELINE_FLAG;
-                case PIPELINES:
-                    return "" + ROOT + PIPELINES;
-                case SERVICES:
-                    return "" + ROOT + SERVICES;
                 case NODE_SERVICE:
                     return "" + ROOT + SERVICES + NODE_SERVICE + args[0];
                 case MODES:
                     return "" + ROOT + SERVICES + NODE_SERVICE + args[0] + MODES;
                 case NODE_MODES:
                     return "" + ROOT + SERVICES + NODE_SERVICE + args[0] + MODES + NODE_MODES + args[1];
-                case FINISHED_TASKS:
-                    return "" + ROOT + FINISHED_TASKS;
-                case NODE_FINISHED_TASK:
-                    return "" + ROOT + FINISHED_TASKS + NODE_FINISHED_TASK + args[1];
+                case LOGGED_USERS:
+                    return "" + ROOT + USERS + LOGGED_USERS + NODE_LOGGED_USERS + args[0];
             }
             return "";
         }
@@ -179,9 +188,10 @@ public class CuratorMessageService implements CloudMessageService {
     public void createZNode(CreateMode cm, String node, String desc) {
         try {
             if (!getZNodeExist(node, null)) {
-                client.create().withMode(cm).
-                        withACL(ZooDefs.Ids.OPEN_ACL_UNSAFE).
-                        forPath(node, (desc == null) ? new byte[0] : desc.getBytes());
+                client.create()
+                        .withMode(cm)
+                        .withACL(ZooDefs.Ids.OPEN_ACL_UNSAFE)
+                        .forPath(node, (desc == null) ? new byte[0] : desc.getBytes());
             } else {
                 LOGGER.warn("Existent node: " + node);
             }

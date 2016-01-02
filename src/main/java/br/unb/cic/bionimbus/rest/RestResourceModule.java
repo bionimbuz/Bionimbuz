@@ -5,7 +5,7 @@
  */
 package br.unb.cic.bionimbus.rest;
 
-import br.unb.cic.bionimbus.jobcontroller.JobController;
+import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
 import com.google.inject.AbstractModule;
 
 /**

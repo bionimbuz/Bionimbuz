@@ -90,7 +90,6 @@ public class HttpServer {
         try {
             // Initialize EntityManager to prevent lazy creation
             EntityManagerProducer.initialize();
-
         } catch (Exception e) {
             LOGGER.error("[Exception] " + e.getMessage());
         }

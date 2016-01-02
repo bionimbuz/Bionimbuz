@@ -10,8 +10,10 @@ import br.unb.cic.bionimbus.services.Service;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,17 +37,36 @@ public class ControllerManager {
         this.cms = cms;
         this.controllers.addAll(controllers);
         this.services.addAll(services);
-        
+
         LOGGER.info("Starting ControllerManager");
     }
-    
+
     /**
      * Starts all controllers
-     * @param config 
+     *
+     * @param config
      */
     public void startAll(BioNimbusConfig config) {
+        try {
+            connectZK(config.getZkHosts());
+        } catch (IOException | InterruptedException ex) {
+            LOGGER.error("[Exception] " + ex.getMessage());
+        }
+
+        // Starts controllers
         for (Controller controller : controllers) {
             controller.start(config);
         }
+    }
+
+    /**
+     * Connects to ZooKeeper
+     *
+     * @param hosts
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public void connectZK(String hosts) throws IOException, InterruptedException {
+        cms.connect(hosts);
     }
 }

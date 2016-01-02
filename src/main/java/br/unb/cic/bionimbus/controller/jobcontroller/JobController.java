@@ -1,4 +1,4 @@
-package br.unb.cic.bionimbus.jobcontroller;
+package br.unb.cic.bionimbus.controller.jobcontroller;
 
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
