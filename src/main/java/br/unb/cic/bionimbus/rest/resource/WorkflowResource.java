@@ -1,15 +1,16 @@
 package br.unb.cic.bionimbus.rest.resource;
 
 import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
+import br.unb.cic.bionimbus.persistence.dao.WorkflowDao;
 import br.unb.cic.bionimbus.rest.request.RequestInfo;
 import br.unb.cic.bionimbus.rest.request.StartWorkflowRequest;
 import br.unb.cic.bionimbus.rest.response.ResponseInfo;
-import br.unb.cic.bionimbus.rest.response.StartWorkflowResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
  * Class that handle sent workflow via REST request
@@ -19,21 +20,28 @@ import javax.ws.rs.core.MediaType;
 @Path("/rest")
 public class WorkflowResource extends AbstractResource {
 
+    private final WorkflowDao workflowDao;
+    
     public WorkflowResource(JobController jobController) {
         this.jobController = jobController;
+        this.workflowDao = new WorkflowDao();
     }
 
     @POST
     @Path("/workflow/start/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public StartWorkflowResponse startWorkflow(StartWorkflowRequest request) {
-        LOGGER.info("Dados sobre o Workflow: ");
-        LOGGER.info("Id: " + request.getWorkflow().getId());
-        LOGGER.info("Data: " + request.getWorkflow().getCreationDatestamp());
-        LOGGER.info("Tamanho: " + request.getWorkflow().getPipeline().size());
+    public Response startWorkflow(StartWorkflowRequest request) {
+        LOGGER.info("New workflow received {id=" + request.getWorkflow().getId()
+                + ",size=" + request.getWorkflow().getPipeline().size()
+                + ",status=" + request.getWorkflow().getStatus()
+                + ",userId=" + request.getWorkflow().getUserId()
+                + "}");
+
         
-        return new StartWorkflowResponse(true);
+        workflowDao.persist(request.getWorkflow());
+        
+        return Response.status(200).entity(true).build();
     }
 
     @Override

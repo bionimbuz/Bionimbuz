@@ -44,6 +44,9 @@ public class User implements Serializable {
     @Transient
     private List<UploadedFileInfo> files;
 
+    @Transient
+    private List<Workflow> workflows;
+
     public Long getId() {
         return id;
     }
@@ -130,6 +133,14 @@ public class User implements Serializable {
 
     public void setFiles(List<UploadedFileInfo> files) {
         this.files = files;
+    }
+
+    public List<Workflow> getWorkflows() {
+        return workflows;
+    }
+
+    public void setWorkflows(List<Workflow> workflows) {
+        this.workflows = workflows;
     }
 
 }

@@ -1,16 +1,24 @@
 package br.unb.cic.bionimbus.model;
 
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
 /**
  *
  * @author Vinicius
  */
-public class WorkflowJobInfo {
+@Entity
+@Table(name = "tb_workflow_job_info")
+public class WorkflowJobInfo implements Serializable {
 
+    @Id
     private String id;
 
     private String localId;
@@ -19,10 +27,13 @@ public class WorkflowJobInfo {
 
     private String args = "";
 
+    @Transient
     private List<UploadedFileInfo> inputFiles;
 
+    @Transient
     private List<URL> inputURL;
 
+    @Transient
     private List<String> outputs;
 
     private String timestamp;

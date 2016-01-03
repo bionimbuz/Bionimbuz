@@ -1,38 +1,50 @@
 package br.unb.cic.bionimbus.model;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
 /**
  *
  * @author Vinicius
  */
-public class Workflow {
+@Entity
+@Table(name = "tb_workflow")
+public class Workflow implements Serializable{
 
+    @Id
     private final String id = UUID.randomUUID().toString();
 
+    @Transient
     private final List<WorkflowJobInfo> pipeline;
 
     private final String creationDatestamp;
 
-    private final User user;
+    private final Long userId;
 
     private final String description;
 
+    @Enumerated(EnumType.STRING)
     private WorkflowStatus status;
 
     public Workflow() {
         this.pipeline = null;
         this.creationDatestamp = null;
-        this.user = null;
+        this.userId = null;
         this.description = null;
     }
 
-    public Workflow(User user, String description) {
-        this.user = user;
+    public Workflow(Long userId, String description) {
+        this.userId = userId;
         this.creationDatestamp = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date());
         this.pipeline = new ArrayList<>();
         this.description = description;
@@ -43,8 +55,8 @@ public class Workflow {
         return id;
     }
 
-    public User getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
     public String getCreationDatestamp() {

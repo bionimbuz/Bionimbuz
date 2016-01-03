@@ -5,13 +5,13 @@ import javax.persistence.EntityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class BaseDao<T> implements GenericDao<T> {
+public abstract class AbstractDao<T> implements GenericDao<T> {
 
-    protected final Logger LOGGER = LoggerFactory.getLogger(BaseDao.class);
+    protected final Logger LOGGER = LoggerFactory.getLogger(AbstractDao.class);
 
     protected EntityManager manager;
 
-    public BaseDao() {
+    public AbstractDao() {
         manager = EntityManagerProducer.getEntityManager();
     }
 

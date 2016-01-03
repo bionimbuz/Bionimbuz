@@ -15,6 +15,10 @@ public class LogoutResponse extends ServerResponse implements ResponseInfo {
 
     }
 
+    public LogoutResponse(boolean logoutSuccess) {
+        this.logoutSuccess = logoutSuccess;
+    }
+
     public boolean isLogoutSuccess() {
         return logoutSuccess;
     }

@@ -23,7 +23,7 @@
             <property name="javax.persistence.jdbc.password" value="Zoonimbus1" />
 
             <!-- Hibernate definitions -->
-            <property name="hibernate.show_sql" value="false" />
+            <property name="hibernate.show_sql" value="true" />
             <property name="hibernate.format_sql" value="false" />
             <property name="hibernate.hibernate.cache.use_query_cache" value="false" />
             <property name="hibernate.hbm2ddl.auto" value="update" />

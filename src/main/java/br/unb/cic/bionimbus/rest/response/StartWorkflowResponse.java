@@ -6,20 +6,20 @@ package br.unb.cic.bionimbus.rest.response;
  */
 public class StartWorkflowResponse implements ResponseInfo {
 
-    private Boolean workflowProcessed;
+    private boolean workflowProcessed;
 
     public StartWorkflowResponse() {
     }
 
-    public StartWorkflowResponse(Boolean workflowProcessed) {
+    public StartWorkflowResponse(boolean workflowProcessed) {
         this.workflowProcessed = workflowProcessed;
     }
 
-    public void setWorkflowProcessed(Boolean workflowProcessed) {
+    public void setWorkflowProcessed(boolean workflowProcessed) {
         this.workflowProcessed = workflowProcessed;
     }
 
-    public Boolean isWorkflowProcessed() {
+    public boolean isWorkflowProcessed() {
         return workflowProcessed;
     }
 }

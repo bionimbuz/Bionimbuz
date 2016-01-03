@@ -11,7 +11,7 @@ import br.unb.cic.bionimbus.model.User;
  *
  * @author Vinicius
  */
-public class UserDao extends BaseDao<User> {
+public class UserDao extends AbstractDao<User> {
 
     /**
      * Persists a new user
@@ -88,8 +88,10 @@ public class UserDao extends BaseDao<User> {
 
         User userFromDB = query.getSingleResult();
 
+        // If it is not null, sets File list and Workflow list
         if (userFromDB.getId() != null) {
             userFromDB.setFiles(new FileDao().listByUserId(userFromDB.getId()));
+            userFromDB.setWorkflows(new WorkflowDao().listByUserId(userFromDB.getId()));
 
             return userFromDB;
         } else {

@@ -22,7 +22,6 @@ import br.unb.cic.bionimbus.rest.request.LoginRequest;
 import br.unb.cic.bionimbus.rest.request.LogoutRequest;
 import br.unb.cic.bionimbus.rest.request.RequestInfo;
 import br.unb.cic.bionimbus.rest.request.SignUpRequest;
-import br.unb.cic.bionimbus.rest.response.LogoutResponse;
 import br.unb.cic.bionimbus.rest.response.ResponseInfo;
 import br.unb.cic.bionimbus.rest.response.SignUpResponse;
 import javax.annotation.security.PermitAll;
@@ -94,18 +93,14 @@ public class UserResource extends AbstractResource {
     @Path("/logout")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public LogoutResponse logout(LogoutRequest logoutRequest) {
+    public Response logout(LogoutRequest logoutRequest) {
         LOGGER.info("Logout request received: [login: " + logoutRequest.getUser().getLogin() + "]");
-
-        LogoutResponse response = new LogoutResponse();
 
         // Inform ZooKeeper of the logout
         userController.logoutUser(logoutRequest.getUser().getLogin());
         
         // Set that logout was successful
-        response.setLogoutSuccess(true);
-
-        return response;
+        return Response.status(200).entity(true).build();
     }
 
     @POST

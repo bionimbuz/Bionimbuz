@@ -14,7 +14,7 @@ import br.unb.cic.bionimbus.model.User;
  * @author Vinicius
  *
  */
-public class FileDao extends BaseDao<UploadedFileInfo> {
+public class FileDao extends AbstractDao<UploadedFileInfo> {
     /**
      * Persists an user file on database
      *
