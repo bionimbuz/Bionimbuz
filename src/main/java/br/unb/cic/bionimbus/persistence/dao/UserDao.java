@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.TypedQuery;
 
 import br.unb.cic.bionimbus.model.User;
+import br.unb.cic.bionimbus.persistence.EntityManagerProducer;
 
 /**
  * Class that manages database operations for User class
@@ -21,6 +22,12 @@ public class UserDao extends AbstractDao<User> {
     @Override
     public void persist(User user) {
         try {
+            // Verifies if the manager is opened before persist
+            if (!manager.isOpen()) {
+                manager = EntityManagerProducer.getEntityManager();
+            }
+            
+            // Get a Transaction, persist and commit
             manager.getTransaction().begin();
             manager.persist(user);
             manager.getTransaction().commit();

@@ -41,8 +41,7 @@ public class EntityManagerProducer {
     public static EntityManager getEntityManager() {
         factory = Persistence.createEntityManagerFactory("bionimbuz_pu");
 
-        if (manager == null) {
-            System.out.println("Creating entity manager...");
+        if (manager == null || !manager.isOpen()) {
             manager = factory.createEntityManager();
         }
 

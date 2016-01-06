@@ -1,6 +1,7 @@
 package br.unb.cic.bionimbus.persistence.dao;
 
 import br.unb.cic.bionimbus.model.Workflow;
+import br.unb.cic.bionimbus.persistence.EntityManagerProducer;
 import java.util.List;
 import javax.persistence.TypedQuery;
 
@@ -19,13 +20,17 @@ public class WorkflowDao extends AbstractDao<Workflow> {
     @Override
     public void persist(Workflow workflow) {
         try {
-            // Persists file
+            // Verifies if the manager is opened before persist
+            if (!manager.isOpen()) {
+                manager = EntityManagerProducer.getEntityManager();
+            }
+            
+            // Get a Transaction, persist and commit
             manager.getTransaction().begin();
             manager.persist(workflow);
             manager.getTransaction().commit();
 
         } catch (Exception e) {
-            e.printStackTrace();
             manager.getTransaction().rollback();
         }
     }

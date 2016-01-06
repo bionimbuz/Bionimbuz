@@ -6,6 +6,7 @@ import javax.persistence.TypedQuery;
 
 import br.unb.cic.bionimbus.model.UploadedFileInfo;
 import br.unb.cic.bionimbus.model.User;
+import br.unb.cic.bionimbus.persistence.EntityManagerProducer;
 
 /**
  * Class that is responsible to operate over the database the UserFile elements
@@ -23,7 +24,12 @@ public class FileDao extends AbstractDao<UploadedFileInfo> {
     @Override
     public void persist(UploadedFileInfo fileInfo) {
         try {
-            // Persists file
+            // Verifies if the manager is opened before persist
+            if (!manager.isOpen()) {
+                manager = EntityManagerProducer.getEntityManager();
+            }
+            
+            // Get a Transaction, persist and commit
             manager.getTransaction().begin();
             manager.persist(fileInfo);
             manager.getTransaction().commit();
