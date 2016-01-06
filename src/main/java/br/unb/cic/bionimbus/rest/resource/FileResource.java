@@ -62,7 +62,7 @@ public class FileResource extends AbstractResource {
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response handleUploadedFile(@MultipartForm UploadRequest request) {
+    public Response handleUploadedFile(@MultipartForm UploadRequest request) throws InterruptedException, JSchException, SftpException {
 
         try {
             LOGGER.info("Upload request received [filename=" + request.getUploadedFileInfo().getName() + "]");
@@ -71,12 +71,12 @@ public class FileResource extends AbstractResource {
             String filepath = writeFile(request.getData(), request.getUploadedFileInfo().getName(), request.getUploadedFileInfo().getUserId().toString());
 
             // Tries to write file to Zookeeper
-            //if (writeFileToZookeeper(filepath)) {
+            if (writeFileToZookeeper(filepath)) {
 
                 // Creates an UserFile using UploadadeFileInfo from request and persists on Database
                 fileDao.persist(request.getUploadedFileInfo());
 
-            //}
+            }
 
         } catch (IOException e) {
             LOGGER.error("[IOException] " + e.getMessage());

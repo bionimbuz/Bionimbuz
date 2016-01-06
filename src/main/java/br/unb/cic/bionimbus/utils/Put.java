@@ -50,6 +50,9 @@ public class Put {
             session.setPassword(PASSW);
             session.connect();
         } catch (JSchException e) {
+            e.getCause();
+            e.printStackTrace();
+            
             return false;
         }
 

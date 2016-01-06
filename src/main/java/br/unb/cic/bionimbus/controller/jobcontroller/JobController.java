@@ -4,6 +4,7 @@ import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.controller.Controller;
+import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import com.google.common.base.Preconditions;
@@ -88,6 +89,18 @@ public class JobController implements Controller, Runnable {
         LOGGER.info("JobController");
     }
 
+    public void startWorkflow(Workflow workflow) {
+
+    }
+
+    public void pauseWorkflow(String workflowId) {
+
+    }
+
+    public void workflowStatus(String workflowStatus) {
+        
+    }
+    
     /*
      * Methods to implement 
      * - User control: 
@@ -95,7 +108,7 @@ public class JobController implements Controller, Runnable {
      * o void loggoutUser (User user): Deletes the loggedUsers list 
      * 
      * - Job Control:
-     * o ArrayList<JobInfo> listJobs (void); 
+     * o ArrayList<JobInfo> listJobs (long userId); 
      * o ArrayList<JobInfo> listJobsByUserId (long userId); 
      * o JobInfo findJobById (String jobId); 
      * o boolean cancelJob (String jobId);
