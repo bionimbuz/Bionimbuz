@@ -3,7 +3,7 @@ rpc_protocol: http
 zookeeper_hosts: 164.41.209.89:2181
 client: false
 plugin: linux
-server-path: /home/willian/NetBeansProjects/Bionimbuz
+server-path: /home/zoonimbus/zoonimbusProject/
 address: 164.41.209.89
 cost_per_giga: 0
 host: {"address": "164.41.209.89", "port":8080}

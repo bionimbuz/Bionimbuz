@@ -1,9 +1,12 @@
 package br.unb.cic.bionimbus.model;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 /**
  * Object model of a file sent from the user web application
@@ -12,6 +15,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "tb_files")
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class UploadedFileInfo implements Serializable {
 
     @Id
@@ -24,6 +28,10 @@ public class UploadedFileInfo implements Serializable {
     private String uploadTimestamp;
 
     private long size;
+    
+    @Transient
+    @JsonProperty("payload")
+    private byte[] payload;
 
     public UploadedFileInfo() {
     }
@@ -67,4 +75,13 @@ public class UploadedFileInfo implements Serializable {
     public void setSize(long size) {
         this.size = size;
     }
+
+    public byte[] getPayload() {
+        return payload;
+    }
+
+    public void setPayload(byte[] payload) {
+        this.payload = payload;
+    }
+
 }
