@@ -11,33 +11,65 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URL;
 
+/**
+ * Implements RPC Client Uses port 8080
+ */
 public class AvroClient implements RpcClient {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AvroClient.class);
 
     private final int port;
     private final String address;
     private final String transport;
     private NettyTransceiver nettyClient;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AvroClient.class);
-
+    /**
+     * Initializes AvroClient.
+     *
+     * @param transport
+     * @param address
+     * @param port
+     */
     public AvroClient(String transport, String address, int port) {
         this.port = port;
         this.address = address;
         this.transport = transport;
     }
 
-    public BioProto getNettyTransport() throws IOException {
-        LOGGER.info("Netty client built");
-        nettyClient = new NettyTransceiver(new InetSocketAddress(address, port));
-        // client code - attach to the server and send a message
-        BioProto proxy = (BioProto) SpecificRequestor.getClient(BioProto.class, nettyClient);
+    /**
+     * Return Netty Transport
+     *
+     * @return
+     */
+    public BioProto getNettyTransport() {
+        BioProto proxy = null;
+
+        try {
+            nettyClient = new NettyTransceiver(new InetSocketAddress(address, port));
+            proxy = (BioProto) SpecificRequestor.getClient(BioProto.class, nettyClient);
+
+        } catch (IOException ex) {
+            LOGGER.error("[IOException] " + ex.getMessage());
+        }
+
         return proxy;
     }
 
-    public BioProto getHttpTransport() throws IOException {
-        LOGGER.info("HTTP client built");
-        HttpTransceiver transceiver = new HttpTransceiver(new URL("http://" + address + ":" + port));
-        BioProto proxy = (BioProto) SpecificRequestor.getClient(BioProto.class, transceiver);
+    /**
+     * Return HTTP Transport
+     *
+     * @return
+     */
+    public BioProto getHttpTransport() {
+        BioProto proxy = null;
+
+        try {
+            HttpTransceiver transceiver = new HttpTransceiver(new URL("http://" + address + ":" + port));
+            proxy = (BioProto) SpecificRequestor.getClient(BioProto.class, transceiver);
+        } catch (IOException ex) {
+            LOGGER.error("[IOException] " + ex.getMessage());
+        }
+
         return proxy;
     }
 
@@ -52,8 +84,7 @@ public class AvroClient implements RpcClient {
 
     @Override
     public void close() throws Exception {
-        LOGGER.info("Closing Avro RPC client");
-        // only Netty protocol needs explicit close
+        // Only Netty protocol needs explicit close
         if ("netty".equalsIgnoreCase(transport)) {
             nettyClient.close();
         }
