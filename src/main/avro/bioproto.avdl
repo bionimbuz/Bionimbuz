@@ -4,6 +4,8 @@ protocol BioProto {
 
   enum NodeState { STARTING, ACTIVE, CLOSING, IDLE, ERROR, DECOMMISSIONED }
 
+  enum WorkflowStatus { PENDING, EXECUTING, FINALIZED_WITH_SUCCESS, FINALIZED_WITH_WARNINGS, FINALIZED_WITH_ERRORS, PAUSED, STOPPED_WITH_ERROR }
+
   record JobCancel {
      string jobID;
      array<string> files;
@@ -231,9 +233,13 @@ protocol BioProto {
     array<string> dependencies;
   }
 
-  record PipelineInfo {
+  record Workflow {
     string id;
     array<JobInfo> jobs;
+    string creationDatestamp;
+    long userId;
+    string description;
+    union {WorkflowStatus, null} workflowStatus;
   }
 
   record PluginFile {
@@ -278,16 +284,17 @@ protocol BioProto {
 
   string startJobName(string jobID, string ip);
 
-  string startPipeline(PipelineInfo pipeline);
+  string startWorkflow(Workflow workflow);
 
   string schedPolicy(int numPolicy);
-  string statusJob(string pipelineId, string jobId);
-  string statusAllJob();
 
+  string statusJob(string pipelineId, string jobId);
+
+  string statusAllJob();
 
   string cancelJob(string jobID);
 
-    record NodeInfo {
+  record NodeInfo {
     string peerId;
     string address;
     float freesize;
@@ -295,9 +302,11 @@ protocol BioProto {
   }
 
   record FileInfo{
-    string fileId;
-    long size;
+    string id;
     string name;
+    long size;
+    long userId;
+    string uploadTimestamp;
     string hash;
   }
 

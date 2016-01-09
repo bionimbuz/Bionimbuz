@@ -87,12 +87,12 @@ public class HttpServer {
 
         server.setHandler(context);
 
-        try {
-            // Initialize EntityManager to prevent lazy creation
-            EntityManagerProducer.initialize();
-        } catch (Exception e) {
-            LOGGER.error("[Exception] " + e.getMessage());
-        }
+//        try {
+//            // Initialize EntityManager to prevent lazy creation
+//            EntityManagerProducer.initialize();
+//        } catch (Exception e) {
+//            LOGGER.error("[Exception] " + e.getMessage());
+//        }
     }
 
     /**

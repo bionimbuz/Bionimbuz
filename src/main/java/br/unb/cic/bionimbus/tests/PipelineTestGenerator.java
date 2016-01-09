@@ -5,7 +5,7 @@
  */
 package br.unb.cic.bionimbus.tests;
 
-import br.unb.cic.bionimbus.client.PipelineInfo;
+import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginService;
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import java.util.List;
  */
 public abstract class PipelineTestGenerator {
 
-    protected List<PipelineInfo> pipelinesTemplates;
+    protected List<Workflow> pipelinesTemplates;
     protected List<PluginService> servicesTemplates;
     protected List<PluginInfo> resourceTemplates;
 
@@ -27,7 +27,7 @@ public abstract class PipelineTestGenerator {
 
     protected abstract void generateServicesTemplates();
 
-    public List<PipelineInfo> getPipelinesTemplates() {
+    public List<Workflow> getPipelinesTemplates() {
         if (pipelinesTemplates == null) {
             pipelinesTemplates = new ArrayList<>();
             generatePipelineTemplates();
@@ -63,7 +63,7 @@ public abstract class PipelineTestGenerator {
         System.out.println("Resource size: " + gen.getResourceTemplates().size());
 
         int i = 0;
-        for (PipelineInfo p : gen.getPipelinesTemplates()) {
+        for (Workflow p : gen.getPipelinesTemplates()) {
             System.out.print(p.getJobs().size() + ",");
             //System.out.println("Pipeline " + i + " - size: " + p.getJobs().size());
             i++;

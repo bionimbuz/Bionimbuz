@@ -14,7 +14,7 @@ import javax.persistence.Transient;
 /**
  * Models an User entity
  *
- * @author monstrim
+ * @author Vinicius
  */
 @Entity
 @Table(name = "tb_users")
@@ -22,7 +22,7 @@ public class User implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private long id;
 
     @Column(unique = true)
     private String login;
@@ -42,16 +42,16 @@ public class User implements Serializable {
     private Long storageUsage;
 
     @Transient
-    private List<UploadedFileInfo> files;
+    private List<FileInfo> files;
 
     @Transient
     private List<Workflow> workflows;
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -127,11 +127,11 @@ public class User implements Serializable {
         this.storageUsage -= usage;
     }
 
-    public List<UploadedFileInfo> getFiles() {
+    public List<FileInfo> getFiles() {
         return files;
     }
 
-    public void setFiles(List<UploadedFileInfo> files) {
+    public void setFiles(List<FileInfo> files) {
         this.files = files;
     }
 

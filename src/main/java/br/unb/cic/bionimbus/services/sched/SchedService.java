@@ -3,7 +3,7 @@ package br.unb.cic.bionimbus.services.sched;
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.client.JobInfo;
-import br.unb.cic.bionimbus.client.PipelineInfo;
+import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
@@ -781,7 +781,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                             for (String pipelineReady : pipelinesId) {                            
                                 ObjectMapper mapper = new ObjectMapper();
                                 datas = cms.getData(Path.NODE_PIPELINE.getFullPath(pipelineReady), null);
-                                PipelineInfo pipeline = mapper.readValue(datas, PipelineInfo.class);
+                                Workflow pipeline = mapper.readValue(datas, Workflow.class);
 
                                 // add independent jobs to pendingJobs list and jobs with 
                                 // any dependency to the dependentJobs list

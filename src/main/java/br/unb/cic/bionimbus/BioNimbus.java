@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import static br.unb.cic.bionimbus.config.BioNimbusConfigLoader.*;
 import br.unb.cic.bionimbus.controller.ControllerManager;
 import br.unb.cic.bionimbus.controller.ControllerModule;
+import br.unb.cic.bionimbus.model.User;
+import br.unb.cic.bionimbus.persistence.dao.UserDao;
 import static br.unb.cic.bionimbus.plugin.PluginFactory.getPlugin;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxGetInfo;
@@ -25,7 +27,6 @@ import java.net.InetAddress;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Level;
 
 public class BioNimbus {
 
@@ -93,8 +94,24 @@ public class BioNimbus {
         // !!! MEDIDA PALEATIVA !!! Para nao ter que trocar o node.yaml toda vez
         config.setZkConnString(InetAddress.getLocalHost().getHostAddress() + ":2181");
         config.setAddress(InetAddress.getLocalHost().getHostAddress());
-        // !!! Fim MEDIDA PALEATIVA !!!
 
+        // Adiciona usuário 'root' para teste 
+        UserDao userDao = new UserDao();
+        
+        if (!userDao.exists("root")) {
+            User u = new User();
+            u.setLogin("root");
+            u.setPassword("root");
+            u.setCpf("01092010101");
+            u.setCelphone("0");
+            u.setEmail("@");
+            u.setNome("nome");
+            u.setStorageUsage(0l);
+
+            new UserDao().persist(u);
+        }
+
+        // !!! Fim MEDIDA PALEATIVA !!!
         LOGGER.debug("config = " + config);
 
         new BioNimbus(config);

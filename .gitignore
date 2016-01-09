@@ -13,5 +13,5 @@ biofoco.log
 /branches/zoonimbus/conf/node.yaml
 /branches/zoonimbus/conf/node.yaml
 
-/data-folder/uploaded-files/*
 /data-folder/*
+/uploaded-files/*

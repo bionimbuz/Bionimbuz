@@ -6,7 +6,7 @@
 package br.unb.cic.bionimbus.services.sched.policy.impl;
 
 import br.unb.cic.bionimbus.client.JobInfo;
-import br.unb.cic.bionimbus.client.PipelineInfo;
+import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
@@ -579,7 +579,7 @@ public class C99Supercolider extends SchedPolicy {
     public static void main(String[] args) throws InterruptedException {
 //        RandomTestGenerator gen = new RandomTestGenerator();
         PipelineTestGenerator gen = new FromLogFileTestGenerator(Double.parseDouble(args[0]), args[1], args[2]);
-        List<PipelineInfo> pipelines = gen.getPipelinesTemplates();
+        List<Workflow> pipelines = gen.getPipelinesTemplates();
         List<PluginInfo> resources = gen.getResourceTemplates();
         
 //        testAllTimeoutPipelines(pipelines, resources);
@@ -587,13 +587,13 @@ public class C99Supercolider extends SchedPolicy {
         
     }
     
-    private static void testAllTimeoutPipelines(List<PipelineInfo> pipelines, List<PluginInfo> resources) {
+    private static void testAllTimeoutPipelines(List<Workflow> pipelines, List<PluginInfo> resources) {
         int execTime; // seconds
         int maxExecTime = 120; // seconds
         int timeoutCounts = 5;
 
         // run all pipelines
-        for (PipelineInfo p : pipelines) {
+        for (Workflow p : pipelines) {
             // run each pipeline with different max execution times
             execTime = maxExecTime / timeoutCounts;
             boolean finished = false;
@@ -670,7 +670,7 @@ public class C99Supercolider extends SchedPolicy {
         }
     }
     
-    private static void testFailurePronePipelines(List<PipelineInfo> pipelines, List<PluginInfo> resources) {
+    private static void testFailurePronePipelines(List<Workflow> pipelines, List<PluginInfo> resources) {
         int maxExecTime = 50; // secs
         long resNum = resources.size();
         int i=0;
@@ -686,7 +686,7 @@ public class C99Supercolider extends SchedPolicy {
             Logger.getLogger(C99Supercolider.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        for (PipelineInfo pipeline : pipelines) {
+        for (Workflow pipeline : pipelines) {
             // this if is used to simulate a resumed test
             if (i > -10) {
                 C99Supercolider scheduler = new C99Supercolider(resources.size());
@@ -738,7 +738,7 @@ public class C99Supercolider extends SchedPolicy {
         writer.close();
     }
 
-    static boolean runPipeline(List<PluginInfo> resources, int maxExecTime, C99Supercolider s, PipelineInfo p) {
+    static boolean runPipeline(List<PluginInfo> resources, int maxExecTime, C99Supercolider s, Workflow p) {
         // 10MB hedge
         int hedge[] = new int[2621440];
 
@@ -753,7 +753,7 @@ public class C99Supercolider extends SchedPolicy {
 
         // create a thread to run the pipeline
         ExecutorService executor = Executors.newFixedThreadPool(1);
-        final PipelineInfo pipeline = p;
+        final Workflow pipeline = p;
         final C99Supercolider scheduler = s;
         Future<?> future = null;
         boolean finished = true;

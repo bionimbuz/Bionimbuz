@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
-import br.unb.cic.bionimbus.client.FileInfo;
+import br.unb.cic.bionimbus.model.FileInfo;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.utils.Pair;

@@ -43,7 +43,7 @@ public class WorkflowResource extends AbstractResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response startWorkflow(StartWorkflowRequest request) {
         LOGGER.info("New workflow received {id=" + request.getWorkflow().getId()
-                + ",size=" + request.getWorkflow().getPipeline().size()
+                + ",size=" + request.getWorkflow().getJobs().size()
                 + ",status=" + request.getWorkflow().getStatus()
                 + ",userId=" + request.getWorkflow().getUserId()
                 + "}");

@@ -3,7 +3,7 @@ package br.unb.cic.bionimbus.rest.request;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.MediaType;
 import org.jboss.resteasy.annotations.providers.multipart.PartType;
-import br.unb.cic.bionimbus.model.UploadedFileInfo;
+import br.unb.cic.bionimbus.model.FileInfo;
 
 /**
  * Defines an upload request to be used in a REST request
@@ -12,7 +12,7 @@ import br.unb.cic.bionimbus.model.UploadedFileInfo;
 public class UploadRequest implements RequestInfo {
 
     private byte[] data;
-    private UploadedFileInfo uploadedFileInfo;
+    private FileInfo fileInfo;
 
     public UploadRequest() {
     }
@@ -21,8 +21,8 @@ public class UploadRequest implements RequestInfo {
         return data;
     }
 
-    public UploadedFileInfo getUploadedFileInfo() {
-        return uploadedFileInfo;
+    public FileInfo getFileInfo() {
+        return fileInfo;
     }
 
     @FormParam("file")
@@ -33,8 +33,8 @@ public class UploadRequest implements RequestInfo {
 
     @FormParam("file_info")
     @PartType(MediaType.APPLICATION_JSON)
-    public void setUploadedFileInfo(UploadedFileInfo uploadedFileInfo) {
-        this.uploadedFileInfo = uploadedFileInfo;
+    public void setFileInfo(FileInfo fileInfo) {
+        this.fileInfo = fileInfo;
     }
 
 }

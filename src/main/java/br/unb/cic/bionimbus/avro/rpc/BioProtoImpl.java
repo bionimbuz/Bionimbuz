@@ -368,9 +368,9 @@ public class BioProtoImpl implements BioProto {
     }
 
     @Override
-    public String startPipeline(br.unb.cic.bionimbus.avro.gen.PipelineInfo pipeline) throws AvroRemoteException {
+    public String startWorkflow(br.unb.cic.bionimbus.avro.gen.Workflow workflow) throws AvroRemoteException {
         // generate pipeline register
-        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().NODE_PIPELINE.getFullPath(pipeline.getId()), pipeline.toString());
+        cms.createZNode(CreateMode.PERSISTENT, cms.getPath().NODE_PIPELINE.getFullPath(workflow.getId()), workflow.toString());
         
         return "Pipeline enviado para o escalonamento. Aguarde...";
     }

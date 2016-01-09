@@ -18,7 +18,7 @@ public class PluginFile {
     
     //Recebe as informações do arquivo enviado pelo cliente e seta os dados do arquivo
     public PluginFile(FileInfo fileNode){
-        this.id = fileNode.getFileId();
+        this.id = fileNode.getId();
         this.name= fileNode.getName();
         this.size =fileNode.getSize();
         this.hash=fileNode.getHash();

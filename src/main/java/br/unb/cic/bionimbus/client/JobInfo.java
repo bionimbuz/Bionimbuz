@@ -1,17 +1,17 @@
 package br.unb.cic.bionimbus.client;
 
+import br.unb.cic.bionimbus.model.FileInfo;
 import br.unb.cic.bionimbus.utils.Pair;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 
 public class JobInfo {
 
-    private String id = UUID.randomUUID().toString();
+    private String id;
 
     public long testId;
 
@@ -22,18 +22,42 @@ public class JobInfo {
     private String args = "";
 
     // inputs = [{input.id, input.size}]
-    final private List<Pair<String, Long>> inputs = new ArrayList<>();
+    private List<Pair<String, Long>> inputs;
 
-    final private List<String> outputs = new ArrayList<>();
+    private final List<FileInfo> inputFiles;
+
+    private final List<String> inputURL;
+
+    private final List<String> outputs;
 
     private long timestamp;
 
     private Double worstExecution = null;
-    
-    final private List<String> dependencies = new ArrayList<>(); 
-    
-    public JobInfo() {}
-    
+
+    private final List<String> dependencies;
+
+    public JobInfo() {
+        inputs = new ArrayList<>();
+        inputFiles = new ArrayList<>();
+        inputURL = new ArrayList<>();
+        outputs = new ArrayList<>();
+        dependencies = new ArrayList<>();
+    }
+
+    /**
+     * Receives only the String ID
+     *
+     * @param id
+     */
+    public JobInfo(String id) {
+        this.id = id;
+        inputs = new ArrayList<>();
+        inputFiles = new ArrayList<>();
+        inputURL = new ArrayList<>();
+        outputs = new ArrayList<>();
+        dependencies = new ArrayList<>();
+    }
+
     /**
      * This constructor is for testing purposes only
      *
@@ -41,6 +65,11 @@ public class JobInfo {
      */
     public JobInfo(double worstExecution) {
         this.worstExecution = worstExecution;
+        inputs = new ArrayList<>();
+        inputFiles = new ArrayList<>();
+        inputURL = new ArrayList<>();
+        outputs = new ArrayList<>();
+        dependencies = new ArrayList<>();
     }
 
     public String getId() {
@@ -79,16 +108,20 @@ public class JobInfo {
         return inputs;
     }
 
+    public void setInputs(List<Pair<String, Long>> inputs) {
+        this.inputs = inputs;
+    }
+        
     public void addInput(String id, Long size) {
 //        TODO: change from string id to string filename
 //                or: split jobinfo into 2 subclasses: staticSchedJobInfo and dynamicSchedJobInfo
-        for (Pair<String, Long> pair : inputs) {
+        for (Pair<String, Long> pair : getInputs()) {
             if (pair.first.equals(id)) {
-                inputs.remove(pair);
+                getInputs().remove(pair);
                 break;
             }
         }
-        inputs.add(new Pair<>(id, size));
+        getInputs().add(new Pair<>(id, size));
     }
 
     public List<String> getOutputs() {

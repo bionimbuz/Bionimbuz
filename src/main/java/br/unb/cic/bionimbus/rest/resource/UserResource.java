@@ -2,9 +2,9 @@ package br.unb.cic.bionimbus.rest.resource;
 
 import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
 import br.unb.cic.bionimbus.controller.usercontroller.UserController;
+import br.unb.cic.bionimbus.model.FileInfo;
 import br.unb.cic.bionimbus.persistence.dao.FileDao;
 import br.unb.cic.bionimbus.persistence.dao.UserDao;
-import br.unb.cic.bionimbus.model.UploadedFileInfo;
 import br.unb.cic.bionimbus.model.User;
 import java.util.Calendar;
 import java.util.List;
@@ -66,7 +66,7 @@ public class UserResource extends AbstractResource {
 
         // Verifies if the user from database is null and the password is right
         if (responseUser != null && (requestUser.getPassword().equals(responseUser.getPassword()))) {
-            List<UploadedFileInfo> userFiles = fileInfoDao.listByUserId(responseUser.getId());
+            List<FileInfo> userFiles = fileInfoDao.listByUserId(responseUser.getId());
             responseUser.setFiles(userFiles);
 
             // Encrypts secretKey with bCrypt encoder

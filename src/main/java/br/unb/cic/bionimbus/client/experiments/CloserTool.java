@@ -92,7 +92,7 @@ public class CloserTool {
                 br.unb.cic.bionimbus.avro.gen.FileInfo info = new br.unb.cic.bionimbus.avro.gen.FileInfo();
                 String path = file.getPath();
 
-                info.setFileId(file.getName());
+                info.setId(file.getName());
                 info.setName(file.getName());
                 info.setSize(file.length());
 

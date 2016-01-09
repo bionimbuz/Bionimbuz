@@ -4,7 +4,7 @@ import br.unb.cic.bionimbus.avro.gen.Pair;
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.client.JobInfo;
-import br.unb.cic.bionimbus.client.PipelineInfo;
+import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.client.experiments.MscTool;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
@@ -90,7 +90,7 @@ public class SchedullerTester {
         }
     }
 
-    public void sendJobs(PipelineInfo pipeline) throws InterruptedException, IOException {
+    public void sendJobs(Workflow pipeline) throws InterruptedException, IOException {
 //        communication.sendReq(new JobReqMessage(p2p.getPeerNode(), jobs), P2PMessageType.JOBRESP);
 //        JobRespMessage resp = (JobRespMessage) communication.getResp();
         List<br.unb.cic.bionimbus.avro.gen.JobInfo> listjob = new ArrayList<>();
@@ -115,11 +115,11 @@ public class SchedullerTester {
             listjob.add(job);
         }
 
-        br.unb.cic.bionimbus.avro.gen.PipelineInfo avroPipeline = new br.unb.cic.bionimbus.avro.gen.PipelineInfo();
-        avroPipeline.setId(pipeline.getId());
-        avroPipeline.setJobs(listjob);
+        br.unb.cic.bionimbus.avro.gen.Workflow workflow = new br.unb.cic.bionimbus.avro.gen.Workflow();
+        workflow.setId(pipeline.getId());
+        workflow.setJobs(listjob);
 
-        rpcClient.getProxy().startPipeline(avroPipeline);
+        rpcClient.getProxy().startWorkflow(workflow);
     }
 
     public static class ShowSchedResults implements Watcher {
@@ -134,10 +134,10 @@ public class SchedullerTester {
 
         private final CloudMessageService cms;
         private final SchedullerTester st;
-        private final List<PipelineInfo> remaining;
+        private final List<Workflow> remaining;
         private final String prevId;
 
-        public SendPipeline(CloudMessageService cms, SchedullerTester st, List<PipelineInfo> remaining, String prevId) {
+        public SendPipeline(CloudMessageService cms, SchedullerTester st, List<Workflow> remaining, String prevId) {
             this.cms = cms;
             this.st = st;
             this.remaining = remaining;
@@ -156,7 +156,7 @@ public class SchedullerTester {
                 case NodeDeleted:
                     try {
                         if (!remaining.isEmpty()) {
-                            PipelineInfo pipeline = remaining.get(0);
+                            Workflow pipeline = remaining.get(0);
 
                             // send new pipeline
                             st.sendJobs(pipeline);
@@ -187,14 +187,14 @@ public class SchedullerTester {
         boolean fileTest = false;
 
         FromMockFileTestGenerator gen = new FromMockFileTestGenerator();
-        List<PipelineInfo> pipelines = gen.getPipelinesTemplates();
+        List<Workflow> pipelines = gen.getPipelinesTemplates();
         List<PluginService> services = gen.getServicesTemplates();
         List<PluginInfo> resources = gen.getResourceTemplates();
 
         // flush test data
 //            System.out.println("[SchedTester] flushing test data");
 //            PrintWriter pwr = new PrintWriter("pipelines.txt", "UTF-8");
-//            for (PipelineInfo p : pipelines)
+//            for (Workflow p : pipelines)
 //                pwr.println(p.toString());
 //            PrintWriter swr = new PrintWriter("services.txt", "UTF-8");
 //            for (PluginService s : services)
@@ -209,7 +209,7 @@ public class SchedullerTester {
         System.out.println("[SchedTester] starting testing with " + pipelines.size() + " pipelines");
 
         // perform all tests
-        PipelineInfo fst = pipelines.get(0);
+        Workflow fst = pipelines.get(0);
         tester.sendJobs(fst);
         pipelines.remove(fst);
         System.out.println("[SchedTester] First pipeline " + fst.getId() + " with " + fst.getJobs().size() + " jobs sent, " + pipelines.size() + " remaining");

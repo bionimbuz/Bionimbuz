@@ -2,6 +2,7 @@ package br.unb.cic.bionimbus.rest.resource;
 
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
+import br.unb.cic.bionimbus.model.FileInfo;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -65,16 +66,16 @@ public class FileResource extends AbstractResource {
     public Response handleUploadedFile(@MultipartForm UploadRequest request) throws InterruptedException, JSchException, SftpException {
 
         try {
-            LOGGER.info("Upload request received [filename=" + request.getUploadedFileInfo().getName() + "]");
+            LOGGER.info("Upload request received [filename=" + request.getFileInfo().getName() + "]");
 
             // Writes file on disk
-            String filepath = writeFile(request.getData(), request.getUploadedFileInfo().getName(), request.getUploadedFileInfo().getUserId().toString());
+            String filepath = writeFile(request.getData(), request.getFileInfo().getName(), request.getFileInfo().getUserId());
 
             // Tries to write file to Zookeeper
-            if (writeFileToZookeeper(filepath)) {
+            if (writeFileToZookeeper(filepath, request.getFileInfo())) {
 
                 // Creates an UserFile using UploadadeFileInfo from request and persists on Database
-                fileDao.persist(request.getUploadedFileInfo());
+                fileDao.persist(request.getFileInfo());
 
             }
 
@@ -107,7 +108,7 @@ public class FileResource extends AbstractResource {
      * @param file
      * @throws IOException
      */
-    private String writeFile(byte[] content, String filename, String userId) throws IOException {
+    private String writeFile(byte[] content, String filename, long userId) throws IOException {
         // zoonimbusProject/uploaded-files/{user-id}
         String folderPath = UPLOADED_FILES_DIRECTORY + userId + "/";
         File folder = new File(folderPath);
@@ -141,13 +142,14 @@ public class FileResource extends AbstractResource {
      * Sends a file to ZooKeeper
      *
      * @param filepath
+     * @param fileInfo
      * @return
      * @throws IOException
      * @throws InterruptedException
      * @throws JSchException
      * @throws SftpException
      */
-    public boolean writeFileToZookeeper(String filepath) throws IOException, InterruptedException, JSchException, SftpException {
+    public boolean writeFileToZookeeper(String filepath, FileInfo fileInfo) throws IOException, InterruptedException, JSchException, SftpException {
         //Verifica se o arquivo existe         
         File file = new File(filepath);
         AESEncryptor aes = new AESEncryptor();
@@ -161,10 +163,11 @@ public class FileResource extends AbstractResource {
             //}
             String hashFile = Hash.calculateSha3(filepath);
             info.setHash(hashFile);
-            info.setFileId(file.getName());
+            info.setId(file.getName());
             info.setName(file.getName());
             info.setSize(file.length());
-
+            info.setUploadTimestamp(fileInfo.getUploadTimestamp());
+            
             LOGGER.info("Calculating latency");
             pluginList = rpcClient.getProxy().getPeersNode();
 

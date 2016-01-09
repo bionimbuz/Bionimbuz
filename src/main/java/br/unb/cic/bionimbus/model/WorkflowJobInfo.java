@@ -28,7 +28,7 @@ public class WorkflowJobInfo implements Serializable {
     private String args = "";
 
     @Transient
-    private List<UploadedFileInfo> inputFiles;
+    private List<FileInfo> inputFiles;
 
     @Transient
     private List<URL> inputURL;
@@ -79,15 +79,15 @@ public class WorkflowJobInfo implements Serializable {
         this.args = args;
     }
 
-    public List<UploadedFileInfo> getInputFiles() {
+    public List<FileInfo> getInputFiles() {
         return inputFiles;
     }
 
-    public void setInputFiles(List<UploadedFileInfo> inputFiles) {
+    public void setInputFiles(List<FileInfo> inputFiles) {
         this.inputFiles = inputFiles;
     }
 
-    public void addInputFile(UploadedFileInfo file) {
+    public void addInputFile(FileInfo file) {
         inputFiles.add(file);
     }
 

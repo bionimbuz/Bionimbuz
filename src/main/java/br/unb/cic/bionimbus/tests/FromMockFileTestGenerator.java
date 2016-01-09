@@ -6,7 +6,7 @@
 package br.unb.cic.bionimbus.tests;
 
 import br.unb.cic.bionimbus.client.JobInfo;
-import br.unb.cic.bionimbus.client.PipelineInfo;
+import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.security.AESEncryptor;
 import static com.sun.corba.se.impl.util.Utility.printStackTrace;
@@ -113,7 +113,7 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
         }
 
         // push taskList to the pipelineTemplates
-        PipelineInfo p = new PipelineInfo(Arrays.asList(taskList));
+        Workflow p = new Workflow(Arrays.asList(taskList));
         System.out.println("[TestGen] taskList " + taskList.length);
         System.out.println("[TestGen] pipeline " + p.getJobs().size());
         pipelinesTemplates.add(p);

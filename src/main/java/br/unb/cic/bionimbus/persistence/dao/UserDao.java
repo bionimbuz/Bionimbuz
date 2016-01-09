@@ -6,6 +6,7 @@ import javax.persistence.TypedQuery;
 
 import br.unb.cic.bionimbus.model.User;
 import br.unb.cic.bionimbus.persistence.EntityManagerProducer;
+import java.util.ArrayList;
 
 /**
  * Class that manages database operations for User class
@@ -90,13 +91,13 @@ public class UserDao extends AbstractDao<User> {
      * @throws java.lang.Exception
      */
     public User findByLogin(String login) throws Exception {
-        TypedQuery<User> query = manager.createQuery("SELECT u FROM User u WHERE login = :login", User.class);
+        TypedQuery<User> query = manager.createQuery("SELECT u FROM User u WHERE u.login = :login", User.class);
         query.setParameter("login", login);
 
         User userFromDB = query.getSingleResult();
 
         // If it is not null, sets File list and Workflow list
-        if (userFromDB.getId() != null) {
+        if (userFromDB != null) {
             userFromDB.setFiles(new FileDao().listByUserId(userFromDB.getId()));
             userFromDB.setWorkflows(new WorkflowDao().listByUserId(userFromDB.getId()));
 
@@ -113,10 +114,13 @@ public class UserDao extends AbstractDao<User> {
      * @return
      */
     public boolean exists(String login) {
-        TypedQuery<Long> query = manager.createQuery("SELECT COUNT(*) AS count FROM User u WHERE u.login = :login", Long.class);
-        Long cont = query.getSingleResult();
-
-        return (cont == 1);
+        for (User u : list()) {
+            if (u.getLogin().equals(login)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
 }

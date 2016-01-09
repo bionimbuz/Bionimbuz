@@ -359,7 +359,7 @@ public class StorageService extends AbstractBioService {
             String ipPluginFile;
             ipPluginFile = getIpContainsFile(fileUploaded.getName());        
             FileInfo file = new FileInfo();
-            file.setFileId(fileUploaded.getId());
+            file.setId(fileUploaded.getId());
             file.setName(fileUploaded.getName());
             file.setSize(fileUploaded.getSize());
             file.setHash(fileUploaded.getHash());
@@ -531,7 +531,7 @@ public class StorageService extends AbstractBioService {
         //Verifica se o arquivo existe no peer        
         if (file.exists()) {
             FileInfo info = new FileInfo();
-            info.setFileId(file.getName());
+            info.setId(file.getName());
             info.setName(file.getName());
             info.setSize(file.length());
             info.setHash(Hash.calculateSha3(file.getAbsolutePath()));

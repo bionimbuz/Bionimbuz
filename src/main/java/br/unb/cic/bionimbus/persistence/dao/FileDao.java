@@ -1,10 +1,10 @@
 package br.unb.cic.bionimbus.persistence.dao;
 
+import br.unb.cic.bionimbus.model.FileInfo;
 import java.util.List;
 
 import javax.persistence.TypedQuery;
 
-import br.unb.cic.bionimbus.model.UploadedFileInfo;
 import br.unb.cic.bionimbus.model.User;
 import br.unb.cic.bionimbus.persistence.EntityManagerProducer;
 
@@ -15,14 +15,14 @@ import br.unb.cic.bionimbus.persistence.EntityManagerProducer;
  * @author Vinicius
  *
  */
-public class FileDao extends AbstractDao<UploadedFileInfo> {
+public class FileDao extends AbstractDao<FileInfo> {
     /**
      * Persists an user file on database
      *
      * @param fileInfo
      */
     @Override
-    public void persist(UploadedFileInfo fileInfo) {
+    public void persist(FileInfo fileInfo) {
         try {
             // Verifies if the manager is opened before persist
             if (!manager.isOpen()) {
@@ -51,8 +51,8 @@ public class FileDao extends AbstractDao<UploadedFileInfo> {
      * @return
      */
     @Override
-    public List<UploadedFileInfo> list() {
-        TypedQuery<UploadedFileInfo> query = manager.createQuery("SELECT u FROM UploadedFileInfo u", UploadedFileInfo.class);
+    public List<FileInfo> list() {
+        TypedQuery<FileInfo> query = manager.createQuery("SELECT u FROM FileInfo u", FileInfo.class);
 
         return query.getResultList();
     }
@@ -63,7 +63,7 @@ public class FileDao extends AbstractDao<UploadedFileInfo> {
      * @param fileInfo
      */
     @Override
-    public void update(UploadedFileInfo fileInfo) {
+    public void update(FileInfo fileInfo) {
         // TODO Auto-generated method stub
 
     }
@@ -74,7 +74,7 @@ public class FileDao extends AbstractDao<UploadedFileInfo> {
      * @param fileInfo
      */
     @Override
-    public void delete(UploadedFileInfo fileInfo) {
+    public void delete(FileInfo fileInfo) {
         try {
             manager.getTransaction().begin();
             manager.remove(fileInfo);
@@ -92,8 +92,8 @@ public class FileDao extends AbstractDao<UploadedFileInfo> {
      * @return
      */
     @Override
-    public UploadedFileInfo findById(Long id) {
-        TypedQuery<UploadedFileInfo> query = manager.createQuery("SELECT u FROM UploadedFileInfo u WHERE u.id = := id", UploadedFileInfo.class);
+    public FileInfo findById(Long id) {
+        TypedQuery<FileInfo> query = manager.createQuery("SELECT u FROM FileInfo u WHERE u.id = := id", FileInfo.class);
         query.setParameter("id", id);
 
         return query.getSingleResult();
@@ -105,8 +105,8 @@ public class FileDao extends AbstractDao<UploadedFileInfo> {
      * @param userId
      * @return
      */
-    public List<UploadedFileInfo> listByUserId(Long userId) {
-        TypedQuery<UploadedFileInfo> query = manager.createQuery("SELECT u FROM UploadedFileInfo u WHERE u.userId = :userId", UploadedFileInfo.class);
+    public List<FileInfo> listByUserId(Long userId) {
+        TypedQuery<FileInfo> query = manager.createQuery("SELECT u FROM FileInfo u WHERE u.userId = :userId", FileInfo.class);
         query.setParameter("userId", userId);
 
         return query.getResultList();

@@ -6,7 +6,7 @@
 package br.unb.cic.bionimbus.tests;
 
 import br.unb.cic.bionimbus.client.JobInfo;
-import br.unb.cic.bionimbus.client.PipelineInfo;
+import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -54,7 +54,7 @@ public class FromLogFileTestGenerator extends PipelineTestGenerator {
             // get proc clock on the first line
             clock = Long.parseLong(line);
 
-            PipelineInfo pipeline = new PipelineInfo();
+            Workflow pipeline = new Workflow();
 
             // for each line
             line = br.readLine();
@@ -71,7 +71,7 @@ public class FromLogFileTestGenerator extends PipelineTestGenerator {
                     // create a new pipeline for a window and add the previous one to the pipeline list
                     if (submitTime > windowEnd) {
                         pipelinesTemplates.add(pipeline);
-                        pipeline = new PipelineInfo();
+                        pipeline = new Workflow();
                         windowEnd = floor(1 + submitTime / window) * window;
                     }
 
