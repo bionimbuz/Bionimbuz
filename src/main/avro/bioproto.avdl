@@ -2,16 +2,7 @@
 @namespace("br.unb.cic.bionimbus.avro.gen")
 protocol BioProto {
 
-  enum NodeState { STARTING, ACTIVE, CLOSING, IDLE, ERROR, DECOMMISSIONED }
-
-  enum WorkflowStatus { PENDING, EXECUTING, FINALIZED_WITH_SUCCESS, FINALIZED_WITH_WARNINGS, FINALIZED_WITH_ERRORS, PAUSED, STOPPED_WITH_ERROR }
-
-  record JobCancel {
-     string jobID;
-     array<string> files;
-  }
-
-/*
+/* ***************************** COMMENTED *************************************
   record NodeInfo {
     string peerId;
     string address;
@@ -215,128 +206,137 @@ protocol BioProto {
     string taskId;
     string message;
   }
-  */
+***************************************************************************** */
 
-  record NodeInfo {
-    string peerId;
-    string address;
-    float freesize;
-    double latency; 
-  }
+    enum NodeState { STARTING, ACTIVE, CLOSING, IDLE, ERROR, DECOMMISSIONED }
 
-  record FileInfo{
-    string id;
-    string name;
-    long size;
-    long userId;
-    string uploadTimestamp;
-    string hash;
-  }
+    enum WorkflowStatus { PENDING, EXECUTING, FINALIZED_WITH_SUCCESS, FINALIZED_WITH_WARNINGS, FINALIZED_WITH_ERRORS, PAUSED, STOPPED_WITH_ERROR }
 
-  record Pair{
-    string first;
-    long second;
-  }  
-  
-  record JobInfo {
-    string id;
-    string localId;
-    string serviceId;
-    string args ;
-    array<FileInfo> inputFiles;
-    array<string> outputs;
-    long timestamp;
-    array<string> dependencies;
-  }
+    record JobCancel {
+       string jobID;
+       array<string> files;
+    }
 
-  record Workflow {
-    string id;
-    array<JobInfo> jobs;
-    string creationDatestamp;
-    long userId;
-    string description;
-    union {WorkflowStatus, null} status;
-  }
+    record NodeInfo {
+      string peerId;
+      string address;
+      float freesize;
+      double latency; 
+    }
 
-  record PluginFile {
-    string id;
-    string path;
-    string name;
-    string hash;    
-    long size;
-    array<string> pluginId;
-  }
+    record FileInfo{
+      string id;
+      string name;
+      long size;
+      long userId;
+      string uploadTimestamp;
+      string hash;
+    }
+
+    record Pair{
+      string first;
+      long second;
+    }  
+
+    record Job {
+      string id;
+      string localId;
+      string serviceId;
+      string args ;
+      array<FileInfo> inputFiles;
+      array<string> outputs;
+      long timestamp;
+      array<string> dependencies;
+    }
+
+    record Workflow {
+      string id;
+      array<Job> jobs;
+      string creationDatestamp;
+      long userId;
+      string description;
+      union {WorkflowStatus, null} status;
+    }
+
+    record PluginFile {
+      string id;
+      string path;
+      string name;
+      string hash;    
+      long size;
+      array<string> pluginId;
+    }
 
 
-  /** Sends a bid request to a bidder and receives the response */
-  //BidResponse bid(BidRequest bidRequest) throws BidderError;
+    /** Sends a bid request to a bidder and receives the response */
+    //BidResponse bid(BidRequest bidRequest) throws BidderError;
 
-  /** Sends a notification */
-  //void notify(EndMessage notification) oneway;
+    /** Sends a notification */
+    //void notify(EndMessage notification) oneway;
 
-  //void cancelTask(string taskId) oneway;
+    //void cancelTask(string taskId) oneway;
 
-  /* PingRespMessage ping(PingReqMessage request); */
+    /* PingRespMessage ping(PingReqMessage request); */
 
-  //CancelRespMessage cancelTask(string taskId);
+    //CancelRespMessage cancelTask(string taskId);
 
-  //CloudRespMessage cloudRequest();
+    //CloudRespMessage cloudRequest();
 
-  /** Pings a node, e.g. to measure latency */
-  boolean ping();
+    /** Pings a node, e.g. to measure latency */
+    boolean ping();
 
-  array<string> listFilesName();
+    array<string> listFilesName();
 
-  /** Procurar em qual Ip está o arquivo file */    
-  string getIpFile(string file);
+    /** Procurar em qual Ip está o arquivo file */    
+    string getIpFile(string file);
 
-  array<string> listServices();
+    array<string> listServices();
 
-  array<PluginFile> listFiles();
+    array<PluginFile> listFiles();
 
-  array<PluginFile> listFilesPlugin(string pluginId);
+    array<PluginFile> listFilesPlugin(string pluginId);
 
-  string getFileHash(string fileName);
+    string getFileHash(string fileName);
 
-  string startJobName(string jobID, string ip);
+    string startJobName(string jobID, string ip);
 
-  string startWorkflow(Workflow workflow);
+    string startWorkflow(Workflow workflow);
 
-  string schedPolicy(int numPolicy);
+    string schedPolicy(int numPolicy);
 
-  string statusJob(string pipelineId, string jobId);
+    string statusJob(string pipelineId, string jobId);
 
-  string statusAllJob();
+    string statusAllJob();
 
-  string cancelJob(string jobID);
+    string cancelJob(string jobID);
 
-  //Set information file that will be uploaded
-  void setFileInfo(FileInfo file, string kindService) oneway;
+    //Set information file that will be uploaded
+    void setFileInfo(FileInfo file, string kindService) oneway;
 
-  //Get peers from server
-  array<NodeInfo> getPeersNode();
+    //Get peers from server
+    array<NodeInfo> getPeersNode();
 
-  //Enviar plugins
-  // void sendPlugins(array<NodeInfo> plugins) oneway;
+    //Enviar plugins
+    // void sendPlugins(array<NodeInfo> plugins) oneway;
 
-  //Mensagem de arquivo enviado com sucesso do cliente pro servidor
-  string fileSent(FileInfo fileSucess,array<string> dest);
+    //Mensagem de arquivo enviado com sucesso do cliente pro servidor
+    string fileSent(FileInfo fileSucess,array<string> dest);
 
-  //Chamar Storage Service
-   array<NodeInfo> callStorage(array<NodeInfo> list);
+    //Chamar Storage Service
+     array<NodeInfo> callStorage(array<NodeInfo> list);
 
-  //Invocar metodo de replicação
-  void notifyReply(string filename,string address) oneway;
+    //Invocar metodo de replicação
+    void notifyReply(string filename,string address) oneway;
 
-  //Decriptografar os arquivos do plugin
-  void decryptPluginFile(string filename) oneway;
+    //Decriptografar os arquivos do plugin
+    void decryptPluginFile(string filename) oneway;
 
-  //verifica se exist o arquivo e cria no znode setando o watcher
-   boolean verifyFile(FileInfo fileSucess,array<string> dest);
-   
-  //seta os watchers na status para a storage , pode ser setado pros outros servicos tambem
-   void setWatcher(string idPlugin) oneway; 
+    //verifica se exist o arquivo e cria no znode setando o watcher
+     boolean verifyFile(FileInfo fileSucess,array<string> dest);
 
-  //verifica o tamanho do arquivo
-  long checkFileSize (string file);
+    //seta os watchers na status para a storage , pode ser setado pros outros servicos tambem
+     void setWatcher(string idPlugin) oneway; 
+
+    //verifica o tamanho do arquivo
+    long checkFileSize (string file);
 }

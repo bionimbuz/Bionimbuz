@@ -2,7 +2,7 @@ package br.unb.cic.bionimbus.services.sched;
 
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
-import br.unb.cic.bionimbus.model.JobInfo;
+import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.model.FileInfo;
@@ -50,11 +50,11 @@ public class SchedService extends AbstractBioService implements Runnable {
             .newScheduledThreadPool(1, new BasicThreadFactory.Builder()
                     .namingPattern("SchedService-%d").build());
     private final Queue<PluginTask> relocateTasks = new ConcurrentLinkedQueue<>();
-    private final List<JobInfo> pendingJobs = new ArrayList<>();
-    private final List<JobInfo> dependentJobs = new ArrayList<>();
+    private final List<Job> pendingJobs = new ArrayList<>();
+    private final List<Job> dependentJobs = new ArrayList<>();
     private final Map<String, Pair<PluginInfo, PluginTask>> waitingTask = new ConcurrentHashMap<>();
     private Map<String, PluginFile> mapFilesPlugin;
-    private final Map<String, JobInfo> jobsWithNoService = new ConcurrentHashMap<>();
+    private final Map<String, Job> jobsWithNoService = new ConcurrentHashMap<>();
 //    private final Queue<PluginTask> runningJobs = new ConcurrentLinkedQueue<PluginTask>();
     private final Map<String, PluginInfo> cancelingJobs = new ConcurrentHashMap<>();
     private RpcClient rpcClient;
@@ -155,7 +155,7 @@ public class SchedService extends AbstractBioService implements Runnable {
      * um novo job foi criado para ser escalonado.
      */
     private synchronized void scheduleJobs() throws InterruptedException, KeeperException {
-        HashMap<JobInfo, PluginInfo> schedMap;
+        HashMap<Job, PluginInfo> schedMap;
         
         // Caso nao exista nenhum pipeline pendente da a chance para o escalonador
         // realocar as tarefas.
@@ -170,8 +170,8 @@ public class SchedService extends AbstractBioService implements Runnable {
             // sched all pending jobs
             schedMap = getPolicy().schedule(pendingJobs);
 
-            for (Map.Entry<JobInfo, PluginInfo> entry : schedMap.entrySet()) {
-                JobInfo jobInfo = entry.getKey();
+            for (Map.Entry<Job, PluginInfo> entry : schedMap.entrySet()) {
+                Job jobInfo = entry.getKey();
 
                 PluginInfo pluginInfo = entry.getValue();
                 PluginTask task = new PluginTask();
@@ -205,7 +205,7 @@ public class SchedService extends AbstractBioService implements Runnable {
      * 
      * @param job 
      */
-    public void setLatencyPlugins(JobInfo job) {
+    public void setLatencyPlugins(Job job) {
         
         HashMap<String,Double> pluginIdLatency = new  HashMap<>();
         try {
@@ -589,8 +589,8 @@ public class SchedService extends AbstractBioService implements Runnable {
             // check if any dependent task can be executed
             if (dependentJobs!=null && !dependentJobs.isEmpty()) {
                 List<String> finishedJobs = cms.getChildren(Path.FINISHED_TASKS.getFullPath(), null);
-                for (Iterator<JobInfo> it = dependentJobs.iterator(); it.hasNext();) {
-                JobInfo j = it.next();
+                for (Iterator<Job> it = dependentJobs.iterator(); it.hasNext();) {
+                Job j = it.next();
                     // remove finished dependencies
                     for (Iterator<String> it2 = j.getDependencies().iterator(); it2.hasNext();) {
                         String d = it2.next();
@@ -789,7 +789,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                                 // add independent jobs to pendingJobs list and jobs with 
                                 // any dependency to the dependentJobs list
                                 int i=0;
-                                for (JobInfo j : pipeline.getJobs()) {
+                                for (Job j : pipeline.getJobs()) {
                                     if (j.getDependencies().isEmpty()) {
                                         pendingJobs.add(j);
                                         i++;
@@ -910,7 +910,7 @@ public class SchedService extends AbstractBioService implements Runnable {
         return cancelingJobs;
     }
     
-    public synchronized Map<String, JobInfo> getJobsWithNoService() {
+    public synchronized Map<String, Job> getJobsWithNoService() {
         return jobsWithNoService;
     }
     

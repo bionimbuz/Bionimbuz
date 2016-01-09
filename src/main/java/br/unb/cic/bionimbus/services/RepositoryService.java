@@ -5,7 +5,7 @@
  */
 package br.unb.cic.bionimbus.services;
 
-import br.unb.cic.bionimbus.model.JobInfo;
+import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.services.sched.model.ResourceList;
 import br.unb.cic.bionimbus.services.sched.model.Resource;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;

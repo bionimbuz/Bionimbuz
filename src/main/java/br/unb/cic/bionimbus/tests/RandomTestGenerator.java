@@ -5,7 +5,7 @@
  */
 package br.unb.cic.bionimbus.tests;
 
-import br.unb.cic.bionimbus.model.JobInfo;
+import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.p2p.Host;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
@@ -51,7 +51,7 @@ public class RandomTestGenerator extends PipelineTestGenerator {
         for (Integer numTasks : numTasksList) {
             Workflow pipeline = new Workflow();
             for (int i = 0; i < numTasks; i++) {
-                JobInfo job = new JobInfo(worstExecStart + (rn.nextDouble() * worstExecMaxStep));
+                Job job = new Job(worstExecStart + (rn.nextDouble() * worstExecMaxStep));
                 job.setServiceId(servicesTemplates.get(rn.nextInt(servicesTemplates.size())).getId());
                 pipeline.addJob(job);
             }

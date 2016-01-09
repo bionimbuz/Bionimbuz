@@ -29,7 +29,7 @@ public class Workflow implements Serializable {
     private String id;
 
     @Transient
-    private List<JobInfo> jobs;
+    private List<Job> jobs;
 
     private String creationDatestamp;
 
@@ -47,7 +47,7 @@ public class Workflow implements Serializable {
         this.description = null;
     }
 
-    public Workflow(List<JobInfo> jobs) {
+    public Workflow(List<Job> jobs) {
         this.jobs = new ArrayList<>(jobs);
         this.creationDatestamp = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date());;
         this.userId = 0l;
@@ -70,15 +70,15 @@ public class Workflow implements Serializable {
         this.id = id;
     }
 
-    public List<JobInfo> getJobs() {
+    public List<Job> getJobs() {
         return jobs;
     }
 
-    public void setJobs(List<JobInfo> jobs) {
+    public void setJobs(List<Job> jobs) {
         this.jobs = jobs;
     }
 
-    public void addJob(JobInfo job) {
+    public void addJob(Job job) {
         jobs.add(job);
     }
 

@@ -5,7 +5,7 @@
  */
 package br.unb.cic.bionimbus.services.sched.model;
 
-import br.unb.cic.bionimbus.model.JobInfo;
+import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.services.RepositoryService;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +19,8 @@ public class Resource {
     public final String id;
     public final Double clock;
     public final Double cost;
-    private final List<JobInfo> allocatedTasks;
-    private final List<JobInfo> preAllocatedTasks;
+    private final List<Job> allocatedTasks;
+    private final List<Job> preAllocatedTasks;
 
     public Resource(String id, Double clock, Double cost) {
         this.id = id;
@@ -40,19 +40,19 @@ public class Resource {
     }
     
     
-    public void allocateTask(JobInfo task) {
+    public void allocateTask(Job task) {
         allocatedTasks.add(task);
     }
     
-    public void addTask(JobInfo task) {
+    public void addTask(Job task) {
         preAllocatedTasks.add(task);
     }
     
-    public List<JobInfo> getAllocatedTasks() {
+    public List<Job> getAllocatedTasks() {
         return allocatedTasks;
     }
     
-    public List<JobInfo> getPreAllocatedTasks() {
+    public List<Job> getPreAllocatedTasks() {
         return preAllocatedTasks;
     }
     
@@ -64,9 +64,9 @@ public class Resource {
     public Double getExecTime(RepositoryService rs) {
         double cycles = 0;
         
-        ArrayList<JobInfo> tasks = new ArrayList<>(allocatedTasks);
+        ArrayList<Job> tasks = new ArrayList<>(allocatedTasks);
         tasks.addAll(preAllocatedTasks);
-        for (JobInfo task : tasks)
+        for (Job task : tasks)
             if (rs != null)
                 cycles += rs.getWorstExecution(task.getServiceId());
             else
@@ -96,7 +96,7 @@ public class Resource {
     
     public String getAlloc() {
         String s = "[";
-        for (JobInfo t : allocatedTasks) {
+        for (Job t : allocatedTasks) {
             s += t.getWorstExecution() + ", ";
         }
         return s + "]";

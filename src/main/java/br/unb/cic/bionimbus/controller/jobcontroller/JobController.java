@@ -4,6 +4,8 @@ import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.controller.Controller;
+import br.unb.cic.bionimbus.model.FileInfo;
+import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
@@ -11,8 +13,11 @@ import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import org.apache.zookeeper.WatchedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +41,11 @@ public class JobController implements Controller, Runnable {
     protected BioNimbusConfig config;
     private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<>();
 
+    /**
+     * Starts JobController execution
+     *
+     * @param cms
+     */
     @Inject
     public JobController(CloudMessageService cms) {
         Preconditions.checkNotNull(cms);
@@ -89,8 +99,63 @@ public class JobController implements Controller, Runnable {
         LOGGER.info("JobController");
     }
 
-    public void startWorkflow(Workflow workflow) {
+    /**
+     * Calls RPC Client to execute a Workflow. It substitutes Java
+     * implementation by AVRO implementation
+     *
+     * @param workflow
+     * @return
+     */
+    public boolean startWorkflow(Workflow workflow) {
+        try {
+            List<br.unb.cic.bionimbus.avro.gen.Job> listjob = new ArrayList<>();
 
+            // Iterates over the list of jobs
+            for (Job jobInfo : workflow.getJobs()) {
+                
+                // Create a new Avro Job
+                br.unb.cic.bionimbus.avro.gen.Job job = new br.unb.cic.bionimbus.avro.gen.Job();
+
+                job.setArgs(jobInfo.getArgs());
+                job.setId(jobInfo.getId());
+                job.setLocalId(config.getHost().getAddress());
+                job.setServiceId(jobInfo.getServiceId());
+                job.setTimestamp(jobInfo.getTimestamp());
+
+                ArrayList<br.unb.cic.bionimbus.avro.gen.FileInfo> avroFiles = new ArrayList<>();
+                for (FileInfo f : jobInfo.getInputFiles()) {
+                    br.unb.cic.bionimbus.avro.gen.FileInfo file = new br.unb.cic.bionimbus.avro.gen.FileInfo();
+                    file.setHash(f.getHash());
+                    file.setId(f.getId());
+                    file.setName(f.getName());
+                    file.setUploadTimestamp(f.getUploadTimestamp());
+                    file.setUserId(f.getUserId());
+
+                    avroFiles.add(file);
+                }
+
+                job.setInputFiles(avroFiles);
+                job.setOutputs(jobInfo.getOutputs());
+                job.setDependencies(jobInfo.getDependencies());
+
+                listjob.add(job);
+            }
+
+            br.unb.cic.bionimbus.avro.gen.Workflow avroWorkflow = new br.unb.cic.bionimbus.avro.gen.Workflow();
+            avroWorkflow.setId(workflow.getId());
+            avroWorkflow.setJobs(listjob);
+            avroWorkflow.setCreationDatestamp("00/00/00");
+            avroWorkflow.setDescription("descricao");
+
+            rpcClient.getProxy().startWorkflow(avroWorkflow);
+
+            return true;
+
+        } catch (Exception ex) {
+            LOGGER.error("[Exception] " + ex.getMessage());
+        }
+
+        return false;
     }
 
     public void pauseWorkflow(String workflowId) {
@@ -98,9 +163,9 @@ public class JobController implements Controller, Runnable {
     }
 
     public void workflowStatus(String workflowStatus) {
-        
+
     }
-    
+
     /*
      * Methods to implement 
      * - User control: 

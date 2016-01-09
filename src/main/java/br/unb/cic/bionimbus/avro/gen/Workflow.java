@@ -7,10 +7,10 @@ package br.unb.cic.bionimbus.avro.gen;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class Workflow extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Workflow\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"jobs\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"JobInfo\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"localId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"serviceId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"args\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"inputFiles\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"FileInfo\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"name\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"size\",\"type\":\"long\"},{\"name\":\"userId\",\"type\":\"long\"},{\"name\":\"uploadTimestamp\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"hash\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}},{\"name\":\"outputs\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"timestamp\",\"type\":\"long\"},{\"name\":\"dependencies\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}}]}}},{\"name\":\"creationDatestamp\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"userId\",\"type\":\"long\"},{\"name\":\"description\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"status\",\"type\":[{\"type\":\"enum\",\"name\":\"WorkflowStatus\",\"symbols\":[\"PENDING\",\"EXECUTING\",\"FINALIZED_WITH_SUCCESS\",\"FINALIZED_WITH_WARNINGS\",\"FINALIZED_WITH_ERRORS\",\"PAUSED\",\"STOPPED_WITH_ERROR\"]},\"null\"]}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Workflow\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"jobs\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Job\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"localId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"serviceId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"args\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"inputFiles\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"FileInfo\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"name\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"size\",\"type\":\"long\"},{\"name\":\"userId\",\"type\":\"long\"},{\"name\":\"uploadTimestamp\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"hash\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}},{\"name\":\"outputs\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"timestamp\",\"type\":\"long\"},{\"name\":\"dependencies\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}}]}}},{\"name\":\"creationDatestamp\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"userId\",\"type\":\"long\"},{\"name\":\"description\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"status\",\"type\":[{\"type\":\"enum\",\"name\":\"WorkflowStatus\",\"symbols\":[\"PENDING\",\"EXECUTING\",\"FINALIZED_WITH_SUCCESS\",\"FINALIZED_WITH_WARNINGS\",\"FINALIZED_WITH_ERRORS\",\"PAUSED\",\"STOPPED_WITH_ERROR\"]},\"null\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public java.lang.String id;
-  @Deprecated public java.util.List<br.unb.cic.bionimbus.avro.gen.JobInfo> jobs;
+  @Deprecated public java.util.List<br.unb.cic.bionimbus.avro.gen.Job> jobs;
   @Deprecated public java.lang.String creationDatestamp;
   @Deprecated public long userId;
   @Deprecated public java.lang.String description;
@@ -24,7 +24,7 @@ public class Workflow extends org.apache.avro.specific.SpecificRecordBase implem
   /**
    * All-args constructor.
    */
-  public Workflow(java.lang.String id, java.util.List<br.unb.cic.bionimbus.avro.gen.JobInfo> jobs, java.lang.String creationDatestamp, java.lang.Long userId, java.lang.String description, br.unb.cic.bionimbus.avro.gen.WorkflowStatus status) {
+  public Workflow(java.lang.String id, java.util.List<br.unb.cic.bionimbus.avro.gen.Job> jobs, java.lang.String creationDatestamp, java.lang.Long userId, java.lang.String description, br.unb.cic.bionimbus.avro.gen.WorkflowStatus status) {
     this.id = id;
     this.jobs = jobs;
     this.creationDatestamp = creationDatestamp;
@@ -51,7 +51,7 @@ public class Workflow extends org.apache.avro.specific.SpecificRecordBase implem
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
     case 0: id = (java.lang.String)value$; break;
-    case 1: jobs = (java.util.List<br.unb.cic.bionimbus.avro.gen.JobInfo>)value$; break;
+    case 1: jobs = (java.util.List<br.unb.cic.bionimbus.avro.gen.Job>)value$; break;
     case 2: creationDatestamp = (java.lang.String)value$; break;
     case 3: userId = (java.lang.Long)value$; break;
     case 4: description = (java.lang.String)value$; break;
@@ -78,7 +78,7 @@ public class Workflow extends org.apache.avro.specific.SpecificRecordBase implem
   /**
    * Gets the value of the 'jobs' field.
    */
-  public java.util.List<br.unb.cic.bionimbus.avro.gen.JobInfo> getJobs() {
+  public java.util.List<br.unb.cic.bionimbus.avro.gen.Job> getJobs() {
     return jobs;
   }
 
@@ -86,7 +86,7 @@ public class Workflow extends org.apache.avro.specific.SpecificRecordBase implem
    * Sets the value of the 'jobs' field.
    * @param value the value to set.
    */
-  public void setJobs(java.util.List<br.unb.cic.bionimbus.avro.gen.JobInfo> value) {
+  public void setJobs(java.util.List<br.unb.cic.bionimbus.avro.gen.Job> value) {
     this.jobs = value;
   }
 
@@ -172,7 +172,7 @@ public class Workflow extends org.apache.avro.specific.SpecificRecordBase implem
     implements org.apache.avro.data.RecordBuilder<Workflow> {
 
     private java.lang.String id;
-    private java.util.List<br.unb.cic.bionimbus.avro.gen.JobInfo> jobs;
+    private java.util.List<br.unb.cic.bionimbus.avro.gen.Job> jobs;
     private java.lang.String creationDatestamp;
     private long userId;
     private java.lang.String description;
@@ -243,12 +243,12 @@ public class Workflow extends org.apache.avro.specific.SpecificRecordBase implem
     }
 
     /** Gets the value of the 'jobs' field */
-    public java.util.List<br.unb.cic.bionimbus.avro.gen.JobInfo> getJobs() {
+    public java.util.List<br.unb.cic.bionimbus.avro.gen.Job> getJobs() {
       return jobs;
     }
     
     /** Sets the value of the 'jobs' field */
-    public br.unb.cic.bionimbus.avro.gen.Workflow.Builder setJobs(java.util.List<br.unb.cic.bionimbus.avro.gen.JobInfo> value) {
+    public br.unb.cic.bionimbus.avro.gen.Workflow.Builder setJobs(java.util.List<br.unb.cic.bionimbus.avro.gen.Job> value) {
       validate(fields()[1], value);
       this.jobs = value;
       fieldSetFlags()[1] = true;
@@ -371,7 +371,7 @@ public class Workflow extends org.apache.avro.specific.SpecificRecordBase implem
       try {
         Workflow record = new Workflow();
         record.id = fieldSetFlags()[0] ? this.id : (java.lang.String) defaultValue(fields()[0]);
-        record.jobs = fieldSetFlags()[1] ? this.jobs : (java.util.List<br.unb.cic.bionimbus.avro.gen.JobInfo>) defaultValue(fields()[1]);
+        record.jobs = fieldSetFlags()[1] ? this.jobs : (java.util.List<br.unb.cic.bionimbus.avro.gen.Job>) defaultValue(fields()[1]);
         record.creationDatestamp = fieldSetFlags()[2] ? this.creationDatestamp : (java.lang.String) defaultValue(fields()[2]);
         record.userId = fieldSetFlags()[3] ? this.userId : (java.lang.Long) defaultValue(fields()[3]);
         record.description = fieldSetFlags()[4] ? this.description : (java.lang.String) defaultValue(fields()[4]);

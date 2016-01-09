@@ -5,7 +5,7 @@
  */
 package br.unb.cic.bionimbus.tests;
 
-import br.unb.cic.bionimbus.model.JobInfo;
+import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import java.io.BufferedReader;
@@ -76,7 +76,7 @@ public class FromLogFileTestGenerator extends PipelineTestGenerator {
                     }
 
                     // set task execution cycles based test file enviroment
-                    JobInfo job = new JobInfo(Double.parseDouble(elements[4]) * clock);
+                    Job job = new Job(Double.parseDouble(elements[4]) * clock);
                     job.testId = Long.parseLong(elements[1]);
                     pipeline.addJob(job);
                 }

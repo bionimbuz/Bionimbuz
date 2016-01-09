@@ -6,7 +6,7 @@
 package br.unb.cic.bionimbus.tests;
 
 import br.unb.cic.bionimbus.model.FileInfo;
-import br.unb.cic.bionimbus.model.JobInfo;
+import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.security.AESEncryptor;
@@ -38,7 +38,7 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
 
     @Override
     protected void generatePipelineTemplates() {
-        JobInfo taskList[] = null;
+        Job taskList[] = null;
 
         // get pipeline file path
         String pathHome = System.getProperty("user.dir");
@@ -57,13 +57,13 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
             // get first line: number of tasks
             String line = br.readLine();
             int tasksNumber = Integer.parseInt(line);
-            taskList = new JobInfo[tasksNumber];
+            taskList = new Job[tasksNumber];
 
             // get next tasksNumber lines: each task
             for (int i = 0; i < tasksNumber; i++) {
                 // generate a new jobInfo from json
                 line = br.readLine();
-                JobInfo jobInfo = new JobInfo();
+                Job jobInfo = new Job();
                 jobInfo.setId("i" + i);
                 jobInfo.setTimestamp(0l);
 
@@ -129,7 +129,7 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
 
     @Override
     protected void generateServicesTemplates() {
-        JobInfo taskList[] = null;        
+        Job taskList[] = null;        
         // get service file path
         String pathHome = System.getProperty("user.dir");
         String path = (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");

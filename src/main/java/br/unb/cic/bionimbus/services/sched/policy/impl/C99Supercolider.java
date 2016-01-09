@@ -5,7 +5,7 @@
  */
 package br.unb.cic.bionimbus.services.sched.policy.impl;
 
-import br.unb.cic.bionimbus.model.JobInfo;
+import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
@@ -57,7 +57,7 @@ import org.aspectj.apache.bcel.verifier.exc.Utility;
 public class C99Supercolider extends SchedPolicy {
 
     private ResourceList best;
-    private List<JobInfo> jobs;
+    private List<Job> jobs;
     private final List<ResourceList> bestList = new ArrayList<>();
     private int s2best = 0;
     private int s3best = 0;
@@ -103,7 +103,7 @@ public class C99Supercolider extends SchedPolicy {
      * @see C99Supercolider.stageTwo
      * @see C99Supercolider.stageThree
      */
-    public ResourceList schedule(ResourceList rl, List<JobInfo> jobs) {
+    public ResourceList schedule(ResourceList rl, List<Job> jobs) {
         SearchNode root;
         
         // lock to ensure that the execution will be finished
@@ -138,14 +138,14 @@ public class C99Supercolider extends SchedPolicy {
      * @param jobs List of jobs that need scheduling.
      * @return The root node of the search tree.
      */
-    private SearchNode stageOne(ResourceList rl, Queue<JobInfo> jobs) {
+    private SearchNode stageOne(ResourceList rl, Queue<Job> jobs) {
         // create the root node
         SearchNode node = new SearchNode(rl, id, 0);
         id++;
         searchedNodes++;
         SearchNode nextNode;
         SearchNode root = node;
-        JobInfo job;
+        Job job;
         long depth = 1;
 
         System.out.println("[C99Supercolider] Stage One");
@@ -204,7 +204,7 @@ public class C99Supercolider extends SchedPolicy {
      * @param root
      * @param jobs
      */
-    private void stageTwo(SearchNode root, Queue<JobInfo> jobs) {
+    private void stageTwo(SearchNode root, Queue<Job> jobs) {
         SearchNode node;
         SearchNode nextNode;
         long depth;
@@ -213,7 +213,7 @@ public class C99Supercolider extends SchedPolicy {
 
         // rework every i allocation
         for (int i = 0; i < jobs.size(); i++) {
-            Queue<JobInfo> jobsCopy = new LinkedList<>(jobs);
+            Queue<Job> jobsCopy = new LinkedList<>(jobs);
             int k = i;
             node = root;
             depth = 1;
@@ -222,7 +222,7 @@ public class C99Supercolider extends SchedPolicy {
 
             // run scheduler for jobsCopy list
             while (!jobsCopy.isEmpty()) {
-                JobInfo job = jobsCopy.poll();
+                Job job = jobsCopy.poll();
 
                 // if the allocation is said to be good, go to next node
                 if (k > 0 && !jobsCopy.isEmpty()) {
@@ -407,7 +407,7 @@ public class C99Supercolider extends SchedPolicy {
      * of the input job on the given ResourceList, ordered according to the
      * above description.
      */
-    private Queue<SearchNode> generatePriorityQueue(JobInfo job, ResourceList rl, long depth) {
+    private Queue<SearchNode> generatePriorityQueue(Job job, ResourceList rl, long depth) {
         List<ResourceList> rls = new ArrayList<>();
 
         // Generate a list of ResourceList on which a task is allocated to 
@@ -615,7 +615,7 @@ public class C99Supercolider extends SchedPolicy {
                 }
                 System.out.println("");
                 System.out.println("Tasks:");
-                for (JobInfo j : pipelines.get(0).getJobs()) {
+                for (Job j : pipelines.get(0).getJobs()) {
                     System.out.println("Id: " + j.getId() + ", cost: " + j.getWorstExecution());
                 }
 
@@ -822,14 +822,14 @@ public class C99Supercolider extends SchedPolicy {
      * @return 
      */
     @Override
-    public HashMap<JobInfo, PluginInfo> schedule(List<JobInfo> jobs) {
+    public HashMap<Job, PluginInfo> schedule(List<Job> jobs) {
         schedule(rs.getCurrentResourceList(), jobs);
 
-        HashMap<JobInfo, PluginInfo> sched = new HashMap<>();
+        HashMap<Job, PluginInfo> sched = new HashMap<>();
         Map<String, PluginInfo> peers = rs.getPeers();
 
         for (Resource r : best.resources) {
-            for (JobInfo j : r.getAllocatedTasks()) {
+            for (Job j : r.getAllocatedTasks()) {
                 System.out.println("T" + j.getId() + " -> R" + r.id);
                 sched.put(j, peers.get(r.id));
             }
@@ -839,7 +839,7 @@ public class C99Supercolider extends SchedPolicy {
     }
 
     @Override
-    public List<PluginTask> relocate(Collection<Pair<JobInfo, PluginTask>> taskPairs) {
+    public List<PluginTask> relocate(Collection<Pair<Job, PluginTask>> taskPairs) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

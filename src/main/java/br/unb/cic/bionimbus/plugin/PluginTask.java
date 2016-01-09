@@ -2,7 +2,7 @@ package br.unb.cic.bionimbus.plugin;
 
 import java.util.UUID;
 
-import br.unb.cic.bionimbus.model.JobInfo;
+import br.unb.cic.bionimbus.model.Job;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,13 +20,13 @@ public class PluginTask implements PluginOps {
 
     private String pluginTaskPathZk;
 
-    private JobInfo jobInfo;
+    private Job jobInfo;
 
-    public JobInfo getJobInfo() {
+    public Job getJobInfo() {
         return jobInfo;
     }
 
-    public void setJobInfo(JobInfo jobInfo) {
+    public void setJobInfo(Job jobInfo) {
         this.jobInfo = jobInfo;
     }
 
@@ -87,7 +87,7 @@ public class PluginTask implements PluginOps {
         try {
             return new ObjectMapper().writeValueAsString(this);
         } catch (IOException ex) {
-            Logger.getLogger(JobInfo.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Job.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return null;

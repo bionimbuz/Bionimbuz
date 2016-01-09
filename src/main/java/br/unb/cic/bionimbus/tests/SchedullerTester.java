@@ -2,7 +2,7 @@ package br.unb.cic.bionimbus.tests;
 
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
-import br.unb.cic.bionimbus.model.JobInfo;
+import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.model.FileInfo;
@@ -98,10 +98,10 @@ public class SchedullerTester {
     }
 
     public void sendJobs(Workflow pipeline) throws InterruptedException, IOException {
-        List<br.unb.cic.bionimbus.avro.gen.JobInfo> listjob = new ArrayList<>();
+        List<br.unb.cic.bionimbus.avro.gen.Job> listjob = new ArrayList<>();
 
-        for (JobInfo jobInfo : pipeline.getJobs()) {
-            br.unb.cic.bionimbus.avro.gen.JobInfo job = new br.unb.cic.bionimbus.avro.gen.JobInfo();
+        for (Job jobInfo : pipeline.getJobs()) {
+            br.unb.cic.bionimbus.avro.gen.Job job = new br.unb.cic.bionimbus.avro.gen.Job();
 
             job.setArgs(jobInfo.getArgs());
             job.setId(jobInfo.getId());

@@ -18,7 +18,7 @@ import org.codehaus.jackson.map.ObjectMapper;
  */
 @Entity
 @Table(name = "tb_workflow_job_info")
-public class JobInfo implements Serializable {
+public class Job implements Serializable {
 
     @Id
     private String id;
@@ -50,7 +50,7 @@ public class JobInfo implements Serializable {
     @Transient
     private final List<String> dependencies;
 
-    public JobInfo() {
+    public Job() {
 //        inputs = new ArrayList<>();
         inputFiles = new ArrayList<>();
         inputURL = new ArrayList<>();
@@ -63,7 +63,7 @@ public class JobInfo implements Serializable {
      *
      * @param id
      */
-    public JobInfo(String id) {
+    public Job(String id) {
         this.id = id;
 //        inputs = new ArrayList<>();
         inputFiles = new ArrayList<>();
@@ -77,7 +77,7 @@ public class JobInfo implements Serializable {
      *
      * @param worstExecution
      */
-    public JobInfo(double worstExecution) {
+    public Job(double worstExecution) {
         this.worstExecution = worstExecution;
 //        inputs = new ArrayList<>();
         inputFiles = new ArrayList<>();
@@ -190,7 +190,7 @@ public class JobInfo implements Serializable {
         try {
             return new ObjectMapper().writeValueAsString(this);
         } catch (IOException ex) {
-            Logger.getLogger(JobInfo.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Job.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return null;

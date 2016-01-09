@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import br.unb.cic.bionimbus.model.JobInfo;
+import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.sched.SchedException;
@@ -14,15 +14,15 @@ import br.unb.cic.bionimbus.utils.Pair;
 
 public class RRPolicy extends SchedPolicy {
 
-    private List<JobInfo> jobs = new ArrayList<JobInfo>();
+    private List<Job> jobs = new ArrayList<Job>();
 
     private List<PluginInfo> usedResources = new ArrayList<PluginInfo>();
 
-    public void addJob(JobInfo jobInfo) throws SchedException {
+    public void addJob(Job jobInfo) throws SchedException {
         jobs.add(jobInfo);
     }
 
-    public PluginInfo scheduleJob(JobInfo jobInfo) {
+    public PluginInfo scheduleJob(Job jobInfo) {
         List<PluginInfo> plugins = filterByService(jobInfo.getServiceId(), filterByUsed());
         jobInfo.setTimestamp(System.currentTimeMillis());
         if (plugins.isEmpty()) {
@@ -32,10 +32,10 @@ public class RRPolicy extends SchedPolicy {
     }
 
     @Override
-    public HashMap<JobInfo, PluginInfo> schedule(List<JobInfo> jobs) {
-        HashMap<JobInfo, PluginInfo> schedMap = new HashMap<JobInfo, PluginInfo>();
+    public HashMap<Job, PluginInfo> schedule(List<Job> jobs) {
+        HashMap<Job, PluginInfo> schedMap = new HashMap<Job, PluginInfo>();
 
-        for (JobInfo jobInfo : jobs) {
+        for (Job jobInfo : jobs) {
             jobInfo.setTimestamp(System.currentTimeMillis());
             PluginInfo resource = this.scheduleJob(jobInfo);
             schedMap.put(jobInfo, resource);
@@ -73,7 +73,7 @@ public class RRPolicy extends SchedPolicy {
 
     @Override
     public List<PluginTask> relocate(
-            Collection<Pair<JobInfo, PluginTask>> taskPairs) {
+            Collection<Pair<Job, PluginTask>> taskPairs) {
         // TODO Auto-generated method stub
         return null;
     }
