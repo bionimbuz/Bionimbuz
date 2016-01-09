@@ -116,13 +116,19 @@ public class JobController implements Controller, Runnable {
                 // Create a new Avro Job
                 br.unb.cic.bionimbus.avro.gen.Job job = new br.unb.cic.bionimbus.avro.gen.Job();
 
+                // Sets its fields
                 job.setArgs(jobInfo.getArgs());
                 job.setId(jobInfo.getId());
                 job.setLocalId(config.getHost().getAddress());
                 job.setServiceId(jobInfo.getServiceId());
                 job.setTimestamp(jobInfo.getTimestamp());
+                job.setOutputs(jobInfo.getOutputs());
+                job.setDependencies(jobInfo.getDependencies());
 
+                // Avro File Info
                 ArrayList<br.unb.cic.bionimbus.avro.gen.FileInfo> avroFiles = new ArrayList<>();
+
+                // Iterate over the inputFile list of the job to create AVRO File Info
                 for (FileInfo f : jobInfo.getInputFiles()) {
                     br.unb.cic.bionimbus.avro.gen.FileInfo file = new br.unb.cic.bionimbus.avro.gen.FileInfo();
                     file.setHash(f.getHash());
@@ -131,13 +137,14 @@ public class JobController implements Controller, Runnable {
                     file.setUploadTimestamp(f.getUploadTimestamp());
                     file.setUserId(f.getUserId());
 
+                    // Adds it to the avro file list
                     avroFiles.add(file);
                 }
-
+                
+                // Sets is input files
                 job.setInputFiles(avroFiles);
-                job.setOutputs(jobInfo.getOutputs());
-                job.setDependencies(jobInfo.getDependencies());
 
+                // Adds this avro job
                 listjob.add(job);
             }
 
