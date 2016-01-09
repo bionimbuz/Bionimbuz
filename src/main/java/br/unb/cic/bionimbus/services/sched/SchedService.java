@@ -2,9 +2,10 @@ package br.unb.cic.bionimbus.services.sched;
 
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
-import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.model.JobInfo;
 import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import br.unb.cic.bionimbus.model.FileInfo;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
@@ -270,13 +271,13 @@ public class SchedService extends AbstractBioService implements Runnable {
      *
      * @param listFiles lista de arquivos que devem conter no plugin
      */
-    private void requestFile(List<Pair<String, Long>> listFiles) {
-        for (Pair<String, Long> pair : listFiles) {
-            if (!mapFilesPlugin.containsKey(pair.first)) {
-                String ipContainsFile = getFilesIP(pair.first);
+    private void requestFile(List<FileInfo> listFiles) {
+        for (FileInfo info : listFiles) {
+            if (!mapFilesPlugin.containsKey(info.getName())) {
+                String ipContainsFile = getFilesIP(info.getName());
                 Get conexao = new Get();
                 try {
-                    conexao.startSession(pair.first, ipContainsFile);
+                    conexao.startSession(info.getName(), ipContainsFile);
                 } catch (JSchException ex) {
                     java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (SftpException ex) {
@@ -487,12 +488,12 @@ public class SchedService extends AbstractBioService implements Runnable {
         return pluginTask;
     }
     
-    private void decryptFiles(List<Pair<String, Long>> inputs) throws Exception {
+    private void decryptFiles(List<FileInfo> inputs) throws Exception {
         try {
             //realiza uma chama rpc para decriptografar os arquivos que serao usados pela task
             rpcClient = new AvroClient(config.getRpcProtocol(), myLinuxPlugin.getMyInfo().getHost().getAddress(), myLinuxPlugin.getMyInfo().getHost().getPort());
-            for(Pair<String, Long> pair : inputs) {
-                rpcClient.getProxy().decryptPluginFile(pair.first);
+            for(FileInfo info : inputs) {
+                rpcClient.getProxy().decryptPluginFile(info.getName());
             }
             rpcClient.close();
         } catch (IOException ex) {
@@ -636,13 +637,15 @@ public class SchedService extends AbstractBioService implements Runnable {
 //            System.out.println("[SchedService] executeTasks: task " + task.getId() + " error.");
 //            return;
 //        }
-        if (!existFiles(task.getJobInfo().getInputs())) {
-            requestFile(task.getJobInfo().getInputs());
+        if (!existFiles(task.getJobInfo().getInputFiles())) {
+            LOGGER.info("[SchedService] executeTasks: files from JobInfo(id=" + task.getJobInfo().getId() + ") not found. Requesting file...");
+            
+            requestFile(task.getJobInfo().getInputFiles());
             
             LOGGER.info("[SchedService] executeTasks: task " + task.getId() + " files not present.");
         }
-        if (existFiles(task.getJobInfo().getInputs())) {
-            decryptFiles(task.getJobInfo().getInputs());
+        if (existFiles(task.getJobInfo().getInputFiles())) {
+            decryptFiles(task.getJobInfo().getInputFiles());
             myLinuxPlugin.startTask(task, cms);
             LOGGER.info("[SchedService] executeTasks: task " + task.getId() + " started.");
         } else {
@@ -659,13 +662,13 @@ public class SchedService extends AbstractBioService implements Runnable {
      * @param listInputFiles
      * @return
      */
-    private boolean existFiles(List<Pair<String, Long>> listInputFiles) {
+    private boolean existFiles(List<FileInfo> listInputFiles) {
         
         if (listInputFiles.isEmpty())
             return true;
         
-        for (Pair<String, Long> fileInput : listInputFiles) {
-            if (mapFilesPlugin.containsKey(fileInput.first)) {
+        for (FileInfo fileInput : listInputFiles) {
+            if (mapFilesPlugin.containsKey(fileInput.getName())) {
                 return true;
             }
         }

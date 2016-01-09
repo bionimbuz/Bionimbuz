@@ -1,12 +1,12 @@
 package br.unb.cic.bionimbus.model;
 
-import br.unb.cic.bionimbus.client.JobInfo;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.Entity;
@@ -31,25 +31,25 @@ public class Workflow implements Serializable {
     @Transient
     private List<JobInfo> jobs;
 
-    private final String creationDatestamp;
+    private String creationDatestamp;
 
-    private final long userId;
+    private long userId;
 
-    private final String description;
+    private String description;
 
     @Enumerated(EnumType.STRING)
     private WorkflowStatus status;
-    
+
     public Workflow() {
         this.jobs = null;
-        this.creationDatestamp = null;
+        this.creationDatestamp = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date());
         this.userId = 0l;
         this.description = null;
     }
 
     public Workflow(List<JobInfo> jobs) {
         this.jobs = new ArrayList<>(jobs);
-        this.creationDatestamp = null;
+        this.creationDatestamp = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date());;
         this.userId = 0l;
         this.description = null;
     }
@@ -77,13 +77,21 @@ public class Workflow implements Serializable {
     public void setJobs(List<JobInfo> jobs) {
         this.jobs = jobs;
     }
-    
+
     public void addJob(JobInfo job) {
         jobs.add(job);
     }
 
     public String getCreationDatestamp() {
         return creationDatestamp;
+    }
+
+    public void setCreationDatestamp(String creationDatestamp) {
+        this.creationDatestamp = creationDatestamp;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getDescription() {
@@ -94,8 +102,16 @@ public class Workflow implements Serializable {
         return status;
     }
 
+    public void setStatus(WorkflowStatus status) {
+        this.status = status;
+    }
+
     public long getUserId() {
         return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 
     @Override

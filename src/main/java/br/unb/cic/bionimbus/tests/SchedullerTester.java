@@ -1,12 +1,12 @@
 package br.unb.cic.bionimbus.tests;
 
-import br.unb.cic.bionimbus.avro.gen.Pair;
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
-import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.model.JobInfo;
 import br.unb.cic.bionimbus.model.Workflow;
-import br.unb.cic.bionimbus.client.experiments.MscTool;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import br.unb.cic.bionimbus.model.FileInfo;
+import br.unb.cic.bionimbus.model.WorkflowStatus;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SchedullerTester {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MscTool.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SchedullerTester.class);
 //    private static StringBuilder result = new  StringBuilder();
 
     private RpcClient rpcClient;
@@ -50,12 +50,15 @@ public class SchedullerTester {
     private void initCommunication() {
         cms = new CuratorMessageService();
         try {
-            Enumeration<InetAddress> inet = NetworkInterface.getByName("wlan0").getInetAddresses();
-            String ip = "";
-            if (ip.equals(""))
-                while (inet.hasMoreElements())
-                    ip = inet.nextElement().toString();
-            cms.connect(ip.substring(1)+":2181");
+            Enumeration<InetAddress> inet = NetworkInterface.getByName("eth0").getInetAddresses();
+            String ip = "164.41.209.89";
+//            if (ip.equals("")) {
+//                while (inet.hasMoreElements()) {
+//                    ip = inet.nextElement().toString();
+//                }
+//            }
+
+            cms.connect(ip + ":2181");
         } catch (SocketException ex) {
             java.util.logging.Logger.getLogger(SchedullerTester.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -65,15 +68,19 @@ public class SchedullerTester {
 
         try {
             config = mapper.readValue(new File("conf/node.yaml"), BioNimbusConfig.class);
+            config.setZkConnString(InetAddress.getLocalHost().getHostAddress() + ":2181");
+            config.setAddress(InetAddress.getLocalHost().getHostAddress());
             rpcClient = new AvroClient(config.getRpcProtocol(), config.getHost().getAddress(), config.getRpcPort());
             if (rpcClient.getProxy().ping()) {
                 LOG.info("client is connected.");
             }
 
         } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(MscTool.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error("IOException - SchedullerTester");
+            ex.printStackTrace();
         } catch (Exception ex) {
-            java.util.logging.Logger.getLogger(MscTool.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error("Exception - SchedullerTester");
+            ex.printStackTrace();
         }
 
     }
@@ -91,24 +98,30 @@ public class SchedullerTester {
     }
 
     public void sendJobs(Workflow pipeline) throws InterruptedException, IOException {
-//        communication.sendReq(new JobReqMessage(p2p.getPeerNode(), jobs), P2PMessageType.JOBRESP);
-//        JobRespMessage resp = (JobRespMessage) communication.getResp();
         List<br.unb.cic.bionimbus.avro.gen.JobInfo> listjob = new ArrayList<>();
+
         for (JobInfo jobInfo : pipeline.getJobs()) {
             br.unb.cic.bionimbus.avro.gen.JobInfo job = new br.unb.cic.bionimbus.avro.gen.JobInfo();
+
             job.setArgs(jobInfo.getArgs());
             job.setId(jobInfo.getId());
             job.setLocalId(config.getHost().getAddress());
             job.setServiceId(jobInfo.getServiceId());
             job.setTimestamp(jobInfo.getTimestamp());
-            List<Pair> listPair = new ArrayList<>();
-            for (br.unb.cic.bionimbus.utils.Pair<String, Long> pairInfo : jobInfo.getInputs()) {
-                Pair pair = new Pair();
-                pair.first = pairInfo.first;
-                pair.second = pairInfo.second;
-                listPair.add(pair);
+
+            ArrayList<br.unb.cic.bionimbus.avro.gen.FileInfo> avroFiles = new ArrayList<>();
+            for (FileInfo f : jobInfo.getInputFiles()) {
+                br.unb.cic.bionimbus.avro.gen.FileInfo file = new br.unb.cic.bionimbus.avro.gen.FileInfo();
+                file.setHash(f.getHash());
+                file.setId(f.getId());
+                file.setName(f.getName());
+                file.setUploadTimestamp(f.getUploadTimestamp());
+                file.setUserId(f.getUserId());
+
+                avroFiles.add(file);
             }
-            job.setInputs(listPair);
+
+            job.setInputFiles(avroFiles);
             job.setOutputs(jobInfo.getOutputs());
             job.setDependencies(jobInfo.getDependencies());
 
@@ -118,6 +131,8 @@ public class SchedullerTester {
         br.unb.cic.bionimbus.avro.gen.Workflow workflow = new br.unb.cic.bionimbus.avro.gen.Workflow();
         workflow.setId(pipeline.getId());
         workflow.setJobs(listjob);
+        workflow.setCreationDatestamp("00/00/00");
+        workflow.setDescription("descricao");
 
         rpcClient.getProxy().startWorkflow(workflow);
     }
@@ -164,7 +179,8 @@ public class SchedullerTester {
                             // set new watcher with remaining pipelines
                             remaining.remove(pipeline);
                             System.out.println("[SentPipeline] Pipeline " + pipeline.getId() + " sent, " + remaining.size() + " remaining");
-                            while(!cms.getZNodeExist(Path.NODE_PIPELINE.getFullPath(pipeline.getId()), null)){}
+                            while (!cms.getZNodeExist(Path.NODE_PIPELINE.getFullPath(pipeline.getId()), null)) {
+                            }
                             cms.getChildren(Path.NODE_PIPELINE.getFullPath(pipeline.getId()), new SendPipeline(cms, st, remaining, pipeline.getId()));
                         } else {
                             System.out.println("[SentPipeline] No more pipelines");
@@ -210,13 +226,18 @@ public class SchedullerTester {
 
         // perform all tests
         Workflow fst = pipelines.get(0);
+        fst.setId("teste");
+        fst.setCreationDatestamp("00/00/00");
+        fst.setDescription("descricao");
+
         tester.sendJobs(fst);
         pipelines.remove(fst);
         System.out.println("[SchedTester] First pipeline " + fst.getId() + " with " + fst.getJobs().size() + " jobs sent, " + pipelines.size() + " remaining");
 
         // busy waiting to wait for node to exists
-        while(!tester.cms.getZNodeExist(Path.NODE_PIPELINE.getFullPath(fst.getId()), null)){
-        System.out.println("[SchedTester] waiting node creation");}
+        while (!tester.cms.getZNodeExist(Path.NODE_PIPELINE.getFullPath(fst.getId()), null)) {
+            System.out.println("[SchedTester] waiting node creation");
+        }
         tester.cms.getChildren(Path.NODE_PIPELINE.getFullPath(fst.getId()), new SendPipeline(tester.cms, tester, pipelines, fst.getId()));
 
         System.out.println("[SchedTester] waiting forever");

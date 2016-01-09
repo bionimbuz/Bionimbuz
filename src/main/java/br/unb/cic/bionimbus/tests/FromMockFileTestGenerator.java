@@ -5,7 +5,8 @@
  */
 package br.unb.cic.bionimbus.tests;
 
-import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.model.FileInfo;
+import br.unb.cic.bionimbus.model.JobInfo;
 import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.security.AESEncryptor;
@@ -63,6 +64,7 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
                 // generate a new jobInfo from json
                 line = br.readLine();
                 JobInfo jobInfo = new JobInfo();
+                jobInfo.setId("i" + i);
                 jobInfo.setTimestamp(0l);
 
                 // set serviceId from json
@@ -81,7 +83,13 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
                 // set inputs
                 // TODO: change addInput to receive the filename instead of its zookeeper id
                 for (String inp : inputs) {
-                    jobInfo.addInput(inp, 0l);
+                    FileInfo f = new FileInfo(inp);
+                    f.setName("inp0");
+                    f.setUploadTimestamp("00/00/00");
+                    f.setHash("hash");
+                    f.setPayload(new byte[10]);
+                          
+                    jobInfo.addInput(f);
                 }
 
                 // get output list from json

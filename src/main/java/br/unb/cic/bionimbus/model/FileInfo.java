@@ -3,11 +3,13 @@ package br.unb.cic.bionimbus.model;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
+import java.util.TimeZone;
 import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import org.bouncycastle.crypto.tls.HashAlgorithm;
 
 /**
  * Object model of a file sent from the user web application
@@ -18,7 +20,7 @@ import javax.persistence.Transient;
 public class FileInfo implements Serializable {
 
     @Id
-    private String id = UUID.randomUUID().toString();
+    private String id;
 
     private String name;
 
@@ -37,6 +39,10 @@ public class FileInfo implements Serializable {
     public FileInfo() {
     }
 
+    public FileInfo(String id) {
+        this.id = id;
+    }
+    
     public String getId() {
         return id;
     }

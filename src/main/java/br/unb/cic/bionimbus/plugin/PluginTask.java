@@ -2,7 +2,7 @@ package br.unb.cic.bionimbus.plugin;
 
 import java.util.UUID;
 
-import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.model.JobInfo;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;

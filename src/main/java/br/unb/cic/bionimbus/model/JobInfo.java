@@ -1,16 +1,26 @@
-package br.unb.cic.bionimbus.client;
+package br.unb.cic.bionimbus.model;
 
-import br.unb.cic.bionimbus.model.FileInfo;
-import br.unb.cic.bionimbus.utils.Pair;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import org.codehaus.jackson.map.ObjectMapper;
 
-public class JobInfo {
+/**
+ *
+ */
+@Entity
+@Table(name = "tb_workflow_job_info")
+public class JobInfo implements Serializable {
 
+    @Id
     private String id;
 
     public long testId;
@@ -21,23 +31,27 @@ public class JobInfo {
 
     private String args = "";
 
+//    @Transient
     // inputs = [{input.id, input.size}]
-    private List<Pair<String, Long>> inputs;
+//    private List<Pair<String, Long>> inputs;
+    @Transient
+    private List<FileInfo> inputFiles;
 
-    private final List<FileInfo> inputFiles;
+    @Transient
+    private List<String> inputURL;
 
-    private final List<String> inputURL;
-
-    private final List<String> outputs;
+    @Transient
+    private List<String> outputs;
 
     private long timestamp;
 
     private Double worstExecution = null;
 
+    @Transient
     private final List<String> dependencies;
 
     public JobInfo() {
-        inputs = new ArrayList<>();
+//        inputs = new ArrayList<>();
         inputFiles = new ArrayList<>();
         inputURL = new ArrayList<>();
         outputs = new ArrayList<>();
@@ -51,7 +65,7 @@ public class JobInfo {
      */
     public JobInfo(String id) {
         this.id = id;
-        inputs = new ArrayList<>();
+//        inputs = new ArrayList<>();
         inputFiles = new ArrayList<>();
         inputURL = new ArrayList<>();
         outputs = new ArrayList<>();
@@ -65,7 +79,7 @@ public class JobInfo {
      */
     public JobInfo(double worstExecution) {
         this.worstExecution = worstExecution;
-        inputs = new ArrayList<>();
+//        inputs = new ArrayList<>();
         inputFiles = new ArrayList<>();
         inputURL = new ArrayList<>();
         outputs = new ArrayList<>();
@@ -104,24 +118,22 @@ public class JobInfo {
         this.args = args;
     }
 
-    public List<Pair<String, Long>> getInputs() {
-        return inputs;
+    /**
+     * Web application verifies if it is duplicated, so do not need to iterate
+     * over the input files.
+     *
+     * @param fileInfo
+     */
+    public void addInput(FileInfo fileInfo) {
+        inputFiles.add(fileInfo);
     }
 
-    public void setInputs(List<Pair<String, Long>> inputs) {
-        this.inputs = inputs;
+    public List<FileInfo> getInputFiles() {
+        return inputFiles;
     }
-        
-    public void addInput(String id, Long size) {
-//        TODO: change from string id to string filename
-//                or: split jobinfo into 2 subclasses: staticSchedJobInfo and dynamicSchedJobInfo
-        for (Pair<String, Long> pair : getInputs()) {
-            if (pair.first.equals(id)) {
-                getInputs().remove(pair);
-                break;
-            }
-        }
-        getInputs().add(new Pair<>(id, size));
+
+    public void setInputFiles(List<FileInfo> inputFiles) {
+        this.inputFiles = inputFiles;
     }
 
     public List<String> getOutputs() {
@@ -163,6 +175,14 @@ public class JobInfo {
 
     public List<String> getDependencies() {
         return dependencies;
+    }
+
+    public List<String> getInputURL() {
+        return inputURL;
+    }
+
+    public void setInputURL(List<String> inputURL) {
+        this.inputURL = inputURL;
     }
 
     @Override

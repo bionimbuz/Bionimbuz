@@ -217,17 +217,33 @@ protocol BioProto {
   }
   */
 
-    record Pair{
+  record NodeInfo {
+    string peerId;
+    string address;
+    float freesize;
+    double latency; 
+  }
+
+  record FileInfo{
+    string id;
+    string name;
+    long size;
+    long userId;
+    string uploadTimestamp;
+    string hash;
+  }
+
+  record Pair{
     string first;
     long second;
-    }  
+  }  
   
   record JobInfo {
     string id;
     string localId;
     string serviceId;
     string args ;
-    array<Pair> inputs;
+    array<FileInfo> inputFiles;
     array<string> outputs;
     long timestamp;
     array<string> dependencies;
@@ -239,7 +255,7 @@ protocol BioProto {
     string creationDatestamp;
     long userId;
     string description;
-    union {WorkflowStatus, null} workflowStatus;
+    union {WorkflowStatus, null} status;
   }
 
   record PluginFile {
@@ -247,7 +263,7 @@ protocol BioProto {
     string path;
     string name;
     string hash;    
-   long size;
+    long size;
     array<string> pluginId;
   }
 
@@ -294,24 +310,8 @@ protocol BioProto {
 
   string cancelJob(string jobID);
 
-  record NodeInfo {
-    string peerId;
-    string address;
-    float freesize;
-    double latency; 
-  }
-
-  record FileInfo{
-    string id;
-    string name;
-    long size;
-    long userId;
-    string uploadTimestamp;
-    string hash;
-  }
-
-   //Set information file that will be uploaded
-   void setFileInfo(FileInfo file, string kindService) oneway;
+  //Set information file that will be uploaded
+  void setFileInfo(FileInfo file, string kindService) oneway;
 
   //Get peers from server
   array<NodeInfo> getPeersNode();

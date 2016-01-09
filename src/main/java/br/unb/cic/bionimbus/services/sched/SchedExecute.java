@@ -39,7 +39,7 @@ public class SchedExecute extends Thread {
             if (!runningJobs.isEmpty()) {
                 PluginTask task = runningJobs.remove();
                 try {
-                    Runtime.getRuntime().exec(service + " -i " + task.getJobInfo().getInputs() + " -o " + task.getJobInfo().getOutputs());
+                    Runtime.getRuntime().exec(service + " -i " + task.getJobInfo().getInputFiles() + " -o " + task.getJobInfo().getOutputs());
                 } catch (IOException ex) {
                     Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
                 }

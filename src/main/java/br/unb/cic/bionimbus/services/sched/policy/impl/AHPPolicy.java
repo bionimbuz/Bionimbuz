@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import Jama.Matrix;
-import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.model.FileInfo;
+import br.unb.cic.bionimbus.model.JobInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskState;
@@ -112,8 +113,8 @@ public class AHPPolicy extends SchedPolicy {
 
     public static long getTotalSizeOfJobsFiles(JobInfo jobInfo) {
         long sum = 0;
-        for (Pair<String, Long> pair : jobInfo.getInputs()) {
-            sum += pair.second;
+        for (FileInfo info : jobInfo.getInputFiles()) {
+            sum += info.getSize();
         }
         return sum;
     }

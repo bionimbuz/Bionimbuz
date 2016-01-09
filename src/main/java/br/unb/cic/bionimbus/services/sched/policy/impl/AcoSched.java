@@ -4,7 +4,8 @@
 */
 package br.unb.cic.bionimbus.services.sched.policy.impl;
 
-import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.model.FileInfo;
+import br.unb.cic.bionimbus.model.JobInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskState;
@@ -211,8 +212,8 @@ public class AcoSched extends SchedPolicy {
     private static Long getTotalSizeOfJobsFiles(JobInfo jobInfo) {
         long sum = 0;
         
-        for (Pair<String, Long> pair : jobInfo.getInputs()) {
-            sum += pair.second;
+        for (FileInfo info : jobInfo.getInputFiles()) {
+            sum += info.getSize();
         }
         
         return sum;
@@ -221,23 +222,27 @@ public class AcoSched extends SchedPolicy {
     /**
      * Retorna o nome do maior arquivo de entrda do job.
      *
-     * @param jobInfos
+     * @param jobInfo
      * @return
      */
     public static String getBiggerInputJob(JobInfo jobInfo) {
-        Pair<String, Long> file = null;
-        for (Pair<String, Long> pair : jobInfo.getInputs()) {
-            if (file == null || file.second < pair.second) {
-                file = pair;
+        FileInfo file = null;
+        
+        for (FileInfo info : jobInfo.getInputFiles()) {
+            if (file == null || file.getSize() < info.getSize()) {
+                file = info;
             }
         }
         
-        return file.first;
+        return file.getName();
     }
     
     /**
      * Seleciona o tipo de nuvem para escalonar, pública, privada ou ambas. 0 -
      * pública 1 - privada 2 - hibrida
+     * @param plugins
+     * @param type
+     * @return 
      */
     public List<PluginInfo> filterTypeCloud(Collection<PluginInfo> plugins, int type) {
         if (type == 2) {

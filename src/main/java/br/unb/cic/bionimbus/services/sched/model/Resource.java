@@ -5,7 +5,7 @@
  */
 package br.unb.cic.bionimbus.services.sched.model;
 
-import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.model.JobInfo;
 import br.unb.cic.bionimbus.services.RepositoryService;
 import java.util.ArrayList;
 import java.util.List;
