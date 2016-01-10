@@ -43,12 +43,22 @@ public class WorkflowResource extends AbstractResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response startWorkflow(StartWorkflowRequest request) {
         LOGGER.info("New workflow received {id=" + request.getWorkflow().getId()
-                + ",size=" + request.getWorkflow().getJobs().size()
-                + ",status=" + request.getWorkflow().getStatus()
+                + ",jobs=" + request.getWorkflow().getJobs().size()
                 + ",userId=" + request.getWorkflow().getUserId()
                 + "}");
 
-        workflowDao.persist(request.getWorkflow());
+        try {
+            // Starts it
+            jobController.startWorkflow(request.getWorkflow());
+            
+            // If it gets started with success, persists it on database
+            workflowDao.persist(request.getWorkflow());
+
+        } catch (Exception e) {
+            LOGGER.error("[Exception] " + e.getMessage());
+
+            return Response.status(200).entity(false).build();
+        }
 
         return Response.status(200).entity(true).build();
     }

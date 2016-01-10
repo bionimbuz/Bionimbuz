@@ -5,7 +5,6 @@
  */
 package br.unb.cic.bionimbus.services;
 
-import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.services.sched.model.ResourceList;
 import br.unb.cic.bionimbus.services.sched.model.Resource;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
@@ -21,12 +20,11 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.mortbay.log.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -35,7 +33,8 @@ import org.mortbay.log.Log;
  * Dados disponiveis atraves de metodos get
  */
 public class RepositoryService extends AbstractBioService {
-
+    private static Logger LOGGER = LoggerFactory.getLogger(RepositoryService.class);
+    
     public enum InstanceType {
         AMAZON_LARGE,
         PERSONAL,
@@ -85,8 +84,10 @@ public class RepositoryService extends AbstractBioService {
     public Double getWorstExecution(String serviceId) {
         // check if service is supported
         if(!cms.getZNodeExist(Path.NODE_SERVICE.getFullPath(serviceId), null)) {
-            // problem: task not supported
-            Log.warn("service_" + serviceId + " not suported");
+            
+            // Problem: task not supported
+            LOGGER.error("Service " + serviceId + " is not supported");
+            
             return null;
         }
 
@@ -114,10 +115,10 @@ public class RepositoryService extends AbstractBioService {
                     PluginTask job = new ObjectMapper().readValue(cms.getData(Path.NODE_TASK.getFullPath(peer.getValue().getId(), taskId), null), PluginTask.class);
                     r.addTask(job.getJobInfo());
                 } catch (IOException ex) {
-                    Logger.getLogger(RepositoryService.class.getName()).log(Level.SEVERE, null, ex);
+                    LOGGER.error("[IOException] " + ex.getMessage());
                 }
             }
-            System.out.println("[RepositoryService] resource converted: " + r.toString());
+            LOGGER.info("Resource converted " + r.toString());
             resources.resources.add(r);
         }
 

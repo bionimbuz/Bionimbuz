@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 import org.apache.zookeeper.WatchedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +60,9 @@ public class JobController implements Controller, Runnable {
      */
     @Override
     public void start(BioNimbusConfig config) {
+        // Sets configuration
+        this.config = config;
+        
         // Initializes AvroClient
         rpcClient = new AvroClient("http", config.getAddress(), AVRO_PORT);
 
@@ -131,7 +133,7 @@ public class JobController implements Controller, Runnable {
                 // Iterate over the inputFile list of the job to create AVRO File Info
                 for (FileInfo f : jobInfo.getInputFiles()) {
                     br.unb.cic.bionimbus.avro.gen.FileInfo file = new br.unb.cic.bionimbus.avro.gen.FileInfo();
-                    file.setHash(f.getHash());
+                    file.setHash("hash_hot_set");
                     file.setId(f.getId());
                     file.setName(f.getName());
                     file.setUploadTimestamp(f.getUploadTimestamp());
@@ -148,11 +150,12 @@ public class JobController implements Controller, Runnable {
                 listjob.add(job);
             }
 
+            // Creates Avro Workflow
             br.unb.cic.bionimbus.avro.gen.Workflow avroWorkflow = new br.unb.cic.bionimbus.avro.gen.Workflow();
             avroWorkflow.setId(workflow.getId());
             avroWorkflow.setJobs(listjob);
-            avroWorkflow.setCreationDatestamp("00/00/00");
-            avroWorkflow.setDescription("descricao");
+            avroWorkflow.setCreationDatestamp(workflow.getCreationDatestamp());
+            avroWorkflow.setDescription(workflow.getDescription());
 
             rpcClient.getProxy().startWorkflow(avroWorkflow);
 
@@ -160,6 +163,7 @@ public class JobController implements Controller, Runnable {
 
         } catch (Exception ex) {
             LOGGER.error("[Exception] " + ex.getMessage());
+            ex.printStackTrace();
         }
 
         return false;

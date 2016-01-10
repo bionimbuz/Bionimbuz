@@ -17,7 +17,7 @@ import org.codehaus.jackson.map.ObjectMapper;
  *
  */
 @Entity
-@Table(name = "tb_workflow_job_info")
+@Table(name = "tb_job")
 public class Job implements Serializable {
 
     @Id
@@ -38,7 +38,7 @@ public class Job implements Serializable {
     private List<FileInfo> inputFiles;
 
     @Transient
-    private List<String> inputURL;
+    private String inputURL;
 
     @Transient
     private List<String> outputs;
@@ -53,7 +53,6 @@ public class Job implements Serializable {
     public Job() {
 //        inputs = new ArrayList<>();
         inputFiles = new ArrayList<>();
-        inputURL = new ArrayList<>();
         outputs = new ArrayList<>();
         dependencies = new ArrayList<>();
     }
@@ -67,7 +66,6 @@ public class Job implements Serializable {
         this.id = id;
 //        inputs = new ArrayList<>();
         inputFiles = new ArrayList<>();
-        inputURL = new ArrayList<>();
         outputs = new ArrayList<>();
         dependencies = new ArrayList<>();
     }
@@ -81,7 +79,6 @@ public class Job implements Serializable {
         this.worstExecution = worstExecution;
 //        inputs = new ArrayList<>();
         inputFiles = new ArrayList<>();
-        inputURL = new ArrayList<>();
         outputs = new ArrayList<>();
         dependencies = new ArrayList<>();
     }
@@ -165,10 +162,10 @@ public class Job implements Serializable {
         return worstExecution;
     }
 
-//    /**
-//     * Add a dependency to be executed beforehand
-//     * @param id The unique id of a job
-//     */
+    /**
+     * Add a dependency to be executed beforehand
+     * @param id The unique id of a job
+     */
     public void addDependency(String id) {
         dependencies.add(id);
     }
@@ -177,11 +174,11 @@ public class Job implements Serializable {
         return dependencies;
     }
 
-    public List<String> getInputURL() {
+    public String getInputURL() {
         return inputURL;
     }
 
-    public void setInputURL(List<String> inputURL) {
+    public void setInputURL(String inputURL) {
         this.inputURL = inputURL;
     }
 
@@ -197,6 +194,3 @@ public class Job implements Serializable {
     }
 
 }
-
-//menas de 163 linhas
-
