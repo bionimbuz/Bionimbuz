@@ -7,11 +7,14 @@ package br.unb.cic.bionimbus.avro.gen;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class FileInfo extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"FileInfo\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"fields\":[{\"name\":\"fileId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"size\",\"type\":\"long\"},{\"name\":\"name\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"FileInfo\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"name\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"size\",\"type\":\"long\"},{\"name\":\"userId\",\"type\":\"long\"},{\"name\":\"uploadTimestamp\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"hash\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-  @Deprecated public java.lang.String fileId;
-  @Deprecated public long size;
+  @Deprecated public java.lang.String id;
   @Deprecated public java.lang.String name;
+  @Deprecated public long size;
+  @Deprecated public long userId;
+  @Deprecated public java.lang.String uploadTimestamp;
+  @Deprecated public java.lang.String hash;
 
   /**
    * Default constructor.
@@ -21,19 +24,25 @@ public class FileInfo extends org.apache.avro.specific.SpecificRecordBase implem
   /**
    * All-args constructor.
    */
-  public FileInfo(java.lang.String fileId, java.lang.Long size, java.lang.String name) {
-    this.fileId = fileId;
-    this.size = size;
+  public FileInfo(java.lang.String id, java.lang.String name, java.lang.Long size, java.lang.Long userId, java.lang.String uploadTimestamp, java.lang.String hash) {
+    this.id = id;
     this.name = name;
+    this.size = size;
+    this.userId = userId;
+    this.uploadTimestamp = uploadTimestamp;
+    this.hash = hash;
   }
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
   // Used by DatumWriter.  Applications should not call. 
   public java.lang.Object get(int field$) {
     switch (field$) {
-    case 0: return fileId;
-    case 1: return size;
-    case 2: return name;
+    case 0: return id;
+    case 1: return name;
+    case 2: return size;
+    case 3: return userId;
+    case 4: return uploadTimestamp;
+    case 5: return hash;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -41,26 +50,44 @@ public class FileInfo extends org.apache.avro.specific.SpecificRecordBase implem
   @SuppressWarnings(value="unchecked")
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: fileId = (java.lang.String)value$; break;
-    case 1: size = (java.lang.Long)value$; break;
-    case 2: name = (java.lang.String)value$; break;
+    case 0: id = (java.lang.String)value$; break;
+    case 1: name = (java.lang.String)value$; break;
+    case 2: size = (java.lang.Long)value$; break;
+    case 3: userId = (java.lang.Long)value$; break;
+    case 4: uploadTimestamp = (java.lang.String)value$; break;
+    case 5: hash = (java.lang.String)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
 
   /**
-   * Gets the value of the 'fileId' field.
+   * Gets the value of the 'id' field.
    */
-  public java.lang.String getFileId() {
-    return fileId;
+  public java.lang.String getId() {
+    return id;
   }
 
   /**
-   * Sets the value of the 'fileId' field.
+   * Sets the value of the 'id' field.
    * @param value the value to set.
    */
-  public void setFileId(java.lang.String value) {
-    this.fileId = value;
+  public void setId(java.lang.String value) {
+    this.id = value;
+  }
+
+  /**
+   * Gets the value of the 'name' field.
+   */
+  public java.lang.String getName() {
+    return name;
+  }
+
+  /**
+   * Sets the value of the 'name' field.
+   * @param value the value to set.
+   */
+  public void setName(java.lang.String value) {
+    this.name = value;
   }
 
   /**
@@ -79,18 +106,48 @@ public class FileInfo extends org.apache.avro.specific.SpecificRecordBase implem
   }
 
   /**
-   * Gets the value of the 'name' field.
+   * Gets the value of the 'userId' field.
    */
-  public java.lang.String getName() {
-    return name;
+  public java.lang.Long getUserId() {
+    return userId;
   }
 
   /**
-   * Sets the value of the 'name' field.
+   * Sets the value of the 'userId' field.
    * @param value the value to set.
    */
-  public void setName(java.lang.String value) {
-    this.name = value;
+  public void setUserId(java.lang.Long value) {
+    this.userId = value;
+  }
+
+  /**
+   * Gets the value of the 'uploadTimestamp' field.
+   */
+  public java.lang.String getUploadTimestamp() {
+    return uploadTimestamp;
+  }
+
+  /**
+   * Sets the value of the 'uploadTimestamp' field.
+   * @param value the value to set.
+   */
+  public void setUploadTimestamp(java.lang.String value) {
+    this.uploadTimestamp = value;
+  }
+
+  /**
+   * Gets the value of the 'hash' field.
+   */
+  public java.lang.String getHash() {
+    return hash;
+  }
+
+  /**
+   * Sets the value of the 'hash' field.
+   * @param value the value to set.
+   */
+  public void setHash(java.lang.String value) {
+    this.hash = value;
   }
 
   /** Creates a new FileInfo RecordBuilder */
@@ -114,9 +171,12 @@ public class FileInfo extends org.apache.avro.specific.SpecificRecordBase implem
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<FileInfo>
     implements org.apache.avro.data.RecordBuilder<FileInfo> {
 
-    private java.lang.String fileId;
-    private long size;
+    private java.lang.String id;
     private java.lang.String name;
+    private long size;
+    private long userId;
+    private java.lang.String uploadTimestamp;
+    private java.lang.String hash;
 
     /** Creates a new Builder */
     private Builder() {
@@ -131,66 +191,54 @@ public class FileInfo extends org.apache.avro.specific.SpecificRecordBase implem
     /** Creates a Builder by copying an existing FileInfo instance */
     private Builder(br.unb.cic.bionimbus.avro.gen.FileInfo other) {
             super(br.unb.cic.bionimbus.avro.gen.FileInfo.SCHEMA$);
-      if (isValidValue(fields()[0], other.fileId)) {
-        this.fileId = data().deepCopy(fields()[0].schema(), other.fileId);
+      if (isValidValue(fields()[0], other.id)) {
+        this.id = data().deepCopy(fields()[0].schema(), other.id);
         fieldSetFlags()[0] = true;
       }
-      if (isValidValue(fields()[1], other.size)) {
-        this.size = data().deepCopy(fields()[1].schema(), other.size);
+      if (isValidValue(fields()[1], other.name)) {
+        this.name = data().deepCopy(fields()[1].schema(), other.name);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.name)) {
-        this.name = data().deepCopy(fields()[2].schema(), other.name);
+      if (isValidValue(fields()[2], other.size)) {
+        this.size = data().deepCopy(fields()[2].schema(), other.size);
         fieldSetFlags()[2] = true;
+      }
+      if (isValidValue(fields()[3], other.userId)) {
+        this.userId = data().deepCopy(fields()[3].schema(), other.userId);
+        fieldSetFlags()[3] = true;
+      }
+      if (isValidValue(fields()[4], other.uploadTimestamp)) {
+        this.uploadTimestamp = data().deepCopy(fields()[4].schema(), other.uploadTimestamp);
+        fieldSetFlags()[4] = true;
+      }
+      if (isValidValue(fields()[5], other.hash)) {
+        this.hash = data().deepCopy(fields()[5].schema(), other.hash);
+        fieldSetFlags()[5] = true;
       }
     }
 
-    /** Gets the value of the 'fileId' field */
-    public java.lang.String getFileId() {
-      return fileId;
+    /** Gets the value of the 'id' field */
+    public java.lang.String getId() {
+      return id;
     }
     
-    /** Sets the value of the 'fileId' field */
-    public br.unb.cic.bionimbus.avro.gen.FileInfo.Builder setFileId(java.lang.String value) {
+    /** Sets the value of the 'id' field */
+    public br.unb.cic.bionimbus.avro.gen.FileInfo.Builder setId(java.lang.String value) {
       validate(fields()[0], value);
-      this.fileId = value;
+      this.id = value;
       fieldSetFlags()[0] = true;
       return this; 
     }
     
-    /** Checks whether the 'fileId' field has been set */
-    public boolean hasFileId() {
+    /** Checks whether the 'id' field has been set */
+    public boolean hasId() {
       return fieldSetFlags()[0];
     }
     
-    /** Clears the value of the 'fileId' field */
-    public br.unb.cic.bionimbus.avro.gen.FileInfo.Builder clearFileId() {
-      fileId = null;
+    /** Clears the value of the 'id' field */
+    public br.unb.cic.bionimbus.avro.gen.FileInfo.Builder clearId() {
+      id = null;
       fieldSetFlags()[0] = false;
-      return this;
-    }
-
-    /** Gets the value of the 'size' field */
-    public java.lang.Long getSize() {
-      return size;
-    }
-    
-    /** Sets the value of the 'size' field */
-    public br.unb.cic.bionimbus.avro.gen.FileInfo.Builder setSize(long value) {
-      validate(fields()[1], value);
-      this.size = value;
-      fieldSetFlags()[1] = true;
-      return this; 
-    }
-    
-    /** Checks whether the 'size' field has been set */
-    public boolean hasSize() {
-      return fieldSetFlags()[1];
-    }
-    
-    /** Clears the value of the 'size' field */
-    public br.unb.cic.bionimbus.avro.gen.FileInfo.Builder clearSize() {
-      fieldSetFlags()[1] = false;
       return this;
     }
 
@@ -201,21 +249,119 @@ public class FileInfo extends org.apache.avro.specific.SpecificRecordBase implem
     
     /** Sets the value of the 'name' field */
     public br.unb.cic.bionimbus.avro.gen.FileInfo.Builder setName(java.lang.String value) {
-      validate(fields()[2], value);
+      validate(fields()[1], value);
       this.name = value;
-      fieldSetFlags()[2] = true;
+      fieldSetFlags()[1] = true;
       return this; 
     }
     
     /** Checks whether the 'name' field has been set */
     public boolean hasName() {
-      return fieldSetFlags()[2];
+      return fieldSetFlags()[1];
     }
     
     /** Clears the value of the 'name' field */
     public br.unb.cic.bionimbus.avro.gen.FileInfo.Builder clearName() {
       name = null;
+      fieldSetFlags()[1] = false;
+      return this;
+    }
+
+    /** Gets the value of the 'size' field */
+    public java.lang.Long getSize() {
+      return size;
+    }
+    
+    /** Sets the value of the 'size' field */
+    public br.unb.cic.bionimbus.avro.gen.FileInfo.Builder setSize(long value) {
+      validate(fields()[2], value);
+      this.size = value;
+      fieldSetFlags()[2] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'size' field has been set */
+    public boolean hasSize() {
+      return fieldSetFlags()[2];
+    }
+    
+    /** Clears the value of the 'size' field */
+    public br.unb.cic.bionimbus.avro.gen.FileInfo.Builder clearSize() {
       fieldSetFlags()[2] = false;
+      return this;
+    }
+
+    /** Gets the value of the 'userId' field */
+    public java.lang.Long getUserId() {
+      return userId;
+    }
+    
+    /** Sets the value of the 'userId' field */
+    public br.unb.cic.bionimbus.avro.gen.FileInfo.Builder setUserId(long value) {
+      validate(fields()[3], value);
+      this.userId = value;
+      fieldSetFlags()[3] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'userId' field has been set */
+    public boolean hasUserId() {
+      return fieldSetFlags()[3];
+    }
+    
+    /** Clears the value of the 'userId' field */
+    public br.unb.cic.bionimbus.avro.gen.FileInfo.Builder clearUserId() {
+      fieldSetFlags()[3] = false;
+      return this;
+    }
+
+    /** Gets the value of the 'uploadTimestamp' field */
+    public java.lang.String getUploadTimestamp() {
+      return uploadTimestamp;
+    }
+    
+    /** Sets the value of the 'uploadTimestamp' field */
+    public br.unb.cic.bionimbus.avro.gen.FileInfo.Builder setUploadTimestamp(java.lang.String value) {
+      validate(fields()[4], value);
+      this.uploadTimestamp = value;
+      fieldSetFlags()[4] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'uploadTimestamp' field has been set */
+    public boolean hasUploadTimestamp() {
+      return fieldSetFlags()[4];
+    }
+    
+    /** Clears the value of the 'uploadTimestamp' field */
+    public br.unb.cic.bionimbus.avro.gen.FileInfo.Builder clearUploadTimestamp() {
+      uploadTimestamp = null;
+      fieldSetFlags()[4] = false;
+      return this;
+    }
+
+    /** Gets the value of the 'hash' field */
+    public java.lang.String getHash() {
+      return hash;
+    }
+    
+    /** Sets the value of the 'hash' field */
+    public br.unb.cic.bionimbus.avro.gen.FileInfo.Builder setHash(java.lang.String value) {
+      validate(fields()[5], value);
+      this.hash = value;
+      fieldSetFlags()[5] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'hash' field has been set */
+    public boolean hasHash() {
+      return fieldSetFlags()[5];
+    }
+    
+    /** Clears the value of the 'hash' field */
+    public br.unb.cic.bionimbus.avro.gen.FileInfo.Builder clearHash() {
+      hash = null;
+      fieldSetFlags()[5] = false;
       return this;
     }
 
@@ -223,9 +369,12 @@ public class FileInfo extends org.apache.avro.specific.SpecificRecordBase implem
     public FileInfo build() {
       try {
         FileInfo record = new FileInfo();
-        record.fileId = fieldSetFlags()[0] ? this.fileId : (java.lang.String) defaultValue(fields()[0]);
-        record.size = fieldSetFlags()[1] ? this.size : (java.lang.Long) defaultValue(fields()[1]);
-        record.name = fieldSetFlags()[2] ? this.name : (java.lang.String) defaultValue(fields()[2]);
+        record.id = fieldSetFlags()[0] ? this.id : (java.lang.String) defaultValue(fields()[0]);
+        record.name = fieldSetFlags()[1] ? this.name : (java.lang.String) defaultValue(fields()[1]);
+        record.size = fieldSetFlags()[2] ? this.size : (java.lang.Long) defaultValue(fields()[2]);
+        record.userId = fieldSetFlags()[3] ? this.userId : (java.lang.Long) defaultValue(fields()[3]);
+        record.uploadTimestamp = fieldSetFlags()[4] ? this.uploadTimestamp : (java.lang.String) defaultValue(fields()[4]);
+        record.hash = fieldSetFlags()[5] ? this.hash : (java.lang.String) defaultValue(fields()[5]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

@@ -8,6 +8,7 @@ import java.util.*;
 import br.unb.cic.bionimbus.avro.gen.BioProto;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.client.shell.commands.*;
+import br.unb.cic.bionimbus.security.Integrity;
 import br.unb.cic.bionimbus.utils.Pair;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,6 +59,7 @@ public final class SimpleShell {
         //GetFile
         commandMap.put("script", new ScriptRunner(this));
         commandMap.put(Upload.NAME, new Upload(this));
+        commandMap.put(VerifyFiles.NAME, new VerifyFiles(this));
         commandMap.put(Download.NAME, new Download(this));
         commandMap.put(CreateInstance.NAME, new CreateInstance(this));
         commandMap.put(ListInstances.NAME, new ListInstances(this));
@@ -131,10 +133,11 @@ public final class SimpleShell {
     public void setIp(String ip) {
         this.ip = ip;
     }
+
     public String getIp() {
         return this.ip;
     }
-    
+
     public void setConnected(boolean connected) {
         this.connected = connected;
     }
@@ -165,6 +168,7 @@ public final class SimpleShell {
     public BioProto getProxy() throws IOException {
         return rpcClient.getProxy();
     }
+
     public void close() throws IOException {
         try {
             rpcClient.close();

@@ -1,0 +1,131 @@
+package br.unb.cic.bionimbus.persistence.dao;
+
+import br.unb.cic.bionimbus.model.FileInfo;
+import java.util.List;
+
+import javax.persistence.TypedQuery;
+
+import br.unb.cic.bionimbus.model.User;
+import br.unb.cic.bionimbus.persistence.EntityManagerProducer;
+
+/**
+ * Class that is responsible to operate over the database the UserFile elements
+ * (CRUD operations). DAO stands for Data Access Object
+ *
+ * @author Vinicius
+ *
+ */
+public class FileDao extends AbstractDao<FileInfo> {
+    /**
+     * Persists an user file on database
+     *
+     * @param fileInfo
+     */
+    @Override
+    public void persist(FileInfo fileInfo) {
+        try {
+            // Verifies if the manager is opened before persist
+            if (!manager.isOpen()) {
+                manager = EntityManagerProducer.getEntityManager();
+            }
+            
+            // Get a Transaction, persist and commit
+            manager.getTransaction().begin();
+            manager.persist(fileInfo);
+            manager.getTransaction().commit();
+
+            // Updates user storage usage
+            User user = manager.find(User.class, fileInfo.getUserId());
+            user.addStorageUsage(fileInfo.getSize());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            manager.getTransaction().rollback();
+        }
+    }
+
+    /**
+     * Returns all user files on database. Use listByUserId to retrieve all
+     * files from a specific user.
+     *
+     * @return
+     */
+    @Override
+    public List<FileInfo> list() {
+        TypedQuery<FileInfo> query = manager.createQuery("SELECT u FROM FileInfo u", FileInfo.class);
+
+        return query.getResultList();
+    }
+
+    /**
+     * Update an user file information
+     *
+     * @param fileInfo
+     */
+    @Override
+    public void update(FileInfo fileInfo) {
+        // TODO Auto-generated method stub
+
+    }
+
+    /**
+     * Removes an user File
+     *
+     * @param fileInfo
+     */
+    @Override
+    public void delete(FileInfo fileInfo) {
+        try {
+            manager.getTransaction().begin();
+            manager.remove(fileInfo);
+            manager.getTransaction().commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            manager.getTransaction().rollback();
+        }
+    }
+
+    /**
+     * Return one specific user file by its id
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public FileInfo findById(Long id) {
+        TypedQuery<FileInfo> query = manager.createQuery("SELECT u FROM FileInfo u WHERE u.id = := id", FileInfo.class);
+        query.setParameter("id", id);
+
+        return query.getSingleResult();
+    }
+
+    /**
+     * Returns specific User file's list
+     *
+     * @param userId
+     * @return
+     */
+    public List<FileInfo> listByUserId(Long userId) {
+        TypedQuery<FileInfo> query = manager.createQuery("SELECT u FROM FileInfo u WHERE u.userId = :userId", FileInfo.class);
+        query.setParameter("userId", userId);
+
+        return query.getResultList();
+    }
+
+    public void updateStorageUsage(Long userId, Long sizeKB) {
+        User user = manager.find(User.class, userId);
+
+        if ((user.getStorageUsage() + sizeKB) > 1) {
+
+        }
+    }
+
+    public void subtractStorageUsage(Long userId, Long sizeKB) {
+        User user = manager.find(User.class, userId);
+
+        if ((user.getStorageUsage() + sizeKB) > 1) {
+
+        }
+    }
+
+}

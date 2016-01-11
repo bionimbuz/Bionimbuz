@@ -26,6 +26,8 @@ public interface CloudMessageService {
     
     public List<String> getChildren(String path, Watcher watcher);
     
+    public int getChildrenCount(String path, Watcher watcher);
+    
     public String getData(String path, Watcher watcher);
     
     public void setData(String path, String data);

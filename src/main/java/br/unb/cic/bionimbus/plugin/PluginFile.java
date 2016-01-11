@@ -8,29 +8,33 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * Classe que recebe os dados do arquivo enviado pelo cliente
+ *
  * @author breno-linux
  */
-
 public class PluginFile {
 
-    public PluginFile(){
+    public PluginFile() {
     }
     
-    public PluginFile(FileInfo filenode){
-        this.id = filenode.getFileId();
-        this.name= filenode.getName();
-        this.size =filenode.getSize();
+    //Recebe as informações do arquivo enviado pelo cliente e seta os dados do arquivo
+    public PluginFile(FileInfo fileNode){
+        this.id = fileNode.getId();
+        this.name= fileNode.getName();
+        this.size =fileNode.getSize();
+        this.hash=fileNode.getHash();
     }
     private String id;
 
     private String path;
-    
+
     private String name;
+    
+    private String hash;
 
     private long size;
-    
+
     private String service;
-    
+
     private List<String> pluginId;
 
     public String getId() {
@@ -65,38 +69,35 @@ public class PluginFile {
         this.pluginId = pluginId;
     }
 
-    /**
-     * @return the name
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     * @param name the name to set
-     */
     public void setName(String name) {
         this.name = name;
     }
 
-    /**
-     * @return the service
-     */
+    public String getHash() {
+        return hash;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
+    
     public String getService() {
         return service;
     }
 
-    /**
-     * @param service the service to set
-     */
     public void setService(String service) {
         this.service = service;
-    }    
-    
+    }
+
     @Override
     public boolean equals(Object object) {
-        if (this == object)
+        if (this == object) {
             return true;
+        }
 
         if (!(object instanceof PluginFile)) {
             return false;
@@ -114,11 +115,11 @@ public class PluginFile {
 
     @Override
     public String toString() {
-         try {
+        try {
             return new ObjectMapper().writeValueAsString(this);
         } catch (Exception ex) {
             Logger.getLogger(PluginInfo.class.getName()).log(Level.SEVERE, null, ex);
-        } 
-         return null;
+        }
+        return null;
     }
 }

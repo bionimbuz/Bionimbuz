@@ -1,6 +1,5 @@
 package br.unb.cic.bionimbus.services;
 
-
 import br.unb.cic.bionimbus.avro.gen.BioProto;
 import br.unb.cic.bionimbus.avro.rpc.AvroServer;
 import br.unb.cic.bionimbus.avro.rpc.BioProtoImpl;
@@ -23,7 +22,7 @@ public class ServiceModule extends AbstractModule {
 
         bind(BioProto.class).to(BioProtoImpl.class);
         bind(RpcServer.class).to(AvroServer.class);
-//        bind(HttpServer.class);
+        // bind(HttpServer.class);
 
         bind(MetricRegistry.class).asEagerSingleton();
         bind(HealthCheckRegistry.class).asEagerSingleton();
@@ -35,7 +34,7 @@ public class ServiceModule extends AbstractModule {
         serviceBinder.addBinding().to(MonitoringService.class);
         serviceBinder.addBinding().to(RepositoryService.class);
         
-        // para mudar a implementação de CloudMessageService usada: alterar argumento do metodo to()
+        // If someone changes CloudMessageService implementation, need to change to() method
         bind(CloudMessageService.class).to(CuratorMessageService.class);
     }
 

@@ -5,8 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import br.unb.cic.bionimbus.client.JobInfo;
-import br.unb.cic.bionimbus.client.PipelineInfo;
+import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
@@ -27,7 +26,7 @@ public class BasicSchedPolicy extends SchedPolicy {
         return plugins;
     }
 
-    private PluginInfo getBestPluginForJob(List<PluginInfo> plugins, JobInfo job) {
+    private PluginInfo getBestPluginForJob(List<PluginInfo> plugins, Job job) {
         PluginInfo best = plugins.get(0);
         for (PluginInfo plugin : plugins) {
             if (calculateWeightSum(plugin) > calculateWeightSum(best)) best = plugin;
@@ -41,10 +40,10 @@ public class BasicSchedPolicy extends SchedPolicy {
     }
 
     @Override
-    public HashMap<JobInfo, PluginInfo> schedule(List<JobInfo> jobs) {
-        HashMap<JobInfo, PluginInfo> schedMap = new HashMap<JobInfo, PluginInfo>();
+    public HashMap<Job, PluginInfo> schedule(List<Job> jobs) {
+        HashMap<Job, PluginInfo> schedMap = new HashMap<Job, PluginInfo>();
 
-        for (JobInfo jobInfo : jobs) {
+        for (Job jobInfo : jobs) {
             PluginInfo resource = this.scheduleJob(jobInfo);
             schedMap.put(jobInfo, resource);
         }
@@ -52,7 +51,7 @@ public class BasicSchedPolicy extends SchedPolicy {
         return schedMap;
     }
 
-    public PluginInfo scheduleJob(JobInfo jobInfo) {
+    public PluginInfo scheduleJob(Job jobInfo) {
         List<PluginInfo> availablePlugins = filterByService(jobInfo.getServiceId());
         if (availablePlugins.size() == 0) {
             return null;
@@ -62,7 +61,7 @@ public class BasicSchedPolicy extends SchedPolicy {
 
     @Override
     public List<PluginTask> relocate(
-            Collection<Pair<JobInfo, PluginTask>> taskPairs) {
+            Collection<Pair<Job, PluginTask>> taskPairs) {
         // TODO Auto-generated method stub
         return null;
     }

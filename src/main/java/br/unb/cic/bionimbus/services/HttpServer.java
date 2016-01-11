@@ -1,20 +1,24 @@
 package br.unb.cic.bionimbus.services;
 
+import br.unb.cic.bionimbus.persistence.EntityManagerProducer;
 import javax.servlet.http.HttpServlet;
 
-import com.codahale.metrics.servlets.AdminServlet;
 import com.google.inject.Inject;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.servlet.Context;
-import org.mortbay.jetty.servlet.ServletHolder;
-
-import com.sun.jersey.spi.container.servlet.ServletContainer;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.webapp.WebAppContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * HTTP server that will handle REST requests and responses on port 8181
+ * 
+ * @author Vinicius
+ */
 public class HttpServer {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpServer.class);
     private Server server;
     private static HttpServer REF;
     private volatile boolean running;
@@ -22,8 +26,10 @@ public class HttpServer {
     private final int port;
     private final HttpServlet proxyServlet;
 
-    private MetricsServletContextListener contextListener;
-
+    /**
+     * Starts server
+     * @throws Exception 
+     */
     public void start() throws Exception {
         if (!running) {
 
@@ -31,13 +37,16 @@ public class HttpServer {
                 @Override
                 public void run() {
                     try {
-                        System.out.println("starting http server on port " + port);
+                        // Starts the Server
                         server.start();
-//                        server.join();
+
+                        // Join to main Thread
+                        server.join();
+
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        LOGGER.error("[InterruptedException] " + e.getMessage());
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LOGGER.error("[Exception] " + e.getMessage());
                     } finally {
                         running = false;
                     }
@@ -50,39 +59,48 @@ public class HttpServer {
         try {
             server.stop();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("[Exception] " + e.getMessage());
         }
         running = false;
     }
 
     @Inject
     public HttpServer(MetricsServletContextListener contextListener) {
-        this(9191, null, contextListener);
+        this(8181, null, contextListener);
     }
 
     public HttpServer(int port, HttpServlet servlet, MetricsServletContextListener contextListener) {
         this.port = port;
         this.proxyServlet = servlet;
 
+        // Instantiate a new Server on int port
         server = new Server(port);
-        Context context = new Context(server, "/", Context.SESSIONS);
-        ServletHolder sh = new ServletHolder(ServletContainer.class);
-        sh.setInitParameter("com.sun.jersey.config.property.resourceConfigClass", "com.sun.jersey.api.core.PackagesResourceConfig");
-        sh.setInitParameter("com.sun.jersey.config.property.packages", "br.unb.cic.bionimbus.p2p.plugin.proxy");
 
-        context.addEventListener(contextListener);
+        // Creates the Context used in the Web application
+        WebAppContext context = new WebAppContext();
 
-        context.addServlet(sh, "/*");
+        // Configures the http server context
+        context.setDescriptor("./src/main/webapp/web.xml");
+        context.setResourceBase("./src/main/webapp");
+        context.setContextPath("/");
+        context.setParentLoaderPriority(true);
 
-        if (servlet != null)
-            context.addServlet(new ServletHolder(servlet), "/file");
+        server.setHandler(context);
 
-        // Coda Hale Metrics
-        context.addServlet(new ServletHolder(new AdminServlet()), "/admin/*");
-
+//        try {
+//            // Initialize EntityManager to prevent lazy creation
+//            EntityManagerProducer.initialize();
+//        } catch (Exception e) {
+//            LOGGER.error("[Exception] " + e.getMessage());
+//        }
     }
 
+    /**
+     * Starts HttpServer on port 8181
+     * @param args
+     * @throws Exception 
+     */
     public static void main(String[] args) throws Exception {
-        new HttpServer(9191, null, null).start();
+        new HttpServer(8181, null, null).start();
     }
 }

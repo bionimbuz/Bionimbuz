@@ -1,6 +1,6 @@
 package br.unb.cic.bionimbus.services.sched.policy;
 
-import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
@@ -77,9 +77,9 @@ public abstract class SchedPolicy {
         this.rs = rs;
     }
     
-    public abstract HashMap<JobInfo, PluginInfo> schedule(List<JobInfo> jobs);
+    public abstract HashMap<Job, PluginInfo> schedule(List<Job> jobs);
     
-    public abstract List<PluginTask> relocate(Collection<Pair<JobInfo, PluginTask>> taskPairs);
+    public abstract List<PluginTask> relocate(Collection<Pair<Job, PluginTask>> taskPairs);
 
     public abstract void cancelJobEvent(PluginTask task);
 

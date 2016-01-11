@@ -11,11 +11,8 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Created by IntelliJ IDEA.
- * User: edward
- * Date: 5/12/12
- * Time: 9:37 PM
- * To change this template use File | Settings | File Templates.
+ * Created by IntelliJ IDEA. User: edward Date: 5/12/12 Time: 9:37 PM To change
+ * this template use File | Settings | File Templates.
  */
 public class DiscoveryServiceTest {
 

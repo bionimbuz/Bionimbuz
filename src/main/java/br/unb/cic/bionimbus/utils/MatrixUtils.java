@@ -3,6 +3,7 @@ package br.unb.cic.bionimbus.utils;
 import Jama.Matrix;
 
 public class MatrixUtils {
+
     public static String printMatrix(Matrix matrix) {
         StringBuilder sb = new StringBuilder();
 

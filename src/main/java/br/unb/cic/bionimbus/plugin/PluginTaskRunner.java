@@ -1,5 +1,6 @@
 package br.unb.cic.bionimbus.plugin;
 
+import br.unb.cic.bionimbus.model.FileInfo;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import java.io.BufferedReader;
@@ -32,14 +33,14 @@ public class PluginTaskRunner implements Callable<PluginTask> {
     
     @Override
     public PluginTask call() throws Exception {
-
+        
         String args = task.getJobInfo().getArgs();
-        List<Pair<String, Long>> inputs = task.getJobInfo().getInputs();
+        List<FileInfo> inputFiles = task.getJobInfo().getInputFiles();        
         int i = 1;
-        for (Pair<String, Long> pair : inputs) {
-            String input = pair.first;
+        for (FileInfo info : inputFiles) {
+            String input = info.getName();
             //linha comentada pois arquivos de entrada não ficam mais no AbstractPlugin
-//            args = args.replaceFirst("%I" + i, path + File.pathSeparator + plugin.getInputFiles().get(input).first);
+            //args = args.replaceFirst("%I" + i, path + File.pathSeparator + plugin.getInputFiles().get(input).first);
             args = args.replaceFirst("%I" + i, path+PATHFILES + input+" ");
             i++;
         }
@@ -52,6 +53,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
         }
         Process p;
         try {
+            System.out.println("[PluginTaskRunner] exec: " + service.getPath() + " " + args);
             p = Runtime.getRuntime().exec(service.getPath() + " " + args);
 //                        p = Runtime.getRuntime().exec(path+service.getPath().substring(1,service.getPath().length()) + " " + args);
 

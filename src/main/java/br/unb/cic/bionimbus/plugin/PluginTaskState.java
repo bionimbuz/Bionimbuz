@@ -13,5 +13,5 @@ public enum PluginTaskState {
     CANCELLED,
     //task EXECUTOU e retornou um erro
     ERRO,
-    
+
 }

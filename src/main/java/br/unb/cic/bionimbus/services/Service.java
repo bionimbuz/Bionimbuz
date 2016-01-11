@@ -12,13 +12,12 @@ public interface Service {
     public void shutdown();
 
     public void getStatus();
-    
+
     /**
      * Método para tratar os watchers disparados pelo zookeeper
      */
     public void verifyPlugins();
-    
+
     public void event(WatchedEvent eventType);
-    
 
 }
