@@ -2,10 +2,9 @@ package br.unb.cic.bionimbus.services.tarifation.Amazon;
 
 /**
  * Classe AmazonVirtualMachine, used to represent a Amazon VM.
- * 
+ *
  * @author Gabriel Fritz Sluzala
  */
-
 public class AmazonVirtualMachine {
 
     private String pricing;
@@ -20,7 +19,7 @@ public class AmazonVirtualMachine {
     private boolean latest;
     private double hourly;
     private boolean ebsoptimized;
-    
+
     /**
      *
      * @param pricing - Pricing Style

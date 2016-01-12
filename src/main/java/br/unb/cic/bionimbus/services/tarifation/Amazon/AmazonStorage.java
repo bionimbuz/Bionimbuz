@@ -10,6 +10,7 @@ package br.unb.cic.bionimbus.services.tarifation.Amazon;
  * @author Gabriel Fritz Sluzala
  */
 public class AmazonStorage {
+
     private int id;
     private String region;
     private String kind;

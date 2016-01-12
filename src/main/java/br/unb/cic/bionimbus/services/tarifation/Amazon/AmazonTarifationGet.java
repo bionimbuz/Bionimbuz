@@ -25,11 +25,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Classe AmazonTarifationGet, relacionada à atualização e obtenção de preços da Amazon.
- * 
+ * Classe AmazonTarifationGet, relacionada à atualização e obtenção de preços da
+ * Amazon.
+ *
  * @author Gabriel Fritz Sluzala
  */
-
 public class AmazonTarifationGet {
 
     private Map<String, AmazonVirtualMachine> AmazonMachines;
@@ -39,15 +39,11 @@ public class AmazonTarifationGet {
 
     /**
      * Contrutor da classe
-     * 
-     * Server: "info.awsstream.com"
-     * AddressOD: "/instances.json?"
-     * AddressStorage: "/storage.json?"
-     * AddressDataTransfer: "/transfer.json?"
+     *
+     * Server: "info.awsstream.com" AddressOD: "/instances.json?"
+     * AddressStorage: "/storage.json?" AddressDataTransfer: "/transfer.json?"
      */
-    
     public AmazonTarifationGet() {
-        
 
         try {
             JSONArray pricingODArray;
@@ -233,7 +229,7 @@ public class AmazonTarifationGet {
 
     /**
      *
-     * @param id - ID of Amazon VM. 
+     * @param id - ID of Amazon VM.
      * @return - Price of AmazonVirtualMachine with this ID
      */
     public double getVMPrice(int id) {
