@@ -8,14 +8,18 @@ import br.unb.cic.bionimbus.model.FileInfo;
 import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
+import br.unb.cic.bionimbus.services.RepositoryService;
+import br.unb.cic.bionimbus.services.Service;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.zookeeper.WatchedEvent;
 import org.slf4j.Logger;
@@ -28,6 +32,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Vinicius
  */
+
+
 @Singleton
 public class JobController implements Controller, Runnable {
 
@@ -39,15 +45,18 @@ public class JobController implements Controller, Runnable {
     protected CloudMessageService cms;
     protected BioNimbusConfig config;
     private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<>();
+    private final RepositoryService repositoryService;
 
     /**
      * Starts JobController execution
      *
      * @param cms
+     * @param rs
      */
     @Inject
-    public JobController(CloudMessageService cms) {
+    public JobController(CloudMessageService cms, RepositoryService rs) {
         Preconditions.checkNotNull(cms);
+        this.repositoryService = rs;
         this.cms = cms;
 
         LOGGER.info("JobController started");
@@ -62,7 +71,7 @@ public class JobController implements Controller, Runnable {
     public void start(BioNimbusConfig config) {
         // Sets configuration
         this.config = config;
-        
+
         // Initializes AvroClient
         rpcClient = new AvroClient("http", config.getAddress(), AVRO_PORT);
 
@@ -114,7 +123,7 @@ public class JobController implements Controller, Runnable {
 
             // Iterates over the list of jobs
             for (Job jobInfo : workflow.getJobs()) {
-                
+
                 // Create a new Avro Job
                 br.unb.cic.bionimbus.avro.gen.Job job = new br.unb.cic.bionimbus.avro.gen.Job();
 
@@ -142,7 +151,7 @@ public class JobController implements Controller, Runnable {
                     // Adds it to the avro file list
                     avroFiles.add(file);
                 }
-                
+
                 // Sets is input files
                 job.setInputFiles(avroFiles);
 
@@ -199,4 +208,8 @@ public class JobController implements Controller, Runnable {
         return this.config;
     }
 
+    
+    public RepositoryService getRepositoryService() {
+        return this.repositoryService;
+    }
 }

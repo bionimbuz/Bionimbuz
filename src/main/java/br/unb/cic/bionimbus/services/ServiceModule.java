@@ -15,27 +15,41 @@ import com.codahale.metrics.health.HealthCheckRegistry;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 
+/**
+ * Configures injection parameters for Service
+ */
 public class ServiceModule extends AbstractModule {
 
     @Override
     protected void configure() {
 
+        // bind(HttpServer.class);
         bind(BioProto.class).to(BioProtoImpl.class);
         bind(RpcServer.class).to(AvroServer.class);
-        // bind(HttpServer.class);
-
         bind(MetricRegistry.class).asEagerSingleton();
         bind(HealthCheckRegistry.class).asEagerSingleton();
 
-        Multibinder<Service> serviceBinder = Multibinder.newSetBinder(binder(), Service.class);
-        serviceBinder.addBinding().to(DiscoveryService.class);
-        serviceBinder.addBinding().to(StorageService.class);
-        serviceBinder.addBinding().to(SchedService.class);
-        serviceBinder.addBinding().to(MonitoringService.class);
-        serviceBinder.addBinding().to(RepositoryService.class);
-        
         // If someone changes CloudMessageService implementation, need to change to() method
         bind(CloudMessageService.class).to(CuratorMessageService.class);
+
+        // This order defines the injection order
+        Multibinder<Service> serviceBinder = Multibinder.newSetBinder(binder(), Service.class);
+
+        // 1st to be injected
+        serviceBinder.addBinding().to(RepositoryService.class);
+
+        // 2nd to be injected
+        serviceBinder.addBinding().to(DiscoveryService.class);
+
+        // 3rd to be injected
+        serviceBinder.addBinding().to(StorageService.class);
+
+        // 4th to be injected
+        serviceBinder.addBinding().to(SchedService.class);
+
+        // 5th to be injected
+        serviceBinder.addBinding().to(MonitoringService.class);
+
     }
 
 }

@@ -27,8 +27,6 @@ public class ServiceManager {
 
     private final CloudMessageService cms;
 
-    private final RepositoryService rs;
-
     private final RpcServer rpcServer;
 
     private final HttpServer httpServer;
@@ -37,9 +35,8 @@ public class ServiceManager {
     private MetricRegistry metricRegistry;
 
     @Inject
-    public ServiceManager(Set<Service> services, CloudMessageService cms, RepositoryService rs, RpcServer rpcServer, HttpServer httpServer) {
+    public ServiceManager(Set<Service> services, CloudMessageService cms, RpcServer rpcServer, HttpServer httpServer) {
         this.cms = cms;
-        this.rs = rs;
         this.rpcServer = rpcServer;
         this.httpServer = httpServer;
         this.services.addAll(services);
@@ -52,7 +49,14 @@ public class ServiceManager {
         LOGGER.info("Connected to ZooKeeper service on port 2181");
     }
 
-    public void createZnodeZK(String id) throws IOException, InterruptedException, KeeperException {
+    /**
+     * Creates BioNimbuZ structure as ZooKeeper nodes
+     *
+     * @throws IOException
+     * @throws InterruptedException
+     * @throws KeeperException
+     */
+    public void createZnodeZK() throws IOException, InterruptedException, KeeperException {
         //create root bionimbuz if does not exists
         if (!cms.getZNodeExist(Path.ROOT.getFullPath(), null)) {
             cms.createZNode(CreateMode.PERSISTENT, Path.ROOT.getFullPath(), "");
@@ -64,8 +68,7 @@ public class ServiceManager {
         }
 
         // add current instance as a peer
-        rs.addPeerToZookeeper(new PluginInfo(id));
-
+//        rs.addPeerToZookeeper(new PluginInfo(id));
         // create services repository node
         if (!cms.getZNodeExist(Path.SERVICES.getFullPath(), null)) {
             // create history root
@@ -81,7 +84,7 @@ public class ServiceManager {
         if (!cms.getZNodeExist(Path.USERS.getFullPath(), null)) {
             cms.createZNode(CreateMode.PERSISTENT, Path.USERS.getFullPath(), "");
         }
-        
+
         // Create /users/logged
         if (!cms.getZNodeExist(Path.USERS.getFullPath() + Path.LOGGED_USERS, null)) {
             cms.createZNode(CreateMode.PERSISTENT, Path.USERS.getFullPath() + Path.LOGGED_USERS, "");
@@ -124,12 +127,14 @@ public class ServiceManager {
             LOGGER.info("HTTP Server initialized on port 8181");
 
             connectZK(config.getZkHosts());
-            //limpando o servicor zookeeper caso não tenha peer on-line ao inciar servidor zooNimbus
+            
+            //limpando o servidor zookeeper caso não tenha peer on-line ao inciar servidor zooNimbus
             if (!config.isClient()) {
                 clearZookeeper();
             }
 
-            createZnodeZK(config.getId());
+            // Creates zookeeper structure
+            createZnodeZK();
 
             for (Service service : services) {
                 service.start(config, listeners);

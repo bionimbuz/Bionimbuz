@@ -197,6 +197,7 @@ public class CuratorMessageService implements CloudMessageService {
             }
         } catch (Exception ex) {
             LOGGER.error("[Exception] " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
@@ -215,6 +216,7 @@ public class CuratorMessageService implements CloudMessageService {
             s = client.checkExists().usingWatcher(watcher).forPath(path);
         } catch (Exception ex) {
             LOGGER.error("[Exception] " + ex.getMessage());
+            ex.printStackTrace();
         }
 
         return s != null;
