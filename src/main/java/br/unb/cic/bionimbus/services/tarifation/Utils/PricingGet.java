@@ -22,8 +22,12 @@ import org.json.JSONException;
 
 /**
  *
- * @author gabriel
+ * @author Gabriel Fritz Sluzala
  */
+
+/*
+    Implementação incompleta
+*/
 public class PricingGet {
     
     public static String pricingGet(String server, String address) {

@@ -18,6 +18,16 @@ public class AmazonDataTransfer {
     private String createdAt;
     private String updatedAt;
 
+    /**
+     *
+     * @param id
+     * @param region
+     * @param kind
+     * @param tier
+     * @param price
+     * @param createdAt
+     * @param updatedAt
+     */
     public AmazonDataTransfer(int id, String region, String kind, String tier, double price, String createdAt, String updatedAt) {
         this.id = id;
         this.region = region;
@@ -28,34 +38,66 @@ public class AmazonDataTransfer {
         this.updatedAt = updatedAt;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getRegion() {
         return region;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getKind() {
         return kind;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getTier() {
         return tier;
     }
 
+    /**
+     *
+     * @return
+     */
     public double getPrice() {
         return price;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getCreatedAt() {
         return createdAt;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getUpdatedAt() {
         return updatedAt;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public int hashCode() {
         int hash = 7;
@@ -63,6 +105,11 @@ public class AmazonDataTransfer {
         return hash;
     }
 
+    /**
+     *
+     * @param obj
+     * @return
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

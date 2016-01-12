@@ -1,9 +1,5 @@
 package br.unb.cic.bionimbus.services.tarifation.Amazon;
 
-/**
- *
- * @author Gabriel Fritz Sluzala
- */
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -28,7 +24,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/*Classe relacionada à atualização e obtenção de preços*/
+/**
+ * Classe AmazonTarifationGet, relacionada à atualização e obtenção de preços da Amazon.
+ * 
+ * @author Gabriel Fritz Sluzala
+ */
+
 public class AmazonTarifationGet {
 
     private Map<String, AmazonVirtualMachine> AmazonMachines;
@@ -36,12 +37,17 @@ public class AmazonTarifationGet {
     private Map<String, AmazonDataTransfer> AmazonDataTransferServices;
     private Map<String, String> config;
 
-    //Server: "info.awsstream.com"
-    //AddressOD: "/instances.json?"
-    //AddressStorage: "/storage.json?"
-    //AddressDataTransfer: "/transfer.json?"
-    /*Construtor utilizado no caso de atualização: Nessa situação, um GET é realizado para obtenção dos preços da AWS*/
+    /**
+     * Contrutor da classe
+     * 
+     * Server: "info.awsstream.com"
+     * AddressOD: "/instances.json?"
+     * AddressStorage: "/storage.json?"
+     * AddressDataTransfer: "/transfer.json?"
+     */
+    
     public AmazonTarifationGet() {
+        
 
         try {
             JSONArray pricingODArray;
@@ -225,116 +231,231 @@ public class AmazonTarifationGet {
         return (null);
     }
 
-    public double getInstancePrice(int id) {
+    /**
+     *
+     * @param id - ID of Amazon VM. 
+     * @return - Price of AmazonVirtualMachine with this ID
+     */
+    public double getVMPrice(int id) {
         String Id = "" + id;
         return this.AmazonMachines.get(Id).getHourly();
     }
 
-    public String getInstanceRegion(int id) {
+    /**
+     *
+     * @param id - ID of Amazon VM.
+     * @return - Region of Amazon VM.
+     */
+    public String getVMRegion(int id) {
         String Id = "" + id;
         return this.AmazonMachines.get(Id).getRegion();
     }
 
-    public String getInstancePricingType(int id) {
+    /**
+     *
+     * @param id - ID of Amazon VM.
+     * @return - Pricing type of Amazon VM.
+     */
+    public String getVMPricingType(int id) {
         String Id = "" + id;
         return this.AmazonMachines.get(Id).getPricing();
     }
 
-    public String getInstanceOs(int id) {
+    /**
+     *
+     * @param id - ID of Amazon VM.
+     * @return - OS of Amazon VM.
+     */
+    public String getVMOs(int id) {
         String Id = "" + id;
         return this.AmazonMachines.get(Id).getOs();
     }
 
-    public String getInstanceModel(int id) {
+    /**
+     *
+     * @param id - ID of Amazon VM.
+     * @return - Model of Amazon VM.
+     */
+    public String getVMModel(int id) {
         String Id = "" + id;
         return this.AmazonMachines.get(Id).getModel();
     }
 
-    public double getInstanceUpfront(int id) {
+    /**
+     *
+     * @param id - ID of Amazon VM.
+     * @return - Upfront of Amazon VM.
+     */
+    public double getVMUpfront(int id) {
         String Id = "" + id;
         return this.AmazonMachines.get(Id).getUpfront();
     }
 
-    public String getInstanceUpdatedAt(int id) {
+    /**
+     *
+     * @param id - ID of Amazon VM.
+     * @return - Date of info. update of Amazon VM.
+     */
+    public String getVMUpdatedAt(int id) {
         String Id = "" + id;
         return this.AmazonMachines.get(Id).getUpdated_at();
     }
 
-    public double getInstanceTerm(int id) {
+    /**
+     *
+     * @param id - ID of Amazon VM.
+     * @return - Term of Amazon VM.
+     */
+    public double getVMTerm(int id) {
         String Id = "" + id;
         return this.AmazonMachines.get(Id).getTerm();
     }
 
-    public String getInstanceCreatedAt(int id) {
+    /**
+     *
+     * @param id - ID of Amazon VM.
+     * @return - Date of info. creation of Amazon VM.
+     */
+    public String getVMCreatedAt(int id) {
         String Id = "" + id;
         return this.AmazonMachines.get(Id).getCreated_at();
     }
 
-    public boolean isInstanceLatest(int id) {
+    /**
+     *
+     * @param id - ID of Amazon VM.
+     * @return - If Amazon VM is latest.
+     */
+    public boolean isVMLatest(int id) {
         String Id = "" + id;
         return this.AmazonMachines.get(Id).isLatest();
     }
 
-    public boolean isInstanceEbsoptimized(int id) {
+    /**
+     *
+     * @param id - ID of Amazon VM.
+     * @return - If Amazon VM is Ebsoptimized.
+     */
+    public boolean isVMEbsoptimized(int id) {
         String Id = "" + id;
         return this.AmazonMachines.get(Id).isEbsoptimized();
     }
 
+    /**
+     *
+     * @param id - ID of Amazon Storage.
+     * @return - Region of AmazonStorage with this ID.
+     */
     public String getStorageRegion(int id) {
         String Id = "" + id;
         return this.AmazonStorageService.get(Id).getRegion();
     }
 
+    /**
+     *
+     * @param id - ID of Amazon Storage.
+     * @return - Date of info. creation of AmazonStorage with this ID.
+     */
     public String getStorageCreatedAt(int id) {
         String Id = "" + id;
         return this.AmazonStorageService.get(Id).getCreatedAt();
     }
 
+    /**
+     *
+     * @param id - ID of Amazon Storage.
+     * @return - Kind of AmazonStorage with this ID.
+     */
     public String getStorageKind(int id) {
         String Id = "" + id;
         return this.AmazonStorageService.get(Id).getKind();
     }
 
+    /**
+     *
+     * @param id - ID of Amazon Storage.
+     * @return - Price unit of AmazonStorage with this ID.
+     */
     public String getStoragePriceUnit(int id) {
         String Id = "" + id;
         return this.AmazonStorageService.get(Id).getPriceUnit();
     }
 
+    /**
+     *
+     * @param id - ID of Amazon Storage.
+     * @return - Date of update of AmazonStorage with this ID.
+     */
     public String getStorageUpdatedAt(int id) {
         String Id = "" + id;
         return this.AmazonStorageService.get(Id).getUpdatedAt();
     }
 
+    /**
+     *
+     * @param id - ID of Amazon Storage.
+     * @return - Price of AmazonStorage with this ID.
+     */
     public double getStoragePrice(int id) {
         String Id = "" + id;
         return this.AmazonStorageService.get(Id).getPrice();
     }
 
+    /**
+     *
+     * @param id - ID of Amazon DataTransfer.
+     * @return - Region of AmazonDataTransfer with this ID
+     */
     public String getDataTransferRegion(int id) {
         String Id = "" + id;
         return this.AmazonDataTransferServices.get(Id).getRegion();
     }
 
+    /**
+     *
+     * @param id - ID of Amazon DataTransfer.
+     * @return - Tier of AmazonDataTransfer with this ID
+     */
     public String getDataTransferTier(int id) {
         String Id = "" + id;
         return this.AmazonDataTransferServices.get(Id).getTier();
     }
 
+    /**
+     *
+     * @param id - ID of Amazon DataTransfer.
+     * @return - Date of update of AmazonDataTransfer with this ID
+     */
     public String getDataTransferUpdateAt(int id) {
         String Id = "" + id;
         return this.AmazonDataTransferServices.get(Id).getUpdatedAt();
     }
 
+    /**
+     *
+     * @param id - ID of Amazon DataTransfer.
+     * @return - Date of info. creation of AmazonDataTransfer with this ID
+     */
     public String getDataTransferCreatedAt(int id) {
         String Id = "" + id;
         return this.AmazonDataTransferServices.get(Id).getCreatedAt();
     }
 
+    /**
+     *
+     * @param id - ID of Amazon DataTransfer.
+     * @return - Kind of AmazonDataTransfer with this ID
+     */
     public String getDataTransferKind(int id) {
         String Id = "" + id;
         return this.AmazonDataTransferServices.get(Id).getKind();
     }
 
+    /**
+     *
+     * @param id - ID of Amazon DataTransfer
+     * @return - Price of AmazonDataTransfer with this ID
+     */
     public double getDataTransferPrice(int id) {
         String Id = "" + id;
         return this.AmazonDataTransferServices.get(Id).getPrice();

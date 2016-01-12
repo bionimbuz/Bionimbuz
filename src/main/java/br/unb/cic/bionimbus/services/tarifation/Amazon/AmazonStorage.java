@@ -7,7 +7,7 @@ package br.unb.cic.bionimbus.services.tarifation.Amazon;
 
 /**
  *
- * @author gabriel
+ * @author Gabriel Fritz Sluzala
  */
 public class AmazonStorage {
     private int id;
@@ -18,6 +18,16 @@ public class AmazonStorage {
     private String createdAt;
     private String updatedAt;
 
+    /**
+     *
+     * @param id
+     * @param region
+     * @param kind
+     * @param price
+     * @param PriceUnit
+     * @param createdAt
+     * @param updatedAt
+     */
     public AmazonStorage(int id, String region, String kind, double price, String PriceUnit, String createdAt, String updatedAt) {
         this.id = id;
         this.region = region;
@@ -28,34 +38,66 @@ public class AmazonStorage {
         this.updatedAt = updatedAt;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getRegion() {
         return region;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getKind() {
         return kind;
     }
 
+    /**
+     *
+     * @return
+     */
     public double getPrice() {
         return price;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getPriceUnit() {
         return PriceUnit;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getCreatedAt() {
         return createdAt;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getUpdatedAt() {
         return updatedAt;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public int hashCode() {
         int hash = 7;
@@ -63,6 +105,11 @@ public class AmazonStorage {
         return hash;
     }
 
+    /**
+     *
+     * @param obj
+     * @return
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
