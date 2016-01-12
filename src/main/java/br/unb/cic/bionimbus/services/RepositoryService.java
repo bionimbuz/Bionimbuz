@@ -16,11 +16,15 @@ import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.zookeeper.CreateMode;
@@ -36,6 +40,8 @@ import org.mortbay.log.Log;
  * Dados disponiveis atraves de metodos get
  */
 public class RepositoryService extends AbstractBioService {
+    
+    private static final int PERIOD_HOURS=12;
     
     public enum InstanceType {
         AMAZON_LARGE,
@@ -56,6 +62,8 @@ public class RepositoryService extends AbstractBioService {
 //        return Collections.unmodifiableList(null);
 //    }
     
+    //Método do Willian:
+    
     /**
      * Get instance cost from zookeeper cost
      *
@@ -64,7 +72,7 @@ public class RepositoryService extends AbstractBioService {
      * @param type type of instance (e.g. AMAZON_LARGE)
      * @return cost of the input type instance
      */
-    public double getInstanceCost(InstanceType type) {
+     public double getInstanceCost(InstanceType type) {
         switch(type) {
             case LABID_I7:
                 return 0.35d;
