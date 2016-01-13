@@ -59,10 +59,9 @@ public class BioNimbus {
 
         if (!config.isClient()) {
             LinuxGetInfo getinfo = new LinuxGetInfo();
+            
             PluginInfo infopc = getinfo.call();
-
             infopc.setId(config.getId());
-
             infopc.setHost(config.getHost());
             infopc.setPrivateCloud(config.getPrivateCloud());
 

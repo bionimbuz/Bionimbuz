@@ -48,11 +48,21 @@ public class ControllerModule extends AbstractModule {
 
         // Binds Services classes
         Multibinder<Service> serviceBinder = Multibinder.newSetBinder(binder(), Service.class);
-        serviceBinder.addBinding().to(DiscoveryService.class);
-        serviceBinder.addBinding().to(StorageService.class);
-        serviceBinder.addBinding().to(SchedService.class);
-        serviceBinder.addBinding().to(MonitoringService.class);
+
+        // 1st to be injected
         serviceBinder.addBinding().to(RepositoryService.class);
+
+        // 2nd to be injected
+        serviceBinder.addBinding().to(DiscoveryService.class);
+
+        // 3rd to be injected
+        serviceBinder.addBinding().to(StorageService.class);
+
+        // 4th to be injected
+        serviceBinder.addBinding().to(SchedService.class);
+
+        // 5th to be injected
+        serviceBinder.addBinding().to(MonitoringService.class);
     }
 
 }

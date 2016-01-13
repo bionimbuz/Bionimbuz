@@ -18,7 +18,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
     private final PluginService service;
     private final String path;
     private final CloudMessageService cms;
-    private final String PATHFILES="/data-folder/";
+    private final String PATHFILES="data-folder/";
     private static final Logger LOGGER = LoggerFactory.getLogger(PluginTaskRunner.class.getSimpleName());
 
 

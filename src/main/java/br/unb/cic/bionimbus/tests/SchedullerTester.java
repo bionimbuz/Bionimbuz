@@ -1,5 +1,6 @@
 package br.unb.cic.bionimbus.tests;
 
+import static br.unb.cic.bionimbus.BioNimbus.serviceInjector;
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.model.Job;
@@ -13,8 +14,11 @@ import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.services.RepositoryService;
+import br.unb.cic.bionimbus.services.ServiceManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -24,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
+import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.slf4j.Logger;
@@ -42,6 +47,7 @@ public class SchedullerTester {
     private BioNimbusConfig config;
     private CloudMessageService cms;
     private RepositoryService rs;
+    private static final Injector injector = Guice.createInjector(new TesterModule());
 
     public SchedullerTester() {
         initCommunication();
@@ -62,7 +68,8 @@ public class SchedullerTester {
         } catch (SocketException ex) {
             java.util.logging.Logger.getLogger(SchedullerTester.class.getName()).log(Level.SEVERE, null, ex);
         }
-        rs = new RepositoryService(cms);
+
+        rs = injector.getInstance(RepositoryService.class);
 
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
@@ -85,9 +92,24 @@ public class SchedullerTester {
 
     }
 
+    /**
+     * Trazer o código do CMS foi uma medida paleativa pois o client do Curator
+     * estava nulo
+     *
+     * @param services
+     */
     public void addServices(List<PluginService> services) {
         for (PluginService service : services) {
-            rs.addServiceToZookeeper(service);
+            // create father node
+            cms.createZNode(CreateMode.PERSISTENT, Path.NODE_SERVICE.getFullPath(String.valueOf(service.getId())), service.toString());
+
+            // create history structure
+            cms.createZNode(CreateMode.PERSISTENT, Path.MODES.getFullPath(String.valueOf(service.getId())), null);
+
+            // add preset mode if there is one
+            if (service.getPresetMode() != null) {
+                cms.createZNode(CreateMode.PERSISTENT, Path.NODE_MODES.getFullPath(String.valueOf(service.getId()), "0"), service.getPresetMode().toString());
+            }
         }
     }
 
