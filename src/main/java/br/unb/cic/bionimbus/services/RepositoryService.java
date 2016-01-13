@@ -36,13 +36,15 @@ import org.slf4j.LoggerFactory;
  *
  * Dados disponiveis atraves de metodos get
  */
+
 @Singleton
 public final class RepositoryService extends AbstractBioService {
 
     private static Logger LOGGER = LoggerFactory.getLogger(RepositoryService.class);
     private static final String SERVICES_DIR = "services";
     private final List<PluginService> supportedServices = new ArrayList<>();
-
+    private static final int PERIOD_HOURS=12;
+    
     public enum InstanceType {
         AMAZON_LARGE,
         PERSONAL,
@@ -153,6 +155,9 @@ public final class RepositoryService extends AbstractBioService {
         LOGGER.info("===============================================");
     }
 
+
+    //Método do Willian:
+ 
     /**
      * Get instance cost from zookeeper cost
      *
@@ -161,6 +166,7 @@ public final class RepositoryService extends AbstractBioService {
      * @param type type of instance (e.g. AMAZON_LARGE)
      * @return cost of the input type instance
      */
+
     public double getInstanceCost(InstanceType type) {
         switch (type) {
             case LABID_I7:

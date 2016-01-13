@@ -61,7 +61,6 @@ public class CuratorMessageService implements CloudMessageService {
      * Internal Enum that handles Paths for BioNimbuZ proccessing ZNodes
      */
     public enum Path {
-
         COUNT("/count"),
         END("/end"),
         FILES("/files"),
@@ -93,6 +92,7 @@ public class CuratorMessageService implements CloudMessageService {
         STATUSWAITING("/STATUSWAITING"),
         TASKS("/tasks"),
         USERS("/users");                // Vinicius dez/2015 > Root path for users
+
 
         private final String value;
 

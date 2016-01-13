@@ -1,4 +1,4 @@
-package br.unb.cic.bionimbus.toSort;
+package br.unb.cic.bionimbus.services;
 
 /**
  *
@@ -8,6 +8,8 @@ package br.unb.cic.bionimbus.toSort;
 
 /*Bibliotecas relacionadas às Exceptions e à manipulação de arquivos*/
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,6 +30,7 @@ public class AmazonPricingGet {
     
     /*pricing Array: ou apresenta a lista de preços, ou é null*/
     private JSONArray pricingArray=null;
+    Map<String,String> config;
    
     //Server: "info.awsstream.com"
     //Address: "/instances.json?"
@@ -35,9 +38,13 @@ public class AmazonPricingGet {
     public AmazonPricingGet (String Server, String address, String filename){
         
         try{
-            /*Obtenção dos preços usando pricingGET*/
+            
+            this.config = new HashMap<>();
+            this.config.put("Server", Server);
+            this.config.put("Address", address);
+            this.config.put("Filename", filename);
             System.out.println("Getting prices...");
-            String arrayString = this.pricingGET(Server, address);
+            String arrayString = this.pricingGET(this.config.get("Server"),this.config.get("Address"));
             System.out.println("Completed.");
             
             /*Caso não haja problemas na comunicação, arrayString é diferente de NULL*/
@@ -45,16 +52,16 @@ public class AmazonPricingGet {
                 
                 /*Realização da persistência dos preços, em TXT (por enquanto)*/
                 System.out.println("Saving prices..");
-                this.saveJsonArray(arrayString,filename);
+                this.saveJsonArray(arrayString,this.config.get("Filename"));
                 /*atribui a lista de preços à pricingArray*/
                 this.pricingArray = new JSONArray(arrayString);
                 System.out.println("Saved.");
             }
             else{
-                this.pricingArray = readJsonArray(filename);
+                this.pricingArray = readJsonArray(this.config.get("Filename"));
             }
         } catch (JSONException ex) {
-            Logger.getLogger(AmazonPricingGet.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex.getMessage());
         }
         
         finally{

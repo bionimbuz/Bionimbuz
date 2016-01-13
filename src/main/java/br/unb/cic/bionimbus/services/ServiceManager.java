@@ -2,7 +2,6 @@ package br.unb.cic.bionimbus.services;
 
 import br.unb.cic.bionimbus.avro.rpc.RpcServer;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
-import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.toSort.Listeners;
