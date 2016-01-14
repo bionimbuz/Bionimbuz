@@ -56,6 +56,8 @@ public class BioCirrusPolicy extends StoragePolicy {
             
             uptime = plugin.getUptime() / 3600000; //milis to hours
             latency = plugin.getLatency();
+          
+            plugin.setBandwidth(0.2D);
             bandwidth = plugin.getBandwidth();
             cost = latency/(peso_uptime*(10*Math.log10(uptime+0.1) +10) + (peso_bandwidth*bandwidth));
             cost = cost + peso_costs * costpergiga;
