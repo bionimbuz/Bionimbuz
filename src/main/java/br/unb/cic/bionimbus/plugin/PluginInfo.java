@@ -18,11 +18,13 @@
 */
 package br.unb.cic.bionimbus.plugin;
 
-import br.unb.cic.bionimbus.p2p.Host;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.codehaus.jackson.map.ObjectMapper;
+
+import br.unb.cic.bionimbus.p2p.Host;
 
 public class PluginInfo implements PluginOps {
 
@@ -68,6 +70,8 @@ public class PluginInfo implements PluginOps {
     private List<PluginService> services;
 
     private double costPerHour = Double.MAX_VALUE;
+    
+    private Double bandwidth;
 
     public PluginInfo() {
     }
@@ -270,6 +274,13 @@ public class PluginInfo implements PluginOps {
         return costPerHour;
     }
 
+    public Double getBandwidth() {
+		return bandwidth;
+	}
+    public void setBandwidth(Double bandwidth) {
+		this.bandwidth = bandwidth;
+	}
+    
     @Override
     public int hashCode() {
         return id.hashCode();
