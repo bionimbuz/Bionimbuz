@@ -50,8 +50,8 @@ public class SchedullerTester {
     private void initCommunication() {
         cms = new CuratorMessageService();
         try {
-            Enumeration<InetAddress> inet = NetworkInterface.getByName("wlan0").getInetAddresses();
-            String ip = "";
+            Enumeration<InetAddress> inet = NetworkInterface.getByName("eth0").getInetAddresses();
+            String ip = "1164.41.209.89";
             if (ip.equals(""))
                 while (inet.hasMoreElements())
                     ip = inet.nextElement().toString();

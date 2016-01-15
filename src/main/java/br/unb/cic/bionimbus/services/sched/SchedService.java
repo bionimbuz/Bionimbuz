@@ -65,6 +65,8 @@ public class SchedService extends AbstractBioService implements Runnable {
     private LinuxPlugin myLinuxPlugin;
     private SchedPolicy schedPolicy;
     
+    private boolean isClient = true;
+    
     @Inject
     public SchedService(final CloudMessageService cms, final RepositoryService rs) {
         Preconditions.checkNotNull(cms);
@@ -107,12 +109,16 @@ public class SchedService extends AbstractBioService implements Runnable {
     
     @Override
     public void start(BioNimbusConfig config, List<Listeners> listeners) {
+        
+        this.isClient = config.isClient();
         this.config = config;
         this.listeners = listeners;
 //        if (listeners != null) {
         listeners.add(this);
 //        }
         idPlugin = this.config.getId();
+        
+        
         
         getPolicy().setRs(rs);
         
@@ -770,7 +776,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                     
                     String datas;
                     //reconhece um alerta de um novo pipeline
-                    if (eventType.getPath().contains(Path.PIPELINES.toString())) {
+                    if (eventType.getPath().contains(Path.PIPELINES.toString()) && !isClient) {
                         System.out.println("[SchedService] Recebimento de um alerta para um pipeline, NodeChildrenChanged");
                         
                         // get all pipelines
