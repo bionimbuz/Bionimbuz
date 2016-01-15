@@ -21,8 +21,11 @@ import java.util.logging.Logger;
  * @author willian
  */
 public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
-
-    public FromMockFileTestGenerator() {
+    
+    private int numPipelines;
+    
+    public FromMockFileTestGenerator(int numPipelines) {
+        this.numPipelines = numPipelines;
         String pathHome = System.getProperty("user.dir");
         String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
         AESEncryptor aes = new AESEncryptor();          
@@ -50,71 +53,73 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
             Logger.getLogger(FromMockFileTestGenerator.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(path + "pipelineSample.txt"));
+        for (int ii=1; ii<=numPipelines; ii++) {
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(path + "pipelineSample" + ii + ".txt"));
 
-            // get first line: number of tasks
-            String line = br.readLine();
-            int tasksNumber = Integer.parseInt(line);
-            taskList = new JobInfo[tasksNumber];
+                // get first line: number of tasks
+                String line = br.readLine();
+                int tasksNumber = Integer.parseInt(line);
+                taskList = new JobInfo[tasksNumber];
 
-            // get next tasksNumber lines: each task
-            for (int i=0; i<tasksNumber; i++) {
-                // generate a new jobInfo from json
-                line = br.readLine();
-                JobInfo jobInfo = new JobInfo();
-                jobInfo.setTimestamp(0l);
+                // get next tasksNumber lines: each task
+                for (int i=0; i<tasksNumber; i++) {
+                    // generate a new jobInfo from json
+                    line = br.readLine();
+                    JobInfo jobInfo = new JobInfo();
+                    jobInfo.setTimestamp(0l);
 
-                // set serviceId from json
-                int lastComa = line.indexOf(",");
-                jobInfo.setServiceId(line.substring(line.indexOf("serviceId:")+10, lastComa));
+                    // set serviceId from json
+                    int lastComa = line.indexOf(",");
+                    jobInfo.setServiceId(line.substring(line.indexOf("serviceId:")+10, lastComa));
 
-                // set args from json
-                lastComa = line.indexOf(",", lastComa+1);
-                jobInfo.setArgs(line.substring(line.indexOf("args:")+5, lastComa));
+                    // set args from json
+                    lastComa = line.indexOf(",", lastComa+1);
+                    jobInfo.setArgs(line.substring(line.indexOf("args:")+5, lastComa));
 
-                // get input list from json
-                int lastBracket = line.indexOf("]");
-                String io = line.substring(line.indexOf("inputs:[")+8, lastBracket);
-                String inputs[] = io.split(",");
+                    // get input list from json
+                    int lastBracket = line.indexOf("]");
+                    String io = line.substring(line.indexOf("inputs:[")+8, lastBracket);
+                    String inputs[] = io.split(",");
 
-                // set inputs
-                // TODO: change addInput to receive the filename instead of its zookeeper id
-                for (String inp : inputs)
-                    jobInfo.addInput(inp, 0l);
+                    // set inputs
+                    // TODO: change addInput to receive the filename instead of its zookeeper id
+                    for (String inp : inputs)
+                        jobInfo.addInput(inp, 0l);
 
-                // get output list from json
-                lastBracket = line.indexOf("]", lastBracket+1);
-                io = line.substring(line.indexOf("outputs:[")+9, lastBracket);
-                String outputs[] = io.split(",");
+                    // get output list from json
+                    lastBracket = line.indexOf("]", lastBracket+1);
+                    io = line.substring(line.indexOf("outputs:[")+9, lastBracket);
+                    String outputs[] = io.split(",");
 
-                // set outputs
-                for (String out : outputs)
-                    jobInfo.addOutput(out);
+                    // set outputs
+                    for (String out : outputs)
+                        jobInfo.addOutput(out);
 
-                // put it into the map to, furthermore, set the dependencies
-                taskList[i] = jobInfo;
-            }
+                    // put it into the map to, furthermore, set the dependencies
+                    taskList[i] = jobInfo;
+                }
 
-            // get the remaining lines: dependency matrix
-            for (int i=0; i<tasksNumber; i++) {
-                String deps[] = br.readLine().split(",");
-                for (int j=0; j<tasksNumber; j++) {
-                    if (Integer.parseInt(deps[j]) == 1) {
-                        taskList[i].addDependency(taskList[j].getId());
+                // get the remaining lines: dependency matrix
+                for (int i=0; i<tasksNumber; i++) {
+                    String deps[] = br.readLine().split(",");
+                    for (int j=0; j<tasksNumber; j++) {
+                        if (Integer.parseInt(deps[j]) == 1) {
+                            taskList[i].addDependency(taskList[j].getId());
+                        }
                     }
                 }
+            } catch (Exception e) {
+                e.getMessage();
+                printStackTrace();
             }
-        } catch (Exception e) {
-            e.getMessage();
-            printStackTrace();
+
+            // push taskList to the pipelineTemplates
+            PipelineInfo p = new PipelineInfo(Arrays.asList(taskList));
+            System.out.println("[TestGen] taskList " + taskList.length);
+            System.out.println("[TestGen] pipeline " + p.getJobs().size());
+            pipelinesTemplates.add(p);
         }
-        
-        // push taskList to the pipelineTemplates
-        PipelineInfo p = new PipelineInfo(Arrays.asList(taskList));
-        System.out.println("[TestGen] taskList " + taskList.length);
-        System.out.println("[TestGen] pipeline " + p.getJobs().size());
-        pipelinesTemplates.add(p);
     }
     
     @Override
