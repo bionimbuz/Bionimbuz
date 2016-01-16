@@ -12,6 +12,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.services.storage.policy.StoragePolicy;
 
 public class BioCirrusPolicy extends StoragePolicy {
@@ -44,7 +45,7 @@ public class BioCirrusPolicy extends StoragePolicy {
         */
         
         for (PluginInfo plugin : pluginList) {
-            String datastring = cms.getData(cms.getPath().PREFIX_PEER.getFullPath(plugin.getId(), "", ""), null);
+            String datastring = cms.getData(cms.getPath().NODE_PEER.getFullPath(plugin.getId(), "", ""), null);
             try {
                 PluginInfo plugindata = new ObjectMapper().readValue(datastring, PluginInfo.class);
                 costpergiga = plugindata.getCostPerGiga();
@@ -61,7 +62,7 @@ public class BioCirrusPolicy extends StoragePolicy {
             * Seta o custo de armazenamento no peer
             */
             plugin.setStorageCost(cost);
-            cms.setData(plugin.getPath_zk(), plugin.toString());
+            cms.setData(Path.NODE_PEER.getFullPath(plugin.getId()), plugin.toString());
         }
         /*
         * Converte o tipo de list para facilitar o ordenamento dos dados

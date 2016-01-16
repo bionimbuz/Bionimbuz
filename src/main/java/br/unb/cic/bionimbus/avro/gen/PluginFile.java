@@ -7,11 +7,12 @@ package br.unb.cic.bionimbus.avro.gen;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class PluginFile extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"PluginFile\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"path\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"name\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"size\",\"type\":\"long\"},{\"name\":\"pluginId\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"PluginFile\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"path\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"name\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"hash\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"size\",\"type\":\"long\"},{\"name\":\"pluginId\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public java.lang.String id;
   @Deprecated public java.lang.String path;
   @Deprecated public java.lang.String name;
+  @Deprecated public java.lang.String hash;
   @Deprecated public long size;
   @Deprecated public java.util.List<java.lang.String> pluginId;
 
@@ -23,10 +24,11 @@ public class PluginFile extends org.apache.avro.specific.SpecificRecordBase impl
   /**
    * All-args constructor.
    */
-  public PluginFile(java.lang.String id, java.lang.String path, java.lang.String name, java.lang.Long size, java.util.List<java.lang.String> pluginId) {
+  public PluginFile(java.lang.String id, java.lang.String path, java.lang.String name, java.lang.String hash, java.lang.Long size, java.util.List<java.lang.String> pluginId) {
     this.id = id;
     this.path = path;
     this.name = name;
+    this.hash = hash;
     this.size = size;
     this.pluginId = pluginId;
   }
@@ -38,8 +40,9 @@ public class PluginFile extends org.apache.avro.specific.SpecificRecordBase impl
     case 0: return id;
     case 1: return path;
     case 2: return name;
-    case 3: return size;
-    case 4: return pluginId;
+    case 3: return hash;
+    case 4: return size;
+    case 5: return pluginId;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -50,8 +53,9 @@ public class PluginFile extends org.apache.avro.specific.SpecificRecordBase impl
     case 0: id = (java.lang.String)value$; break;
     case 1: path = (java.lang.String)value$; break;
     case 2: name = (java.lang.String)value$; break;
-    case 3: size = (java.lang.Long)value$; break;
-    case 4: pluginId = (java.util.List<java.lang.String>)value$; break;
+    case 3: hash = (java.lang.String)value$; break;
+    case 4: size = (java.lang.Long)value$; break;
+    case 5: pluginId = (java.util.List<java.lang.String>)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -99,6 +103,21 @@ public class PluginFile extends org.apache.avro.specific.SpecificRecordBase impl
    */
   public void setName(java.lang.String value) {
     this.name = value;
+  }
+
+  /**
+   * Gets the value of the 'hash' field.
+   */
+  public java.lang.String getHash() {
+    return hash;
+  }
+
+  /**
+   * Sets the value of the 'hash' field.
+   * @param value the value to set.
+   */
+  public void setHash(java.lang.String value) {
+    this.hash = value;
   }
 
   /**
@@ -155,6 +174,7 @@ public class PluginFile extends org.apache.avro.specific.SpecificRecordBase impl
     private java.lang.String id;
     private java.lang.String path;
     private java.lang.String name;
+    private java.lang.String hash;
     private long size;
     private java.util.List<java.lang.String> pluginId;
 
@@ -183,13 +203,17 @@ public class PluginFile extends org.apache.avro.specific.SpecificRecordBase impl
         this.name = data().deepCopy(fields()[2].schema(), other.name);
         fieldSetFlags()[2] = true;
       }
-      if (isValidValue(fields()[3], other.size)) {
-        this.size = data().deepCopy(fields()[3].schema(), other.size);
+      if (isValidValue(fields()[3], other.hash)) {
+        this.hash = data().deepCopy(fields()[3].schema(), other.hash);
         fieldSetFlags()[3] = true;
       }
-      if (isValidValue(fields()[4], other.pluginId)) {
-        this.pluginId = data().deepCopy(fields()[4].schema(), other.pluginId);
+      if (isValidValue(fields()[4], other.size)) {
+        this.size = data().deepCopy(fields()[4].schema(), other.size);
         fieldSetFlags()[4] = true;
+      }
+      if (isValidValue(fields()[5], other.pluginId)) {
+        this.pluginId = data().deepCopy(fields()[5].schema(), other.pluginId);
+        fieldSetFlags()[5] = true;
       }
     }
 
@@ -268,6 +292,31 @@ public class PluginFile extends org.apache.avro.specific.SpecificRecordBase impl
       return this;
     }
 
+    /** Gets the value of the 'hash' field */
+    public java.lang.String getHash() {
+      return hash;
+    }
+    
+    /** Sets the value of the 'hash' field */
+    public br.unb.cic.bionimbus.avro.gen.PluginFile.Builder setHash(java.lang.String value) {
+      validate(fields()[3], value);
+      this.hash = value;
+      fieldSetFlags()[3] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'hash' field has been set */
+    public boolean hasHash() {
+      return fieldSetFlags()[3];
+    }
+    
+    /** Clears the value of the 'hash' field */
+    public br.unb.cic.bionimbus.avro.gen.PluginFile.Builder clearHash() {
+      hash = null;
+      fieldSetFlags()[3] = false;
+      return this;
+    }
+
     /** Gets the value of the 'size' field */
     public java.lang.Long getSize() {
       return size;
@@ -275,20 +324,20 @@ public class PluginFile extends org.apache.avro.specific.SpecificRecordBase impl
     
     /** Sets the value of the 'size' field */
     public br.unb.cic.bionimbus.avro.gen.PluginFile.Builder setSize(long value) {
-      validate(fields()[3], value);
+      validate(fields()[4], value);
       this.size = value;
-      fieldSetFlags()[3] = true;
+      fieldSetFlags()[4] = true;
       return this; 
     }
     
     /** Checks whether the 'size' field has been set */
     public boolean hasSize() {
-      return fieldSetFlags()[3];
+      return fieldSetFlags()[4];
     }
     
     /** Clears the value of the 'size' field */
     public br.unb.cic.bionimbus.avro.gen.PluginFile.Builder clearSize() {
-      fieldSetFlags()[3] = false;
+      fieldSetFlags()[4] = false;
       return this;
     }
 
@@ -299,21 +348,21 @@ public class PluginFile extends org.apache.avro.specific.SpecificRecordBase impl
     
     /** Sets the value of the 'pluginId' field */
     public br.unb.cic.bionimbus.avro.gen.PluginFile.Builder setPluginId(java.util.List<java.lang.String> value) {
-      validate(fields()[4], value);
+      validate(fields()[5], value);
       this.pluginId = value;
-      fieldSetFlags()[4] = true;
+      fieldSetFlags()[5] = true;
       return this; 
     }
     
     /** Checks whether the 'pluginId' field has been set */
     public boolean hasPluginId() {
-      return fieldSetFlags()[4];
+      return fieldSetFlags()[5];
     }
     
     /** Clears the value of the 'pluginId' field */
     public br.unb.cic.bionimbus.avro.gen.PluginFile.Builder clearPluginId() {
       pluginId = null;
-      fieldSetFlags()[4] = false;
+      fieldSetFlags()[5] = false;
       return this;
     }
 
@@ -324,8 +373,9 @@ public class PluginFile extends org.apache.avro.specific.SpecificRecordBase impl
         record.id = fieldSetFlags()[0] ? this.id : (java.lang.String) defaultValue(fields()[0]);
         record.path = fieldSetFlags()[1] ? this.path : (java.lang.String) defaultValue(fields()[1]);
         record.name = fieldSetFlags()[2] ? this.name : (java.lang.String) defaultValue(fields()[2]);
-        record.size = fieldSetFlags()[3] ? this.size : (java.lang.Long) defaultValue(fields()[3]);
-        record.pluginId = fieldSetFlags()[4] ? this.pluginId : (java.util.List<java.lang.String>) defaultValue(fields()[4]);
+        record.hash = fieldSetFlags()[3] ? this.hash : (java.lang.String) defaultValue(fields()[3]);
+        record.size = fieldSetFlags()[4] ? this.size : (java.lang.Long) defaultValue(fields()[4]);
+        record.pluginId = fieldSetFlags()[5] ? this.pluginId : (java.util.List<java.lang.String>) defaultValue(fields()[5]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

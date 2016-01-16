@@ -1,0 +1,1 @@
+{"id": 1, "name": "s1", "arguments": ["args:%I1%O1"], "input": ["inp0"], "output": ["out1"], "info": "MOCK", "path": "./programs/s1.sh"}

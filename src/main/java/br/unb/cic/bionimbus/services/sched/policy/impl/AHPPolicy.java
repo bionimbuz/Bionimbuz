@@ -11,7 +11,6 @@ import br.unb.cic.bionimbus.client.JobInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskState;
-import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
 
@@ -27,7 +26,8 @@ public class AHPPolicy extends SchedPolicy {
     }
 
     @Override
-    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos) {
+    public HashMap<JobInfo, PluginInfo> schedule(List<JobInfo> jobs) {
+        List<JobInfo> jobInfos = jobs;
         if (jobInfos==null || jobInfos.isEmpty()) return null;
 
         HashMap<JobInfo, PluginInfo> jobMap = new HashMap<JobInfo, PluginInfo>();
@@ -276,7 +276,7 @@ public class AHPPolicy extends SchedPolicy {
         return resource;
     }
 
-    private List<PluginInfo> filterByService(long serviceId,
+    private List<PluginInfo> filterByService(String serviceId,
                                              Collection<PluginInfo> plgs) {
         ArrayList<PluginInfo> plugins = new ArrayList<PluginInfo>();
         for (PluginInfo pluginInfo : plgs) {
@@ -289,12 +289,6 @@ public class AHPPolicy extends SchedPolicy {
 
     public Matrix inducedMatrix(Matrix matrix, double n) {
         return matrix.arrayTimes(matrix).minus(matrix.times(n));
-    }
-
-    @Override
-    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, CloudMessageService cms) {
-        
-        return schedule(jobInfos);
     }
 
     @Override

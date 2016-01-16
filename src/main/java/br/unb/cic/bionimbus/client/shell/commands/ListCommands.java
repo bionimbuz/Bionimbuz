@@ -12,7 +12,6 @@ public class ListCommands implements Command {
         this.shell = shell;
     }
 
-
     @Override
     public String execute(String... params) throws Exception {
         StringBuilder sb = new StringBuilder();

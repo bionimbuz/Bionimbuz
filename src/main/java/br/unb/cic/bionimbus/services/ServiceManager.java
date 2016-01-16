@@ -2,9 +2,9 @@ package br.unb.cic.bionimbus.services;
 
 import br.unb.cic.bionimbus.avro.rpc.RpcServer;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
-import br.unb.cic.bionimbus.plugin.PluginTask;
+import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
-import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import com.codahale.metrics.MetricRegistry;
 import com.google.inject.Inject;
@@ -21,17 +21,9 @@ public class ServiceManager {
     
     private final Set<Service> services = new LinkedHashSet<Service> ();
     private final CloudMessageService cms;
+    private final RepositoryService rs;
     
     private final RpcServer rpcServer;
-    
-    private static final String ROOT_PEER = CuratorMessageService.Path.PEERS.toString();
-    
-    private static final String SEPARATOR = CuratorMessageService.Path.SEPARATOR.toString();
-    private static final String PREFIX_PEERS = ROOT_PEER+CuratorMessageService.Path.PREFIX_PEER.toString();
-    private static final String STATUS = CuratorMessageService.Path.STATUS.toString();
-    
-    private static final String ROOT_REPOSITORY = CuratorMessageService.Path.HISTORY.toString();
-    private static final String PREFIX_TASK = ROOT_REPOSITORY + CuratorMessageService.Path.PREFIX_TASK.toString();
     
     private final HttpServer httpServer;
     
@@ -39,8 +31,9 @@ public class ServiceManager {
     private MetricRegistry metricRegistry;
     
     @Inject
-    public ServiceManager(Set<Service> services, CloudMessageService cms, RpcServer rpcServer, HttpServer httpServer) {
+    public ServiceManager(Set<Service> services, CloudMessageService cms, RepositoryService rs, RpcServer rpcServer, HttpServer httpServer) {
         this.cms = cms;
+        this.rs = rs;
         this.rpcServer = rpcServer;
         this.httpServer = httpServer;
         
@@ -53,51 +46,46 @@ public class ServiceManager {
     }
     
     public void createZnodeZK(String id) throws IOException, InterruptedException, KeeperException {
+        //create root bionimbuz if does not exists
+        if (!cms.getZNodeExist(Path.ROOT.getFullPath(), null))
+            cms.createZNode(CreateMode.PERSISTENT, Path.ROOT.getFullPath(), "");
+        
         // create root peer node if does not exists
-        if (!cms.getZNodeExist(ROOT_PEER, false))
-            cms.createZNode(CreateMode.PERSISTENT, ROOT_PEER, "10");
+        if (!cms.getZNodeExist(Path.PEERS.getFullPath(), null))
+            cms.createZNode(CreateMode.PERSISTENT, Path.PEERS.getFullPath(), "");
         
         // add current instance as a peer
-        cms.createZNode(CreateMode.PERSISTENT, PREFIX_PEERS+id, null);
-        cms.createZNode(CreateMode.EPHEMERAL, PREFIX_PEERS+id+STATUS, null);
+        rs.addPeerToZookeeper(new PluginInfo(id));
         
-        // create history repository nodes
-        if(!cms.getZNodeExist(ROOT_REPOSITORY, false)) {
+        // create services repository node
+        if(!cms.getZNodeExist(Path.SERVICES.getFullPath(), null)) {
             // create history root
-            cms.createZNode(CreateMode.PERSISTENT, ROOT_REPOSITORY, "10");
-            
-            // insert all tasks
-//            for each task t
-//                PluginTask t = new PluginTask();
-//                cms.createZNode(CreateMode.PERSISTENT, PREFIX_TASK+t.getId(), null);
-//            endfor
+            cms.createZNode(CreateMode.PERSISTENT, Path.SERVICES.getFullPath(), "");
         }
         
-        
+        // create finished tasks node if it doesn't exists
+        if(!cms.getZNodeExist(Path.FINISHED_TASKS.getFullPath(), null)) {
+            cms.createZNode(CreateMode.PERSISTENT, Path.FINISHED_TASKS.getFullPath(), "");
+        }
     }
     
     /**
      * Responsável pela limpeza do servidor a cada nova conexão onde o todos os plug-ins havia ficado indisponíveis.
      */
     private void clearZookeeper(){
-        List<String> peers;
-        boolean existPeer=false;
         
-        if(cms.getZNodeExist(ROOT_PEER, false)){
-            peers = cms.getChildren(ROOT_PEER, null);
-            if(!(peers==null) && !peers.isEmpty()){
-                for(String peer : peers){
-                    if(cms.getZNodeExist(ROOT_PEER+SEPARATOR+peer+STATUS, false))
-                        return;
-                }
-                cms.delete(ROOT_PEER);
-                cms.delete(cms.getPath().PENDING_SAVE.toString());
-                cms.delete(cms.getPath().JOBS.toString());
-            }
-            if(!existPeer){
-                //apaga os znodes que haviam no servidor
-            }
-        }
+        if (cms.getZNodeExist(Path.ROOT.getFullPath(), null))
+            cms.delete(Path.ROOT.getFullPath());
+//        if (cms.getZNodeExist(Path.PIPELINES.getFullPath(), null))
+//            cms.delete(Path.PIPELINES.getFullPath());
+//        if (cms.getZNodeExist(Path.PENDING_SAVE.getFullPath(), null))
+//            cms.delete(Path.PENDING_SAVE.getFullPath());
+//        if (cms.getZNodeExist(Path.PEERS.getFullPath(), null))
+//            cms.delete(Path.PEERS.getFullPath());
+//        if (cms.getZNodeExist(Path.SERVICES.getFullPath(), null))
+//            cms.delete(Path.SERVICES.getFullPath());
+//        if (cms.getZNodeExist(Path.FINISHED_TASKS.getFullPath(), null))
+//            cms.delete(Path.FINISHED_TASKS.getFullPath());
     }
     
     public void register(Service service) {
@@ -110,7 +98,9 @@ public class ServiceManager {
             httpServer.start();
             connectZK(config.getZkHosts());
             //limpando o servicor zookeeper caso não tenha peer on-line ao inciar servidor zooNimbus
-            clearZookeeper();
+            if (!config.isClient())
+                clearZookeeper();
+            
             createZnodeZK(config.getId());
             
             for (Service service : services) {

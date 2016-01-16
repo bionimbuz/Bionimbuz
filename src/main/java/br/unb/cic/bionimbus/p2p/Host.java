@@ -29,7 +29,7 @@ public final class Host implements Comparable<Host> {
     }
 
     public Host(String address, int port) {
-        System.out.println("Host and Address configured to " + address + ":" + port);
+//        System.out.println("Host and Address configured to " + address + ":" + port);
         this.address = address.trim();
         this.port = port;
     }

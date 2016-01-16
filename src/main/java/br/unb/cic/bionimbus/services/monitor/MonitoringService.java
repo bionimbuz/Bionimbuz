@@ -7,6 +7,9 @@ import br.unb.cic.bionimbus.plugin.PluginTaskState;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
+import static br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path.STATUS;
+import static br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path.STATUSWAITING;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
@@ -36,13 +39,6 @@ public class MonitoringService extends AbstractBioService implements Runnable {
     private final List<String> waitingFiles = new ArrayList<String>();
     
     private final Collection<String> plugins = new ArrayList<String>();
-    private static final String ROOT_PEER = "/peers";
-    private static final String TASKS = "/tasks";
-    private static final String SCHED = "/sched";
-    private static final String STATUS = "/STATUS";
-    private static final String STATUSWAITING = "/STATUSWAITING";
-    private static final String SEPARATOR = "/";
-    private static final int PORT = 8080;
     
     @Inject
     public MonitoringService(final CloudMessageService cms) {
@@ -52,7 +48,7 @@ public class MonitoringService extends AbstractBioService implements Runnable {
     @Override
     public void run() {
         checkPeersStatus();
-        checkJobsTasks();
+        checkPipelines();
         checkPendingSave();
     }
     
@@ -93,7 +89,7 @@ public class MonitoringService extends AbstractBioService implements Runnable {
                     System.out.print(path + "= NodeCreated");
                     break;
                 case NodeChildrenChanged:
-                    if(eventType.getPath().equals(ROOT_PEER))
+                    if(eventType.getPath().equals(Path.PEERS.toString()))
                         if(plugins.size()<getPeers().size()){
                             verifyPlugins();
                         }
@@ -101,7 +97,7 @@ public class MonitoringService extends AbstractBioService implements Runnable {
                     break;
                 case NodeDeleted:
                     String peerPath = path.subSequence(0, path.indexOf("STATUS") - 1).toString();
-                    if (path.contains(STATUSWAITING)) {
+                    if (path.contains(Path.STATUSWAITING.toString())) {
                         deletePeer(peerPath);
                     }
                     break;
@@ -120,35 +116,36 @@ public class MonitoringService extends AbstractBioService implements Runnable {
         Collection<PluginInfo> temp  = getPeers().values();
         temp.removeAll(plugins);
         for(PluginInfo plugin : temp){
-            if(cms.getZNodeExist(cms.getPath().STATUS.getFullPath(plugin.getId(), null, null), false))
-                cms.getData(cms.getPath().STATUS.getFullPath(plugin.getId(), "", ""), new UpdatePeerData(cms, this));
+            if(cms.getZNodeExist(Path.STATUS.getFullPath(plugin.getId()), null))
+                cms.getData(Path.STATUS.getFullPath(plugin.getId()), new UpdatePeerData(cms, this));
         }
     }
     
     /**
-     * Verifica se os jobs que estava aguardando escalonamento e as tarefas que
+     * Verifica se os pipelines que estava aguardando escalonamento e as tarefas que
      * já foram escalonadas ainda estão com o mesmo status da última leitura.
      */
-    private void checkJobsTasks() {
-        try {
-            
-            for (String job : cms.getChildren(cms.getPath().JOBS.toString(), null)) {
-                //verifica se o job já estava na lista, recupera e lança novamente os dados para disparar watchers
-                if (waitingJobs.contains(job)) {
-                    String datas = cms.getData(cms.getPath().JOBS.toString() + SEPARATOR + job, null);
-                    // remove e cria task novamente para que os watchers sejam disparados e execute essa tarefa
-                    cms.delete(cms.getPath().JOBS.toString() + SEPARATOR + job);
-                    cms.createZNode(CreateMode.EPHEMERAL, cms.getPath().JOBS.toString() + SEPARATOR + job, datas);
-                    waitingJobs.remove(job);
-                } else {
-                    waitingJobs.add(job);
-                }
-                
-            }
+    private void checkPipelines() {
+        try {            
+            // Need to be adapted to pipeline arch
+//            for (String pipeline : cms.getChildren(Path.PIPELINES.toString(), null)) {
+//                //verifica se o pipeline possue jobs que já estavam na lista, recupera e lança novamente os dados para disparar watchers
+//                for (String job : cms.getChildren(Path.JOBS.getFullPath("", "", "", pipeline.substring(9)), null)) {
+//                    if (waitingJobs.contains(job)) {
+//                        String datas = cms.getData(Path.JOBS.toString() + SEPARATOR + job, null);
+//                        // remove e cria task novamente para que os watchers sejam disparados e execute essa tarefa
+//                        cms.delete(Path.JOBS.toString() + SEPARATOR + job);
+//                        cms.createZNode(CreateMode.EPHEMERAL, Path.JOBS.toString() + SEPARATOR + job, datas);
+//                        waitingJobs.remove(job);
+//                    } else {
+//                        waitingJobs.add(job);
+//                    }
+//                }
+//            }
             
             for (PluginInfo peer : getPeers().values()) {
-                for (String task : cms.getChildren(cms.getPath().TASKS.getFullPath(peer.getId(), "", ""), null)) {
-                    String datas =  cms.getData(cms.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())), null);
+                for (String task : cms.getChildren(Path.TASKS.getFullPath(peer.getId()), null)) {
+                    String datas =  cms.getData(Path.NODE_TASK.getFullPath(peer.getId(), task), null);
                     
                     if(datas!=null && datas.isEmpty()){
                         PluginTask pluginTask = new ObjectMapper().readValue(datas, PluginTask.class);
@@ -156,9 +153,9 @@ public class MonitoringService extends AbstractBioService implements Runnable {
                         if (pluginTask.getState() == PluginTaskState.PENDING) {
                             if (waitingTask.containsKey(task)) {
                                 //condição para verificar se a tarefa está sendo utilizada
-                                if(cms.getZNodeExist(cms.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())), false)){
-                                    cms.delete(cms.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())));
-                                    cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PREFIX_TASK.getFullPath(peer.getId(), "", task.substring(5, task.length())), pluginTask.toString());
+                                if(cms.getZNodeExist(Path.NODE_TASK.getFullPath(peer.getId(), task), null)){
+                                    cms.delete(Path.NODE_TASK.getFullPath(peer.getId(), task));
+                                    cms.createZNode(CreateMode.PERSISTENT, Path.NODE_TASK.getFullPath(peer.getId(), task), pluginTask.toString());
                                 }
                                 waitingJobs.remove(task);
                             } else {
@@ -182,18 +179,18 @@ public class MonitoringService extends AbstractBioService implements Runnable {
      */
     private void checkPeersStatus() {
         try {
-            List<String> listPeers = cms.getChildren(cms.getPath().PEERS.toString(), new UpdatePeerData(cms, this));
-            for (String peerPath : listPeers) {
+            List<String> listPeers = cms.getChildren(Path.PEERS.getFullPath(), new UpdatePeerData(cms, this));
+            for (String peerId : listPeers) {
 //                if(!plugins.contains(peerPath)){
 //                    plugins.add(peerPath);
 //                    RpcClient rpcClient = new AvroClient("http", plugin.getHost().getAddress(), PORT);
 //                    rpcClient.getProxy().setWatcher(plugin.getId());
 //                    rpcClient.close();
                 
-                if (cms.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, false)) {
+                if (cms.getZNodeExist(Path.STATUSWAITING.getFullPath(peerId), null)) {
                     //TO DO descomentar linha abaixo caso o storage estiver fazendo a recuperação do peer
-                    if (cms.getData(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, null).contains("S") && cms.getData(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, null).contains("E")) {
-                        deletePeer(ROOT_PEER + SEPARATOR + peerPath);
+                    if (cms.getData(Path.STATUSWAITING.getFullPath(peerId), null).contains("S") && cms.getData(Path.STATUSWAITING.getFullPath(peerId), null).contains("E")) {
+                        deletePeer(Path.NODE_PEER.getFullPath(peerId));
                     }
                 }
 //                }
@@ -212,11 +209,11 @@ public class MonitoringService extends AbstractBioService implements Runnable {
      */
     private void checkPendingSave(){
         try {
-            List<String> listPendingSaves= cms.getChildren(cms.getPath().PENDING_SAVE.getFullPath("", "", ""), null);
+            List<String> listPendingSaves= cms.getChildren(Path.PENDING_SAVE.getFullPath(), null);
             if(listPendingSaves!=null && !listPendingSaves.isEmpty()){
                 
                 for (String filePending : listPendingSaves) {
-                    String datas =  cms.getData(cms.getPath().PREFIX_PENDING_FILE.getFullPath("", filePending.substring(13, filePending.length()), ""), null);
+                    String datas =  cms.getData(Path.NODE_PENDING_FILE.getFullPath(filePending), null);
                     
                     if(datas!=null && datas.isEmpty()){
                         
@@ -224,9 +221,9 @@ public class MonitoringService extends AbstractBioService implements Runnable {
                         if (waitingFiles.contains(filePending)) {
                             PluginInfo pluginInfo = new ObjectMapper().readValue(datas, PluginInfo.class);
                             //condição para verificar se arquivo na pending ainda existe
-                            if(cms.getZNodeExist(cms.getPath().PENDING_SAVE.getFullPath("", filePending.substring(13, filePending.length()), ""), false)){
-                                cms.delete(cms.getPath().PENDING_SAVE.getFullPath("", filePending.substring(13, filePending.length()),""));
-                                cms.createZNode(CreateMode.PERSISTENT, cms.getPath().PENDING_SAVE.getFullPath("", filePending.substring(13, filePending.length()),""), pluginInfo.toString());
+                            if(cms.getZNodeExist(Path.PENDING_SAVE.getFullPath(filePending), null)){
+                                cms.delete(Path.PENDING_SAVE.getFullPath(filePending));
+                                cms.createZNode(CreateMode.PERSISTENT, Path.PENDING_SAVE.getFullPath(filePending), pluginInfo.toString());
                             }
                             waitingFiles.remove(filePending);
                         } else {
@@ -250,20 +247,20 @@ public class MonitoringService extends AbstractBioService implements Runnable {
     private void checkPeers() {
         try {
             //executa a verificação inicial para ver se os peers estão on-line, adiciona um watcher para avisar quando o peer ficar off-line
-            List<String> listPeers = cms.getChildren(ROOT_PEER, null);
-            for (String peerPath : listPeers) {
-                if (cms.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUS, false)) {
+            List<String> listPeers = cms.getChildren(Path.PEERS.getFullPath(), null);
+            for (String peerId : listPeers) {
+                if (cms.getZNodeExist(Path.STATUS.getFullPath(peerId), null)) {
                     //adicionando wacth
-                    cms.getData(ROOT_PEER + SEPARATOR + peerPath + STATUS, new UpdatePeerData(cms, this));
+                    cms.getData(Path.STATUS.getFullPath(peerId), new UpdatePeerData(cms, this));
                     
                 }
                 //verifica se algum plugin havia ficado off e não foi realizado sua recuperação
-                if (!cms.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUS, false)
-                        && !cms.getZNodeExist(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, false)) {
-                    cms.createZNode(CreateMode.PERSISTENT, ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, "");
-                    cms.getData(ROOT_PEER + SEPARATOR + peerPath + STATUSWAITING, new UpdatePeerData(cms, this));
+                if (!cms.getZNodeExist(Path.STATUS.getFullPath(peerId), null)
+                        && !cms.getZNodeExist(Path.STATUSWAITING.getFullPath(peerId), null)) {
+                    cms.createZNode(CreateMode.PERSISTENT, Path.STATUSWAITING.getFullPath(peerId), "");
+                    cms.getData(Path.STATUSWAITING.getFullPath(peerId), new UpdatePeerData(cms, this));
                 }
-                plugins.add(peerPath);
+                plugins.add(peerId);
             }
         } catch (Exception ex) {
             Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
@@ -272,7 +269,7 @@ public class MonitoringService extends AbstractBioService implements Runnable {
     }
     
     private void deletePeer(String peerPath) throws InterruptedException, KeeperException {
-        if (!cms.getZNodeExist(peerPath + STATUS, false) && cms.getZNodeExist(peerPath + STATUSWAITING, false)) {
+        if (!cms.getZNodeExist(peerPath + STATUS, null) && cms.getZNodeExist(peerPath + STATUSWAITING, null)) {
             cms.delete(peerPath);
         }
     }

@@ -1,6 +1,8 @@
 package br.unb.cic.bionimbus.plugin;
 
+import br.unb.cic.bionimbus.security.AESEncryptor;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.List;
@@ -12,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 public class PluginTaskRunner implements Callable<PluginTask> {
 
-    private final AbstractPlugin plugin;
     private final PluginTask task;
     private final PluginService service;
     private final String path;
@@ -23,7 +24,6 @@ public class PluginTaskRunner implements Callable<PluginTask> {
 
     public PluginTaskRunner(AbstractPlugin plugin, PluginTask task,
                             PluginService service, String path,CloudMessageService cms) {
-        this.plugin = plugin;
         this.service = service;
         this.task = task;
         this.path = path;
@@ -33,14 +33,14 @@ public class PluginTaskRunner implements Callable<PluginTask> {
     
     @Override
     public PluginTask call() throws Exception {
-
+        
         String args = task.getJobInfo().getArgs();
-        List<Pair<String, Long>> inputs = task.getJobInfo().getInputs();
+        List<Pair<String, Long>> inputs = task.getJobInfo().getInputs();        
         int i = 1;
         for (Pair<String, Long> pair : inputs) {
             String input = pair.first;
             //linha comentada pois arquivos de entrada não ficam mais no AbstractPlugin
-//            args = args.replaceFirst("%I" + i, path + File.pathSeparator + plugin.getInputFiles().get(input).first);
+            //args = args.replaceFirst("%I" + i, path + File.pathSeparator + plugin.getInputFiles().get(input).first);
             args = args.replaceFirst("%I" + i, path+PATHFILES + input+" ");
             i++;
         }
@@ -51,15 +51,16 @@ public class PluginTaskRunner implements Callable<PluginTask> {
             args = args.replaceFirst("%O" + i, " "+path+PATHFILES + output);
             i++;
         }
-        Process p = null;
+        Process p;
         try {
+            System.out.println("[PluginTaskRunner] exec: " + service.getPath() + " " + args);
             p = Runtime.getRuntime().exec(service.getPath() + " " + args);
 //                        p = Runtime.getRuntime().exec(path+service.getPath().substring(1,service.getPath().length()) + " " + args);
 
             task.setState(PluginTaskState.RUNNING);
            
             if(cms!=null)
-                cms.setData(task.getPluginTaskPathZk(), task.toString());
+                cms.setData(Path.NODE_TASK.getFullPath(task.getPluginExec(), task.getJobInfo().getId()), task.toString());
             
             BufferedReader saidaSucesso = new BufferedReader(new InputStreamReader(p.getInputStream()));
             BufferedReader saidaErro = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -87,7 +88,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
             }   
 
             if(cms!=null)
-                cms.setData(task.getPluginTaskPathZk(), task.toString());
+                cms.setData(Path.NODE_TASK.getFullPath(task.getPluginExec(), task.getJobInfo().getId()), task.toString());
 
         } catch (Exception e) {
             e.printStackTrace();

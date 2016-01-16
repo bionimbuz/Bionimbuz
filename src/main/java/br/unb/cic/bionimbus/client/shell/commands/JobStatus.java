@@ -23,7 +23,8 @@ public class JobStatus implements Command {
         if(params[0].equalsIgnoreCase("all")){
             return rpc.statusAllJob();
         }else{
-            return rpc.statusJob(params[0]);
+//            return rpc.statusJob(params[0]);
+            throw new UnsupportedOperationException();
         }
         
         

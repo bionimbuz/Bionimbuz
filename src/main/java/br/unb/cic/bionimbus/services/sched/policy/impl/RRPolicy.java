@@ -8,7 +8,6 @@ import java.util.List;
 import br.unb.cic.bionimbus.client.JobInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
-import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.sched.SchedException;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
@@ -26,17 +25,17 @@ public class RRPolicy extends SchedPolicy {
     public PluginInfo scheduleJob(JobInfo jobInfo) {
         List<PluginInfo> plugins = filterByService(jobInfo.getServiceId(), filterByUsed());
         jobInfo.setTimestamp(System.currentTimeMillis());
-        if (plugins.size() == 0) {
+        if (plugins.isEmpty()) {
             return null;
         }
         return plugins.get(0);
     }
 
     @Override
-    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos) {
+    public HashMap<JobInfo, PluginInfo> schedule(List<JobInfo> jobs) {
         HashMap<JobInfo, PluginInfo> schedMap = new HashMap<JobInfo, PluginInfo>();
 
-        for (JobInfo jobInfo : jobInfos) {
+        for (JobInfo jobInfo : jobs) {
             jobInfo.setTimestamp(System.currentTimeMillis());
             PluginInfo resource = this.scheduleJob(jobInfo);
             schedMap.put(jobInfo, resource);
@@ -47,7 +46,7 @@ public class RRPolicy extends SchedPolicy {
         return schedMap;
     }
 
-    private List<PluginInfo> filterByService(long serviceId, List<PluginInfo> plgs) {
+    private List<PluginInfo> filterByService(String serviceId, List<PluginInfo> plgs) {
         ArrayList<PluginInfo> plugins = new ArrayList<PluginInfo>();
         for (PluginInfo pluginInfo : plgs) {
             if (pluginInfo.getService(serviceId) != null)
@@ -64,7 +63,7 @@ public class RRPolicy extends SchedPolicy {
                 plugins.add(pluginInfo);
         }
 
-        if (plugins.size() == 0) {
+        if (plugins.isEmpty()) {
             usedResources.clear();
             return new ArrayList<PluginInfo>(getCloudMap().values());
         }
@@ -91,11 +90,6 @@ public class RRPolicy extends SchedPolicy {
 
     }
 
-    @Override
-    public HashMap<JobInfo, PluginInfo> schedule(Collection<JobInfo> jobInfos, CloudMessageService cms) {
-        return schedule(jobInfos);
-    }
-    
     @Override
     public String getPolicyName() {
         return "Name: "+ RRPolicy.class.getSimpleName()+" - Número: 2";

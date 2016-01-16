@@ -3,25 +3,40 @@ package br.unb.cic.bionimbus.plugin;
 import java.util.List;
 
 import com.google.common.primitives.Longs;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
 
 public class PluginService {
 
-    private long id;
+    private String id;
+    private String path;
+    private Double presetMode = null;
+    
+    // NOT USED
     private String name;
     private List<String> arguments;
     private List<String> input;
     private List<String> output;
     private String info;
-    private String path;
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
+    
+    public Double getPresetMode() {
+        return presetMode;
+    }
 
+    public void setPresetMode(Double presetMode) {
+        this.presetMode = presetMode;
+    }
+    
+    // NOT USED
     public String getName() {
         return name;
     }
@@ -29,7 +44,8 @@ public class PluginService {
     public void setName(String name) {
         this.name = name;
     }
-
+    
+    // NOT USED
     public List<String> getArguments() {
         return arguments;
     }
@@ -37,7 +53,8 @@ public class PluginService {
     public void setArguments(List<String> arguments) {
         this.arguments = arguments;
     }
-
+    
+    // NOT USED
     public List<String> getInput() {
         return input;
     }
@@ -45,7 +62,8 @@ public class PluginService {
     public void setInput(List<String> input) {
         this.input = input;
     }
-
+    
+    // NOT USED
     public List<String> getOutput() {
         return output;
     }
@@ -53,7 +71,8 @@ public class PluginService {
     public void setOutput(List<String> output) {
         this.output = output;
     }
-
+    
+    // NOT USED
     public String getInfo() {
         return info;
     }
@@ -69,7 +88,7 @@ public class PluginService {
     public void setPath(String path) {
         this.path = path;
     }
-
+    
     @Override
     public boolean equals(Object object) {
         if (this == object)
@@ -83,13 +102,16 @@ public class PluginService {
 
     @Override
     public int hashCode() {
-        return Longs.hashCode(id);
+        return Longs.hashCode(Integer.parseInt(id));
     }
 
     @Override
     public String toString() {
-//        return Objects.toStringHelper(PluginService.class).add("id", id)
-//                .add("name", name).toString();
-        return "Id: "+id+",  Name: "+name+",  Info: "+info;
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (Exception ex) {
+            Logger.getLogger(PluginService.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+        return null;
     }
 }

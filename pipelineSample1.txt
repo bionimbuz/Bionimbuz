@@ -1,0 +1,7 @@
+3
+{serviceId:1, args:%I1%O1, inputs:[s1.fa], outputs:[out1.sam]}
+{serviceId:2, args:%I1%O1, inputs:[out1.sam], outputs:[out2.bed]}
+{serviceId:3, args:%I110000%O1, inputs:[out2.bed], outputs:[out3.out]}
+0,0,0,0
+1,0,0,0
+0,1,0,0
