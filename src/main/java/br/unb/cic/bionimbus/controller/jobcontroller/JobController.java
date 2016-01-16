@@ -7,10 +7,13 @@ import br.unb.cic.bionimbus.controller.Controller;
 import br.unb.cic.bionimbus.model.FileInfo;
 import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.model.Workflow;
+import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
+import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.services.RepositoryService;
 import br.unb.cic.bionimbus.services.Service;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -21,7 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import org.apache.zookeeper.WatchedEvent;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +37,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author Vinicius
  */
-
-
 @Singleton
 public class JobController implements Controller, Runnable {
 
@@ -208,8 +211,30 @@ public class JobController implements Controller, Runnable {
         return this.config;
     }
 
-    
     public RepositoryService getRepositoryService() {
         return this.repositoryService;
+    }
+
+    public List<PluginService> getSupportedServices() {
+        ArrayList<PluginService> services = new ArrayList<>();
+        
+        if (cms.getZNodeExist(CuratorMessageService.Path.SERVICES.getFullPath(), null)) {
+
+            List<String> children = cms.getChildren(CuratorMessageService.Path.SERVICES.getFullPath(), null);
+
+            try {
+                for (String s : children) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    PluginService service = mapper.readValue(cms.getData(CuratorMessageService.Path.NODE_SERVICE.getFullPath(s), null), PluginService.class);
+                    services.add(service);
+                }
+            } catch (IOException ex) {
+                LOGGER.error("[IOException] " + ex.getMessage());
+            }
+
+            return services;
+        }
+
+        return null;
     }
 }

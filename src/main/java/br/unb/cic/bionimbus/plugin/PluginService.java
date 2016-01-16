@@ -10,14 +10,20 @@ import org.codehaus.jackson.map.ObjectMapper;
 public class PluginService {
 
     private String id;
+
     private String path;
+
     private Double presetMode = null;
 
     // NOT USED
     private String name;
+
     private List<String> arguments;
+
     private List<String> input;
+
     private List<String> output;
+
     private String info;
 
     public String getId() {
@@ -99,7 +105,7 @@ public class PluginService {
         }
 
         PluginService other = (PluginService) object;
-        return id == other.id;
+        return id.equals(other.getId());
     }
 
     @Override

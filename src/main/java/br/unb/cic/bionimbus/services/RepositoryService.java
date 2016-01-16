@@ -44,6 +44,7 @@ public final class RepositoryService extends AbstractBioService {
     private final List<PluginService> supportedServices = new ArrayList<>();
 
     public enum InstanceType {
+
         AMAZON_LARGE,
         PERSONAL,
         LABID_I7
