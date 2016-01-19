@@ -6,6 +6,8 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Classe com os metodos para a realização de um upload na federação
@@ -13,6 +15,8 @@ import com.jcraft.jsch.SftpException;
  * @author Deric
  */
 public class Put {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Put.class);
 
     private JSch jsch = new JSch();
     private Session session = null;
@@ -43,16 +47,15 @@ public class Put {
      */
     public boolean startSession() throws JSchException, SftpException {
         String pathDest = "/home/zoonimbus/zoonimbusProject/data-folder/";
-        try {
 
+        try {
             session = jsch.getSession(USER, address, PORT);
             session.setConfig("StrictHostKeyChecking", "no");
             session.setPassword(PASSW);
             session.connect();
         } catch (JSchException e) {
-            e.getCause();
-            e.printStackTrace();
-            
+            LOGGER.error("[JSchException] - " + e.getMessage());
+
             return false;
         }
 
@@ -66,7 +69,9 @@ public class Put {
              * Por questões de segurança, talvez isso deva ser repensado futuramente.
              */
             //sftpChannel.chmod(777, path);
-            System.out.println("\n Uploading file.....\n\n\n");
+
+            LOGGER.info("Uploading file via SFTP");
+            
             sftpChannel.put(path, pathDest);
             sftpChannel.exit();
             session.disconnect();
