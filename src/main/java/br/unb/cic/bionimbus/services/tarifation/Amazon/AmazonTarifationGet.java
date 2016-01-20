@@ -1,5 +1,6 @@
 package br.unb.cic.bionimbus.services.tarifation.Amazon;
 
+import br.unb.cic.bionimbus.services.tarifation.Utils.PricingGet;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -61,11 +62,11 @@ public class AmazonTarifationGet {
             this.config.put("AddressDataTransfer", "/transfer.json?");
             this.config.put("FilenameDataTransfer", "AmazonDataTransfer.txt");
             System.out.println("Getting prices On Demand...");
-            String arrayODString = this.pricingGET(this.config.get("Server"), this.config.get("AddressOD"));
+            String arrayODString = PricingGet.get(this.config.get("Server"), this.config.get("AddressOD"));
             System.out.println("Getting Storage prices...");
-            String arrayStorageString = this.pricingGET(this.config.get("Server"), this.config.get("AddressStorage"));
+            String arrayStorageString = PricingGet.get(this.config.get("Server"), this.config.get("AddressStorage"));
             System.out.println("Getting Data Transfer prices...");
-            String arrayDataTransferString = this.pricingGET(this.config.get("Server"), this.config.get("AddressDataTransfer"));
+            String arrayDataTransferString = PricingGet.get(this.config.get("Server"), this.config.get("AddressDataTransfer"));
             System.out.println("Completed.");
             if (arrayODString != null) {
                 System.out.println("Saving prices On Demand...");
@@ -130,7 +131,8 @@ public class AmazonTarifationGet {
             this.AmazonStorageService.put("" + obj.getInt("id"), as);
         }
     }
-
+    
+    /*pricingGET DEPRECATED*/
     private String pricingGET(String server, String address) {
 
         CloseableHttpClient httpClient = HttpClients.createDefault();

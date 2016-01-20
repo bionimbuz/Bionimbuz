@@ -5,7 +5,6 @@
  */
 package br.unb.cic.bionimbus.services.tarifation.Utils;
 
-import br.unb.cic.bionimbus.services.tarifation.Amazon.AmazonTarifationGet;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,7 +29,7 @@ import org.json.JSONException;
 */
 public class PricingGet {
     
-    public static String pricingGet(String server, String address) {
+    public static String get(String server, String address) {
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
 
@@ -66,13 +65,13 @@ public class PricingGet {
                 return (null);
             }
         } /*Catch exception, if problems occur with the request*/ catch (IOException | JSONException ex) {
-            Logger.getLogger(AmazonTarifationGet.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PricingGet.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
 
             try {
                 httpClient.close();//Close the connection
             } catch (IOException ex) {
-                Logger.getLogger(AmazonTarifationGet.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(PricingGet.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
