@@ -1,6 +1,4 @@
-{serviceId:1, path:~/programs/s1.sh, mode:1296000000000000}
-{serviceId:2, path:~/programs/s2.sh, mode:518400000000000}
-{serviceId:3, path:~/programs/s3.sh, mode:216000000000000}
-{serviceId:4, path:~/programs/s4.sh, mode:140400000000000}
-{serviceId:5, path:~/programs/s5.sh, mode:21600000000000}
-{serviceId:6, path:~/programs/s6.sh, mode:2332800000000000}
+{serviceId:1, path:~/programs/bowtie.sh, mode:176800000000}
+{serviceId:2, path:~/programs/sam2bed.sh, mode:850000000}
+{serviceId:3, path:~/programs/genome2interval.sh, mode:2040000000000}
+{serviceId:4, path:~/programs/coverageBed.sh, mode:6800000000}

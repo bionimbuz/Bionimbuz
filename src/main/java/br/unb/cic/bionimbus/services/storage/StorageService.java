@@ -18,33 +18,6 @@
 */
 package br.unb.cic.bionimbus.services.storage;
 
-import br.unb.cic.bionimbus.avro.gen.FileInfo;
-import br.unb.cic.bionimbus.avro.gen.NodeInfo;
-import br.unb.cic.bionimbus.avro.rpc.AvroClient;
-import br.unb.cic.bionimbus.avro.rpc.RpcClient;
-import br.unb.cic.bionimbus.config.BioNimbusConfig;
-import br.unb.cic.bionimbus.plugin.PluginFile;
-import br.unb.cic.bionimbus.plugin.PluginInfo;
-import br.unb.cic.bionimbus.security.Hash;
-import br.unb.cic.bionimbus.security.Integrity;
-import br.unb.cic.bionimbus.services.AbstractBioService;
-import br.unb.cic.bionimbus.services.UpdatePeerData;
-import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
-import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
-import br.unb.cic.bionimbus.services.sched.SchedService;
-import br.unb.cic.bionimbus.services.storage.policy.StoragePolicy;
-import br.unb.cic.bionimbus.services.storage.policy.impl.BioCirrusPolicy;
-import br.unb.cic.bionimbus.toSort.Listeners;
-import br.unb.cic.bionimbus.utils.Nmap;
-import br.unb.cic.bionimbus.utils.Put;
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.google.common.base.Preconditions;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.SftpException;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -68,6 +41,32 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.codehaus.jackson.map.ObjectMapper;
+
+import br.unb.cic.bionimbus.avro.gen.FileInfo;
+import br.unb.cic.bionimbus.avro.gen.NodeInfo;
+import br.unb.cic.bionimbus.avro.rpc.AvroClient;
+import br.unb.cic.bionimbus.avro.rpc.RpcClient;
+import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import br.unb.cic.bionimbus.plugin.PluginFile;
+import br.unb.cic.bionimbus.plugin.PluginInfo;
+import br.unb.cic.bionimbus.security.Hash;
+import br.unb.cic.bionimbus.security.Integrity;
+import br.unb.cic.bionimbus.services.AbstractBioService;
+import br.unb.cic.bionimbus.services.UpdatePeerData;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
+import br.unb.cic.bionimbus.services.sched.SchedService;
+import br.unb.cic.bionimbus.services.storage.policy.StoragePolicy;
+import br.unb.cic.bionimbus.services.storage.policy.impl.BioCirrusPolicy;
+import br.unb.cic.bionimbus.toSort.Listeners;
+import br.unb.cic.bionimbus.utils.Nmap;
+import br.unb.cic.bionimbus.utils.Put;
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.SftpException;
 
 @Singleton
 public class StorageService extends AbstractBioService {
@@ -180,7 +179,7 @@ public class StorageService extends AbstractBioService {
 
                     pluginFile.setPluginId(listIds);
                     pluginFile.setSize(file.length());
-                    pluginFile.setHash(Hash.calculateSha3(file.getPath()));
+//                    pluginFile.setHash(Hash.calculateSha3(file.getPath()));
                     //cria um novo znode para o arquivo e adiciona o watcher
                     cms.createZNode(CreateMode.PERSISTENT, Path.NODE_FILE.getFullPath(config.getId(), pluginFile.getId()), pluginFile.toString());
                     cms.getData(Path.NODE_FILE.getFullPath(config.getId(), pluginFile.getId()), new UpdatePeerData(cms, this));
@@ -255,7 +254,7 @@ public class StorageService extends AbstractBioService {
         checkFiles();
 
         for (PluginInfo plugin : getPeers().values()) {
-            listFiles = new ArrayList<String>();
+            listFiles = new ArrayList<>();
             for (String file : cms.getChildren(Path.FILES.getFullPath(plugin.getId()), new UpdatePeerData(cms, this))) {
                 listFiles.add(file);
             }
@@ -296,7 +295,7 @@ public class StorageService extends AbstractBioService {
     /**
      * Retorna o tamanho do arquivo, dado o nome do mesmo.
      * NOTE: listFiles never used. Revise this code.
-     *
+     * Refactor message of integrity verification
      * @param file O nome do arquivo
      * @return O tamanho do arquivo
      */

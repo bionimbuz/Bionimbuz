@@ -57,14 +57,11 @@ public class SchedullerTester {
         cms = new CuratorMessageService();
         try {
             Enumeration<InetAddress> inet = NetworkInterface.getByName("eth0").getInetAddresses();
-            String ip = "164.41.209.89";
-//            if (ip.equals("")) {
-//                while (inet.hasMoreElements()) {
-//                    ip = inet.nextElement().toString();
-//                }
-//            }
-
-            cms.connect(ip + ":2181");
+            String ip = "1164.41.209.89";
+            if (ip.equals(""))
+                while (inet.hasMoreElements())
+                    ip = inet.nextElement().toString();
+            cms.connect(ip.substring(1)+":2181");
         } catch (SocketException ex) {
             java.util.logging.Logger.getLogger(SchedullerTester.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -223,11 +220,11 @@ public class SchedullerTester {
     public static void main(String[] args) throws InterruptedException, IOException {
         SchedullerTester tester = new SchedullerTester();
         boolean fileTest = false;
-
-        FromMockFileTestGenerator gen = new FromMockFileTestGenerator();
+        FromMockFileTestGenerator gen = new FromMockFileTestGenerator(3);
         List<Workflow> pipelines = gen.getPipelinesTemplates();
+
         List<PluginService> services = gen.getServicesTemplates();
-        List<PluginInfo> resources = gen.getResourceTemplates();
+//        List<PluginInfo> resources = gen.getResourceTemplates();
 
         // flush test data
 //            System.out.println("[SchedTester] flushing test data");
@@ -265,5 +262,6 @@ public class SchedullerTester {
         System.out.println("[SchedTester] waiting forever");
         while (true) {
         }
+
     }
 }

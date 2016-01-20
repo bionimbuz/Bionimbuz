@@ -39,19 +39,19 @@ import br.unb.cic.bionimbus.services.storage.policy.StoragePolicy;
 
 public class ZooClouSPolicy extends StoragePolicy{	
     
-    private double peso_latency = 0.5;
-    private double peso_space = 0.2;
-    private double peso_uptime = 0.3;
-    private List<NodeInfo> nodes = new ArrayList<NodeInfo>();
-    Collection<PluginInfo> best = new ArrayList<PluginInfo>();
+    private final double peso_latency = 0.5;
+    private final double peso_space = 0.2;
+    private final double peso_uptime = 0.3;
+    private final List<NodeInfo> nodes = new ArrayList<>();
+    Collection<PluginInfo> best = new ArrayList<>();
 	
-	/**
+    /**
      * Calcular o custo de armazenamento de uma nuvem //ta passando so 1 plugin
-     *
-     * @param zkService
+     * @param cms
      * @param pluginList
-     * @return
+     * @return 
      */
+    @Override
     public List<NodeInfo> calcBestCost(CloudMessageService cms, Collection<PluginInfo> pluginList) {
 
         double cost;
@@ -64,7 +64,7 @@ public class ZooClouSPolicy extends StoragePolicy{
         * Custo = (Espaço livre + Uptime) * Latencia
          */
         for (PluginInfo plugin : pluginList) {
-            String datastring = cms.getData(cms.getPath().NODE_PEER.getFullPath(plugin.getId()), null);
+            String datastring = cms.getData(Path.NODE_PEER.getFullPath(plugin.getId()), null);
             try {
                 PluginInfo plugindata = new ObjectMapper().readValue(datastring, PluginInfo.class);
                 costpergiga = plugindata.getCostPerGiga();

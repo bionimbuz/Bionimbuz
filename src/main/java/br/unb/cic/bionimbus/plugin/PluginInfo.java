@@ -273,13 +273,13 @@ public class PluginInfo implements PluginOps {
     public double getCostPerHour() {
         return costPerHour;
     }
-
     public Double getBandwidth() {
 		return bandwidth;
 	}
     public void setBandwidth(Double bandwidth) {
 		this.bandwidth = bandwidth;
 	}
+
     
     @Override
     public int hashCode() {

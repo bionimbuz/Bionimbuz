@@ -11,13 +11,13 @@ import com.jcraft.jsch.SftpException;
 
 public class BandwidthCalculator {
 	
-	public static final double DEFAULT_BANDWIDTH_VALUE = 15.0;
+	public static final double DEFAULT_BANDWIDTH_VALUE = 150.0;
 	
 	private static JSch jsch = new JSch();
 	private static final String USER = "zoonimbus";
 	private static final String PASSW = "Zoonimbus1";
 	private static final int PORT = 22;
-	private static String path = "src/main/resources/bandwidth/2MBfile";
+	private static String path = "/home/zoonimbus/zoonimbusProject/data-folder/4MBfile";
 	
 	public static double linkSpeed(String address){
 		return linkSpeed(address, 0);
@@ -49,7 +49,7 @@ public class BandwidthCalculator {
             
                 finalTime = System.currentTimeMillis();
                 
-                sftpChannel.rm(pathDest + "/2MBfile");
+                sftpChannel.rm(pathDest + "4MBfile");
                 sftpChannel.exit();
                 session.disconnect();
                 
@@ -62,8 +62,12 @@ public class BandwidthCalculator {
         	return DEFAULT_BANDWIDTH_VALUE;
         	
 		}
-        //Why 2000, and not 2048? it's 2MB/time, but time is in MILIS.
-		return (2000/(finalTime - inicialTime - latency) < 0) ? 2000/(finalTime - inicialTime) : 2000/(finalTime - inicialTime - latency);
+        
+        double retorno = 4*1024*100/(finalTime - inicialTime);
+        
+        System.out.println("banda: " + retorno);
+        
+		return retorno;
 	}
 
 }
