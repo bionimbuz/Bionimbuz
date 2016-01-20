@@ -118,67 +118,58 @@ public class JobController implements Controller, Runnable {
      * implementation by AVRO implementation
      *
      * @param workflow
-     * @return
+     * @throws java.lang.Exception
      */
-    public boolean startWorkflow(Workflow workflow) {
-        try {
-            List<br.unb.cic.bionimbus.avro.gen.Job> listjob = new ArrayList<>();
+    public void startWorkflow(Workflow workflow) throws Exception {
+        List<br.unb.cic.bionimbus.avro.gen.Job> listjob = new ArrayList<>();
 
-            // Iterates over the list of jobs
-            for (Job jobInfo : workflow.getJobs()) {
+        // Iterates over the list of jobs
+        for (Job jobInfo : workflow.getJobs()) {
 
-                // Create a new Avro Job
-                br.unb.cic.bionimbus.avro.gen.Job job = new br.unb.cic.bionimbus.avro.gen.Job();
+            // Create a new Avro Job
+            br.unb.cic.bionimbus.avro.gen.Job job = new br.unb.cic.bionimbus.avro.gen.Job();
 
-                // Sets its fields
-                job.setArgs(jobInfo.getArgs());
-                job.setId(jobInfo.getId());
-                job.setLocalId(config.getHost().getAddress());
-                job.setServiceId(jobInfo.getServiceId());
-                job.setTimestamp(jobInfo.getTimestamp());
-                job.setOutputs(jobInfo.getOutputs());
-                job.setDependencies(jobInfo.getDependencies());
+            // Sets its fields
+            job.setArgs(jobInfo.getArgs());
+            job.setId(jobInfo.getId());
+            job.setLocalId(config.getHost().getAddress());
+            job.setServiceId(jobInfo.getServiceId());
+            job.setTimestamp(jobInfo.getTimestamp());
+            job.setOutputs(jobInfo.getOutputs());
+            job.setDependencies(jobInfo.getDependencies());
 
-                // Avro File Info
-                ArrayList<br.unb.cic.bionimbus.avro.gen.FileInfo> avroFiles = new ArrayList<>();
+            // Avro File Info
+            ArrayList<br.unb.cic.bionimbus.avro.gen.FileInfo> avroFiles = new ArrayList<>();
 
-                // Iterate over the inputFile list of the job to create AVRO File Info
-                for (FileInfo f : jobInfo.getInputFiles()) {
-                    br.unb.cic.bionimbus.avro.gen.FileInfo file = new br.unb.cic.bionimbus.avro.gen.FileInfo();
-                    file.setHash("hash_hot_set");
-                    file.setId(f.getId());
-                    file.setName(f.getName());
-                    file.setUploadTimestamp(f.getUploadTimestamp());
-                    file.setUserId(f.getUserId());
+            // Iterate over the inputFile list of the job to create AVRO File Info
+            for (FileInfo f : jobInfo.getInputFiles()) {
+                br.unb.cic.bionimbus.avro.gen.FileInfo file = new br.unb.cic.bionimbus.avro.gen.FileInfo();
+                file.setHash("hash_hot_set");
+                file.setId(f.getId());
+                file.setName(f.getName());
+                file.setUploadTimestamp(f.getUploadTimestamp());
+                file.setUserId(f.getUserId());
 
-                    // Adds it to the avro file list
-                    avroFiles.add(file);
-                }
-
-                // Sets is input files
-                job.setInputFiles(avroFiles);
-
-                // Adds this avro job
-                listjob.add(job);
+                // Adds it to the avro file list
+                avroFiles.add(file);
             }
 
-            // Creates Avro Workflow
-            br.unb.cic.bionimbus.avro.gen.Workflow avroWorkflow = new br.unb.cic.bionimbus.avro.gen.Workflow();
-            avroWorkflow.setId(workflow.getId());
-            avroWorkflow.setJobs(listjob);
-            avroWorkflow.setCreationDatestamp(workflow.getCreationDatestamp());
-            avroWorkflow.setDescription(workflow.getDescription());
+            // Sets is input files
+            job.setInputFiles(avroFiles);
 
-            rpcClient.getProxy().startWorkflow(avroWorkflow);
-
-            return true;
-
-        } catch (Exception ex) {
-            LOGGER.error("[Exception] " + ex.getMessage());
-            ex.printStackTrace();
+            // Adds this avro job
+            listjob.add(job);
         }
 
-        return false;
+        // Creates Avro Workflow
+        br.unb.cic.bionimbus.avro.gen.Workflow avroWorkflow = new br.unb.cic.bionimbus.avro.gen.Workflow();
+        avroWorkflow.setId(workflow.getId());
+        avroWorkflow.setJobs(listjob);
+        avroWorkflow.setCreationDatestamp(workflow.getCreationDatestamp());
+        avroWorkflow.setDescription(workflow.getDescription());
+
+        rpcClient.getProxy().startWorkflow(avroWorkflow);
+
     }
 
     public void pauseWorkflow(String workflowId) {
@@ -217,7 +208,7 @@ public class JobController implements Controller, Runnable {
 
     public List<PluginService> getSupportedServices() {
         ArrayList<PluginService> services = new ArrayList<>();
-        
+
         if (cms.getZNodeExist(CuratorMessageService.Path.SERVICES.getFullPath(), null)) {
 
             List<String> children = cms.getChildren(CuratorMessageService.Path.SERVICES.getFullPath(), null);
