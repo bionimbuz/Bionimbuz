@@ -30,6 +30,8 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Classe com os metodos para a realização de um upload na federação
@@ -37,14 +39,14 @@ import com.jcraft.jsch.SftpException;
  * @author Deric
  */
 public class Put {
-
+        private static final Logger LOGGER = LoggerFactory.getLogger(Put.class);
 	private static final Long MIN_SIZE_FOR_COMPRESSION = 10 * 1024 * 1024L;
-	private JSch jsch = new JSch();
+	private final JSch jsch = new JSch();
 	private Session session = null;
 	private String address;
-	private String USER = "zoonimbus";
-	private String PASSW = "Zoonimbus1";
-	private int PORT = 22;
+	private final String USER = "zoonimbus";
+	private final String PASSW = "Zoonimbus1";
+	private final int PORT = 22;
 	private Channel channel;
 	private String path;
 
@@ -99,8 +101,8 @@ public class Put {
 			 * futuramente.
 			 */
 			// sftpChannel.chmod(777, path);
-			System.out.println("\n Uploading file.....\n\n\n");
-			sftpChannel.put(toBeSent, pathDest);
+                        LOGGER.info("Uploading file via SFTP");
+                        sftpChannel.put(toBeSent, pathDest);
 			sftpChannel.exit();
 			session.disconnect();
 			fim = System.currentTimeMillis();

@@ -2,6 +2,7 @@ package br.unb.cic.bionimbus.rest.resource;
 
 import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
 import br.unb.cic.bionimbus.model.Workflow;
+import br.unb.cic.bionimbus.model.WorkflowStatus;
 import br.unb.cic.bionimbus.persistence.dao.WorkflowDao;
 import br.unb.cic.bionimbus.rest.request.GetWorkflowStatusRequest;
 import br.unb.cic.bionimbus.rest.request.RequestInfo;
@@ -50,6 +51,9 @@ public class WorkflowResource extends AbstractResource {
         try {
             // Starts it
             jobController.startWorkflow(request.getWorkflow());
+            
+            // Sets its status as EXECUTING
+            request.getWorkflow().setStatus(WorkflowStatus.EXECUTING);
             
             // If it gets started with success, persists it on database
             workflowDao.persist(request.getWorkflow());

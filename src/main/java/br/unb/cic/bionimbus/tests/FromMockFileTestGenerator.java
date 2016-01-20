@@ -17,13 +17,14 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author willian
  */
 public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
-
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(FromMockFileTestGenerator.class);
     private int numPipelines;
 
     public FromMockFileTestGenerator(int numPipelines) {
@@ -127,8 +128,8 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
 
             // push taskList to the pipelineTemplates
             Workflow p = new Workflow(Arrays.asList(taskList));
-            System.out.println("[TestGen] taskList " + taskList.length);
-            System.out.println("[TestGen] pipeline " + p.getJobs().size());
+            LOGGER.info("[TestGen] taskList " + taskList.length);
+            LOGGER.info("[TestGen] pipeline " + p.getJobs().size());
             pipelinesTemplates.add(p);
         }
     }

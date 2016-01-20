@@ -46,6 +46,7 @@ public final class RepositoryService extends AbstractBioService {
     private static final int PERIOD_HOURS=12;
     
     public enum InstanceType {
+
         AMAZON_LARGE,
         PERSONAL,
         LABID_I7

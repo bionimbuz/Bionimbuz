@@ -7,10 +7,13 @@ import br.unb.cic.bionimbus.controller.Controller;
 import br.unb.cic.bionimbus.model.FileInfo;
 import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.model.Workflow;
+import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
+import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.services.RepositoryService;
 import br.unb.cic.bionimbus.services.Service;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -21,7 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import org.apache.zookeeper.WatchedEvent;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +37,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author Vinicius
  */
-
-
 @Singleton
 public class JobController implements Controller, Runnable {
 
@@ -115,67 +118,58 @@ public class JobController implements Controller, Runnable {
      * implementation by AVRO implementation
      *
      * @param workflow
-     * @return
+     * @throws java.lang.Exception
      */
-    public boolean startWorkflow(Workflow workflow) {
-        try {
-            List<br.unb.cic.bionimbus.avro.gen.Job> listjob = new ArrayList<>();
+    public void startWorkflow(Workflow workflow) throws Exception {
+        List<br.unb.cic.bionimbus.avro.gen.Job> listjob = new ArrayList<>();
 
-            // Iterates over the list of jobs
-            for (Job jobInfo : workflow.getJobs()) {
+        // Iterates over the list of jobs
+        for (Job jobInfo : workflow.getJobs()) {
 
-                // Create a new Avro Job
-                br.unb.cic.bionimbus.avro.gen.Job job = new br.unb.cic.bionimbus.avro.gen.Job();
+            // Create a new Avro Job
+            br.unb.cic.bionimbus.avro.gen.Job job = new br.unb.cic.bionimbus.avro.gen.Job();
 
-                // Sets its fields
-                job.setArgs(jobInfo.getArgs());
-                job.setId(jobInfo.getId());
-                job.setLocalId(config.getHost().getAddress());
-                job.setServiceId(jobInfo.getServiceId());
-                job.setTimestamp(jobInfo.getTimestamp());
-                job.setOutputs(jobInfo.getOutputs());
-                job.setDependencies(jobInfo.getDependencies());
+            // Sets its fields
+            job.setArgs(jobInfo.getArgs());
+            job.setId(jobInfo.getId());
+            job.setLocalId(config.getHost().getAddress());
+            job.setServiceId(jobInfo.getServiceId());
+            job.setTimestamp(jobInfo.getTimestamp());
+            job.setOutputs(jobInfo.getOutputs());
+            job.setDependencies(jobInfo.getDependencies());
 
-                // Avro File Info
-                ArrayList<br.unb.cic.bionimbus.avro.gen.FileInfo> avroFiles = new ArrayList<>();
+            // Avro File Info
+            ArrayList<br.unb.cic.bionimbus.avro.gen.FileInfo> avroFiles = new ArrayList<>();
 
-                // Iterate over the inputFile list of the job to create AVRO File Info
-                for (FileInfo f : jobInfo.getInputFiles()) {
-                    br.unb.cic.bionimbus.avro.gen.FileInfo file = new br.unb.cic.bionimbus.avro.gen.FileInfo();
-                    file.setHash("hash_hot_set");
-                    file.setId(f.getId());
-                    file.setName(f.getName());
-                    file.setUploadTimestamp(f.getUploadTimestamp());
-                    file.setUserId(f.getUserId());
+            // Iterate over the inputFile list of the job to create AVRO File Info
+            for (FileInfo f : jobInfo.getInputFiles()) {
+                br.unb.cic.bionimbus.avro.gen.FileInfo file = new br.unb.cic.bionimbus.avro.gen.FileInfo();
+                file.setHash("hash_hot_set");
+                file.setId(f.getId());
+                file.setName(f.getName());
+                file.setUploadTimestamp(f.getUploadTimestamp());
+                file.setUserId(f.getUserId());
 
-                    // Adds it to the avro file list
-                    avroFiles.add(file);
-                }
-
-                // Sets is input files
-                job.setInputFiles(avroFiles);
-
-                // Adds this avro job
-                listjob.add(job);
+                // Adds it to the avro file list
+                avroFiles.add(file);
             }
 
-            // Creates Avro Workflow
-            br.unb.cic.bionimbus.avro.gen.Workflow avroWorkflow = new br.unb.cic.bionimbus.avro.gen.Workflow();
-            avroWorkflow.setId(workflow.getId());
-            avroWorkflow.setJobs(listjob);
-            avroWorkflow.setCreationDatestamp(workflow.getCreationDatestamp());
-            avroWorkflow.setDescription(workflow.getDescription());
+            // Sets is input files
+            job.setInputFiles(avroFiles);
 
-            rpcClient.getProxy().startWorkflow(avroWorkflow);
-
-            return true;
-
-        } catch (Exception ex) {
-            LOGGER.error("[Exception] " + ex.getMessage());
-            ex.printStackTrace();
+            // Adds this avro job
+            listjob.add(job);
         }
 
-        return false;
+        // Creates Avro Workflow
+        br.unb.cic.bionimbus.avro.gen.Workflow avroWorkflow = new br.unb.cic.bionimbus.avro.gen.Workflow();
+        avroWorkflow.setId(workflow.getId());
+        avroWorkflow.setJobs(listjob);
+        avroWorkflow.setCreationDatestamp(workflow.getCreationDatestamp());
+        avroWorkflow.setDescription(workflow.getDescription());
+
+        rpcClient.getProxy().startWorkflow(avroWorkflow);
+
     }
 
     public void pauseWorkflow(String workflowId) {
@@ -208,8 +202,30 @@ public class JobController implements Controller, Runnable {
         return this.config;
     }
 
-    
     public RepositoryService getRepositoryService() {
         return this.repositoryService;
+    }
+
+    public List<PluginService> getSupportedServices() {
+        ArrayList<PluginService> services = new ArrayList<>();
+
+        if (cms.getZNodeExist(CuratorMessageService.Path.SERVICES.getFullPath(), null)) {
+
+            List<String> children = cms.getChildren(CuratorMessageService.Path.SERVICES.getFullPath(), null);
+
+            try {
+                for (String s : children) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    PluginService service = mapper.readValue(cms.getData(CuratorMessageService.Path.NODE_SERVICE.getFullPath(s), null), PluginService.class);
+                    services.add(service);
+                }
+            } catch (IOException ex) {
+                LOGGER.error("[IOException] " + ex.getMessage());
+            }
+
+            return services;
+        }
+
+        return null;
     }
 }

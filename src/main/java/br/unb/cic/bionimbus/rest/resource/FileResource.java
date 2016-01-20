@@ -27,8 +27,11 @@ import br.unb.cic.bionimbus.security.Hash;
 import br.unb.cic.bionimbus.services.storage.Ping;
 import br.unb.cic.bionimbus.utils.Nmap;
 import br.unb.cic.bionimbus.utils.Put;
+import static com.amazonaws.services.cloudsearchv2.model.IndexFieldType.Int;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
+import static com.sun.org.apache.xalan.internal.xsltc.compiler.util.Type.Int;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -58,16 +61,22 @@ public class FileResource extends AbstractResource {
      *
      * @param request
      * @return
+     * @throws java.lang.InterruptedException
+     * @throws com.jcraft.jsch.JSchException
+     * @throws com.jcraft.jsch.SftpException
+     * @throws java.security.NoSuchAlgorithmException
      */
     @POST
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response handleUploadedFile(@MultipartForm UploadRequest request) throws InterruptedException, JSchException, SftpException {
+    public Response handleUploadedFile(@MultipartForm UploadRequest request) throws InterruptedException, JSchException, SftpException, NoSuchAlgorithmException {
 
         try {
             LOGGER.info("Upload request received [filename=" + request.getFileInfo().getName() + "]");
-
+            LOGGER.info("Hash from Client: " + request.getFileInfo().getHash());
+            LOGGER.info("Size: " + request.getData().length);
+            
             // Writes file on disk
             String filepath = writeFile(request.getData(), request.getFileInfo().getName(), request.getFileInfo().getUserId());
 
@@ -77,18 +86,18 @@ public class FileResource extends AbstractResource {
                 // Creates an UserFile using UploadadeFileInfo from request and persists on Database
                 fileDao.persist(request.getFileInfo());
 
+                return Response.status(200).entity(true).build();    
             }
 
         } catch (IOException e) {
             LOGGER.error("[IOException] " + e.getMessage());
             e.printStackTrace();
+        } catch (JSchException | SftpException e) {
+            LOGGER.error("[Exception] " + e.getMessage());
+            e.printStackTrace();
         }
-//        } catch (InterruptedException | JSchException | SftpException e) {
-//            LOGGER.error("[Exception] " + e.getMessage());
-//            e.printStackTrace();
-//        }
-
-        return Response.status(200).entity(true).build();
+        
+        return Response.status(200).entity(false).build();
     }
 
     /**
@@ -147,9 +156,10 @@ public class FileResource extends AbstractResource {
      * @throws IOException
      * @throws InterruptedException
      * @throws JSchException
+     * @throws java.security.NoSuchAlgorithmException
      * @throws SftpException
      */
-    public boolean writeFileToZookeeper(String filepath, FileInfo fileInfo) throws IOException, InterruptedException, JSchException, SftpException {
+    public boolean writeFileToZookeeper(String filepath, FileInfo fileInfo) throws IOException, JSchException, SftpException, NoSuchAlgorithmException, InterruptedException {
         //Verifica se o arquivo existe         
         File file = new File(filepath);
         AESEncryptor aes = new AESEncryptor();
@@ -162,6 +172,12 @@ public class FileResource extends AbstractResource {
             //aes.encrypt(path);
             //}
             String hashFile = Hash.calculateSha3(filepath);
+            
+            // Verifies generated Hash from server with the hash that came from client
+            if (!hashFile.equals(fileInfo.getHash())) {
+                return false;
+            }
+            
             info.setHash(hashFile);
             info.setId(file.getName());
             info.setName(file.getName());
@@ -173,9 +189,7 @@ public class FileResource extends AbstractResource {
 
             //Insere o arquivo na pasta PENDING SAVE do Zookeeper
             rpcClient.getProxy().setFileInfo(info, "upload!");
-            for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
-                NodeInfo plugin = it.next();
-
+            for (NodeInfo plugin : pluginList) {
                 //Adiciona na lista de possiveis peers de destino somente os que possuem espaço livre para receber o arquivo
                 if ((long) (plugin.getFreesize() * MAXCAPACITY) > info.getSize()) {
                     plugin.setLatency(Ping.calculo(plugin.getAddress()));
