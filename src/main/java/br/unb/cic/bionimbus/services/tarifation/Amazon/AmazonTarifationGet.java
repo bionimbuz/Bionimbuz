@@ -1,6 +1,7 @@
 package br.unb.cic.bionimbus.services.tarifation.Amazon;
 
-import br.unb.cic.bionimbus.services.tarifation.Utils.PricingGet;
+import br.unb.cic.bionimbus.services.tarifation.Utils.RestfulGetter;
+import br.unb.cic.bionimbus.services.tarifation.Utils.RestfulGetterBehaviors.PricingGet;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -33,6 +34,7 @@ import org.json.JSONObject;
  */
 public class AmazonTarifationGet {
 
+    private RestfulGetter getter = new PricingGet();
     private Map<String, AmazonVirtualMachine> AmazonMachines;
     private Map<String, AmazonStorage> AmazonStorageService;
     private Map<String, AmazonDataTransfer> AmazonDataTransferServices;
@@ -62,41 +64,41 @@ public class AmazonTarifationGet {
             this.config.put("AddressDataTransfer", "/transfer.json?");
             this.config.put("FilenameDataTransfer", "AmazonDataTransfer.txt");
             System.out.println("Getting prices On Demand...");
-            String arrayODString = PricingGet.get(this.config.get("Server"), this.config.get("AddressOD"));
+            String arrayODString = this.getter.get(this.config.get("Server"), this.config.get("AddressOD"));
             System.out.println("Getting Storage prices...");
-            String arrayStorageString = PricingGet.get(this.config.get("Server"), this.config.get("AddressStorage"));
+            String arrayStorageString = this.getter.get(this.config.get("Server"), this.config.get("AddressStorage"));
             System.out.println("Getting Data Transfer prices...");
-            String arrayDataTransferString = PricingGet.get(this.config.get("Server"), this.config.get("AddressDataTransfer"));
+            String arrayDataTransferString = this.getter.get(this.config.get("Server"), this.config.get("AddressDataTransfer"));
             System.out.println("Completed.");
             if (arrayODString != null) {
                 System.out.println("Saving prices On Demand...");
-                this.saveJsonArray(arrayODString, this.config.get("FilenameOD"));
+                this.saveGet(arrayODString, this.config.get("FilenameOD"));
                 pricingODArray = new JSONArray(arrayODString);
                 System.out.println("Saved.");
             } else {
-                pricingODArray = readJsonArray(this.config.get("FilenameOD"));
+                pricingODArray = readJSONArray(this.config.get("FilenameOD"));
             }
 
             this.createVirtualMachines(pricingODArray);
 
             if (arrayStorageString != null) {
                 System.out.println("Saving Storage prices...");
-                this.saveJsonArray(arrayStorageString, this.config.get("FilenameStorage"));
+                this.saveGet(arrayStorageString, this.config.get("FilenameStorage"));
                 pricingStorageArray = new JSONArray(arrayStorageString);
                 System.out.println("Saved.");
             } else {
-                pricingStorageArray = readJsonArray(this.config.get("FilenameStorage"));
+                pricingStorageArray = readJSONArray(this.config.get("FilenameStorage"));
             }
 
             this.createStorageInfo(pricingStorageArray);
 
             if (arrayDataTransferString != null) {
                 System.out.println("Saving Data Transfer prices...");
-                this.saveJsonArray(arrayStorageString, this.config.get("FilenameDataTransfer"));
+                this.saveGet(arrayStorageString, this.config.get("FilenameDataTransfer"));
                 pricingDataTransferArray = new JSONArray(arrayDataTransferString);
                 System.out.println("Saved.");
             } else {
-                pricingDataTransferArray = readJsonArray(this.config.get("FilenameDataTransfer"));
+                pricingDataTransferArray = readJSONArray(this.config.get("FilenameDataTransfer"));
             }
 
             this.createDataTransferInfo(pricingDataTransferArray);
@@ -131,7 +133,7 @@ public class AmazonTarifationGet {
             this.AmazonStorageService.put("" + obj.getInt("id"), as);
         }
     }
-    
+
     /*pricingGET DEPRECATED*/
     private String pricingGET(String server, String address) {
 
@@ -182,7 +184,7 @@ public class AmazonTarifationGet {
         return (null);
     }
 
-    private void saveJsonArray(String array, String filename) {
+    private void saveGet(String array, String filename) {
 
         try {
             OutputStream os = new FileOutputStream(filename);
@@ -198,7 +200,7 @@ public class AmazonTarifationGet {
         }
     }
 
-    private JSONArray readJsonArray(String filename) {
+    private JSONArray readJSONArray(String filename) {
 
         try {
             BufferedReader br = new BufferedReader(new FileReader(filename));

@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.unb.cic.bionimbus.services.tarifation.Utils;
+package br.unb.cic.bionimbus.services.tarifation.Utils.RestfulGetterBehaviors;
 
+import br.unb.cic.bionimbus.services.tarifation.Utils.RestfulGetter;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,8 +17,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
 
 /**
  *
@@ -25,11 +24,15 @@ import org.json.JSONException;
  */
 
 /*
-    Implementação incompleta
-*/
-public class PricingGet {
-    
-    public static String get(String server, String address) {
+ Implementação incompleta
+ */
+public class PricingGet implements RestfulGetter {
+
+    public PricingGet() {
+    }
+
+    @Override
+    public String get(String server, String address) {
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
 
@@ -59,23 +62,19 @@ public class PricingGet {
 
             /*Caso o resultado do request não seja nulo, ele é tratado*/
             if (entity != null) {
-                JSONArray result = new JSONArray(EntityUtils.toString(entity));
-                return (result.toString(4));
+                return EntityUtils.toString(entity);
             } else {
-                return (null);
+                return null;
             }
-        } /*Catch exception, if problems occur with the request*/ catch (IOException | JSONException ex) {
+        } catch (IOException ex) {
             Logger.getLogger(PricingGet.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
-
             try {
-                httpClient.close();//Close the connection
+                httpClient.close();
             } catch (IOException ex) {
                 Logger.getLogger(PricingGet.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-
-        return (null);
+        return null;
     }
-    
 }
