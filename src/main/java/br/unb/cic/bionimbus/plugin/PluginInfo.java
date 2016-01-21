@@ -11,7 +11,7 @@ public class PluginInfo implements PluginOps {
     private String id;
 
     private String InstanceName;
-    
+
     private int privateCloud;
 
     private Host host;
@@ -51,9 +51,11 @@ public class PluginInfo implements PluginOps {
 
     private double costPerHour = Double.MAX_VALUE;
 
+    private Double bandwidth;
+
     public PluginInfo() {
     }
-    
+
     public PluginInfo(String id) {
         this.id = id;
     }
@@ -242,6 +244,14 @@ public class PluginInfo implements PluginOps {
 
     public void setPrivateCloud(int privateCloud) {
         this.privateCloud = privateCloud;
+    }
+
+    public Double getBandwidth() {
+        return bandwidth;
+    }
+
+    public void setBandwidth(Double bandwidth) {
+        this.bandwidth = bandwidth;
     }
 
     public void setCostPerHour(double costPerHour) {

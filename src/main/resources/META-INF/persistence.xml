@@ -21,12 +21,14 @@
 
             <!-- Database Password -->
             <property name="javax.persistence.jdbc.password" value="Zoonimbus1" />
+            
 
             <!-- Hibernate definitions -->
             <property name="hibernate.show_sql" value="false" />
             <property name="hibernate.format_sql" value="false" />
             <property name="hibernate.hibernate.cache.use_query_cache" value="false" />
             <property name="hibernate.hbm2ddl.auto" value="update" />
+            <property name="hibernate.ejb.entitymanager_factory_name" value="entity_manager_bionimbuz" />
         </properties>
     </persistence-unit>
 </persistence>			

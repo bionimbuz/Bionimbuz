@@ -3,6 +3,7 @@ package br.unb.cic.bionimbus.persistence;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import org.hibernate.jpa.HibernatePersistenceProvider;
 
 /**
  * Produces an Entity Manager for any Data Access Object
@@ -22,7 +23,7 @@ public class EntityManagerProducer {
      */
     public static void initialize() throws Exception {
         factory = Persistence.createEntityManagerFactory("bionimbuz_pu");
-
+        
         if (manager == null) {
             manager = factory.createEntityManager();
 
@@ -39,11 +40,13 @@ public class EntityManagerProducer {
      * @return
      */
     public static EntityManager getEntityManager() {
-        factory = Persistence.createEntityManagerFactory("bionimbuz_pu");
+        HibernatePersistenceProvider p = new HibernatePersistenceProvider();
+        
+        // factory = Persistence.createEntityManagerFactory("bionimbuz_pu");
+        
+        factory = p.createEntityManagerFactory("bionimbuz_pu", null);
 
-        if (manager == null || !manager.isOpen()) {
-            manager = factory.createEntityManager();
-        }
+        manager = factory.createEntityManager();
 
         return manager;
     }

@@ -5,8 +5,6 @@ import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.rest.request.GetServicesRequest;
 import br.unb.cic.bionimbus.rest.request.RequestInfo;
 import br.unb.cic.bionimbus.rest.response.ResponseInfo;
-import br.unb.cic.bionimbus.services.RepositoryService;
-import com.google.inject.Inject;
 import java.util.List;
 import javax.annotation.security.PermitAll;
 import javax.ws.rs.Consumes;
@@ -37,9 +35,6 @@ public class ServicesResource extends AbstractResource {
         LOGGER.info("Received request from web application");
         
         List<PluginService> list =  jobController.getSupportedServices();
-        
-        LOGGER.info("size: " + list.size());
-        LOGGER.info("name: " + list.get(0).getName());
         
         return Response.status(200).entity(list).build();
     }

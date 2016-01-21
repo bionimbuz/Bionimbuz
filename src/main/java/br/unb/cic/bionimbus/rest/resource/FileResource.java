@@ -27,10 +27,8 @@ import br.unb.cic.bionimbus.security.Hash;
 import br.unb.cic.bionimbus.services.storage.Ping;
 import br.unb.cic.bionimbus.utils.Nmap;
 import br.unb.cic.bionimbus.utils.Put;
-import static com.amazonaws.services.cloudsearchv2.model.IndexFieldType.Int;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
-import static com.sun.org.apache.xalan.internal.xsltc.compiler.util.Type.Int;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -93,7 +91,7 @@ public class FileResource extends AbstractResource {
             e.printStackTrace();
         }
         
-        return Response.status(200).entity(false).build();
+        return Response.status(500).entity(false).build();
     }
 
     /**
