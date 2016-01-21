@@ -35,9 +35,9 @@ import org.json.JSONObject;
 public class AmazonTarifationGet {
 
     private RestfulGetter getter = new PricingGet();
-    private Map<String, AmazonVirtualMachine> AmazonMachines;
+    private Map<String, AmazonVirtualMachine> AmazonMachinesService;
     private Map<String, AmazonStorage> AmazonStorageService;
-    private Map<String, AmazonDataTransfer> AmazonDataTransferServices;
+    private Map<String, AmazonDataTransfer> AmazonDataTransferService;
     private Map<String, String> config;
 
     /**
@@ -52,9 +52,9 @@ public class AmazonTarifationGet {
             JSONArray pricingODArray;
             JSONArray pricingStorageArray;
             JSONArray pricingDataTransferArray;
-            this.AmazonMachines = new HashMap<>();
+            this.AmazonMachinesService = new HashMap<>();
             this.AmazonStorageService = new HashMap<>();
-            this.AmazonDataTransferServices = new HashMap<>();
+            this.AmazonDataTransferService = new HashMap<>();
             this.config = new HashMap<>();
             this.config.put("Server", "info.awsstream.com");
             this.config.put("AddressOD", "/instances.json?");
@@ -114,7 +114,7 @@ public class AmazonTarifationGet {
         for (int i = 0; i < AmazonDataTransferArray.length(); i++) {
             JSONObject obj = AmazonDataTransferArray.getJSONObject(i);
             AmazonDataTransfer adt = new AmazonDataTransfer(obj.getInt("id"), obj.getString("region"), obj.getString("kind"), obj.getString("tier"), obj.getDouble("price"), obj.getString("created_at"), obj.getString("updated_at"));
-            this.AmazonDataTransferServices.put("" + obj.getInt("id"), adt);
+            this.AmazonDataTransferService.put("" + obj.getInt("id"), adt);
         }
     }
 
@@ -122,7 +122,7 @@ public class AmazonTarifationGet {
         for (int i = 0; i < AmazonMachinesArray.length(); i++) {
             JSONObject obj = AmazonMachinesArray.getJSONObject(i);
             AmazonVirtualMachine avm = new AmazonVirtualMachine(obj.getString("pricing"), obj.getString("region"), obj.getInt("id"), obj.getString("os"), obj.getString("model"), obj.getDouble("upfront"), obj.getString("updated_at"), obj.getDouble("term"), obj.getString("created_at"), obj.getBoolean("latest"), obj.getDouble("hourly"), obj.getBoolean("ebsoptimized"));
-            this.AmazonMachines.put("" + obj.getInt("id"), avm);
+            this.AmazonMachinesService.put("" + obj.getInt("id"), avm);
         }
     }
 
@@ -233,12 +233,22 @@ public class AmazonTarifationGet {
 
     /**
      *
+     * @param id
+     * @return
+     */
+    public boolean getVMStatus(int id) {
+        String Id = "" + id;
+        return this.AmazonMachinesService.get(Id).status();
+    }
+
+    /**
+     *
      * @param id - ID of Amazon VM.
      * @return - Price of AmazonVirtualMachine with this ID
      */
     public double getVMPrice(int id) {
         String Id = "" + id;
-        return this.AmazonMachines.get(Id).getHourly();
+        return this.AmazonMachinesService.get(Id).getHourly();
     }
 
     /**
@@ -248,7 +258,7 @@ public class AmazonTarifationGet {
      */
     public String getVMRegion(int id) {
         String Id = "" + id;
-        return this.AmazonMachines.get(Id).getRegion();
+        return this.AmazonMachinesService.get(Id).getRegion();
     }
 
     /**
@@ -258,7 +268,7 @@ public class AmazonTarifationGet {
      */
     public String getVMPricingType(int id) {
         String Id = "" + id;
-        return this.AmazonMachines.get(Id).getPricing();
+        return this.AmazonMachinesService.get(Id).getPricing();
     }
 
     /**
@@ -268,7 +278,7 @@ public class AmazonTarifationGet {
      */
     public String getVMOs(int id) {
         String Id = "" + id;
-        return this.AmazonMachines.get(Id).getOs();
+        return this.AmazonMachinesService.get(Id).getOs();
     }
 
     /**
@@ -278,7 +288,7 @@ public class AmazonTarifationGet {
      */
     public String getVMModel(int id) {
         String Id = "" + id;
-        return this.AmazonMachines.get(Id).getModel();
+        return this.AmazonMachinesService.get(Id).getModel();
     }
 
     /**
@@ -288,7 +298,7 @@ public class AmazonTarifationGet {
      */
     public double getVMUpfront(int id) {
         String Id = "" + id;
-        return this.AmazonMachines.get(Id).getUpfront();
+        return this.AmazonMachinesService.get(Id).getUpfront();
     }
 
     /**
@@ -298,7 +308,7 @@ public class AmazonTarifationGet {
      */
     public String getVMUpdatedAt(int id) {
         String Id = "" + id;
-        return this.AmazonMachines.get(Id).getUpdated_at();
+        return this.AmazonMachinesService.get(Id).getUpdated_at();
     }
 
     /**
@@ -308,7 +318,7 @@ public class AmazonTarifationGet {
      */
     public double getVMTerm(int id) {
         String Id = "" + id;
-        return this.AmazonMachines.get(Id).getTerm();
+        return this.AmazonMachinesService.get(Id).getTerm();
     }
 
     /**
@@ -318,7 +328,7 @@ public class AmazonTarifationGet {
      */
     public String getVMCreatedAt(int id) {
         String Id = "" + id;
-        return this.AmazonMachines.get(Id).getCreated_at();
+        return this.AmazonMachinesService.get(Id).getCreated_at();
     }
 
     /**
@@ -328,7 +338,7 @@ public class AmazonTarifationGet {
      */
     public boolean isVMLatest(int id) {
         String Id = "" + id;
-        return this.AmazonMachines.get(Id).isLatest();
+        return this.AmazonMachinesService.get(Id).isLatest();
     }
 
     /**
@@ -338,7 +348,17 @@ public class AmazonTarifationGet {
      */
     public boolean isVMEbsoptimized(int id) {
         String Id = "" + id;
-        return this.AmazonMachines.get(Id).isEbsoptimized();
+        return this.AmazonMachinesService.get(Id).isEbsoptimized();
+    }
+
+    /**
+     *
+     * @param id
+     * @return
+     */
+    public boolean getStorageStatus(int id) {
+        String Id = "" + id;
+        return this.AmazonStorageService.get(Id).status();
     }
 
     /**
@@ -403,12 +423,22 @@ public class AmazonTarifationGet {
 
     /**
      *
+     * @param id
+     * @return
+     */
+    public boolean getDataTransferStatus(int id) {
+        String Id = "" + id;
+        return this.AmazonDataTransferService.get(Id).status();
+    }
+
+    /**
+     *
      * @param id - ID of Amazon DataTransfer.
      * @return - Region of AmazonDataTransfer with this ID
      */
     public String getDataTransferRegion(int id) {
         String Id = "" + id;
-        return this.AmazonDataTransferServices.get(Id).getRegion();
+        return this.AmazonDataTransferService.get(Id).getRegion();
     }
 
     /**
@@ -418,7 +448,7 @@ public class AmazonTarifationGet {
      */
     public String getDataTransferTier(int id) {
         String Id = "" + id;
-        return this.AmazonDataTransferServices.get(Id).getTier();
+        return this.AmazonDataTransferService.get(Id).getTier();
     }
 
     /**
@@ -428,7 +458,7 @@ public class AmazonTarifationGet {
      */
     public String getDataTransferUpdateAt(int id) {
         String Id = "" + id;
-        return this.AmazonDataTransferServices.get(Id).getUpdatedAt();
+        return this.AmazonDataTransferService.get(Id).getUpdatedAt();
     }
 
     /**
@@ -438,7 +468,7 @@ public class AmazonTarifationGet {
      */
     public String getDataTransferCreatedAt(int id) {
         String Id = "" + id;
-        return this.AmazonDataTransferServices.get(Id).getCreatedAt();
+        return this.AmazonDataTransferService.get(Id).getCreatedAt();
     }
 
     /**
@@ -448,7 +478,7 @@ public class AmazonTarifationGet {
      */
     public String getDataTransferKind(int id) {
         String Id = "" + id;
-        return this.AmazonDataTransferServices.get(Id).getKind();
+        return this.AmazonDataTransferService.get(Id).getKind();
     }
 
     /**
@@ -458,6 +488,6 @@ public class AmazonTarifationGet {
      */
     public double getDataTransferPrice(int id) {
         String Id = "" + id;
-        return this.AmazonDataTransferServices.get(Id).getPrice();
+        return this.AmazonDataTransferService.get(Id).getPrice();
     }
 }

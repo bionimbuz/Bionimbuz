@@ -11,6 +11,7 @@ package br.unb.cic.bionimbus.services.tarifation.Amazon;
  */
 public class AmazonDataTransfer {
 
+    private boolean activationStatus;
     private int id;
     private String region;
     private String kind;
@@ -37,6 +38,14 @@ public class AmazonDataTransfer {
         this.price = price;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean status() {
+        return activationStatus;
     }
 
     /**
