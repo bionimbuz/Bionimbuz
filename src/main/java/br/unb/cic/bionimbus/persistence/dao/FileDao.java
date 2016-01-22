@@ -110,7 +110,7 @@ public class FileDao extends AbstractDao<FileInfo> {
         // Creates entity manager
         manager = EntityManagerProducer.getEntityManager();
 
-        TypedQuery<FileInfo> query = manager.createQuery("SELECT u FROM FileInfo u WHERE u.id = := id", FileInfo.class);
+        TypedQuery<FileInfo> query = manager.createQuery("SELECT u FROM FileInfo u WHERE u.id = :id", FileInfo.class);
         query.setParameter("id", id);
         FileInfo result = query.getSingleResult();
 
