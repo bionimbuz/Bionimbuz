@@ -104,7 +104,7 @@ public class StorageService extends AbstractBioService {
         cms.getChildren(Path.PEERS.getFullPath(), new UpdatePeerData(cms, this));
 
         //NECESSARIO atualizar a lista de arquivo local , a lista do zookeeper com os arquivos locais.
-        checkFiles();
+        // checkFiles();
         checkPeers();
         try {
             if (getPeers().size() != 1) {

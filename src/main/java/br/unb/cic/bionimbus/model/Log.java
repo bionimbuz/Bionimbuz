@@ -1,6 +1,9 @@
 package br.unb.cic.bionimbus.model;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -28,19 +31,36 @@ public class Log implements Serializable {
 
     private String timestamp;
 
+    private String date;
+
     @Enumerated(EnumType.STRING)
     private LogSeverity severity;
 
     public Log() {
     }
 
-    public Log(String text, long userId, String workflowId, LogSeverity severity, String timestamp) {
+    public Log(String text, long userId, String workflowId, LogSeverity severity) {
         this.text = text;
         this.userId = userId;
         this.workflowId = workflowId;
         this.severity = severity;
-        this.timestamp = timestamp;
+        this.timestamp = new SimpleDateFormat("hh:mm:ss.SSSS").format(new Date());
+        this.date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
     }
+
+    /**
+     * Method that compares Strings and sort them (used to sort Timestamps)
+     */
+    public static Comparator<Log> comparator = new Comparator<Log>() {
+
+        @Override
+        public int compare(Log log1, Log log2) {
+            String time1 = log1.getTimestamp();
+            String time2 = log2.getTimestamp();
+
+            return time1.compareTo(time2);
+        }
+    };
 
     public String getId() {
         return id;
@@ -74,8 +94,8 @@ public class Log implements Serializable {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
+    public String getDate() {
+        return date;
     }
 
     public LogSeverity getSeverity() {

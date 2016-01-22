@@ -59,6 +59,10 @@ public class FileResource extends AbstractResource {
      *
      * @param request
      * @return
+     * @throws java.lang.InterruptedException
+     * @throws com.jcraft.jsch.JSchException
+     * @throws com.jcraft.jsch.SftpException
+     * @throws java.security.NoSuchAlgorithmException
      */
     @POST
     @Path("/upload")
@@ -85,10 +89,8 @@ public class FileResource extends AbstractResource {
 
         } catch (IOException e) {
             LOGGER.error("[IOException] " + e.getMessage());
-            e.printStackTrace();
         } catch (JSchException | SftpException e) {
             LOGGER.error("[Exception] " + e.getMessage());
-            e.printStackTrace();
         }
         
         return Response.status(500).entity(false).build();
@@ -150,6 +152,7 @@ public class FileResource extends AbstractResource {
      * @throws IOException
      * @throws InterruptedException
      * @throws JSchException
+     * @throws java.security.NoSuchAlgorithmException
      * @throws SftpException
      */
     public boolean writeFileToZookeeper(String filepath, FileInfo fileInfo) throws IOException, JSchException, SftpException, NoSuchAlgorithmException, InterruptedException {

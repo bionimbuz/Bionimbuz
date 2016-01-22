@@ -2,9 +2,6 @@ package br.unb.cic.bionimbus.persistence.dao;
 
 import br.unb.cic.bionimbus.model.Log;
 import br.unb.cic.bionimbus.persistence.EntityManagerProducer;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import javax.persistence.TypedQuery;
 
@@ -16,13 +13,18 @@ public class WorkflowLoggerDao extends AbstractDao<Log> {
 
     @Override
     public void persist(Log log) {
+    }
+
+    /**
+     * log() makes more sense than persist()
+     *
+     * @param log
+     */
+    public void log(Log log) {
         try {
             // Creates entity manager
             manager = EntityManagerProducer.getEntityManager();
 
-            // Sets its timestamp
-            log.setTimestamp(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()));
-            
             // Get a Transaction, persist and commit
             manager.getTransaction().begin();
             manager.persist(log);
@@ -55,9 +57,9 @@ public class WorkflowLoggerDao extends AbstractDao<Log> {
     }
 
     /**
-     * 
+     *
      * @param workflowId
-     * @return 
+     * @return
      */
     public List<Log> listByWorkflowId(String workflowId) {
         // Creates Entity Manager
