@@ -21,18 +21,20 @@ public class WorkflowLoggerDao extends AbstractDao<Log> {
      * @param log
      */
     public void log(Log log) {
-        try {
-            // Creates entity manager
-            manager = EntityManagerProducer.getEntityManager();
+        if (log.getWorkflowId() != null) {
+            try {
+                // Creates entity manager
+                manager = EntityManagerProducer.getEntityManager();
 
-            // Get a Transaction, persist and commit
-            manager.getTransaction().begin();
-            manager.persist(log);
-            manager.getTransaction().commit();
+                // Get a Transaction, persist and commit
+                manager.getTransaction().begin();
+                manager.persist(log);
+                manager.getTransaction().commit();
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            manager.getTransaction().rollback();
+            } catch (Exception e) {
+                e.printStackTrace();
+                manager.getTransaction().rollback();
+            }
         }
     }
 
