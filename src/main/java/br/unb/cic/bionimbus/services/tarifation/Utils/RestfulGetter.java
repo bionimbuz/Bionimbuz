@@ -19,4 +19,6 @@ public interface RestfulGetter {
      * @return - the result entity of the GET operation, in String format.
      */
     public String get(String server, String address);
+    
+    public void saveGet(String array, String filename);
 }

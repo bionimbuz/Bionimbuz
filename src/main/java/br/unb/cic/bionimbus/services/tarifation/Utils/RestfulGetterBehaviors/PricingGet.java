@@ -5,8 +5,14 @@
  */
 package br.unb.cic.bionimbus.services.tarifation.Utils.RestfulGetterBehaviors;
 
+import br.unb.cic.bionimbus.services.tarifation.Amazon.AmazonDataGet;
 import br.unb.cic.bionimbus.services.tarifation.Utils.RestfulGetter;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.http.Header;
@@ -76,5 +82,27 @@ public class PricingGet implements RestfulGetter {
             }
         }
         return null;
+    }
+    
+    /**
+     *
+     * @param array
+     * @param filename
+     */
+    @Override
+    public void saveGet(String array, String filename) {
+
+        try {
+            OutputStream os = new FileOutputStream(filename);
+            OutputStreamWriter osw = new OutputStreamWriter(os);
+            try (BufferedWriter bw = new BufferedWriter(osw)) {
+                bw.write(array);
+            }
+
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(AmazonDataGet.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(AmazonDataGet.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

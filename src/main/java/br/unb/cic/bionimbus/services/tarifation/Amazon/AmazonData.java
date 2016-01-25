@@ -22,26 +22,27 @@ import org.json.JSONObject;
  * @author Gabriel Fritz Sluzala
  */
 public class AmazonData {
+
     private Map<String, AmazonVirtualMachine> AmazonMachinesService;
     private Map<String, AmazonStorage> AmazonStorageService;
     private Map<String, AmazonDataTransfer> AmazonDataTransferService;
     private final Map<String, String> config;
-    
-    public AmazonData(){
+
+    public AmazonData() {
         this.config = new HashMap<>();
         this.config.put("FilenameOD", "AmazonInstancesOD.txt");
         this.config.put("FilenameStorage", "AmazonStorage.txt");
         this.config.put("FilenameDataTransfer", "AmazonDataTransfer.txt");
-        
+
         JSONArray pricingODArray = readJSONArray(this.config.get("FilenameOD"));
         JSONArray pricingStorageArray = readJSONArray(this.config.get("FilenameStorage"));
         JSONArray pricingDataTransferArray = readJSONArray(this.config.get("FilenameDataTransfer"));
-        
+
         this.createVirtualMachines(pricingODArray);
         this.createStorageInfo(pricingStorageArray);
         this.createDataTransferInfo(pricingDataTransferArray);
     }
-    
+
     private JSONArray readJSONArray(String filename) {
 
         try {
@@ -65,15 +66,14 @@ public class AmazonData {
                 return (null);
             }
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(AmazonDataGet.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AmazonData.class.getName()).log(Level.SEVERE, null, ex);
         } catch (JSONException | IOException ex) {
-            Logger.getLogger(AmazonDataGet.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AmazonData.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return (null);
     }
 
-    
     private void createDataTransferInfo(JSONArray AmazonDataTransferArray) throws JSONException {
         for (int i = 0; i < AmazonDataTransferArray.length(); i++) {
             JSONObject obj = AmazonDataTransferArray.getJSONObject(i);
@@ -97,7 +97,7 @@ public class AmazonData {
             this.AmazonStorageService.put("" + obj.getInt("id"), as);
         }
     }
-        
+
     /**
      *
      * @param id
