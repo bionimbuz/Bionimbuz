@@ -5,7 +5,7 @@
     <artifactId>bionimbus</artifactId>
     <packaging>jar</packaging>
     <version>1.0-SNAPSHOT</version>
-    <name>Zoonimbus</name>
+    <name>Bionimbuz</name>
     <url>http://maven.apache.org</url>
 
     <properties>

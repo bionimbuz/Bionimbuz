@@ -1,4 +1,6 @@
-# MOCK
-cat $1 >> $2
-echo "s3 " >> $2
-sleep 4
+#!/bin/sh
+
+echo $0 $*
+#sleep 30
+
+perl /home/zoonimbus/zoonimbusProject/pipeline/genome2interval.pl $1 $2 $3

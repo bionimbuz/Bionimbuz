@@ -59,11 +59,13 @@ public class SchedService extends AbstractBioService implements Runnable {
     private RpcClient rpcClient;
     
     // change this to select scheduling policy
-    private final SchedPolicy.Policy policy = SchedPolicy.Policy.C99SUPERCOLIDER;
+    private final SchedPolicy.Policy policy = SchedPolicy.Policy.ACO_SCHED;
     private String idPlugin;
     
     private LinuxPlugin myLinuxPlugin;
     private SchedPolicy schedPolicy;
+    
+    private boolean isClient = true;
     
     @Inject
     public SchedService(final CloudMessageService cms, final RepositoryService rs) {
@@ -107,12 +109,18 @@ public class SchedService extends AbstractBioService implements Runnable {
     
     @Override
     public void start(BioNimbusConfig config, List<Listeners> listeners) {
+        
+        this.isClient = config.isClient();
         this.config = config;
         this.listeners = listeners;
 //        if (listeners != null) {
         listeners.add(this);
 //        }
         idPlugin = this.config.getId();
+        
+        System.out.println("[SchedService] Starting");
+        
+        
         
         getPolicy().setRs(rs);
         
@@ -574,6 +582,10 @@ public class SchedService extends AbstractBioService implements Runnable {
     private void checkTasks() {
         try {
             System.out.println("[SchedService] checkTasks");
+            
+            // Check if there are any pipelines left to add
+            updatePipelines();
+            
             if (waitingTask!=null && !waitingTask.isEmpty()) {
                 for (Pair<PluginInfo, PluginTask> pair : waitingTask.values()) {
                     if (pair.first.getHost().getAddress().equals(myLinuxPlugin.getMyInfo().getHost().getAddress())) {
@@ -770,41 +782,10 @@ public class SchedService extends AbstractBioService implements Runnable {
                     
                     String datas;
                     //reconhece um alerta de um novo pipeline
-                    if (eventType.getPath().contains(Path.PIPELINES.toString())) {
+                    if (eventType.getPath().contains(Path.PIPELINES.toString()) && !isClient) {
                         System.out.println("[SchedService] Recebimento de um alerta para um pipeline, NodeChildrenChanged");
-                        
-                        // get all pipelines
-                        List<String> pipelinesId = cms.getChildren(eventType.getPath(), null);
-                        
-                        if (!pipelinesId.isEmpty()) {
-                            
-                            // get pipelines and add them to pendingPipelines
-                            for (String pipelineReady : pipelinesId) {                            
-                                ObjectMapper mapper = new ObjectMapper();
-                                datas = cms.getData(Path.NODE_PIPELINE.getFullPath(pipelineReady), null);
-                                PipelineInfo pipeline = mapper.readValue(datas, PipelineInfo.class);
-
-                                // add independent jobs to pendingJobs list and jobs with 
-                                // any dependency to the dependentJobs list
-                                int i=0;
-                                for (JobInfo j : pipeline.getJobs()) {
-                                    if (j.getDependencies().isEmpty()) {
-                                        pendingJobs.add(j);
-                                        i++;
-                                    } else
-                                        dependentJobs.add(j);
-                                }
-                                System.out.println("[SchedService] " + i + " independent jobs added");
-                                System.out.println("[SchedService] " + (pipeline.getJobs().size() - i) + " jobs with dependency added");
-                                
-                                // remove pipeline from zookeeper
-                                cms.delete(Path.NODE_PIPELINE.getFullPath(pipelineReady));
-                            }
-
-                            if (!pendingJobs.isEmpty()) {
-                                scheduleJobs();
-                            }
-                        }
+                        // checking moved to checkTasks in order to solve racing condition
+//                        updatePipelines();
                         
                     } else if (eventType.getPath().contains(Path.SCHED.toString() + Path.TASKS)) {
                         System.out.println("[SchedService] Recebimento de um alerta para uma TAREFA");
@@ -869,6 +850,42 @@ public class SchedService extends AbstractBioService implements Runnable {
             java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
             java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void updatePipelines() throws IOException, InterruptedException, KeeperException{
+        // get all pipelines
+        List<String> pipelinesId = cms.getChildren(Path.PIPELINES.getFullPath(), null);
+        String datas;
+
+        if (!pipelinesId.isEmpty()) {
+
+            // get pipelines and add them to pendingPipelines
+            for (String pipelineReady : pipelinesId) {                            
+                ObjectMapper mapper = new ObjectMapper();
+                datas = cms.getData(Path.NODE_PIPELINE.getFullPath(pipelineReady), null);
+                PipelineInfo pipeline = mapper.readValue(datas, PipelineInfo.class);
+
+                // add independent jobs to pendingJobs list and jobs with 
+                // any dependency to the dependentJobs list
+                int i=0;
+                for (JobInfo j : pipeline.getJobs()) {
+                    if (j.getDependencies().isEmpty()) {
+                        pendingJobs.add(j);
+                        i++;
+                    } else
+                        dependentJobs.add(j);
+                }
+                System.out.println("[SchedService] " + i + " independent jobs added");
+                System.out.println("[SchedService] " + (pipeline.getJobs().size() - i) + " jobs with dependency added");
+
+                // remove pipeline from zookeeper
+                cms.delete(Path.NODE_PIPELINE.getFullPath(pipelineReady));
+            }
+
+            if (!pendingJobs.isEmpty()) {
+                scheduleJobs();
+            }
         }
     }
     
