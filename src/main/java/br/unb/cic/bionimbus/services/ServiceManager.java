@@ -2,15 +2,9 @@ package br.unb.cic.bionimbus.services;
 
 import br.unb.cic.bionimbus.avro.rpc.RpcServer;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
-<<<<<<< HEAD
-import br.unb.cic.bionimbus.plugin.PluginTask;
-import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
-import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
-=======
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
->>>>>>> 8b0d432507615fb11db91bbbe5d36eab89aba0a4
 import br.unb.cic.bionimbus.toSort.Listeners;
 import com.codahale.metrics.MetricRegistry;
 import com.google.inject.Inject;
@@ -31,18 +25,6 @@ public class ServiceManager {
     
     private final RpcServer rpcServer;
     
-<<<<<<< HEAD
-    private static final String ROOT_PEER = CuratorMessageService.Path.PEERS.toString();
-    
-    private static final String SEPARATOR = CuratorMessageService.Path.SEPARATOR.toString();
-    private static final String PREFIX_PEERS = ROOT_PEER+SEPARATOR+CuratorMessageService.Path.PREFIX_PEER.toString();
-    private static final String STATUS = CuratorMessageService.Path.STATUS.toString();
-    
-    private static final String ROOT_REPOSITORY = CuratorMessageService.Path.HISTORY.toString();
-    private static final String PREFIX_TASK = ROOT_REPOSITORY + CuratorMessageService.Path.PREFIX_TASK.toString();
-    
-=======
->>>>>>> 8b0d432507615fb11db91bbbe5d36eab89aba0a4
     private final HttpServer httpServer;
     
     @Inject
@@ -64,29 +46,7 @@ public class ServiceManager {
     }
     
     public void createZnodeZK(String id) throws IOException, InterruptedException, KeeperException {
-<<<<<<< HEAD
-        // create root peer node if does not exists
-        if (!cms.getZNodeExist(ROOT_PEER, false))
-            cms.createZNode(CreateMode.PERSISTENT, ROOT_PEER, "10");
         
-        // add current instance as a peer
-        cms.createZNode(CreateMode.PERSISTENT, PREFIX_PEERS+id, null);
-        cms.createZNode(CreateMode.EPHEMERAL, PREFIX_PEERS+id+SEPARATOR+STATUS, null);
-        
-        // create history repository nodes
-        if(!cms.getZNodeExist(ROOT_REPOSITORY, false)) {
-            // create history root
-            cms.createZNode(CreateMode.PERSISTENT, ROOT_REPOSITORY, "10");
-            
-            // insert all tasks
-//            for each task t
-//                PluginTask t = new PluginTask();
-//                cms.createZNode(CreateMode.PERSISTENT, PREFIX_TASK+t.getId(), null);
-//            endfor
-        }
-        
-        
-=======
         //create root bionimbuz if does not exists
         if (!cms.getZNodeExist(Path.ROOT.getFullPath(), null))
             cms.createZNode(CreateMode.PERSISTENT, Path.ROOT.getFullPath(), "");
@@ -108,7 +68,7 @@ public class ServiceManager {
         if(!cms.getZNodeExist(Path.FINISHED_TASKS.getFullPath(), null)) {
             cms.createZNode(CreateMode.PERSISTENT, Path.FINISHED_TASKS.getFullPath(), "");
         }
->>>>>>> 8b0d432507615fb11db91bbbe5d36eab89aba0a4
+
     }
     
     /**
