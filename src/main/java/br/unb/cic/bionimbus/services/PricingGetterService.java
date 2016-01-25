@@ -8,6 +8,7 @@ package br.unb.cic.bionimbus.services;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.tarifation.Amazon.AmazonDataGet;
+import br.unb.cic.bionimbus.services.tarifation.Google.GoogleDataGet;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -21,38 +22,38 @@ import org.apache.zookeeper.WatchedEvent;
 
 /**
  *
- * @author gabriel
+ * @author Gabriel Fritz Sluzala
  */
 public class PricingGetterService extends AbstractBioService {
-    
+
     private static final int PERIOD_HOURS = 12;
-    //private final ScheduledExecutorService schedExecService;
-    
-    public PricingGetterService(final CloudMessageService cms){
-        /*
+    private final ScheduledExecutorService schedExecService;
+
+    public PricingGetterService(final CloudMessageService cms) {
+
         Preconditions.checkNotNull(cms);
         this.cms = cms;
-        
+
         schedExecService = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder()
-        .setDaemon(true)
-        .setNameFormat("PricingGetterService-%d")
-        .build());*/
+                .setDaemon(true)
+                .setNameFormat("PricingGetterService-%d")
+                .build());
     }
 
     @Override
     public void start(BioNimbusConfig config, List<Listeners> listeners) {
-        /*try{
-        Preconditions.checkNotNull(listeners);
-        this.config = config;
-        this.listeners = listeners;
-        
-        listeners.add(this);
-        
-        schedExecService.scheduleAtFixedRate(this, 0, PERIOD_HOURS, TimeUnit.HOURS);
-        
-        }catch(Exception ex){
-        Logger.getLogger(PricingGetterService.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
+        try {
+            Preconditions.checkNotNull(listeners);
+            this.config = config;
+            this.listeners = listeners;
+
+            listeners.add(this);
+
+            schedExecService.scheduleAtFixedRate(this, 0, PERIOD_HOURS, TimeUnit.HOURS);
+
+        } catch (Exception ex) {
+            Logger.getLogger(PricingGetterService.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -78,6 +79,7 @@ public class PricingGetterService extends AbstractBioService {
     @Override
     public void run() {
         AmazonDataGet atg = new AmazonDataGet();
+        GoogleDataGet gdg = new GoogleDataGet();
     }
-    
+
 }
