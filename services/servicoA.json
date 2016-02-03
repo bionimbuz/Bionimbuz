@@ -1,9 +1,10 @@
 {
     "id": 1,
-    "name": "s1",
+    "name": "Software A",
     "arguments": ["args:%I1%O1"],
     "input": ["inp0"],
     "output": ["out1"],
-    "info": "MOCK",
+    "info": "Descrição do Software Computacional A",
     "path": "./programs/s1.sh"
 }
+

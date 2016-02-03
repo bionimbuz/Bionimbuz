@@ -134,6 +134,9 @@ public final class RepositoryService extends AbstractBioService {
                         ObjectMapper mapper = new ObjectMapper();
                         PluginService service = mapper.readValue(file, PluginService.class);
 
+                        // Medida paleativa, 
+                        service.setPresetMode(new Double(42420000000000l));
+                        
                         // Add the read Service to ZooKeeper
                         addServiceToZookeeper(service);
 

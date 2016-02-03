@@ -57,7 +57,7 @@ public class UserResource extends AbstractResource {
             responseUser = userDao.findByLogin(requestUser.getLogin());
         } catch (NoResultException e) {
             LOGGER.info("User " + requestUser.getLogin() + " not found");
-            
+
             // Returns to Client
             return Response.status(200).entity(loginRequest.getUser()).build();
         } catch (Exception e) {
@@ -77,9 +77,9 @@ public class UserResource extends AbstractResource {
 
             // Logs user in ZooKeeper structure
             userController.logUser(responseUser.getLogin());
-            
+
             LOGGER.info("Children count: " + userController.getLoggedUsersCount());
-            
+
             // Sets response populated user
             return Response.status(200).entity(responseUser).build();
         } else {
@@ -98,7 +98,7 @@ public class UserResource extends AbstractResource {
 
         // Inform ZooKeeper of the logout
         userController.logoutUser(logoutRequest.getUser().getLogin());
-        
+
         // Set that logout was successful
         return Response.status(200).entity(true).build();
     }
@@ -109,13 +109,30 @@ public class UserResource extends AbstractResource {
     @Produces(MediaType.APPLICATION_JSON)
     public SignUpResponse signUp(SignUpRequest request) {
         LOGGER.info("Sign up request received. [login: " + request.getUser().getLogin() + "]");
+        User user = request.getUser();
 
-        userDao.exists(request.getUser().getLogin());
+        // Verifies if user exists
+        if (!userDao.exists(user.getLogin())) {
+            // If not, persists it
+            userDao.persist(user);
 
-        SignUpResponse response = new SignUpResponse();
-        response.setAdded(true);
+            // Creates positive response
+            SignUpResponse response = new SignUpResponse();
+            response.setAdded(true);
 
-        return response;
+            // Return to application
+            return response;
+            
+        } else {
+            
+            // Creates negative response
+            SignUpResponse response = new SignUpResponse();
+            response.setAdded(false);
+
+            // Return to application
+            return response;
+        }
+
     }
 
     @Override

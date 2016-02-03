@@ -1,0 +1,10 @@
+{
+    "id": 6,
+    "name": "Software F",
+    "arguments": ["args:%I1%O1"],
+    "input": ["inp0"],
+    "output": ["out1"],
+    "info": "Descrição do Software Computacional F",
+    "path": "./programs/s1.sh"
+}
+

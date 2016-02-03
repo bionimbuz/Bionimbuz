@@ -1,0 +1,10 @@
+{
+    "id": 3,
+    "name": "Software C",
+    "arguments": ["args:%I1%O1"],
+    "input": ["inp0"],
+    "output": ["out1"],
+    "info": "Descrição do Software Computacional C",
+    "path": "./programs/s1.sh"
+}
+
