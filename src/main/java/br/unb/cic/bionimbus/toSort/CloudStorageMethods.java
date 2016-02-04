@@ -6,13 +6,9 @@
 package br.unb.cic.bionimbus.toSort;
 
 import java.io.File;
-//import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-//import java.io.FileOutputStream;
 import java.io.BufferedReader;
-//import java.io.OutputStream;
-//import java.io.FileReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -20,9 +16,6 @@ import java.util.Vector;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
-//import com.amazonaws.AmazonClientException;
-//import com.amazonaws.AmazonServiceException;
-//import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -43,6 +36,7 @@ public class CloudStorageMethods {
 
     public static String JSONPATH = "/home/baile/Dropbox/cred.json";
     public static String AMAZONKEYPATH = "/home/baile/Dropbox/accesskey.txt";
+    public static String GCLOUDPATH = "/home/baile/google-cloud-sdk/bin";
 
     private static AmazonS3 s3client;
 
@@ -98,7 +92,7 @@ public class CloudStorageMethods {
                 break;
             }
             case GOOGLE: {
-                String command = "/home/baile/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file=" + JSONPATH;
+                String command = GCLOUDPATH + "/gcloud auth activate-service-account --key-file=" + JSONPATH;
                 boolean status = ExecCommand(command);
 
                 if (status == false) {
@@ -132,7 +126,7 @@ public class CloudStorageMethods {
                 break;
             }
             case GOOGLE: {
-                String command = "/home/baile/google-cloud-sdk/bin/gsutil cp " + localPath + "/" + fileName + " gs://" + bucket.getName() + bucketPath + "/" + fileName;
+                String command = GCLOUDPATH + "/gsutil cp " + localPath + "/" + fileName + " gs://" + bucket.getName() + bucketPath + "/" + fileName;
                 boolean status = ExecCommand(command);
 
                 if (status == false) {
@@ -166,7 +160,7 @@ public class CloudStorageMethods {
                 break;
             }
             case GOOGLE: {
-                String command = "/home/baile/google-cloud-sdk/bin/gsutil cp gs://" + bucket.getName() + bucketPath + "/" + fileName + " " + localPath + "/" + fileName;
+                String command = GCLOUDPATH + "/gsutil cp gs://" + bucket.getName() + bucketPath + "/" + fileName + " " + localPath + "/" + fileName;
                 boolean status = ExecCommand(command);
 
                 if (status == false) {
@@ -185,6 +179,9 @@ public class CloudStorageMethods {
 
     public static boolean StorageMount(BioBucket bucket) {
 
+        if (bucket.isMounted())
+            return false;
+        
         String command = "/bin/mkdir " + bucket.getMountPoint();
         boolean status = ExecCommand(command);
 
@@ -218,11 +215,17 @@ public class CloudStorageMethods {
                 return false;
             }
         }
+        
+        bucket.setMounted(true);
+        
         return true;
     }
 
     public static boolean StorageUmount(BioBucket bucket) {
 
+        if (!bucket.isMounted())
+            return false;
+        
         String command = "/bin/fusermount -u " + bucket.getMountPoint();
         boolean status = ExecCommand(command);
 
@@ -237,11 +240,16 @@ public class CloudStorageMethods {
             return false;
         }
 
+        bucket.setMounted(false);
+        
         return true;
     }
 
     public static boolean CheckStorageBandwith(BioBucket bucket) {
 
+        if (!bucket.isMounted())
+            return false;
+        
         //Upload
         String command = "/bin/dd if=/dev/zero of=" + bucket.getMountPoint() + "/testfile bs=30M count=1 oflag=dsync";
 
@@ -302,6 +310,9 @@ public class CloudStorageMethods {
 
     public static boolean CheckStorageLatency(BioBucket bucket) {
 
+        if (!bucket.isMounted())
+            return false;
+        
         float latency = 0;
         int i;
 
@@ -374,23 +385,25 @@ public class CloudStorageMethods {
 
         BioBucket gBucket = new BioBucket(StorageProvider.GOOGLE, "bionimbuzteste", "/home/baile/TESTE-BIO/mybucket");
 
-        BioBucket aBucket = new BioBucket(StorageProvider.AMAZON, "testbionimbuz", "/home/baile/TESTE-BIO/mybucket");
+        BioBucket aBucket = new BioBucket(StorageProvider.AMAZON, "testbucketgerman", "/home/baile/TESTE-BIO/mybucket");
         aBucket.setEndPoint("s3-sa-east-1.amazonaws.com");
 
-        StorageAuth(aBucket.getProvider());
+        StorageAuth(gBucket.getProvider());
 
-        StorageMount(aBucket);
+        StorageMount(gBucket);
 
+        /*
         for (int i = 0; i < 5; i++) {
             CheckStorageBandwith(aBucket);
-            //CheckStorageLatency(gBucket);
-
             System.out.println("\tBandwith: " + aBucket.getBandwith());
-            //System.out.println("\tLatency: " + gBucket.getLatency());
+            
             Thread.sleep(5000);
-        }
+        }*/
+        
+        CheckStorageLatency(gBucket);
+        System.out.println("\tLatency: " + gBucket.getLatency());
 
-        StorageUmount(aBucket);
+        StorageUmount(gBucket);
 
         //StorageDownloadFile(aBucket, "/test", "/home/baile/TESTE-BIO/testee", "mclovin.png");
         //StorageUploadFile(gBucket, "/test", "/home/baile/TESTE-BIO/testee", "mclovin.png");
