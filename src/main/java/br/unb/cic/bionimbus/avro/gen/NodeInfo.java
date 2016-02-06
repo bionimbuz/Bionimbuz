@@ -7,12 +7,13 @@ package br.unb.cic.bionimbus.avro.gen;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"NodeInfo\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"fields\":[{\"name\":\"peerId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"address\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"freesize\",\"type\":\"float\"},{\"name\":\"latency\",\"type\":\"double\"}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"NodeInfo\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"fields\":[{\"name\":\"peerId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"address\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"freesize\",\"type\":\"float\"},{\"name\":\"latency\",\"type\":\"double\"},{\"name\":\"bandwidth\",\"type\":\"double\"}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public java.lang.String peerId;
   @Deprecated public java.lang.String address;
   @Deprecated public float freesize;
   @Deprecated public double latency;
+  @Deprecated public double bandwidth;
 
   /**
    * Default constructor.
@@ -22,11 +23,12 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
   /**
    * All-args constructor.
    */
-  public NodeInfo(java.lang.String peerId, java.lang.String address, java.lang.Float freesize, java.lang.Double latency) {
+  public NodeInfo(java.lang.String peerId, java.lang.String address, java.lang.Float freesize, java.lang.Double latency, java.lang.Double bandwidth) {
     this.peerId = peerId;
     this.address = address;
     this.freesize = freesize;
     this.latency = latency;
+    this.bandwidth = bandwidth;
   }
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
@@ -37,6 +39,7 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
     case 1: return address;
     case 2: return freesize;
     case 3: return latency;
+    case 4: return bandwidth;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -48,6 +51,7 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
     case 1: address = (java.lang.String)value$; break;
     case 2: freesize = (java.lang.Float)value$; break;
     case 3: latency = (java.lang.Double)value$; break;
+    case 4: bandwidth = (java.lang.Double)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -112,6 +116,21 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
     this.latency = value;
   }
 
+  /**
+   * Gets the value of the 'bandwidth' field.
+   */
+  public java.lang.Double getBandwidth() {
+    return bandwidth;
+  }
+
+  /**
+   * Sets the value of the 'bandwidth' field.
+   * @param value the value to set.
+   */
+  public void setBandwidth(java.lang.Double value) {
+    this.bandwidth = value;
+  }
+
   /** Creates a new NodeInfo RecordBuilder */
   public static br.unb.cic.bionimbus.avro.gen.NodeInfo.Builder newBuilder() {
     return new br.unb.cic.bionimbus.avro.gen.NodeInfo.Builder();
@@ -137,6 +156,7 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
     private java.lang.String address;
     private float freesize;
     private double latency;
+    private double bandwidth;
 
     /** Creates a new Builder */
     private Builder() {
@@ -166,6 +186,10 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
       if (isValidValue(fields()[3], other.latency)) {
         this.latency = data().deepCopy(fields()[3].schema(), other.latency);
         fieldSetFlags()[3] = true;
+      }
+      if (isValidValue(fields()[4], other.bandwidth)) {
+        this.bandwidth = data().deepCopy(fields()[4].schema(), other.bandwidth);
+        fieldSetFlags()[4] = true;
       }
     }
 
@@ -267,6 +291,30 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
       return this;
     }
 
+    /** Gets the value of the 'bandwidth' field */
+    public java.lang.Double getBandwidth() {
+      return bandwidth;
+    }
+    
+    /** Sets the value of the 'bandwidth' field */
+    public br.unb.cic.bionimbus.avro.gen.NodeInfo.Builder setBandwidth(double value) {
+      validate(fields()[4], value);
+      this.bandwidth = value;
+      fieldSetFlags()[4] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'bandwidth' field has been set */
+    public boolean hasBandwidth() {
+      return fieldSetFlags()[4];
+    }
+    
+    /** Clears the value of the 'bandwidth' field */
+    public br.unb.cic.bionimbus.avro.gen.NodeInfo.Builder clearBandwidth() {
+      fieldSetFlags()[4] = false;
+      return this;
+    }
+
     @Override
     public NodeInfo build() {
       try {
@@ -275,6 +323,7 @@ public class NodeInfo extends org.apache.avro.specific.SpecificRecordBase implem
         record.address = fieldSetFlags()[1] ? this.address : (java.lang.String) defaultValue(fields()[1]);
         record.freesize = fieldSetFlags()[2] ? this.freesize : (java.lang.Float) defaultValue(fields()[2]);
         record.latency = fieldSetFlags()[3] ? this.latency : (java.lang.Double) defaultValue(fields()[3]);
+        record.bandwidth = fieldSetFlags()[4] ? this.bandwidth : (java.lang.Double) defaultValue(fields()[4]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

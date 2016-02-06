@@ -38,6 +38,7 @@ import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.services.sched.SchedService;
+import br.unb.cic.bionimbus.services.storage.bandwidth.BandwidthCalculator;
 import br.unb.cic.bionimbus.services.storage.policy.StoragePolicy;
 import br.unb.cic.bionimbus.services.storage.policy.impl.BioCirrusPolicy;
 import br.unb.cic.bionimbus.toSort.Listeners;
@@ -631,6 +632,7 @@ public class StorageService extends AbstractBioService {
                     if (node.getLatency().equals(Double.MAX_VALUE)) {
                         node.setLatency(Nmap.nmap(plugin.getHost().getAddress()));
                     }
+                    node.setBandwidth(BandwidthCalculator.linkSpeed(plugin.getHost().getAddress(), node.getLatency()));
                     node.setAddress(plugin.getHost().getAddress());
                     node.setFreesize(plugin.getFsFreeSize());
                     node.setPeerId(plugin.getId());

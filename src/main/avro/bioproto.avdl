@@ -292,6 +292,7 @@ protocol BioProto {
     string address;
     float freesize;
     double latency; 
+    double bandwidth;
   }
 
   record FileInfo{
