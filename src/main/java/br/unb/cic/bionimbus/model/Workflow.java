@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -61,6 +62,20 @@ public class Workflow implements Serializable {
         this.description = description;
         this.status = WorkflowStatus.PENDING;
     }
+
+    /**
+     * Method that compares Strings and sort them (used to sort Timestamps)
+     */
+    public static Comparator<Workflow> comparator = new Comparator<Workflow>() {
+
+        @Override
+        public int compare(Workflow work1, Workflow work2) {
+            String time1 = work1.getCreationDatestamp();
+            String time2 = work2.getCreationDatestamp();
+
+            return time2.compareTo(time1);
+        }
+    };
 
     public String getId() {
         return id;

@@ -1,0 +1,6 @@
+{
+    "id": 2,
+    "name": "Sam2Bed",
+    "info": "The sam2bed script converts 1-based, closed [start, end] Sequence Alignment/Map (SAM) to sorted, 0-based, half-open [start-1, end) UCSC BED data.",
+    "path": "./programs/sam2bed.sh"
+}

@@ -8,6 +8,7 @@ import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.model.FileInfo;
 import br.unb.cic.bionimbus.model.Log;
 import br.unb.cic.bionimbus.model.LogSeverity;
+import br.unb.cic.bionimbus.model.WorkflowOutputFile;
 import br.unb.cic.bionimbus.persistence.dao.WorkflowLoggerDao;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
@@ -69,7 +70,7 @@ public class SchedService extends AbstractBioService implements Runnable {
     private LinuxPlugin myLinuxPlugin;
     private SchedPolicy schedPolicy;
 
-    // Creates logger
+    // Workflow information logger
     private final WorkflowLoggerDao workflowLogger;
 
     // Workflow
@@ -173,7 +174,7 @@ public class SchedService extends AbstractBioService implements Runnable {
         if (!pendingJobs.isEmpty()) {
             // Log if workflow not null
             if (workflow != null) {
-                workflowLogger.log(new Log("Job recebido pelo escalonamento", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
+                workflowLogger.log(new Log("Job recebido pelo Serviço de Ecalonamento", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
             }
 
             cloudMap.clear();
@@ -206,9 +207,12 @@ public class SchedService extends AbstractBioService implements Runnable {
                     waitingTask.put(task.getId(), new Pair<>(pluginInfo, task));
 
                     // Log it
-                    workflowLogger.log(new Log("JobId: " + jobInfo.getId() + " com arquivo de saida:("
-                            + jobInfo.getOutputs() + ") escalonado para peer_" + pluginInfo.getId(),
+                    workflowLogger.log(new Log("Job <b>" + jobInfo.getId() + "</b> com arquivo de saida <b>"
+                            + jobInfo.getOutputs() + "</b> enviado para nó de processamento do BioNimbuZ",
                             workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
+                    
+                    // Log all output files of a given workflow id
+                    workflowLogger.logOutputFile(workflow.getId(), jobInfo.getOutputs());
                 } else {
                     LOGGER.info("JobID: " + jobInfo.getId() + " não escalonado");
                 }
@@ -627,7 +631,7 @@ public class SchedService extends AbstractBioService implements Runnable {
 
             // schedule jobs if there are any
             if (pendingJobs != null && !pendingJobs.isEmpty()) {
-                LOGGER.info("[SchedService] Tamanho da lista de JOBS para execução :  " + pendingJobs.size());
+                LOGGER.info("Tamanho da lista de JOBS para execução :  " + pendingJobs.size());
                 scheduleJobs();
             }
 
@@ -643,7 +647,7 @@ public class SchedService extends AbstractBioService implements Runnable {
      * @param task
      */
     private void executeTasks(PluginTask task) throws Exception {
-        LOGGER.info("[SchedService] Recebimento do pedido de execução da tarefa!");
+        LOGGER.info("Recebimento do pedido de execução da tarefa!");
         //TODO otimiza chamada de checagem dos arquivos
         checkFilesPlugin();
 
@@ -655,19 +659,26 @@ public class SchedService extends AbstractBioService implements Runnable {
         //            return;
         //        }
         if (!existFiles(task.getJobInfo().getInputFiles())) {
-            LOGGER.info("[SchedService] executeTasks: files from JobInfo(id=" + task.getJobInfo().getId() + ") not found. Requesting file...");
+            LOGGER.info("Files from JobInfo(id=" + task.getJobInfo().getId() + ") not found. Requesting file...");
 
+            for (FileInfo f : task.getJobInfo().getInputFiles()) {
+                LOGGER.info("Arquivo: " + f.getName());
+            }
+            
             requestFile(task.getJobInfo().getInputFiles());
 
-            LOGGER.info("[SchedService] executeTasks: task " + task.getId() + " files not present.");
+            LOGGER.info("Task " + task.getId() + " files not present.");
         }
         if (existFiles(task.getJobInfo().getInputFiles())) {
             decryptFiles(task.getJobInfo().getInputFiles());
-            myLinuxPlugin.startTask(task, cms);
-            LOGGER.info("[SchedService] executeTasks: task " + task.getId() + " started.");
+            
+            // Executes the command line and upload it to ZooKeeper
+            myLinuxPlugin.startTask(task, cms, workflow);
+            
+            LOGGER.info("Task " + task.getId() + " started.");
         } else {
             task.setState(PluginTaskState.WAITING);
-            LOGGER.info("[SchedService] executeTasks: task " + task.getId() + " waiting.");
+            LOGGER.info("Task " + task.getId() + " waiting.");
         }
     }
 
@@ -733,12 +744,6 @@ public class SchedService extends AbstractBioService implements Runnable {
         //cria um znode efêmero para exibir jobs finalizados, é efêmero para poder ser apagado quando peer ficar off-line
         cms.createZNode(CreateMode.PERSISTENT, Path.NODE_FINISHED_TASK.getFullPath(task.getPluginExec(), task.getJobInfo().getId()), task.toString());
 
-        // Log it
-        workflowLogger.log(new Log("Tempo de execução do Job: " + task.getJobInfo().getId()
-                + "Minutos: " + task.getTimeExec() / 60
-                + ", segundos: " + task.getTimeExec(),
-                workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
-
 //        } catch (KeeperException ex) {
         //            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
         //        } catch (InterruptedException ex) {
@@ -799,7 +804,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                     String datas;
                     //reconhece um alerta de um novo pipeline
                     if (eventType.getPath().contains(Path.PIPELINES.toString())) {
-                        LOGGER.info("Received an evento to sched a workflow -> NodeChildrenChanged");
+                        LOGGER.info("Received an event to sched a workflow -> NodeChildrenChanged");
 
                         // get all pipelines
                         List<String> pipelinesId = cms.getChildren(eventType.getPath(), null);
@@ -814,7 +819,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                                 // Sets it workflow
                                 workflow = mapper.readValue(datas, Workflow.class);
 
-                                workflowLogger.log(new Log("Iniciando escalonamento...", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
+                                workflowLogger.log(new Log("Iniciando serviço de escalonamento...", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
 
                                 // add independent jobs to pendingJobs list and jobs with 
                                 // any dependency to the dependentJobs list
@@ -830,8 +835,8 @@ public class SchedService extends AbstractBioService implements Runnable {
                                 LOGGER.info("Workflow is compound by: " + i + " independent jobs and " + (workflow.getJobs().size() - i) + " jobs with dependency");
 
                                 // Log it
-                                workflowLogger.log(new Log(i + " Job(s) independente(s) enviado(s) para escalonamento", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
-                                workflowLogger.log(new Log((workflow.getJobs().size() - i) + " Job(s) com dependência(s) enviado(s) para escalonamento", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
+                                workflowLogger.log(new Log(" Job(s) independente(s): <b>" + i + "</b>", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
+                                workflowLogger.log(new Log("Job(s) com dependência(s): <b>" + (workflow.getJobs().size() - i) + "</b>", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
 
                                 // remove pipeline from zookeeper
                                 cms.delete(Path.NODE_PIPELINE.getFullPath(pipelineReady));

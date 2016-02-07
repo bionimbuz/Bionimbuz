@@ -1,9 +1,11 @@
 package br.unb.cic.bionimbus.config;
 
 import br.unb.cic.bionimbus.p2p.Host;
+import br.unb.cic.bionimbus.plugin.PluginService;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 import com.google.inject.Singleton;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import org.codehaus.jackson.annotate.JsonIgnore;
@@ -49,12 +51,34 @@ public class BioNimbusConfig {
 
     @JsonProperty("server-path")
     private String serverPath = "";
-    
+
     @JsonProperty("cost")
     private Double cost;
-    
+
     private String proxyHost = "localhost";
+
     private int proxyPort = 8080;
+
+    @JsonProperty("root-folder")
+    private String rootFolder;
+
+    @JsonProperty("reference-folder")
+    private String referenceFolder;
+
+    @JsonProperty("output-folder")
+    private String outputFolder;
+
+    @JsonProperty("data-folder")
+    private String dataFolder;
+
+    @JsonProperty("references")
+    private ArrayList<String> references;
+
+    @JsonProperty("supported-formats")
+    private ArrayList<String> supportedFormats;
+
+    @JsonProperty("supported-services")
+    private ArrayList<PluginService> supportedServices;
 
     public void setRpcProtocol(String rpcProtocol) {
         this.rpcProtocol = rpcProtocol;
@@ -179,7 +203,7 @@ public class BioNimbusConfig {
     public void setPrivateCloud(int privateCloud) {
         this.privateCloud = privateCloud;
     }
-    
+
     public Double getCost() {
         return cost;
     }
@@ -187,11 +211,66 @@ public class BioNimbusConfig {
     public void SetCost(Double cost) {
         this.cost = cost;
     }
-    
+
+    public String getRootFolder() {
+        return rootFolder;
+    }
+
+    public void setRootFolder(String rootFolder) {
+        this.rootFolder = rootFolder;
+    }
+
+    public String getReferenceFolder() {
+        return referenceFolder;
+    }
+
+    public void setReferenceFolder(String referenceFolder) {
+        this.referenceFolder = referenceFolder;
+    }
+
+    public String getOutputFolder() {
+        return outputFolder;
+    }
+
+    public void setOutputFolder(String outputFolder) {
+        this.outputFolder = outputFolder;
+    }
+
+    public String getDataFolder() {
+        return dataFolder;
+    }
+
+    public void setDataFolder(String dataFolder) {
+        this.dataFolder = dataFolder;
+    }
+
+    public ArrayList<String> getReferences() {
+        return references;
+    }
+
+    public void setReferences(ArrayList<String> references) {
+        this.references = references;
+    }
+
+    public ArrayList<String> getSupportedFormats() {
+        return supportedFormats;
+    }
+
+    public void setSupportedFormats(ArrayList<String> supportedFormats) {
+        this.supportedFormats = supportedFormats;
+    }
+
+    public ArrayList<PluginService> getSupportedServices() {
+        return supportedServices;
+    }
+
+    public void setSupportedServices(ArrayList<PluginService> supportedServices) {
+        this.supportedServices = supportedServices;
+    }
+
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                //                .add("id", id)
                 .add("rpc-protocol", rpcProtocol)
                 .add("rpc-port", rpcPort)
                 .add("zkHosts", zkHosts)
@@ -202,6 +281,13 @@ public class BioNimbusConfig {
                 .add("cost_per_giga", costpergiga)
                 .add("server-path", serverPath)
                 .add("cost", cost)
+                .add("root-folder", rootFolder)
+                .add("reference-folder", referenceFolder)
+                .add("output-folder", outputFolder)
+                .add("data-folder", dataFolder)
+                .add("references-size", references.size())
+                .add("supported-formats", supportedFormats.size())
+                .add("supported-services", supportedServices.size())
                 .toString();
     }
 

@@ -6,15 +6,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author Vinicius
  */
-public class GetServicesRequest implements RequestInfo {
+public class GetConfigurationsRequest implements RequestInfo {
 
     @JsonProperty(value = "request")
     private boolean request;    
 
-    public GetServicesRequest() {
+    public GetConfigurationsRequest() {
     }
 
-    public GetServicesRequest(boolean request) {
+    public GetConfigurationsRequest(boolean request) {
         this.request = request;
     }
 

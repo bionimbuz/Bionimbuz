@@ -79,7 +79,6 @@ public final class RepositoryService extends AbstractBioService {
         // Add current instance as a peer
         addPeerToZookeeper(new PluginInfo(config.getId()));
 
-        readSupportedServices();
         listeners.add(this);
     }
 
@@ -111,50 +110,6 @@ public final class RepositoryService extends AbstractBioService {
             count++;
         }
         return sum / ls.size();
-    }
-
-    /**
-     * Read from services folder the supported services and add this info to
-     * ZooKeeper @ /bionimbuz/services/{service}
-     *
-     * @throws IOException
-     */
-    private void readSupportedServices() {
-        final List<PluginService> list = new CopyOnWriteArrayList<>();
-        File dir = new File(SERVICES_DIR);
-        int cont = 0;
-
-        try {
-            // Iterates over the services found in the /services/ folder
-            if (dir.isDirectory()) {
-                for (File file : dir.listFiles()) {
-
-                    // It may be a .json file
-                    if (file.isFile() && file.canRead() && file.getName().endsWith(".json")) {
-                        ObjectMapper mapper = new ObjectMapper();
-                        PluginService service = mapper.readValue(file, PluginService.class);
-
-                        // Medida paleativa, 
-                        service.setPresetMode(new Double(42420000000000l));
-                        
-                        // Add the read Service to ZooKeeper
-                        addServiceToZookeeper(service);
-
-                        // Add the read Service to the list of supported services
-                        supportedServices.add(service);
-
-                        cont++;
-                    }
-                }
-            }
-
-        } catch (IOException ex) {
-            LOGGER.error("[IOException] " + ex.getMessage());
-        }
-
-        LOGGER.info("===============================================");
-        LOGGER.info("====> " + cont + " Services added to BioNimbuZ");
-        LOGGER.info("===============================================");
     }
 
     /**
@@ -222,36 +177,10 @@ public final class RepositoryService extends AbstractBioService {
                     LOGGER.error("[IOException] " + ex.getMessage());
                 }
             }
-            LOGGER.info("Resource converted " + r.toString());
             resources.resources.add(r);
         }
 
         return resources;
-    }
-
-    /**
-     * Add a service to zookeeper, thereby, generating the full history
-     * structure for given service.
-     *
-     * The service can have a history mode, and, having it, the modes will be
-     * added to the service zookeeper file even without a history. These modes
-     * will be removed when the history is big enough to make its own modes.
-     *
-     * The preset modes feature should only be used for testing.
-     *
-     * @param service Service to be added
-     */
-    public void addServiceToZookeeper(PluginService service) {
-        // create father node
-        cms.createZNode(CreateMode.PERSISTENT, Path.NODE_SERVICE.getFullPath(String.valueOf(service.getId())), service.toString());
-
-        // create history structure
-        cms.createZNode(CreateMode.PERSISTENT, Path.MODES.getFullPath(String.valueOf(service.getId())), null);
-
-        // add preset mode if there is one
-        if (service.getPresetMode() != null) {
-            cms.createZNode(CreateMode.PERSISTENT, Path.NODE_MODES.getFullPath(String.valueOf(service.getId()), "0"), service.getPresetMode().toString());
-        }
     }
 
     /**

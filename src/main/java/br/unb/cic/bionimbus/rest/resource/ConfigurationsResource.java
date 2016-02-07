@@ -1,9 +1,11 @@
 package br.unb.cic.bionimbus.rest.resource;
 
+import br.unb.cic.bionimbus.config.ConfigurationRepository;
 import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
 import br.unb.cic.bionimbus.plugin.PluginService;
-import br.unb.cic.bionimbus.rest.request.GetServicesRequest;
+import br.unb.cic.bionimbus.rest.request.GetConfigurationsRequest;
 import br.unb.cic.bionimbus.rest.request.RequestInfo;
+import br.unb.cic.bionimbus.rest.response.GetConfigurationsResponse;
 import br.unb.cic.bionimbus.rest.response.ResponseInfo;
 import java.util.List;
 import javax.annotation.security.PermitAll;
@@ -12,16 +14,15 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 /**
  *
  * @author Vinicius
  */
 @Path("/rest")
-public class ServicesResource extends AbstractResource {
+public class ConfigurationsResource extends AbstractResource {
 
-    public ServicesResource(JobController jobController) {
+    public ConfigurationsResource(JobController jobController) {
         this.jobController = jobController;
     }
 
@@ -30,13 +31,17 @@ public class ServicesResource extends AbstractResource {
     @Path("/services")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response returnSupportedServices(GetServicesRequest request) {
-       
+    public GetConfigurationsResponse returnSupportedServices(GetConfigurationsRequest request) {
+
         LOGGER.info("Received request from web application");
+
+        List<PluginService> list = ConfigurationRepository.getSupportedServices();
+        List<String> references = ConfigurationRepository.getReferences();
+        List<String> supportedFormats = ConfigurationRepository.getSupportedFormats();
         
-        List<PluginService> list =  jobController.getSupportedServices();
-        
-        return Response.status(200).entity(list).build();
+        GetConfigurationsResponse response = new GetConfigurationsResponse(list, references, supportedFormats);
+
+        return response;
     }
 
     @Override

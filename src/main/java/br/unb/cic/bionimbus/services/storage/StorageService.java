@@ -5,8 +5,11 @@ import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import static br.unb.cic.bionimbus.config.BioNimbusConfigLoader.loadHostConfig;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
+import br.unb.cic.bionimbus.plugin.PluginTask;
+import br.unb.cic.bionimbus.security.AESEncryptor;
 import br.unb.cic.bionimbus.security.Hash;
 import br.unb.cic.bionimbus.security.Integrity;
 import br.unb.cic.bionimbus.services.AbstractBioService;
@@ -331,7 +334,7 @@ public class StorageService extends AbstractBioService {
      * @return true caso o arquivo exista e tenha sido setado
      */
     public boolean checkFilePeer(PluginFile file) {
-        LOGGER.info("Verifying if file (filename=" + file.toString() + ") exists on peer");
+        LOGGER.info("Verifying if file (filename=" + file.getName() + ") exists on peer");
 
         String pathHome = System.getProperty("user.dir");
         String path = (pathHome.substring(pathHome.length()).equals("/") ? pathHome + "data-folder/" : pathHome + "/data-folder/");
@@ -360,7 +363,7 @@ public class StorageService extends AbstractBioService {
      * @throws com.jcraft.jsch.SftpException
      */
     public synchronized String fileUploaded(PluginFile fileUploaded) throws KeeperException, InterruptedException, IOException, NoSuchAlgorithmException, SftpException {
-        LOGGER.info("Checking if there is request on PENDING_SAVE " + fileUploaded.toString());
+        LOGGER.info("Checking if there is request on PENDING_SAVE: " + fileUploaded.getName());
 
         Boolean successUpload = false;
         if (cms.getZNodeExist(Path.NODE_PENDING_FILE.getFullPath(fileUploaded.getId()), null)) {
@@ -377,8 +380,6 @@ public class StorageService extends AbstractBioService {
                 idPluginFile = idPlugin;
                 break;
             }
-
-            LOGGER.info("IdPluginFile: " + idPluginFile);
 
             //Verifica se a máquina que recebeu essa requisição não é a que está armazenando o arquivo
             if (!fileUploaded.getPluginId().contains(config.getId())) {
@@ -701,6 +702,167 @@ public class StorageService extends AbstractBioService {
     }
 
     /**
+     * Sends a file to ZooKeeper
+     *
+     * @param filepath
+     * @param fileInfo
+     * @return
+     * @throws IOException
+     * @throws InterruptedException
+     * @throws JSchException
+     * @throws java.security.NoSuchAlgorithmException
+     * @throws SftpException
+     */
+    public boolean writeFileToZookeeper(String filepath, FileInfo fileInfo) throws IOException, JSchException, SftpException, NoSuchAlgorithmException, InterruptedException {
+        List<NodeInfo> pluginList;
+        List<NodeInfo> nodesdisp = new ArrayList<>();
+        RpcClient rpcClient = null;
+
+        String configFile = System.getProperty("config.file", "conf/node.yaml");
+
+        try {
+            rpcClient = new AvroClient("http", loadHostConfig(configFile).getAddress(), 8080);
+        } catch (IOException ex) {
+            LOGGER.error("[IOException] " + ex.getMessage());
+        }
+        File file = new File(filepath);
+        AESEncryptor aes = new AESEncryptor();
+
+        // Verifica se o arquivo existe         
+        if (file.exists()) {
+            pluginList = rpcClient.getProxy().getPeersNode();
+
+            //Insere o arquivo na pasta PENDING SAVE do Zookeeper
+            rpcClient.getProxy().setFileInfo(fileInfo, "upload!");
+            for (Iterator<NodeInfo> it = pluginList.iterator(); it.hasNext();) {
+                NodeInfo plugin = it.next();
+
+                //Adiciona na lista de possiveis peers de destino somente os que possuem espaço livre para receber o arquivo
+                if ((long) (plugin.getFreesize() * MAXCAPACITY) > fileInfo.getSize()) {
+                    plugin.setLatency(Ping.calculo(plugin.getAddress()));
+                    if (plugin.getLatency().equals(Double.MAX_VALUE)) {
+                        plugin.setLatency(Nmap.nmap(plugin.getAddress()));
+                    }
+                    nodesdisp.add(plugin);
+                }
+            }
+
+            //Retorna a lista dos nos ordenados como melhores, passando a latência calculada
+            nodesdisp = new ArrayList<>(rpcClient.getProxy().callStorage(nodesdisp));
+
+            NodeInfo no = null;
+            Iterator<NodeInfo> it = nodesdisp.iterator();
+            while (it.hasNext() && no == null) {
+                NodeInfo node = (NodeInfo) it.next();
+
+                //Tenta enviar o arquivo a partir do melhor peer que está na lista
+                Put conexao = new Put(node.getAddress(), filepath);
+                if (conexao.startSession()) {
+                    no = node;
+                }
+            }
+            //Conserta o nome do arquivo encriptado
+            //TO-DO: Remove comment after William Final Commit
+            //aes.setCorrectFilePath(path);
+            if (no != null) {
+                List<String> dest = new ArrayList<>();
+                dest.add(no.getPeerId());
+                nodesdisp.remove(no);
+
+                //Envia RPC para o peer em que está conectado, para que ele sete no Zookeeper os dados do arquivo que foi upado.
+                rpcClient.getProxy().fileSent(fileInfo, dest);
+
+                // File uploaded
+                LOGGER.info("File uploaded!");
+                return true;
+            }
+
+        }
+
+        // Upload error
+        LOGGER.error("File not found");
+
+        return false;
+    }
+
+    /**
+     * Cria Map com ID dos plugins e seus respectivos arquivos baseado nos dados
+     * do zookeeper.
+     *
+     * @return Map<Id_Plugin, Lista de Arquivos>
+     * @throws java.io.IOException
+     */
+    public Map<String, List<String>> getAllPluginFiles() throws IOException {
+        Map<String, List<String>> mapFiles = new HashMap<>();
+        List<String> listFiles;
+        checkFiles();
+
+        for (PluginInfo plugin : getPeers().values()) {
+            listFiles = new ArrayList<>();
+            for (String file : cms.getChildren(Path.FILES.getFullPath(plugin.getId()), new UpdatePeerData(cms, this))) {
+                listFiles.add(file);
+            }
+
+            mapFiles.put(plugin.getId(), listFiles);
+        }
+
+        return mapFiles;
+
+    }
+
+    /**
+     * Returns a FileInfo from a given filename. It searches over the ZooKeeper
+     * structure to find the peer and the name.
+     *
+     * @param filename
+     * @return
+     */
+    public br.unb.cic.bionimbus.avro.gen.PluginFile getFileInfoByFilename(String filename) {
+        try {
+            // Map --> {peer_id, {file_1, file_2, file_3, ...}, peer_id, {}...}
+            Map<String, List<String>> map = getAllPluginFiles();
+
+            // Iterates over the map
+            for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+                LOGGER.info("Iterating over peer: " + entry.getKey());
+
+                // Iterates the list of files of a peer
+                for (String file : entry.getValue()) {
+                    LOGGER.info("File: " + file);
+
+                    // Verify if it is that searched
+                    if (file.equals(filename)) {
+                        // Creates Mapper
+                        ObjectMapper mapper = new ObjectMapper();
+
+                        // Retrives from ZooKeeper
+                        String pFile = cms.getData(Path.NODE_FILE.getFullPath(entry.getKey(), file), null);
+
+                        // Convert to PluginFile
+                        br.unb.cic.bionimbus.avro.gen.PluginFile pluginFile = mapper.readValue(pFile, br.unb.cic.bionimbus.avro.gen.PluginFile.class);
+
+                        br.unb.cic.bionimbus.model.FileInfo fileInfo = new br.unb.cic.bionimbus.model.FileInfo();
+                        fileInfo.setId(pluginFile.getId());
+                        fileInfo.setName(pluginFile.getName());
+                        fileInfo.setHash(pluginFile.getHash());
+                        fileInfo.setSize(pluginFile.getSize());
+                        fileInfo.setUploadTimestamp("");
+
+                        // Found -> return peer_id
+                        return pluginFile;
+                    }
+                }
+            }
+
+        } catch (IOException ex) {
+            LOGGER.error("Error searching files");
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
      * Método que recebe um evento do zookeeper caso os znodes setados nessa
      * classe sofra alguma alteração, criado, deletado, modificado, trata os
      * eventos de acordo com o tipo do mesmo
@@ -731,7 +893,7 @@ public class StorageService extends AbstractBioService {
             case NodeDeleted:
                 if (eventType.getPath().contains(Path.STATUS.toString())) {
                     LOGGER.info("Erased ZNode Status");
-                    
+
                     String peerId = path.substring(12, path.indexOf("/STATUS"));
                     if (getPeers().values().size() != 1) {
                         try {

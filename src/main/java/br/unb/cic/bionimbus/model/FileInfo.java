@@ -3,13 +3,10 @@ package br.unb.cic.bionimbus.model;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
-import java.util.TimeZone;
-import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import org.bouncycastle.crypto.tls.HashAlgorithm;
 
 /**
  * Object model of a file sent from the user web application

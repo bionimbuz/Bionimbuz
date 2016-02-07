@@ -1,15 +1,16 @@
 package br.unb.cic.bionimbus.rest.response;
 
-import org.jboss.resteasy.core.ServerResponse;
-
 /**
  * A SignUp response definition
  *
  * @author Vinicius
  */
-public class SignUpResponse extends ServerResponse implements ResponseInfo {
+public class SignUpResponse implements ResponseInfo {
 
     private boolean added;
+
+    public SignUpResponse() {
+    }
 
     public boolean isAdded() {
         return added;

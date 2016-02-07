@@ -37,6 +37,7 @@
         <!--<hibernate.version>5.0.4.Final</hibernate.version> -->
         <mysql.version>5.1.35</mysql.version>
         <spring.version>3.2.4.RELEASE</spring.version>
+        <spring.security.version>4.0.3.RELEASE</spring.security.version>
     </properties>
 
     <repositories>
@@ -69,91 +70,91 @@
     </repositories>
     <build>
         <finalName>zoonimbus</finalName>
-	        <plugins>
-	            <plugin>
-	                <groupId>org.apache.maven.plugins</groupId>
-	                <artifactId>maven-compiler-plugin</artifactId>
-	                <configuration>
-	                    <source>1.7</source>
-	                    <target>1.7</target>
-	                    <encoding>UTF-8</encoding>
-	                </configuration>
-	            </plugin>
-	            <plugin>
-	                <groupId>org.apache.maven.plugins</groupId>
-	                <artifactId>maven-resources-plugin</artifactId>
-	                <configuration>
-	                    <encoding>UTF-8</encoding>
-	                </configuration>
-	            </plugin>
-	            <plugin>
-	                <groupId>org.apache.maven.plugins</groupId>
-	                <artifactId>maven-surefire-plugin</artifactId>
-	            </plugin>
-	            <plugin>
-	                <groupId>org.apache.avro</groupId>
-	                <artifactId>avro-maven-plugin</artifactId>
-	                <version>${avro.version}</version>
-	                <executions>
-	                    <execution>
-	                        <id>schemas</id>
-	                        <phase>generate-sources</phase>
-	                        <goals>
-	                            <goal>schema</goal>
-	                            <goal>protocol</goal>
-	                            <goal>idl-protocol</goal>
-	                        </goals>
-	                        <configuration>
-	                            <!--  The Java type to use for Avro strings.
-	                                  May be one of CharSequence, String or Utf8.
-	                                  CharSequence by default (if stringType omitted)
-	                            -->
-	                            <stringType>String</stringType>
-	                            <excludes>
-	                                <exclude>**/mapred/tether/**</exclude>
-	                            </excludes>
-	                            <sourceDirectory>${project.basedir}/src/main/avro/</sourceDirectory>
-	                            <outputDirectory>${project.basedir}/src/main/java/</outputDirectory>
-	                            <testSourceDirectory>${project.basedir}/src/test/avro/</testSourceDirectory>
-	                            <testOutputDirectory>${project.basedir}/src/test/java/</testOutputDirectory>
-	                        </configuration>
-	                    </execution>
-	                </executions>
-	            </plugin>
-	            <plugin>
-	                <artifactId>maven-dependency-plugin</artifactId>
-	                <executions>
-	                    <execution>
-	                        <phase>package</phase>
-	                        <goals>
-	                            <goal>copy-dependencies</goal>
-	                        </goals>
-	                        <configuration>
-	                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
-	                        </configuration>
-	                    </execution>
-	                </executions>
-	            </plugin>
-	            <plugin>
-	                <groupId>org.apache.maven.plugins</groupId>
-	                <artifactId>maven-jar-plugin</artifactId>
-	                <version>2.2</version>
-	                <configuration>
-	                    <archive>
-	                        <manifest>
-	                            <mainClass>br.unb.cic.bionimbus.BioNimbus</mainClass>
-	                            <packageName>br.unb.cic.bionimbus</packageName>
-	                            <addClasspath>true</addClasspath>
-	                            <classpathPrefix>lib/</classpathPrefix>
-	                            <addExtensions/>
-	                        </manifest>
-	                        <manifestEntries>
-	                            <mode>development</mode>
-	                            <url>${project.url}</url>
-	                        </manifestEntries>
-	                    </archive>
-	                </configuration>
-	            </plugin>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.avro</groupId>
+                <artifactId>avro-maven-plugin</artifactId>
+                <version>${avro.version}</version>
+                <executions>
+                    <execution>
+                        <id>schemas</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>schema</goal>
+                            <goal>protocol</goal>
+                            <goal>idl-protocol</goal>
+                        </goals>
+                        <configuration>
+                            <!--  The Java type to use for Avro strings.
+                                  May be one of CharSequence, String or Utf8.
+                                  CharSequence by default (if stringType omitted)
+                            -->
+                            <stringType>String</stringType>
+                            <excludes>
+                                <exclude>**/mapred/tether/**</exclude>
+                            </excludes>
+                            <sourceDirectory>${project.basedir}/src/main/avro/</sourceDirectory>
+                            <outputDirectory>${project.basedir}/src/main/java/</outputDirectory>
+                            <testSourceDirectory>${project.basedir}/src/test/avro/</testSourceDirectory>
+                            <testOutputDirectory>${project.basedir}/src/test/java/</testOutputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>br.unb.cic.bionimbus.BioNimbus</mainClass>
+                            <packageName>br.unb.cic.bionimbus</packageName>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <addExtensions/>
+                        </manifest>
+                        <manifestEntries>
+                            <mode>development</mode>
+                            <url>${project.url}</url>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
 	
             <!-- Monta um tar.gz com -->
             <plugin>

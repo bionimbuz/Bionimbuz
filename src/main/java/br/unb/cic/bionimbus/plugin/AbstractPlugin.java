@@ -15,6 +15,7 @@ import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
 import br.unb.cic.bionimbus.model.FileInfo;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.utils.Pair;
 import com.google.inject.Inject;
@@ -65,7 +66,7 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
 
     protected abstract Future<PluginInfo> startGetInfo();
 
-    public abstract Future<PluginTask> startTask(PluginTask task, CloudMessageService cms);
+    public abstract Future<PluginTask> startTask(PluginTask task, CloudMessageService cms, Workflow workflow);
 
 //    private String getId() {
     public String getId() {

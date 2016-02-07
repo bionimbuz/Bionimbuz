@@ -40,11 +40,11 @@ public class EntityManagerProducer {
      * @return
      */
     public static EntityManager getEntityManager() {
-        HibernatePersistenceProvider p = new HibernatePersistenceProvider();
+        // HibernatePersistenceProvider p = new HibernatePersistenceProvider();
+        // factory = p.createEntityManagerFactory("bionimbuz_pu", null);
         
-        // factory = Persistence.createEntityManagerFactory("bionimbuz_pu");
+        factory = Persistence.createEntityManagerFactory("bionimbuz_pu");
         
-        factory = p.createEntityManagerFactory("bionimbuz_pu", null);
 
         manager = factory.createEntityManager();
 

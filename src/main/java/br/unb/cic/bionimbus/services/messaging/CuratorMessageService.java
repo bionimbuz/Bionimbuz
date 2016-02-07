@@ -67,12 +67,12 @@ public class CuratorMessageService implements CloudMessageService {
         FILES("/files"),
         FINISHED_TASKS("/finished_tasks"),
         LATENCY("/latency"),
-        LOGGED_USERS("/logged"), // Vinicius dez/2015 > Current users
+        LOGGED_USERS("/logged"), 
         MODES("/modes"),
         NODE_COST("/"),
         NODE_FILE("/"),
         NODE_FINISHED_TASK("/"),
-        NODE_LOGGED_USERS("/"), // Vinicius dez/2015
+        NODE_LOGGED_USERS("/"), 
         NODE_MODES("/"),
         NODE_PEER("/"),
         NODE_PENDING_FILE("/"),
@@ -92,7 +92,7 @@ public class CuratorMessageService implements CloudMessageService {
         STATUS("/STATUS"),
         STATUSWAITING("/STATUSWAITING"),
         TASKS("/tasks"),
-        USERS("/users");                // Vinicius dez/2015 > Root path for users
+        USERS("/users");                
 
         private final String value;
 
@@ -278,6 +278,7 @@ public class CuratorMessageService implements CloudMessageService {
             ret = new String(data);
         } catch (Exception ex) {
             LOGGER.error("[Exception] " + ex.getMessage());
+            ex.printStackTrace();
         }
         return ret;
     }

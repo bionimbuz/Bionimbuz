@@ -1,6 +1,8 @@
 package br.unb.cic.bionimbus.persistence.dao;
 
 import br.unb.cic.bionimbus.model.Workflow;
+import br.unb.cic.bionimbus.model.WorkflowOutputFile;
+import br.unb.cic.bionimbus.model.WorkflowStatus;
 import br.unb.cic.bionimbus.persistence.EntityManagerProducer;
 import java.util.List;
 import javax.persistence.TypedQuery;
@@ -68,6 +70,26 @@ public class WorkflowDao extends AbstractDao<Workflow> {
         manager.close();
 
         return result;
+    }
+
+    /**
+     * Updates a workflow status.
+     *
+     * @param workflowId
+     * @param newStatus
+     */
+    public void updateStatus(String workflowId, WorkflowStatus newStatus) {
+        // Creates entity manager
+        manager = EntityManagerProducer.getEntityManager();
+
+        // Finds in database
+        Workflow w = manager.find(Workflow.class, workflowId);
+
+        // Update it (as it is in managed state, it works)
+        w.setStatus(newStatus);
+
+        // Close connection
+        manager.close();
     }
 
     /**

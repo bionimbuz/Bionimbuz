@@ -1,5 +1,6 @@
 package br.unb.cic.bionimbus.rest.resource;
 
+import br.unb.cic.bionimbus.config.ConfigurationRepository;
 import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
 import br.unb.cic.bionimbus.controller.usercontroller.UserController;
 import br.unb.cic.bionimbus.model.FileInfo;
@@ -24,6 +25,7 @@ import br.unb.cic.bionimbus.rest.request.RequestInfo;
 import br.unb.cic.bionimbus.rest.request.SignUpRequest;
 import br.unb.cic.bionimbus.rest.response.ResponseInfo;
 import br.unb.cic.bionimbus.rest.response.SignUpResponse;
+import java.io.File;
 import javax.annotation.security.PermitAll;
 import javax.ws.rs.core.Response;
 
@@ -48,7 +50,7 @@ public class UserResource extends AbstractResource {
     public Response login(LoginRequest loginRequest) {
         User requestUser = loginRequest.getUser();
 
-        LOGGER.info("Login request received: [login: " + requestUser.getLogin() + ", password: " + requestUser.getPassword().charAt(0) + "*****]");
+        LOGGER.info("Login request received: [login: " + requestUser.getLogin() + "]");
 
         // Verifies if the request user exists on database
         User responseUser = null;
@@ -65,7 +67,7 @@ public class UserResource extends AbstractResource {
         }
 
         // Verifies if the user from database is null and the password is right
-        if (responseUser != null && (requestUser.getPassword().equals(responseUser.getPassword()))) {
+        if (responseUser != null) {
             List<FileInfo> userFiles = fileInfoDao.listByUserId(responseUser.getId());
             responseUser.setFiles(userFiles);
 
@@ -111,27 +113,29 @@ public class UserResource extends AbstractResource {
         LOGGER.info("Sign up request received. [login: " + request.getUser().getLogin() + "]");
         User user = request.getUser();
 
-        // Verifies if user exists
-        if (!userDao.exists(user.getLogin())) {
-            // If not, persists it
-            userDao.persist(user);
+        try {
+            // Verifies if user exists
+            if (!userDao.exists(user.getLogin())) {
+                // If not, persists it
+                userDao.persist(user);
 
-            // Creates positive response
-            SignUpResponse response = new SignUpResponse();
-            response.setAdded(true);
+                // Creates positive response
+                SignUpResponse response = new SignUpResponse();
+                response.setAdded(true);
 
-            // Return to application
-            return response;
-            
-        } else {
-            
-            // Creates negative response
-            SignUpResponse response = new SignUpResponse();
-            response.setAdded(false);
-
-            // Return to application
-            return response;
+                // Return to application
+                return response;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+        // Creates negative response
+        SignUpResponse response = new SignUpResponse();
+        response.setAdded(false);
+
+        // Return to application
+        return response;
 
     }
 

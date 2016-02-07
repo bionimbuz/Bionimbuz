@@ -1,0 +1,6 @@
+{
+    "id": 4,
+    "name": "CoverageBed",
+    "info": "The bedtools coverage tool computes both the depth and breadth of coverage of features in file B on the features in file A.",
+    "path": "./programs/coverageBed.sh"
+}

@@ -141,6 +141,7 @@ public class JobController implements Controller, Runnable {
             job.setTimestamp(jobInfo.getTimestamp());
             job.setOutputs(jobInfo.getOutputs());
             job.setDependencies(jobInfo.getDependencies());
+            job.setReferenceFile(jobInfo.getReferenceFile());
 
             // Avro File Info
             ArrayList<br.unb.cic.bionimbus.avro.gen.FileInfo> avroFiles = new ArrayList<>();
@@ -213,26 +214,4 @@ public class JobController implements Controller, Runnable {
         return this.repositoryService;
     }
 
-    public List<PluginService> getSupportedServices() {
-        ArrayList<PluginService> services = new ArrayList<>();
-
-        if (cms.getZNodeExist(CuratorMessageService.Path.SERVICES.getFullPath(), null)) {
-
-            List<String> children = cms.getChildren(CuratorMessageService.Path.SERVICES.getFullPath(), null);
-
-            try {
-                for (String s : children) {
-                    ObjectMapper mapper = new ObjectMapper();
-                    PluginService service = mapper.readValue(cms.getData(CuratorMessageService.Path.NODE_SERVICE.getFullPath(s), null), PluginService.class);
-                    services.add(service);
-                }
-            } catch (IOException ex) {
-                LOGGER.error("[IOException] " + ex.getMessage());
-            }
-
-            return services;
-        }
-
-        return null;
-    }
 }
