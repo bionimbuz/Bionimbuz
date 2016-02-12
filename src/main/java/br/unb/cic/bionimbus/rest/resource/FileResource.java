@@ -89,6 +89,7 @@ public class FileResource extends AbstractResource {
 
         } catch (IOException e) {
             LOGGER.error("[IOException] " + e.getMessage());
+            e.printStackTrace();
         }
 
         return Response.status(500).entity(false).build();

@@ -4,6 +4,7 @@
  */
 package br.unb.cic.bionimbus.utils;
 
+import br.unb.cic.bionimbus.config.ConfigurationRepository;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
@@ -24,9 +25,8 @@ public class Get {
     private int PORT = 22;
     private com.jcraft.jsch.Channel channel;
 
-    public boolean startSession(String file, String host) throws JSchException, SftpException {
-        String pathHome = System.getProperty("user.dir");
-        String path = (pathHome.substring(pathHome.length()).equals("/") ? pathHome + "data-folder/" : pathHome + "/data-folder/");
+    public boolean startSession(String file, String host) throws JSchException, SftpException {        
+        String path = ConfigurationRepository.getDataFolder();
         try {
             session = jsch.getSession(USER, host, PORT);
             session.setConfig("StrictHostKeyChecking", "no");

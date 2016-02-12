@@ -5,7 +5,7 @@ rpc_port: 8080
 rpc_protocol: http
 
 # IP address of ZooKeeper server
-zookeeper_hosts: 164.41.209.89:2181
+zookeeper_hosts: 164.41.209.101:2181
 
 # Operation Mode
 client: false
@@ -17,13 +17,13 @@ plugin: linux
 server-path: /home/zoonimbus/zoonimbusProject/
 
 # Own address
-address: 164.41.209.89
+address: 164.41.209.101
 
 # Cost per giga?
 cost_per_giga: 0
 
 # Well... ???
-host: {"address": "164.41.209.89", "port":8080}
+host: {"address": "164.41.209.101", "port":8080}
 
 # Brazilian PIB (in mexican pesos)? A Big Mac? ... Maybe the cost of a Pokeball in 2000's (today it costs $15.99)
 cost: 0.35

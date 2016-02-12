@@ -6,6 +6,7 @@ import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import static br.unb.cic.bionimbus.config.BioNimbusConfigLoader.loadHostConfig;
+import br.unb.cic.bionimbus.config.ConfigurationRepository;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
@@ -62,7 +63,7 @@ public class StorageService extends AbstractBioService {
     private Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<>();
     private final Map<String, PluginFile> savedFiles = new ConcurrentHashMap<>();
 //    private Set<String> pendingSaveFiles = new HashSet<String>();
-    private final File dataFolder = new File("data-folder"); //TODO: remover hard-coded e colocar em node.yaml e injetar em StorageService
+    private final File dataFolder = new File(ConfigurationRepository.getDataFolder()); 
     private final Double MAXCAPACITY = 0.9;
     private final int PORT = 8080;
     private final int REPLICATIONFACTOR = 2;
@@ -335,9 +336,8 @@ public class StorageService extends AbstractBioService {
      */
     public boolean checkFilePeer(PluginFile file) {
         LOGGER.info("Verifying if file (filename=" + file.getName() + ") exists on peer");
-
-        String pathHome = System.getProperty("user.dir");
-        String path = (pathHome.substring(pathHome.length()).equals("/") ? pathHome + "data-folder/" : pathHome + "/data-folder/");
+        
+        String path = ConfigurationRepository.getDataFolder();
         File localFile = new File(path + file.getName());
 
         if (localFile.exists()) {
@@ -405,10 +405,8 @@ public class StorageService extends AbstractBioService {
                     }
                 }
             } else {
-                if (checkFilePeer(fileUploaded)) {
-                    String pathHome = System.getProperty("user.dir");
-                    String path = (pathHome.substring(pathHome.length()).equals("/") ? pathHome + "data-folder/" : pathHome + "/data-folder/");
-                    String filePeerHash = Hash.calculateSha3(path + fileUploaded.getName());
+                if (checkFilePeer(fileUploaded)) {                                      
+                    String filePeerHash = Hash.calculateSha3(ConfigurationRepository.getDataFolder() + fileUploaded.getName());
 
                     //Verifica se o arquivo foi corretamente transferido ao peer.
                     if (Integrity.verifyHashes(filePeerHash, fileUploaded.getHash())) {
@@ -534,10 +532,8 @@ public class StorageService extends AbstractBioService {
         LOGGER.info("Replicating file (filename=" + filename + ") from peer (peer=" + address + ")");
 
         List<NodeInfo> pluginList = new ArrayList<>();
-        List<String> idsPluginsFile = new ArrayList<>();
-        String pathHome = System.getProperty("user.dir");
-        String path = (pathHome.substring(pathHome.length()).equals("/") ? pathHome + "data-folder/" : pathHome + "/data-folder/");
-        File file = new File(path + filename);
+        List<String> idsPluginsFile = new ArrayList<>();                
+        File file = new File(ConfigurationRepository.getDataFolder() + filename);
 
         int filesreplicated = 1;
 

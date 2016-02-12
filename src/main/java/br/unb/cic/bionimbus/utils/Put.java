@@ -1,5 +1,6 @@
 package br.unb.cic.bionimbus.utils;
 
+import br.unb.cic.bionimbus.config.ConfigurationRepository;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
@@ -46,7 +47,7 @@ public class Put {
      * @throws SftpException
      */
     public boolean startSession() throws JSchException, SftpException {
-        String pathDest = "/home/zoonimbus/zoonimbusProject/data-folder/";
+        String pathDest = ConfigurationRepository.getDataFolder();
 
         try {
             session = jsch.getSession(USER, address, PORT);
