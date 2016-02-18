@@ -6,8 +6,12 @@
 package br.unb.cic.bionimbus.toSort;
 
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.AbstractBioService;
+import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
+import br.unb.cic.bionimbus.services.storage.StorageService;
 import br.unb.cic.bionimbus.toSort.CloudStorageMethods.*;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
@@ -15,11 +19,16 @@ import com.google.inject.Inject;
 import java.util.List;
 
 import com.google.inject.Singleton;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.zookeeper.WatchedEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -29,10 +38,12 @@ import org.apache.zookeeper.WatchedEvent;
 @Singleton
 public class CloudStorageService extends AbstractBioService{
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CloudStorageService.class);
+    
     @Inject
     private final ScheduledExecutorService executorService = Executors
             .newScheduledThreadPool(1, new BasicThreadFactory.Builder()
-                    .namingPattern("StorageService-%d").build());
+                    .namingPattern("CloudStorageService-%d").build());
     
     private static final String BUCKETSPATH = "/home/baile/TESTE-BIO/";
     List<BioBucket> bucketList;
@@ -40,6 +51,7 @@ public class CloudStorageService extends AbstractBioService{
     
     @Inject
     public CloudStorageService(final CloudMessageService cms) {
+        
         Preconditions.checkNotNull(cms);
         
         this.cms = cms;
@@ -51,13 +63,13 @@ public class CloudStorageService extends AbstractBioService{
             boolean result = methodsInstance.CheckStorageLatency(aux);
             
             if (!result) {
-                System.out.println("Erro ao checar a Latência do bucket " + aux.getName());
+                LOGGER.error("Erro ao checar a Latência do bucket " + aux.getName());
             }  
             
             result = methodsInstance.CheckStorageBandwith(aux);
             
             if (!result) {
-                System.out.println("Erro ao checar a Banda do bucket " + aux.getName());
+                LOGGER.info("Erro ao checar a Banda do bucket " + aux.getName());
             } 
         }
     }
@@ -70,7 +82,7 @@ public class CloudStorageService extends AbstractBioService{
             listeners.add(this);
         }
         
-        System.out.println("[CloudStorageService] Starting");
+        LOGGER.info("[CloudStorageService] Starting");
         
         //Instance methods object
         methodsInstance = new CloudStorageMethodsV1();
@@ -104,7 +116,7 @@ public class CloudStorageService extends AbstractBioService{
 
     @Override
     public void getStatus() {
-        
+        // TODO Auto-generated method stub
     }
 
     @Override
@@ -142,4 +154,13 @@ public class CloudStorageService extends AbstractBioService{
         aux = new BioBucket(StorageProvider.GOOGLE, "biotesteu", (BUCKETSPATH + "biotesteu"));
         bucketList.add(aux);
     }   
+    
+    private BioBucket getBucket (String name) {
+        for (BioBucket aux : bucketList) {
+            if (aux.getName().equals(name)) {
+                return aux;
+            }
+        }
+        return null;
+    }
 }

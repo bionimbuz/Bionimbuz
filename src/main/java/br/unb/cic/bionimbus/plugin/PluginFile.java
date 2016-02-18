@@ -53,6 +53,8 @@ public class PluginFile {
 
     private String service;
 
+    private List<String> buckets;
+    
     private List<String> pluginId;
 
     public String getId() {
