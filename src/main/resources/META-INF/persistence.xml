@@ -17,7 +17,7 @@
             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/bionimbuz_db" />
 
             <!-- Database user -->
-            <property name="javax.persistence.jdbc.user" value="root" />
+            <property name="javax.persistence.jdbc.user" value="root2" />
 
             <!-- Database Password -->
             <property name="javax.persistence.jdbc.password" value="Zoonimbus1" />
