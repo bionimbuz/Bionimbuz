@@ -6,12 +6,8 @@
 package br.unb.cic.bionimbus.toSort;
 
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
-import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.AbstractBioService;
-import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
-import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
-import br.unb.cic.bionimbus.services.storage.StorageService;
 import br.unb.cic.bionimbus.toSort.CloudStorageMethods.*;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
@@ -19,9 +15,7 @@ import com.google.inject.Inject;
 import java.util.List;
 
 import com.google.inject.Singleton;
-import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -39,14 +33,11 @@ import org.slf4j.LoggerFactory;
 public class CloudStorageService extends AbstractBioService{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudStorageService.class);
-    
-    @Inject
-    private final ScheduledExecutorService executorService = Executors
-            .newScheduledThreadPool(1, new BasicThreadFactory.Builder()
-                    .namingPattern("CloudStorageService-%d").build());
+
+    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new BasicThreadFactory.Builder().namingPattern("CloudStorageService-%d").build());
     
     private static final String BUCKETSPATH = "/home/baile/TESTE-BIO/";
-    List<BioBucket> bucketList;
+    static private List<BioBucket> bucketList = new ArrayList<>();
     static private CloudStorageMethods methodsInstance;
     
     @Inject
@@ -129,7 +120,7 @@ public class CloudStorageService extends AbstractBioService{
         
     }
     
-    private void InstanceBuckets() {
+    private static void InstanceBuckets() {
         
         BioBucket aux;
         

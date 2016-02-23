@@ -65,7 +65,7 @@ public class ServiceModule extends AbstractModule {
 
         // 4th to be injected
         serviceBinder.addBinding().to(SchedService.class);
-
+    
         // 5th to be injected
         serviceBinder.addBinding().to(MonitoringService.class);
         
