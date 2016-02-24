@@ -19,18 +19,24 @@ public class Put {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Put.class);
 
-    private JSch jsch = new JSch();
+    private final JSch jsch = new JSch();
     private Session session = null;
-    private String address;
-    private String USER = "zoonimbus";
-    private String PASSW = "Zoonimbus1";
-    private int PORT = 22;
+    private final String address;
+    private final String USER;
+    private final String PASSW;
+    private final int PORT;
     private Channel channel;
-    private String path;
+    private final String path;
 
     public Put(String address, String path) {
         this.address = address;
         this.path = path;
+        
+        SSHCredentials credentials = ConfigurationRepository.getSSHCredentials();
+        
+        USER = credentials.getUser();
+        PASSW = credentials.getPassword();
+        PORT = Integer.parseInt(credentials.getPort());
     }
 
     public Put() {

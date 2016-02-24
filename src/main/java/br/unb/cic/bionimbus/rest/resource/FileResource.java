@@ -36,7 +36,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 @Path("/rest/file/")
 public class FileResource extends AbstractResource {
 
-    private static final String UPLOADED_FILES_DIRECTORY = FileSystemView.getFileSystemView().getHomeDirectory() + "/zoonimbusProject/tmp/";
+    private static final String UPLOADED_FILES_DIRECTORY = ConfigurationRepository.getTemporaryUplodadedFiles();
     private final FileDao fileDao;
     private final Double MAXCAPACITY = 0.9;
 
@@ -78,11 +78,11 @@ public class FileResource extends AbstractResource {
             // Verify file integrity and tries to write file to Zookeeper
             if (rpcClient.getProxy().uploadFile(filepath, convertToAvroObject(hashedFile, request.getFileInfo()))) {
 
-                // Creates an UserFile using UploadadeFileInfo from request and persists on Database
-                fileDao.persist(request.getFileInfo());
-
                 // Copy to data-folder
                 copyFileToDataFolder(filepath, request.getFileInfo().getName());
+                
+                // Creates an UserFile using UploadadeFileInfo from request and persists on Database
+                fileDao.persist(request.getFileInfo());
 
                 return Response.status(200).entity(true).build();
             }

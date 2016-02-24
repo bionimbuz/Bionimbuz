@@ -150,7 +150,7 @@ public class C99Supercolider extends SchedPolicy {
         Job job;
         long depth = 1;
 
-        System.out.println("[C99Supercolider] Stage One");
+        LOGGER.info("Stage One");
 
         // allocate all jobs
         while (!jobs.isEmpty()) {
@@ -211,7 +211,7 @@ public class C99Supercolider extends SchedPolicy {
         SearchNode nextNode;
         long depth;
 
-        System.out.println("[C99Supercolider] Stage Two");
+        LOGGER.info("Stage Two");
 
         // rework every i allocation
         for (int i = 0; i < jobs.size(); i++) {
@@ -280,14 +280,14 @@ public class C99Supercolider extends SchedPolicy {
      * @see C99Supercolider.beamSearch
      */
     private void stageThree(SearchNode root, int maxBeam) {
-        System.out.println("[C99Supercolider] Stage Three");
+        LOGGER.info("Stage Three");
 
         for (beam = 2; beam <= maxBeam; beam++) {
-            System.out.println("[C99Supercolider] Beam width: " + beam);
+            LOGGER.info("Beam width: " + beam);
             beamSearch(root, jobs.size(), 0);
             // exit if this thread was interrupted
             if (Thread.currentThread().isInterrupted()) {
-                System.out.println("[stageThree] interrupted");
+                LOGGER.info("Stage Three interrupted");
                 return;
             }
         }
@@ -306,7 +306,7 @@ public class C99Supercolider extends SchedPolicy {
     private List<Pair<Double, Double>> beamSearch(SearchNode node, int tasksRemaining, long depth) {
         // exit if this thread was interrupted
         if (Thread.currentThread().isInterrupted()) {
-            System.out.println("[beamSearch] interrupted on node " + node.id);
+            LOGGER.info("BeamSearch interrupted on node: " + node.id);
             return null;
         }
 
@@ -351,7 +351,7 @@ public class C99Supercolider extends SchedPolicy {
                     node.addToPareto(beamSearch(n, tasksRemaining - 1, depth + 1));
 
                     if (Thread.currentThread().isInterrupted()) {
-                        System.out.println("interrupted on node " + node.id);
+                        LOGGER.info("Interrupted on node: " + node.id);
                         return null;
                     }
 

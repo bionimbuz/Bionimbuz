@@ -5,11 +5,14 @@
 package br.unb.cic.bionimbus.utils;
 
 import br.unb.cic.bionimbus.config.ConfigurationRepository;
+import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Metodo para a conexao entre o servidor e o cliente em casos de downloads
@@ -17,13 +20,21 @@ import com.jcraft.jsch.SftpException;
  * @author Deric
  */
 public class Get {
-
-    private JSch jsch = new JSch();
+    private static final Logger LOGGER = LoggerFactory.getLogger(Get.class);
+    
+    private final JSch jsch = new JSch();
     private Session session = null;
-    private String USER = "zoonimbus";
-    private String PASSW = "Zoonimbus1";
-    private int PORT = 22;
-    private com.jcraft.jsch.Channel channel;
+    private final String USER;
+    private final String PASSW;
+    private final int PORT;
+    private Channel channel;
+
+    public Get() {
+        SSHCredentials credentials = ConfigurationRepository.getSSHCredentials();
+        USER = credentials.getUser();
+        PASSW = credentials.getPassword();
+        PORT = Integer.parseInt(credentials.getPort());
+    }
 
     public boolean startSession(String file, String host) throws JSchException, SftpException {        
         String path = ConfigurationRepository.getDataFolder();
@@ -33,16 +44,17 @@ public class Get {
             session.setPassword(PASSW);
             session.connect();
 
-            com.jcraft.jsch.Channel channel = session.openChannel("sftp");
+            channel = session.openChannel("sftp");
             channel.connect();
+            
             ChannelSftp sftpChannel = (ChannelSftp) channel;
-            System.out.println("\n\n Downloading file.....");
+            
+            LOGGER.info("Downloading file");
             sftpChannel.get(path + file, path);
             sftpChannel.exit();
             session.disconnect();
-        } catch (JSchException e) {
-            return false;
-        } catch (SftpException e) {
+            
+        } catch (JSchException | SftpException e) {
             return false;
         }
         return true;

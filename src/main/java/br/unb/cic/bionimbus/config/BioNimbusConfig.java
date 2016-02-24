@@ -13,7 +13,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 @Singleton
 public class BioNimbusConfig {
 
-//    @JsonIgnore
+    // @JsonIgnore
     private String id;
 
     @JsonIgnore
@@ -25,7 +25,7 @@ public class BioNimbusConfig {
     @JsonIgnore
     private String plugin;
 
-    //retirar seeds
+    // Retirar seeds
     @JsonIgnore
     private Set<Host> seeds = new HashSet<Host>();
 
@@ -71,6 +71,9 @@ public class BioNimbusConfig {
     @JsonProperty("data-folder")
     private String dataFolder;
 
+    @JsonProperty("tmp-uploaded-files")
+    private String temporaryUploadedFiles;
+
     @JsonProperty("references")
     private ArrayList<String> references;
 
@@ -79,6 +82,9 @@ public class BioNimbusConfig {
 
     @JsonProperty("supported-services")
     private ArrayList<PluginService> supportedServices;
+
+    @JsonProperty("credentials-file")
+    private String credentialsFile;
 
     public void setRpcProtocol(String rpcProtocol) {
         this.rpcProtocol = rpcProtocol;
@@ -252,6 +258,14 @@ public class BioNimbusConfig {
         this.references = references;
     }
 
+    public String getTemporaryUploadedFiles() {
+        return temporaryUploadedFiles;
+    }
+
+    public void setTemporaryUploadedFiles(String temporaryUploadedFiles) {
+        this.temporaryUploadedFiles = temporaryUploadedFiles;
+    }
+
     public ArrayList<String> getSupportedFormats() {
         return supportedFormats;
     }
@@ -266,6 +280,14 @@ public class BioNimbusConfig {
 
     public void setSupportedServices(ArrayList<PluginService> supportedServices) {
         this.supportedServices = supportedServices;
+    }
+
+    public String getCredentialsFile() {
+        return credentialsFile;
+    }
+
+    public void setCredentialsFile(String credentialsFile) {
+        this.credentialsFile = credentialsFile;
     }
 
     @Override
@@ -288,6 +310,8 @@ public class BioNimbusConfig {
                 .add("references-size", references.size())
                 .add("supported-formats", supportedFormats.size())
                 .add("supported-services", supportedServices.size())
+                .add("credentialsFile", credentialsFile)
+                .add("tmp-uploaded-files", temporaryUploadedFiles)
                 .toString();
     }
 

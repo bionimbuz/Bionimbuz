@@ -25,7 +25,7 @@ public class Log implements Serializable {
     @Column(name = "id", length = 40)
     private final String id = UUID.randomUUID().toString();
 
-    @Column(name = "text", length = 300)
+    @Column(name = "text", length = 1000)
     private String text;
 
     private long userId;
