@@ -80,7 +80,7 @@ public class FileResource extends AbstractResource {
 
                 // Copy to data-folder
                 copyFileToDataFolder(filepath, request.getFileInfo().getName());
-                
+
                 // Creates an UserFile using UploadadeFileInfo from request and persists on Database
                 fileDao.persist(request.getFileInfo());
 

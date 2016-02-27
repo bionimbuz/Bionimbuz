@@ -1,3 +1,21 @@
+/*
+    BioNimbuZ is a federated cloud platform.
+    Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD), 
+    Department of Computer Science, University of Brasilia, Brazil
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package br.unb.cic.bionimbus.services.storage.policy.impl;
 
 import java.io.IOException;
@@ -17,19 +35,20 @@ import br.unb.cic.bionimbus.services.storage.policy.StoragePolicy;
 
 public class BioCirrusPolicy extends StoragePolicy {
 	
-	  private double peso_uptime = 0.25;
-    private double peso_bandwidth = 0.6;
-    private double peso_costs = 0.15;
-    private List<NodeInfo> nodes = new ArrayList<NodeInfo>();
-    Collection<PluginInfo> best = new ArrayList<PluginInfo>();
+    private final double peso_uptime = 0.25;
+    private final double peso_bandwidth = 0.6;
+    private final double peso_costs = 0.15;
+    private final List<NodeInfo> nodes = new ArrayList<>();
+    Collection<PluginInfo> best = new ArrayList<>();
     
     /**
      * Calcular o custo de armazenamento de uma nuvem //ta passando so 1 plugin
      *
-     * @param zkService
+     * @param cms
      * @param pluginList
      * @return 
      */
+    @Override
     public List<NodeInfo> calcBestCost(CloudMessageService cms, Collection<PluginInfo> pluginList) {
         
         double cost;
@@ -45,7 +64,7 @@ public class BioCirrusPolicy extends StoragePolicy {
         */
         
         for (PluginInfo plugin : pluginList) {
-            String datastring = cms.getData(cms.getPath().NODE_PEER.getFullPath(plugin.getId(), "", ""), null);
+            String datastring = cms.getData(Path.NODE_PEER.getFullPath(plugin.getId(), "", ""), null);
             try {
                 PluginInfo plugindata = new ObjectMapper().readValue(datastring, PluginInfo.class);
                 costpergiga = plugindata.getCostPerGiga();
@@ -55,6 +74,9 @@ public class BioCirrusPolicy extends StoragePolicy {
             
             uptime = plugin.getUptime() / 3600000; //milis to hours
             latency = plugin.getLatency();
+          
+            //TEM QUE TROCAR ISSO AQUI!!! 
+            plugin.setBandwidth(0.2D);
             bandwidth = plugin.getBandwidth();
             cost = latency/(peso_uptime*(10*Math.log10(uptime+0.1) +10) + (peso_bandwidth*bandwidth));
             cost = cost + peso_costs * costpergiga;

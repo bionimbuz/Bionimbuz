@@ -1,7 +1,20 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+    BioNimbuZ is a federated cloud platform.
+    Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD), 
+    Department of Computer Science, University of Brasilia, Brazil
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package br.unb.cic.bionimbus.tests;
 
@@ -15,14 +28,16 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author willian
  */
 public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FromMockFileTestGenerator.class);
 
     private int numPipelines;
 
@@ -35,7 +50,7 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
             //TO-DO: Remove comment after William Final Commit
             //aes.decrypt(path+"resSample.txt");
         } catch (Exception ex) {
-            Logger.getLogger(FromMockFileTestGenerator.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error("Exception - " + ex.getMessage());
         }
         this.resFile = path + "resSample.txt";
     }
@@ -52,7 +67,7 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
             //TO-DO: Remove comment after Willian Final Commit
             //aes.decrypt(path+"pipelineSample.txt");
         } catch (Exception ex) {
-            Logger.getLogger(FromMockFileTestGenerator.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error("Exception - " + ex.getMessage());
         }
 
         for (int ii = 1; ii <= numPipelines; ii++) {
@@ -127,8 +142,10 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
 
             // push taskList to the pipelineTemplates
             Workflow p = new Workflow(Arrays.asList(taskList));
-            System.out.println("[TestGen] taskList " + taskList.length);
-            System.out.println("[TestGen] pipeline " + p.getJobs().size());
+
+            LOGGER.info("[TestGen] taskList " + taskList.length);
+            LOGGER.info("[TestGen] pipeline " + p.getJobs().size());
+
             pipelinesTemplates.add(p);
         }
     }
@@ -144,7 +161,7 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
             //TO-DO: Remove comment after William Final Commit
             //aes.decrypt(path+"servicesSample.txt");
         } catch (Exception ex) {
-            Logger.getLogger(FromMockFileTestGenerator.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error("Exception - " + ex.getMessage());
         }
         try {
             BufferedReader br = new BufferedReader(new FileReader(path + "servicesSample.txt"));

@@ -8,16 +8,11 @@ import br.unb.cic.bionimbus.avro.gen.NodeInfo;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * Classe que contem os metodos da politica de armazenamento
@@ -29,7 +24,7 @@ public abstract class StoragePolicy {
     /**
      * Calcular o custo de armazenamento de uma nuvem //ta passando so 1 plugin
      *
-     * @param zkService
+     * @param cms
      * @param pluginList
      * @return 
      */
@@ -67,7 +62,7 @@ public abstract class StoragePolicy {
      * @return
      */
     public List<PluginInfo> SwapTypePlugin(Collection<PluginInfo> plugins) {
-        List<PluginInfo> plugin = new ArrayList<PluginInfo>();
+        List<PluginInfo> plugin = new ArrayList<>();
         
         for (PluginInfo pluginInfo : plugins) {
             plugin.add(pluginInfo);

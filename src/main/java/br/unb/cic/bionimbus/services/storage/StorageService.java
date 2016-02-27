@@ -1,4 +1,24 @@
+/*
+    BioNimbuZ is a federated cloud platform.
+    Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD), 
+    Department of Computer Science, University of Brasilia, Brazil
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 package br.unb.cic.bionimbus.services.storage;
+
+
 
 import br.unb.cic.bionimbus.avro.gen.FileInfo;
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
@@ -23,7 +43,6 @@ import br.unb.cic.bionimbus.services.storage.policy.impl.BioCirrusPolicy;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import br.unb.cic.bionimbus.utils.Nmap;
 import br.unb.cic.bionimbus.utils.Put;
-
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
@@ -244,7 +263,7 @@ public class StorageService extends AbstractBioService {
         checkFiles();
 
         for (PluginInfo plugin : getPeers().values()) {
-            listFiles = new ArrayList<String>();
+            listFiles = new ArrayList<>();
             for (String file : cms.getChildren(Path.FILES.getFullPath(plugin.getId()), new UpdatePeerData(cms, this))) {
                 listFiles.add(file);
             }

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -34,9 +35,8 @@ import org.slf4j.LoggerFactory;
  *
  * Dados disponiveis atraves de metodos get
  */
-
 @Singleton
-public class RepositoryService extends AbstractBioService {
+public final class RepositoryService extends AbstractBioService {
     private static Logger LOGGER = LoggerFactory.getLogger(RepositoryService.class);
     private static final String SERVICES_DIR = "services";
     private final List<PluginService> supportedServices = new ArrayList<>();
@@ -110,7 +110,7 @@ public class RepositoryService extends AbstractBioService {
         }
         return sum / ls.size();
     }
-        
+
     /**
      * Get instance cost from zookeeper cost
      *
