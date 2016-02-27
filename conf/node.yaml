@@ -1,0 +1,99 @@
+# Port to be used by RPC Server
+rpc_port: 8080
+
+# RPC's Protocol
+rpc_protocol: http
+
+# IP address of ZooKeeper server
+zookeeper_hosts: *.*.*.*:2558
+
+# Operation Mode
+client: false
+
+# Type of plugin
+plugin: linux
+
+# Server root path (will be changed to root-folder
+server-path: /*/*/*
+
+# Own address
+address: *.*.*.*:*
+
+# Cost per giga?
+cost_per_giga: 0
+
+# Well... ???
+host: {"address": "*.*.*.*:*", "port":8080}
+
+# Brazilian PIB (in mexican pesos)? A Big Mac? ... Maybe the cost of a Pokeball in 2000's (today it costs $15.99)
+cost: 0.35
+
+# Root folder of project
+root-folder: /*/*/*
+
+# Folder or reference files
+reference-folder: /*/*/*
+
+# Root folder of output files (generated from programs)
+output-folder: /*/*/*
+
+# Root folder of output files (generated from programs)
+data-folder: /*/*/*
+
+# Folder containing file with BioNimbuZ credentials
+credentials-file: /*/*/*
+
+# Temporary uploaded files folder
+tmp-uploaded-files: /*/*/*
+
+# Reference files (keep it ORDERED)
+references:
+    - referencia_hg19    
+ 
+# Supported formats to be concateanted with each file name (keep it ORDERED)
+supported-formats:
+    - .2bit
+    - .bam
+    - .bed
+    - .ebwt
+    - .fa
+    - .fq
+    - .genome
+    - .nib
+    - .out
+    - .sam
+    - .txt
+    
+# Supported services of BioNimbuZ    
+supported-services:
+    # Tells YAML the type of this object
+    - !br.unb.cic.bionimbus.plugin.PluginService 
+        id: 1
+        name: Bowtie_v1
+        path: ./programs/bowtie.sh
+        # No one knows what this means (only Willian)
+        presetMode: 4242000000
+        info: Bowtie is an ultrafast, memory-efficient short read aligner.
+    - !br.unb.cic.bionimbus.plugin.PluginService 
+        id: 2
+        name: Sam2Bed
+        path: ./programs/sam2bed.pl
+        # No one knows what this means (only Willian)
+        presetMode: 4242000000
+        info: The sam2bed script converts 1-based, closed Sequence Alignment/Map (SAM) to sorted, 0-based, half-open UCSC BED data.  
+    - !br.unb.cic.bionimbus.plugin.PluginService 
+        id: 3
+        name: Genome2Interval
+        path: ./programs/genome2interval.pl
+        # No one knows what this means (only Willian)
+        presetMode: 4242000000
+        info: genome2interval tool.      
+    - !br.unb.cic.bionimbus.plugin.PluginService 
+        id: 4
+        name: CoverageBed
+        path: ./programs/coverageBed.sh
+        # No one knows what this means (only Willian)
+        presetMode: 4242000000
+        info: The bedtools coverage tool computes both the depth and breadth of coverage of features in file B on the features in file A.      
+      
+      

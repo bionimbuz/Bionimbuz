@@ -166,7 +166,7 @@ public class StorageService extends AbstractBioService {
 
                     pluginFile.setPluginId(listIds);
                     pluginFile.setSize(file.length());
-                    pluginFile.setHash(Hash.calculateSha3(file.getPath()));
+//                    pluginFile.setHash(Hash.calculateSha3(file.getPath()));
                     //cria um novo znode para o arquivo e adiciona o watcher
                     cms.createZNode(CreateMode.PERSISTENT, Path.NODE_FILE.getFullPath(config.getId(), pluginFile.getId()), pluginFile.toString());
                     cms.getData(Path.NODE_FILE.getFullPath(config.getId(), pluginFile.getId()), new UpdatePeerData(cms, this));

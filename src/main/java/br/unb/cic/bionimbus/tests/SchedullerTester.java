@@ -1,20 +1,17 @@
 package br.unb.cic.bionimbus.tests;
 
-import static br.unb.cic.bionimbus.BioNimbus.serviceInjector;
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.model.FileInfo;
-import br.unb.cic.bionimbus.model.WorkflowStatus;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.services.RepositoryService;
-import br.unb.cic.bionimbus.services.ServiceManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.inject.Guice;
@@ -224,10 +221,10 @@ public class SchedullerTester {
         SchedullerTester tester = new SchedullerTester();
         boolean fileTest = false;
 
-        FromMockFileTestGenerator gen = new FromMockFileTestGenerator();
+        FromMockFileTestGenerator gen = new FromMockFileTestGenerator(3);
         List<Workflow> pipelines = gen.getPipelinesTemplates();
         List<PluginService> services = gen.getServicesTemplates();
-        List<PluginInfo> resources = gen.getResourceTemplates();
+//        List<PluginInfo> resources = gen.getResourceTemplates();
 
         // flush test data
 //            System.out.println("[SchedTester] flushing test data");

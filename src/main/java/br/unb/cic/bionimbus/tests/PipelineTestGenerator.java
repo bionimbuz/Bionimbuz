@@ -56,7 +56,8 @@ public abstract class PipelineTestGenerator {
 
     // main implemented solely to test the tests generator
     public static void main(String[] args) {
-        PipelineTestGenerator gen = new FromMockFileTestGenerator();
+
+        PipelineTestGenerator gen = new FromMockFileTestGenerator(1);
 
         System.out.println("Pipeline size: " + gen.getPipelinesTemplates().size());
         System.out.println("Services size: " + gen.getServicesTemplates().size());

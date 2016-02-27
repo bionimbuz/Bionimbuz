@@ -64,7 +64,7 @@ public class SchedService extends AbstractBioService implements Runnable {
     private RpcClient rpcClient;
 
     // change this to select scheduling policy
-    private final SchedPolicy.Policy policy = SchedPolicy.Policy.C99SUPERCOLIDER;
+    private final SchedPolicy.Policy policy = SchedPolicy.Policy.ACO_SCHED;
     private String idPlugin;
 
     private LinuxPlugin myLinuxPlugin;
@@ -75,7 +75,9 @@ public class SchedService extends AbstractBioService implements Runnable {
 
     // Workflow
     private Workflow workflow;
-
+    
+    private boolean isClient = true;
+    
     @Inject
     public SchedService(final CloudMessageService cms, final RepositoryService rs) {
         Preconditions.checkNotNull(cms);
@@ -121,13 +123,15 @@ public class SchedService extends AbstractBioService implements Runnable {
 
     @Override
     public void start(BioNimbusConfig config, List<Listeners> listeners) {
+        
+        this.isClient = config.isClient();
         this.config = config;
         this.listeners = listeners;
 //        if (listeners != null) {
         listeners.add(this);
 //        }
         idPlugin = this.config.getId();
-
+       
         getPolicy().setRs(rs);
 
         //inicia o valor do zk na politica de escalonamento
@@ -593,8 +597,13 @@ public class SchedService extends AbstractBioService implements Runnable {
      */
     private void checkTasks() {
         try {
+
             LOGGER.info("Checking Tasks...");
-            if (waitingTask != null && !waitingTask.isEmpty()) {
+            
+            // Check if there are any pipelines left to add
+            updatePipelines();
+            
+            if (waitingTask!=null && !waitingTask.isEmpty()) {
                 for (Pair<PluginInfo, PluginTask> pair : waitingTask.values()) {
                     if (pair.first.getHost().getAddress().equals(myLinuxPlugin.getMyInfo().getHost().getAddress())) {
                         if (pair.second.getState() == PluginTaskState.WAITING) {
@@ -803,50 +812,12 @@ public class SchedService extends AbstractBioService implements Runnable {
 
                     String datas;
                     //reconhece um alerta de um novo pipeline
-                    if (eventType.getPath().contains(Path.PIPELINES.toString())) {
-                        LOGGER.info("Received an event to sched a workflow -> NodeChildrenChanged");
 
-                        // get all pipelines
-                        List<String> pipelinesId = cms.getChildren(eventType.getPath(), null);
-
-                        if (!pipelinesId.isEmpty()) {
-
-                            // get pipelines and add them to pendingPipelines
-                            for (String pipelineReady : pipelinesId) {
-                                ObjectMapper mapper = new ObjectMapper();
-                                datas = cms.getData(Path.NODE_PIPELINE.getFullPath(pipelineReady), null);
-
-                                // Sets it workflow
-                                workflow = mapper.readValue(datas, Workflow.class);
-
-                                workflowLogger.log(new Log("Iniciando serviço de escalonamento...", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
-
-                                // add independent jobs to pendingJobs list and jobs with 
-                                // any dependency to the dependentJobs list
-                                int i = 0;
-                                for (Job j : workflow.getJobs()) {
-                                    if (j.getDependencies().isEmpty()) {
-                                        pendingJobs.add(j);
-                                        i++;
-                                    } else {
-                                        dependentJobs.add(j);
-                                    }
-                                }
-                                LOGGER.info("Workflow is compound by: " + i + " independent jobs and " + (workflow.getJobs().size() - i) + " jobs with dependency");
-
-                                // Log it
-                                workflowLogger.log(new Log(" Job(s) independente(s): <b>" + i + "</b>", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
-                                workflowLogger.log(new Log("Job(s) com dependência(s): <b>" + (workflow.getJobs().size() - i) + "</b>", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
-
-                                // remove pipeline from zookeeper
-                                cms.delete(Path.NODE_PIPELINE.getFullPath(pipelineReady));
-                            }
-
-                            if (!pendingJobs.isEmpty()) {
-                                scheduleJobs();
-                            }
-                        }
-
+                    if (eventType.getPath().contains(Path.PIPELINES.toString()) && !isClient) {
+                        System.out.println("[SchedService] Recebimento de um alerta para um pipeline, NodeChildrenChanged");
+                        // checking moved to checkTasks in order to solve racing condition
+//                        updatePipelines();
+                        
                     } else if (eventType.getPath().contains(Path.SCHED.toString() + Path.TASKS)) {
                         LOGGER.info("[SchedService] Recebimento de um alerta para uma TAREFA");
 
@@ -914,7 +885,51 @@ public class SchedService extends AbstractBioService implements Runnable {
             java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    private void updatePipelines() throws IOException, InterruptedException, KeeperException{
+        // get all pipelines
+        List<String> pipelinesId = cms.getChildren(Path.PIPELINES.getFullPath(), null);
+        String datas;
 
+        if (!pipelinesId.isEmpty()) {
+
+            // get pipelines and add them to pendingPipelines
+            for (String pipelineReady : pipelinesId) {                            
+                ObjectMapper mapper = new ObjectMapper();
+                datas = cms.getData(Path.NODE_PIPELINE.getFullPath(pipelineReady), null);
+
+                // Sets it workflow
+                workflow = mapper.readValue(datas, Workflow.class);
+
+                workflowLogger.log(new Log("Iniciando serviço de escalonamento...", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
+
+                // add independent jobs to pendingJobs list and jobs with 
+                // any dependency to the dependentJobs list
+                int i=0;
+                for (Job j : workflow.getJobs()) {
+                    if (j.getDependencies().isEmpty()) {
+                        pendingJobs.add(j);
+                        i++;
+                    } else
+                        dependentJobs.add(j);
+                }
+                
+                LOGGER.info("Workflow is compound by: " + i + " independent jobs and " + (workflow.getJobs().size() - i) + " jobs with dependency");
+
+                // Log it
+                workflowLogger.log(new Log(" Job(s) independente(s): <b>" + i + "</b>", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
+                workflowLogger.log(new Log("Job(s) com dependência(s): <b>" + (workflow.getJobs().size() - i) + "</b>", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));               
+
+                // remove pipeline from zookeeper
+                cms.delete(Path.NODE_PIPELINE.getFullPath(pipelineReady));
+            }
+
+            if (!pendingJobs.isEmpty()) {
+                scheduleJobs();
+            }
+        }
+    }
+    
     @Override
     public void verifyPlugins() {
         Collection<PluginInfo> temp = getPeers().values();
