@@ -9,7 +9,6 @@ import static br.unb.cic.bionimbus.config.BioNimbusConfigLoader.loadHostConfig;
 import br.unb.cic.bionimbus.config.ConfigurationRepository;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
-import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.security.AESEncryptor;
 import br.unb.cic.bionimbus.security.Hash;
 import br.unb.cic.bionimbus.security.Integrity;
@@ -18,9 +17,13 @@ import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.services.sched.SchedService;
+import br.unb.cic.bionimbus.services.storage.bandwidth.BandwidthCalculator;
+import br.unb.cic.bionimbus.services.storage.policy.StoragePolicy;
+import br.unb.cic.bionimbus.services.storage.policy.impl.BioCirrusPolicy;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import br.unb.cic.bionimbus.utils.Nmap;
 import br.unb.cic.bionimbus.utils.Put;
+
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
@@ -280,9 +283,9 @@ public class StorageService extends AbstractBioService {
     }
 
     /**
-     * Retorna o tamanho do arquivo, dado o nome do mesmo. NOTE: listFiles never
-     * used. Revise this code.
-     *
+     * Retorna o tamanho do arquivo, dado o nome do mesmo.
+     * NOTE: listFiles never used. Revise this code.
+     * Refactor message of integrity verification
      * @param file O nome do arquivo
      * @return O tamanho do arquivo
      */
@@ -319,7 +322,8 @@ public class StorageService extends AbstractBioService {
             cloudMap.get(node.getPeerId()).setLatency(node.getLatency());
             cloudMap.get(node.getPeerId()).setFsFreeSize(node.getFreesize());
         }
-        StoragePolicy policy = new StoragePolicy();
+        //TODO: Permitir a escolha entre a BioCirrus e a ZooClouS
+        StoragePolicy policy = new BioCirrusPolicy();
         /*
          * Dentro da Storage Policy é feito o ordenamento da list de acordo com o custo de armazenamento
          */
@@ -635,6 +639,7 @@ public class StorageService extends AbstractBioService {
                     if (node.getLatency().equals(Double.MAX_VALUE)) {
                         node.setLatency(Nmap.nmap(plugin.getHost().getAddress()));
                     }
+                    node.setBandwidth(BandwidthCalculator.linkSpeed(plugin.getHost().getAddress(), node.getLatency()));
                     node.setAddress(plugin.getHost().getAddress());
                     node.setFreesize(plugin.getFsFreeSize());
                     node.setPeerId(plugin.getId());

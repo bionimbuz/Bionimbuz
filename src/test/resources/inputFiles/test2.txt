@@ -1,0 +1,1 @@
+Essa string ser\'{a} comprimida diversas vezes.

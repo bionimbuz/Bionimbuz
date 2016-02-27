@@ -30,7 +30,7 @@ public class GoogleData {
     public GoogleData() {
         this.config = new HashMap<>();
         this.config.put("Filename", "GooglePrices.txt");
-        JSONObject GoogleJsonService = readJSONObject(this.config.get("Filename"));
+        GoogleJsonService = readJSONObject(this.config.get("Filename"));
         //this.GoogleJsonService = GoogleJsonService;
         this.createInfo(GoogleJsonService);
     }

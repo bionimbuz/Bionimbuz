@@ -1,10 +1,12 @@
 package br.unb.cic.bionimbus.plugin;
 
-import br.unb.cic.bionimbus.p2p.Host;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.codehaus.jackson.map.ObjectMapper;
+
+import br.unb.cic.bionimbus.p2p.Host;
 
 public class PluginInfo implements PluginOps {
 
