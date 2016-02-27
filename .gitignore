@@ -1,5 +1,4 @@
 .project
-*.prefs
 /target/
 biofoco.log
 /bin/
@@ -11,10 +10,6 @@ biofoco.log
 /data-folder/**
 /uploaded-files/**
 /references/**
-*.ebwt
-*.sam
-*.bed
-*.out
 /conf/node.yaml
 /src/main/resources/META-INF/persistence.xml
 /src/main/resources/META-INF/**
