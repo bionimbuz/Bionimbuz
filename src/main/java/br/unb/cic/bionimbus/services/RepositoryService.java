@@ -17,13 +17,11 @@ import br.unb.cic.bionimbus.toSort.Listeners;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -36,13 +34,14 @@ import org.slf4j.LoggerFactory;
  *
  * Dados disponiveis atraves de metodos get
  */
-@Singleton
-public final class RepositoryService extends AbstractBioService {
 
+@Singleton
+public class RepositoryService extends AbstractBioService {
     private static Logger LOGGER = LoggerFactory.getLogger(RepositoryService.class);
     private static final String SERVICES_DIR = "services";
     private final List<PluginService> supportedServices = new ArrayList<>();
-
+    private static final int PERIOD_HOURS=12;
+    
     public enum InstanceType {
 
         AMAZON_LARGE,
@@ -111,7 +110,7 @@ public final class RepositoryService extends AbstractBioService {
         }
         return sum / ls.size();
     }
-
+        
     /**
      * Get instance cost from zookeeper cost
      *
