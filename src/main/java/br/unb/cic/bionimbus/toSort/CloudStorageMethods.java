@@ -39,7 +39,7 @@ public abstract class CloudStorageMethods {
             InputStream stderr = proc.getErrorStream();
             InputStreamReader isr = new InputStreamReader(stderr);
             BufferedReader br = new BufferedReader(isr);
-            String line = null;
+            String line;
 
             while ((line = br.readLine()) != null) {
                 System.out.println("[command] " + line);

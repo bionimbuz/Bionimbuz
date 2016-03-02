@@ -46,6 +46,8 @@ public class PluginFile {
 
     private String service;
 
+    private List<String> buckets;
+    
     private List<String> pluginId;
 
     // Recebe as informações do arquivo enviado pelo cliente e seta os dados do arquivo

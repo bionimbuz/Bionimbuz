@@ -14,7 +14,8 @@ import java.io.BufferedReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -227,9 +228,9 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
             InputStream stderr = proc.getErrorStream();
             InputStreamReader isr = new InputStreamReader(stderr);
             BufferedReader br = new BufferedReader(isr);
-            String line = null;
+            String line;
 
-            Vector<String> output = new Vector<String>();
+            List<String> output = new ArrayList<>();
 
             while ((line = br.readLine()) != null) {
                 output.add(line);
@@ -245,14 +246,14 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
 
             int pos1, pos2;
 
-            pos1 = output.lastElement().indexOf(" copied, ");
+            pos1 = output.get(output.size() - 1).indexOf(" copied, ");
             pos1 += 9;
 
-            pos2 = output.lastElement().indexOf(" s, ");
+            pos2 = output.get(output.size() - 1).indexOf(" s, ");
 
             String aux;
 
-            aux = output.lastElement().substring(pos1, pos2);
+            aux = output.get(output.size() - 1).substring(pos1, pos2);
             aux = aux.replace(',', '.');
 
             float value = Float.parseFloat(aux);
@@ -283,7 +284,7 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
         float latency = 0;
         int i;
 
-        for (i = 0; i < 10; i++) {
+        for (i = 0; i < 5; i++) {
             //Upload
             String command = "/bin/dd if=/dev/zero of=" + bucket.getMountPoint() + "/pingfile bs=64 count=1 oflag=dsync";
 
@@ -295,9 +296,9 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
                 InputStream stderr = proc.getErrorStream();
                 InputStreamReader isr = new InputStreamReader(stderr);
                 BufferedReader br = new BufferedReader(isr);
-                String line = null;
+                String line;
 
-                Vector<String> output = new Vector<String>();
+                List<String> output = new ArrayList<>();
 
                 while ((line = br.readLine()) != null) {
                     output.add(line);
@@ -312,14 +313,14 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
                 }
                 int pos1, pos2;
 
-                pos1 = output.lastElement().indexOf(" copied, ");
+                pos1 = output.get(output.size() - 1).indexOf(" copied, ");
                 pos1 += 9;
 
-                pos2 = output.lastElement().indexOf(" s, ");
+                pos2 = output.get(output.size() - 1).indexOf(" s, ");
 
                 String aux;
 
-                aux = output.lastElement().substring(pos1, pos2);
+                aux = output.get(output.size() - 1).substring(pos1, pos2);
                 aux = aux.replace(',', '.');
 
                 float value = Float.parseFloat(aux);

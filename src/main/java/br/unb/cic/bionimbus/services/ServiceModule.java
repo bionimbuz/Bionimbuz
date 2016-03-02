@@ -28,6 +28,7 @@ import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import br.unb.cic.bionimbus.services.monitor.MonitoringService;
 import br.unb.cic.bionimbus.services.sched.SchedService;
 import br.unb.cic.bionimbus.services.storage.StorageService;
+import br.unb.cic.bionimbus.toSort.CloudStorageService;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.google.inject.AbstractModule;
@@ -64,9 +65,11 @@ public class ServiceModule extends AbstractModule {
 
         // 4th to be injected
         serviceBinder.addBinding().to(SchedService.class);
-
+    
         // 5th to be injected
         serviceBinder.addBinding().to(MonitoringService.class);
+        
+        serviceBinder.addBinding().to(CloudStorageService.class);
 
     }
 
