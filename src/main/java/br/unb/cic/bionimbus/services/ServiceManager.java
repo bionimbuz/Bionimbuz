@@ -15,11 +15,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package br.unb.cic.bionimbus.services;
 
 import br.unb.cic.bionimbus.avro.rpc.RpcServer;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import br.unb.cic.bionimbus.config.ConfigurationRepository;
+import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.toSort.Listeners;
@@ -27,6 +29,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -144,7 +147,7 @@ public class ServiceManager {
             LOGGER.info("HTTP Server initialized on port 8181");
 
             connectZK(config.getZkHosts());
-            
+
             //limpando o servidor zookeeper caso não tenha peer on-line ao inciar servidor zooNimbus
             if (!config.isClient()) {
                 clearZookeeper();
@@ -152,6 +155,9 @@ public class ServiceManager {
 
             // Creates zookeeper structure
             createZnodeZK();
+
+            // Add all supported services to ZooKeeper (read from node.yaml)
+            addServiceToZookeeper(ConfigurationRepository.getSupportedServices());
 
             for (Service service : services) {
                 service.start(config, listeners);
@@ -164,5 +170,40 @@ public class ServiceManager {
         }
 
         LOGGER.info("All services are online");
+    }
+
+    /**
+     * Add a service to zookeeper, thereby, generating the full history
+     * structure for given service.
+     *
+     * The service can have a history mode, and, having it, the modes will be
+     * added to the service zookeeper file even without a history. These modes
+     * will be removed when the history is big enough to make its own modes.
+     *
+     * The preset modes feature should only be used for testing.
+     *
+     * @param services
+     */
+    public void addServiceToZookeeper(ArrayList<PluginService> services) {
+        int serviceCounter = 0;
+
+        for (PluginService service : services) {
+            // create father node
+            cms.createZNode(CreateMode.PERSISTENT, Path.NODE_SERVICE.getFullPath(String.valueOf(service.getId())), service.toString());
+
+            // create history structure
+            cms.createZNode(CreateMode.PERSISTENT, Path.MODES.getFullPath(String.valueOf(service.getId())), null);
+
+            // add preset mode if there is one
+            if (service.getPresetMode() != null) {
+                cms.createZNode(CreateMode.PERSISTENT, Path.NODE_MODES.getFullPath(String.valueOf(service.getId()), "0"), service.getPresetMode().toString());
+            }
+
+            serviceCounter++;
+        }
+
+        LOGGER.info("===============================================");
+        LOGGER.info("====> " + serviceCounter + " Services added to BioNimbuZ");
+        LOGGER.info("===============================================");
     }
 }

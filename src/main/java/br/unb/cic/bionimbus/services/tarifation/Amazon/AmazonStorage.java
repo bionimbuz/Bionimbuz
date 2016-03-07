@@ -11,6 +11,7 @@ package br.unb.cic.bionimbus.services.tarifation.Amazon;
  */
 public class AmazonStorage {
 
+    private boolean ActivationStatus;
     private int id;
     private String region;
     private String kind;
@@ -37,6 +38,14 @@ public class AmazonStorage {
         this.PriceUnit = PriceUnit;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean status() {
+        return ActivationStatus;
     }
 
     /**

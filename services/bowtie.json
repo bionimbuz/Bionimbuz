@@ -1,9 +1,6 @@
 {
-    "id": 1111,
-    "name": "bowtie",
-    "arguments": ["%I1 %I2 %O1"],
-    "input": ["inputFile"],
-    "output": ["outputFile"],
-    "info": "bowtie alignment tool",
+    "id": 1,
+    "name": "Bowtie",
+    "info": "Bowtie is an ultrafast, memory-efficient short read aligner.",
     "path": "./programs/bowtie.sh"
 }

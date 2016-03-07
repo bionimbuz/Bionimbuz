@@ -16,6 +16,7 @@ import br.unb.cic.bionimbus.persistence.EntityManagerProducer;
  *
  */
 public class FileDao extends AbstractDao<FileInfo> {
+
     /**
      * Persists an user file on database
      *
@@ -24,11 +25,9 @@ public class FileDao extends AbstractDao<FileInfo> {
     @Override
     public void persist(FileInfo fileInfo) {
         try {
-            // Verifies if the manager is opened before persist
-            if (!manager.isOpen()) {
-                manager = EntityManagerProducer.getEntityManager();
-            }
-            
+            // Creates entity manager
+            manager = EntityManagerProducer.getEntityManager();
+
             // Get a Transaction, persist and commit
             manager.getTransaction().begin();
             manager.persist(fileInfo);
@@ -52,9 +51,16 @@ public class FileDao extends AbstractDao<FileInfo> {
      */
     @Override
     public List<FileInfo> list() {
-        TypedQuery<FileInfo> query = manager.createQuery("SELECT u FROM FileInfo u", FileInfo.class);
+        // Creates entity manager
+        manager = EntityManagerProducer.getEntityManager();
 
-        return query.getResultList();
+        TypedQuery<FileInfo> query = manager.createQuery("SELECT u FROM FileInfo u", FileInfo.class);
+        List<FileInfo> result = query.getResultList();
+
+        // Close connection
+        manager.close();
+
+        return result;
     }
 
     /**
@@ -76,12 +82,20 @@ public class FileDao extends AbstractDao<FileInfo> {
     @Override
     public void delete(FileInfo fileInfo) {
         try {
+            // Creates entity manager
+            manager = EntityManagerProducer.getEntityManager();
+
             manager.getTransaction().begin();
             manager.remove(fileInfo);
             manager.getTransaction().commit();
+
         } catch (Exception e) {
             e.printStackTrace();
             manager.getTransaction().rollback();
+
+        } finally {
+            // Close connection
+            manager.close();
         }
     }
 
@@ -93,10 +107,17 @@ public class FileDao extends AbstractDao<FileInfo> {
      */
     @Override
     public FileInfo findById(Long id) {
-        TypedQuery<FileInfo> query = manager.createQuery("SELECT u FROM FileInfo u WHERE u.id = := id", FileInfo.class);
-        query.setParameter("id", id);
+        // Creates entity manager
+        manager = EntityManagerProducer.getEntityManager();
 
-        return query.getSingleResult();
+        TypedQuery<FileInfo> query = manager.createQuery("SELECT u FROM FileInfo u WHERE u.id = :id", FileInfo.class);
+        query.setParameter("id", id);
+        FileInfo result = query.getSingleResult();
+
+        // Close connection
+        manager.close();
+
+        return result;
     }
 
     /**
@@ -106,26 +127,17 @@ public class FileDao extends AbstractDao<FileInfo> {
      * @return
      */
     public List<FileInfo> listByUserId(Long userId) {
+        // Creates entity manager
+        manager = EntityManagerProducer.getEntityManager();
+
         TypedQuery<FileInfo> query = manager.createQuery("SELECT u FROM FileInfo u WHERE u.userId = :userId", FileInfo.class);
         query.setParameter("userId", userId);
+        List<FileInfo> result = query.getResultList();
 
-        return query.getResultList();
-    }
+        // Close connection
+        manager.close();
 
-    public void updateStorageUsage(Long userId, Long sizeKB) {
-        User user = manager.find(User.class, userId);
-
-        if ((user.getStorageUsage() + sizeKB) > 1) {
-
-        }
-    }
-
-    public void subtractStorageUsage(Long userId, Long sizeKB) {
-        User user = manager.find(User.class, userId);
-
-        if ((user.getStorageUsage() + sizeKB) > 1) {
-
-        }
+        return result;
     }
 
 }

@@ -21,6 +21,7 @@ package br.unb.cic.bionimbus.avro.rpc;
 import br.unb.cic.bionimbus.avro.gen.BioProto;
 import br.unb.cic.bionimbus.avro.gen.FileInfo;
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
+import br.unb.cic.bionimbus.config.ConfigurationRepository;
 import br.unb.cic.bionimbus.plugin.*;
 import br.unb.cic.bionimbus.security.AESEncryptor;
 import br.unb.cic.bionimbus.security.Hash;
@@ -60,8 +61,8 @@ public class BioProtoImpl implements BioProto {
     private final CloudMessageService cms;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SchedService.class.getSimpleName());
-    
-    private Map<String, NodeInfo> nodes = new HashMap<String, NodeInfo>();
+
+    private final Map<String, NodeInfo> nodes = new HashMap<>();
 
     @Inject
     public BioProtoImpl(DiscoveryService discoveryService, StorageService storageService, SchedService schedService, CloudMessageService cms) {
@@ -141,11 +142,11 @@ public class BioProtoImpl implements BioProto {
             }
 
             //verificação dos jobs escalonados
-            String datasTask =null;
-            for(PluginInfo plugin : storageService.getPeers().values()){
-                for(String task : cms.getChildren(cms.getPath().TASKS.getFullPath(plugin.getId()), null)){
-                    datasTask = cms.getData(cms.getPath().NODE_TASK.getFullPath(plugin.getId(),task.substring(5, task.length())),null);
-                    if(datasTask!=null){
+            String datasTask = null;
+            for (PluginInfo plugin : storageService.getPeers().values()) {
+                for (String task : cms.getChildren(cms.getPath().TASKS.getFullPath(plugin.getId()), null)) {
+                    datasTask = cms.getData(cms.getPath().NODE_TASK.getFullPath(plugin.getId(), task.substring(5, task.length())), null);
+                    if (datasTask != null) {
                         PluginTask pluginTask = mapper.readValue(datasTask, PluginTask.class);
                         allJobs.append(i).append(" - Job ").append(pluginTask.getId().toString()).append(" : ").append(pluginTask.getState().toString()).append("\n ");
                     }
@@ -168,7 +169,7 @@ public class BioProtoImpl implements BioProto {
      */
     @Override
     public List<String> listFilesName() throws AvroRemoteException {
-        ArrayList<String> listFile = new ArrayList<String>();
+        ArrayList<String> listFile = new ArrayList<>();
         try {
             for (Collection<String> collection : storageService.getFiles().values()) {
                 listFile.removeAll(collection);
@@ -188,8 +189,7 @@ public class BioProtoImpl implements BioProto {
     @Override
     public void decryptPluginFile(String filename) {
         try {
-            String pathHome = System.getProperty("user.dir");
-            String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
+            String path = ConfigurationRepository.getDataFolder();
             AESEncryptor aes = new AESEncryptor();
             //Not decrypt inputfiles.txt
             //if(!filename.contains("inputfiles.txt")) {
@@ -200,35 +200,33 @@ public class BioProtoImpl implements BioProto {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-     /**
-     * 
+
+    /**
+     *
      * @param fileName
      * @return lista com nome dos arquivos
-     * @throws AvroRemoteException 
+     * @throws AvroRemoteException
      */
     @Override
-    public String getFileHash(String fileName) throws org.apache.avro.AvroRemoteException{        
+    public String getFileHash(String fileName) throws org.apache.avro.AvroRemoteException {
         try {
-            String pathHome = System.getProperty("user.dir");
-            String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
+            String path = ConfigurationRepository.getDataFolder();
             String hash = Hash.calculateSha3(path + fileName);
             return hash;
-        } catch (IOException ex) {        
+        } catch (IOException ex) {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
-    
+
     /**
-     * 
-     * @return
-     * @throws AvroRemoteException 
+     *
+     * @return @throws AvroRemoteException
      */
     @Override
     public List<br.unb.cic.bionimbus.avro.gen.PluginFile> listFiles() throws AvroRemoteException {
 
-        HashSet<br.unb.cic.bionimbus.avro.gen.PluginFile> listFiles = new HashSet<br.unb.cic.bionimbus.avro.gen.PluginFile>();
+        HashSet<br.unb.cic.bionimbus.avro.gen.PluginFile> listFiles = new HashSet<>();
         br.unb.cic.bionimbus.avro.gen.PluginFile file = null;
         for (PluginInfo plugin : this.discoveryService.getPeers().values()) {
             for (PluginFile fileInfo : storageService.getFilesPeer(plugin.getId())) {
@@ -244,41 +242,43 @@ public class BioProtoImpl implements BioProto {
                 listFiles.add(file);
             }
         }
-        List<br.unb.cic.bionimbus.avro.gen.PluginFile> listFile = new ArrayList<br.unb.cic.bionimbus.avro.gen.PluginFile>(listFiles);
+        List<br.unb.cic.bionimbus.avro.gen.PluginFile> listFile = new ArrayList<>(listFiles);
 
         return listFile;
     }
 
     /**
-     * 
+     *
      * @param pluginId
      * @return
-     * @throws AvroRemoteException 
+     * @throws AvroRemoteException
      */
     @Override
     public List<br.unb.cic.bionimbus.avro.gen.PluginFile> listFilesPlugin(String pluginId) throws AvroRemoteException {
-            HashSet<br.unb.cic.bionimbus.avro.gen.PluginFile> listFiles = new HashSet<br.unb.cic.bionimbus.avro.gen.PluginFile>();
-            br.unb.cic.bionimbus.avro.gen.PluginFile file;
-            for(PluginFile fileInfo : storageService.getFilesPeer(pluginId)){
-                file = new  br.unb.cic.bionimbus.avro.gen.PluginFile();
-                file.setId(fileInfo.getId());
-                file.setName(fileInfo.getName());
-                file.setPath(fileInfo.getName());
-                file.setPluginId(fileInfo.getPluginId());
-                file.setSize(fileInfo.getSize());
-                file.setHash(fileInfo.getHash());
-                listFiles.add(file);
-            }    
-        List<br.unb.cic.bionimbus.avro.gen.PluginFile> listFile = new ArrayList<br.unb.cic.bionimbus.avro.gen.PluginFile>(listFiles);
+        HashSet<br.unb.cic.bionimbus.avro.gen.PluginFile> listFiles = new HashSet<>();
+        br.unb.cic.bionimbus.avro.gen.PluginFile file;
+        for (PluginFile fileInfo : storageService.getFilesPeer(pluginId)) {
+            file = new br.unb.cic.bionimbus.avro.gen.PluginFile();
+            file.setId(fileInfo.getId());
+            file.setName(fileInfo.getName());
+            file.setPath(fileInfo.getName());
+            file.setPluginId(fileInfo.getPluginId());
+            file.setSize(fileInfo.getSize());
+            file.setHash(fileInfo.getHash());
+            listFiles.add(file);
+        }
+        List<br.unb.cic.bionimbus.avro.gen.PluginFile> listFile = new ArrayList<>(listFiles);
 
         return listFile;
     }
-    
+
     /**
-     * Retorna o ip que contém o arquivo informado @param file.
-     * Se não encontrar o arquivo retorna null
-     * @param file - Nome do arquivo requisitado 
-     * @return - Ip de onde o arquivo se encontra, ou caso não encontre retorna null;
+     * Retorna o ip que contém o arquivo informado @param file. Se não encontrar
+     * o arquivo retorna null
+     *
+     * @param file - Nome do arquivo requisitado
+     * @return - Ip de onde o arquivo se encontra, ou caso não encontre retorna
+     * null;
      */
     @Override
     public String getIpFile(String file) {
@@ -296,7 +296,7 @@ public class BioProtoImpl implements BioProto {
     @Override
     public List<String> listServices() throws AvroRemoteException {
         Collection<PluginInfo> list = this.discoveryService.getPeers().values();
-        List<String> listNameIdService = new ArrayList<String>();
+        List<String> listNameIdService = new ArrayList<>();
 
         for (PluginInfo plugin : list) {
             for (PluginService pluginService : plugin.getServices()) {
@@ -389,7 +389,7 @@ public class BioProtoImpl implements BioProto {
     public String startWorkflow(br.unb.cic.bionimbus.avro.gen.Workflow workflow) throws AvroRemoteException {
         // generate pipeline register
         cms.createZNode(CreateMode.PERSISTENT, cms.getPath().NODE_PIPELINE.getFullPath(workflow.getId()), workflow.toString());
-        
+
         return "Pipeline enviado para o escalonamento. Aguarde...";
     }
 
@@ -403,8 +403,8 @@ public class BioProtoImpl implements BioProto {
         } catch (AvroRemoteException ex) {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        return null;    
+
+        return null;
     }
 
     @Override
@@ -437,9 +437,9 @@ public class BioProtoImpl implements BioProto {
             }
         }
 
-        return new ArrayList<NodeInfo>(nodes.values());
+        return new ArrayList<>(nodes.values());
     }
-    
+
     /**
      * Passa PluginList para StorageService aqui
      *
@@ -456,10 +456,12 @@ public class BioProtoImpl implements BioProto {
     }
 
     /**
-     * Método que cria o znode do arquivo no diretório /pending_save/file_"id_do arquivo" com as informações de arquivos que clientes querem enviar;
+     * Método que cria o znode do arquivo no diretório /pending_save/file_"id_do
+     * arquivo" com as informações de arquivos que clientes querem enviar;
+     *
      * @param file informações do arquivo:id,nome, tamanho e hash
-     * @param kindString Tipo de serviço que está requisitando o arquivo 
-     */  
+     * @param kindString Tipo de serviço que está requisitando o arquivo
+     */
     @Override
     public void setFileInfo(FileInfo file, String kindString) {
         PluginFile filePlugin = new PluginFile(file);
@@ -489,15 +491,13 @@ public class BioProtoImpl implements BioProto {
      *
      * @param fileSucess informações do arquivo:id,nome e tamanho
      * @param dest lista com os plugins de destino
-     * @return 
+     * @return
      */
     @Override
-    public String fileSent(FileInfo fileSucess, List<String> dest){
+    public String fileSent(FileInfo fileSucess, List<String> dest) {
         PluginFile file = new PluginFile(fileSucess);
-        file.setPluginId(dest);
-        String pathHome = System.getProperty("user.dir");
-        String path =  (pathHome.substring(pathHome.length()).equals("/") ? pathHome+"data-folder/" : pathHome+"/data-folder/");
-        file.setPath(path+file.getName());
+        file.setPluginId(dest);        
+        file.setPath(ConfigurationRepository.getDataFolder() + file.getName());
         String retorno = "File uploaded.";
         try {
             retorno = storageService.fileUploaded(file);
@@ -507,7 +507,7 @@ public class BioProtoImpl implements BioProto {
         }
         return retorno;
     }
-    
+
     /**
      * Método que notifica o peer para fazer a replicação
      *
@@ -517,7 +517,7 @@ public class BioProtoImpl implements BioProto {
     @Override
     public void notifyReply(String filename, String address) {
         try {
-            storageService.replication(filename,address);
+            storageService.replication(filename, address);
         } catch (IOException | JSchException | SftpException | NoSuchAlgorithmException ex) {
             java.util.logging.Logger.getLogger(BioProtoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -540,5 +540,48 @@ public class BioProtoImpl implements BioProto {
     @Override
     public void setWatcher(String idPlugin) {
 //        storageService.starWatchers(idPlugin);
+    }
+
+    /**
+     * Send a FileInfo to ZooKeeper.
+     *
+     * @param path
+     * @param file
+     * @return
+     * @throws AvroRemoteException
+     */
+    @Override
+    public boolean uploadFile(String path, FileInfo file) throws AvroRemoteException {
+        try {
+            storageService.writeFileToZookeeper(path, file);
+
+            return true;
+        } catch (IOException | JSchException | SftpException | NoSuchAlgorithmException | InterruptedException e) {
+            e.printStackTrace();
+            
+            return false;
+        }
+    }
+
+    /**
+     * Iterates over the peers to find a file. If found, return peer_id;
+     *
+     * @param filename
+     * @return
+     * @throws AvroRemoteException
+     */
+    @Override
+    public br.unb.cic.bionimbus.avro.gen.PluginFile getFileFromPeers(String filename) throws AvroRemoteException {
+        br.unb.cic.bionimbus.avro.gen.PluginFile pluginFile = storageService.getFileInfoByFilename(filename);
+
+        if (pluginFile == null) {
+            br.unb.cic.bionimbus.avro.gen.PluginFile pfile = new br.unb.cic.bionimbus.avro.gen.PluginFile();
+
+            pfile.setName("");
+
+            return pfile;
+        } else {
+            return pluginFile;
+        }
     }
 }

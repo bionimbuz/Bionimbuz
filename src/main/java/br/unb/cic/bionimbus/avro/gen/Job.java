@@ -7,7 +7,7 @@ package br.unb.cic.bionimbus.avro.gen;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class Job extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Job\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"localId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"serviceId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"args\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"inputFiles\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"FileInfo\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"name\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"size\",\"type\":\"long\"},{\"name\":\"userId\",\"type\":\"long\"},{\"name\":\"uploadTimestamp\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"hash\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}},{\"name\":\"outputs\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"timestamp\",\"type\":\"long\"},{\"name\":\"dependencies\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Job\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"localId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"serviceId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"args\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"inputFiles\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"FileInfo\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"name\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"size\",\"type\":\"long\"},{\"name\":\"userId\",\"type\":\"long\"},{\"name\":\"uploadTimestamp\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"hash\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}},{\"name\":\"outputs\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"timestamp\",\"type\":\"long\"},{\"name\":\"dependencies\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"referenceFile\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public java.lang.String id;
   @Deprecated public java.lang.String localId;
@@ -17,6 +17,7 @@ public class Job extends org.apache.avro.specific.SpecificRecordBase implements 
   @Deprecated public java.util.List<java.lang.String> outputs;
   @Deprecated public long timestamp;
   @Deprecated public java.util.List<java.lang.String> dependencies;
+  @Deprecated public java.lang.String referenceFile;
 
   /**
    * Default constructor.
@@ -26,7 +27,7 @@ public class Job extends org.apache.avro.specific.SpecificRecordBase implements 
   /**
    * All-args constructor.
    */
-  public Job(java.lang.String id, java.lang.String localId, java.lang.String serviceId, java.lang.String args, java.util.List<br.unb.cic.bionimbus.avro.gen.FileInfo> inputFiles, java.util.List<java.lang.String> outputs, java.lang.Long timestamp, java.util.List<java.lang.String> dependencies) {
+  public Job(java.lang.String id, java.lang.String localId, java.lang.String serviceId, java.lang.String args, java.util.List<br.unb.cic.bionimbus.avro.gen.FileInfo> inputFiles, java.util.List<java.lang.String> outputs, java.lang.Long timestamp, java.util.List<java.lang.String> dependencies, java.lang.String referenceFile) {
     this.id = id;
     this.localId = localId;
     this.serviceId = serviceId;
@@ -35,6 +36,7 @@ public class Job extends org.apache.avro.specific.SpecificRecordBase implements 
     this.outputs = outputs;
     this.timestamp = timestamp;
     this.dependencies = dependencies;
+    this.referenceFile = referenceFile;
   }
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
@@ -49,6 +51,7 @@ public class Job extends org.apache.avro.specific.SpecificRecordBase implements 
     case 5: return outputs;
     case 6: return timestamp;
     case 7: return dependencies;
+    case 8: return referenceFile;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -64,6 +67,7 @@ public class Job extends org.apache.avro.specific.SpecificRecordBase implements 
     case 5: outputs = (java.util.List<java.lang.String>)value$; break;
     case 6: timestamp = (java.lang.Long)value$; break;
     case 7: dependencies = (java.util.List<java.lang.String>)value$; break;
+    case 8: referenceFile = (java.lang.String)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -188,6 +192,21 @@ public class Job extends org.apache.avro.specific.SpecificRecordBase implements 
     this.dependencies = value;
   }
 
+  /**
+   * Gets the value of the 'referenceFile' field.
+   */
+  public java.lang.String getReferenceFile() {
+    return referenceFile;
+  }
+
+  /**
+   * Sets the value of the 'referenceFile' field.
+   * @param value the value to set.
+   */
+  public void setReferenceFile(java.lang.String value) {
+    this.referenceFile = value;
+  }
+
   /** Creates a new Job RecordBuilder */
   public static br.unb.cic.bionimbus.avro.gen.Job.Builder newBuilder() {
     return new br.unb.cic.bionimbus.avro.gen.Job.Builder();
@@ -217,6 +236,7 @@ public class Job extends org.apache.avro.specific.SpecificRecordBase implements 
     private java.util.List<java.lang.String> outputs;
     private long timestamp;
     private java.util.List<java.lang.String> dependencies;
+    private java.lang.String referenceFile;
 
     /** Creates a new Builder */
     private Builder() {
@@ -262,6 +282,10 @@ public class Job extends org.apache.avro.specific.SpecificRecordBase implements 
       if (isValidValue(fields()[7], other.dependencies)) {
         this.dependencies = data().deepCopy(fields()[7].schema(), other.dependencies);
         fieldSetFlags()[7] = true;
+      }
+      if (isValidValue(fields()[8], other.referenceFile)) {
+        this.referenceFile = data().deepCopy(fields()[8].schema(), other.referenceFile);
+        fieldSetFlags()[8] = true;
       }
     }
 
@@ -464,6 +488,31 @@ public class Job extends org.apache.avro.specific.SpecificRecordBase implements 
       return this;
     }
 
+    /** Gets the value of the 'referenceFile' field */
+    public java.lang.String getReferenceFile() {
+      return referenceFile;
+    }
+    
+    /** Sets the value of the 'referenceFile' field */
+    public br.unb.cic.bionimbus.avro.gen.Job.Builder setReferenceFile(java.lang.String value) {
+      validate(fields()[8], value);
+      this.referenceFile = value;
+      fieldSetFlags()[8] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'referenceFile' field has been set */
+    public boolean hasReferenceFile() {
+      return fieldSetFlags()[8];
+    }
+    
+    /** Clears the value of the 'referenceFile' field */
+    public br.unb.cic.bionimbus.avro.gen.Job.Builder clearReferenceFile() {
+      referenceFile = null;
+      fieldSetFlags()[8] = false;
+      return this;
+    }
+
     @Override
     public Job build() {
       try {
@@ -476,6 +525,7 @@ public class Job extends org.apache.avro.specific.SpecificRecordBase implements 
         record.outputs = fieldSetFlags()[5] ? this.outputs : (java.util.List<java.lang.String>) defaultValue(fields()[5]);
         record.timestamp = fieldSetFlags()[6] ? this.timestamp : (java.lang.Long) defaultValue(fields()[6]);
         record.dependencies = fieldSetFlags()[7] ? this.dependencies : (java.util.List<java.lang.String>) defaultValue(fields()[7]);
+        record.referenceFile = fieldSetFlags()[8] ? this.referenceFile : (java.lang.String) defaultValue(fields()[8]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

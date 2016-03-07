@@ -17,7 +17,6 @@ import br.unb.cic.bionimbus.toSort.Listeners;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,10 +35,8 @@ import org.slf4j.LoggerFactory;
  *
  * Dados disponiveis atraves de metodos get
  */
-
 @Singleton
 public final class RepositoryService extends AbstractBioService {
-
     private static Logger LOGGER = LoggerFactory.getLogger(RepositoryService.class);
     private static final String SERVICES_DIR = "services";
     private final List<PluginService> supportedServices = new ArrayList<>();
@@ -81,7 +78,6 @@ public final class RepositoryService extends AbstractBioService {
         // Add current instance as a peer
         addPeerToZookeeper(new PluginInfo(config.getId()));
 
-        readSupportedServices();
         listeners.add(this);
     }
 
@@ -116,50 +112,6 @@ public final class RepositoryService extends AbstractBioService {
     }
 
     /**
-     * Read from services folder the supported services and add this info to
-     * ZooKeeper @ /bionimbuz/services/{service}
-     *
-     * @throws IOException
-     */
-    private void readSupportedServices() {
-        final List<PluginService> list = new CopyOnWriteArrayList<>();
-        File dir = new File(SERVICES_DIR);
-        int cont = 0;
-
-        try {
-            // Iterates over the services found in the /services/ folder
-            if (dir.isDirectory()) {
-                for (File file : dir.listFiles()) {
-
-                    // It may be a .json file
-                    if (file.isFile() && file.canRead() && file.getName().endsWith(".json")) {
-                        ObjectMapper mapper = new ObjectMapper();
-                        PluginService service = mapper.readValue(file, PluginService.class);
-
-                        // Add the read Service to ZooKeeper
-                        addServiceToZookeeper(service);
-
-                        // Add the read Service to the list of supported services
-                        supportedServices.add(service);
-
-                        cont++;
-                    }
-                }
-            }
-
-        } catch (IOException ex) {
-            LOGGER.error("[IOException] " + ex.getMessage());
-        }
-
-        LOGGER.info("===============================================");
-        LOGGER.info("====> " + cont + " Services added to BioNimbuZ");
-        LOGGER.info("===============================================");
-    }
-
-
-    //Método do Willian:
- 
-    /**
      * Get instance cost from zookeeper cost
      *
      * MOCKED
@@ -167,7 +119,6 @@ public final class RepositoryService extends AbstractBioService {
      * @param type type of instance (e.g. AMAZON_LARGE)
      * @return cost of the input type instance
      */
-
     public double getInstanceCost(InstanceType type) {
         switch (type) {
             case LABID_I7:
@@ -225,36 +176,10 @@ public final class RepositoryService extends AbstractBioService {
                     LOGGER.error("[IOException] " + ex.getMessage());
                 }
             }
-            LOGGER.info("Resource converted " + r.toString());
             resources.resources.add(r);
         }
 
         return resources;
-    }
-
-    /**
-     * Add a service to zookeeper, thereby, generating the full history
-     * structure for given service.
-     *
-     * The service can have a history mode, and, having it, the modes will be
-     * added to the service zookeeper file even without a history. These modes
-     * will be removed when the history is big enough to make its own modes.
-     *
-     * The preset modes feature should only be used for testing.
-     *
-     * @param service Service to be added
-     */
-    public void addServiceToZookeeper(PluginService service) {
-        // create father node
-        cms.createZNode(CreateMode.PERSISTENT, Path.NODE_SERVICE.getFullPath(String.valueOf(service.getId())), service.toString());
-
-        // create history structure
-        cms.createZNode(CreateMode.PERSISTENT, Path.MODES.getFullPath(String.valueOf(service.getId())), null);
-
-        // add preset mode if there is one
-        if (service.getPresetMode() != null) {
-            cms.createZNode(CreateMode.PERSISTENT, Path.NODE_MODES.getFullPath(String.valueOf(service.getId()), "0"), service.getPresetMode().toString());
-        }
     }
 
     /**

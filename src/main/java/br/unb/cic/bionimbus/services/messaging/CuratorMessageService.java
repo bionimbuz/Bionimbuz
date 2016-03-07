@@ -15,8 +15,8 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-/*
+ */
+ /*
 * To change this license header, choose License Headers in Project Properties.
 * To change this template file, choose Tools | Templates
 * and open the template in the editor.
@@ -24,7 +24,6 @@
 package br.unb.cic.bionimbus.services.messaging;
 
 import com.google.inject.Singleton;
-import java.util.Arrays;
 import java.util.List;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.CuratorFramework;
@@ -84,12 +83,12 @@ public class CuratorMessageService implements CloudMessageService {
         FILES("/files"),
         FINISHED_TASKS("/finished_tasks"),
         LATENCY("/latency"),
-        LOGGED_USERS("/logged"), // Vinicius dez/2015 > Current users
+        LOGGED_USERS("/logged"),
         MODES("/modes"),
         NODE_COST("/"),
         NODE_FILE("/"),
         NODE_FINISHED_TASK("/"),
-        NODE_LOGGED_USERS("/"), // Vinicius dez/2015
+        NODE_LOGGED_USERS("/"),
         NODE_MODES("/"),
         NODE_PEER("/"),
         NODE_PENDING_FILE("/"),
@@ -109,8 +108,7 @@ public class CuratorMessageService implements CloudMessageService {
         STATUS("/STATUS"),
         STATUSWAITING("/STATUSWAITING"),
         TASKS("/tasks"),
-        USERS("/users");                // Vinicius dez/2015 > Root path for users
-
+        USERS("/users");
 
         private final String value;
 
@@ -268,7 +266,7 @@ public class CuratorMessageService implements CloudMessageService {
     @Override
     public int getChildrenCount(String path, Watcher watcher) {
         int cont = 0;
-        
+
         try {
             cont = client.getChildren().usingWatcher(watcher).forPath(path).size();
         } catch (Exception ex) {
@@ -296,6 +294,7 @@ public class CuratorMessageService implements CloudMessageService {
             ret = new String(data);
         } catch (Exception ex) {
             LOGGER.error("[Exception] " + ex.getMessage());
+            ex.printStackTrace();
         }
         return ret;
     }

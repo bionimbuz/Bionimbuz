@@ -1,9 +1,0 @@
-{
-    "id": 2,
-    "name": "s2",
-    "arguments": ["args:%I1%O1"],
-    "input": ["out1"],
-    "output": ["out2"],
-    "info": "MOCK",
-    "path": "./programs/s2.sh"
-}

@@ -40,9 +40,12 @@ import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxGetInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
 import br.unb.cic.bionimbus.toSort.Listeners;
+import br.unb.cic.bionimbus.utils.PBKDF2;
 
 import static com.google.inject.Guice.createInjector;
 import java.net.InetAddress;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -78,7 +81,7 @@ public class BioNimbus {
 
         if (!config.isClient()) {
             LinuxGetInfo getinfo = new LinuxGetInfo();
-            
+
             PluginInfo infopc = getinfo.call();
             infopc.setId(config.getId());
             infopc.setHost(config.getHost());
@@ -104,22 +107,22 @@ public class BioNimbus {
 
     }
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws IOException, InterruptedException, NoSuchAlgorithmException, InvalidKeySpecException {
 
         final String configFile = System.getProperty("config.file", "conf/node.yaml");
         BioNimbusConfig config = loadHostConfig(configFile);
 
         // !!! MEDIDA PALEATIVA !!! Para nao ter que trocar o node.yaml toda vez
-//        config.setZkConnString(InetAddress.getLocalHost().getHostAddress() + ":2181");
-//        config.setAddress(InetAddress.getLocalHost().getHostAddress());
+        config.setZkConnString(InetAddress.getLocalHost().getHostAddress() + ":2558");
+        config.setAddress(InetAddress.getLocalHost().getHostAddress());
 
         // Adiciona usuário 'root' para teste 
         UserDao userDao = new UserDao();
-        
+
         if (!userDao.exists("root")) {
             User u = new User();
             u.setLogin("root");
-            u.setPassword("root");
+            u.setPassword(PBKDF2.generatePassword("root"));
             u.setCpf("01092010101");
             u.setCelphone("0");
             u.setEmail("@");

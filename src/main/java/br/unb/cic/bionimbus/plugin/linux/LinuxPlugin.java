@@ -19,6 +19,7 @@
 package br.unb.cic.bionimbus.plugin.linux;
 
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import br.unb.cic.bionimbus.model.Workflow;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -52,13 +53,13 @@ public class LinuxPlugin extends AbstractPlugin{
     }
 
     @Override
-    public Future<PluginTask> startTask(PluginTask task, CloudMessageService zk) {
+    public Future<PluginTask> startTask(PluginTask task, CloudMessageService zk, Workflow workflow) {
         PluginService service = getMyInfo().getService(task.getJobInfo().getServiceId());
         if (service == null) {
             System.out.println("[LinuxPlugin] Task's service is not installed on this instance.");
             return null;
         }
 
-        return executorService.submit(new PluginTaskRunner(this, task, service, getConfig().getServerPath(), zk));
+        return executorService.submit(new PluginTaskRunner(this, task, service, getConfig().getServerPath(), zk, workflow));
     }
 }

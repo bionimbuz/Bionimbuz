@@ -33,20 +33,13 @@ public class PluginFile {
 
     public PluginFile() {
     }
-    
-    //Recebe as informações do arquivo enviado pelo cliente e seta os dados do arquivo
-    public PluginFile(FileInfo fileNode){
-        this.id = fileNode.getId();
-        this.name= fileNode.getName();
-        this.size =fileNode.getSize();
-        this.hash=fileNode.getHash();
-    }
+
     private String id;
 
     private String path;
 
     private String name;
-    
+
     private String hash;
 
     private long size;
@@ -56,6 +49,14 @@ public class PluginFile {
     private List<String> buckets;
     
     private List<String> pluginId;
+
+    // Recebe as informações do arquivo enviado pelo cliente e seta os dados do arquivo
+    public PluginFile(FileInfo fileNode) {
+        this.id = fileNode.getId();
+        this.name = fileNode.getName();
+        this.size = fileNode.getSize();
+        this.hash = fileNode.getHash();
+    }
 
     public String getId() {
         return id;
@@ -104,7 +105,7 @@ public class PluginFile {
     public void setHash(String hash) {
         this.hash = hash;
     }
-    
+
     public String getService() {
         return service;
     }

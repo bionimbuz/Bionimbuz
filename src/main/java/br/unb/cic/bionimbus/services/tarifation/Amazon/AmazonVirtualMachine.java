@@ -7,6 +7,7 @@ package br.unb.cic.bionimbus.services.tarifation.Amazon;
  */
 public class AmazonVirtualMachine {
 
+    private boolean ActivationStatus;
     private String pricing;
     private String region;
     private int id;
@@ -48,6 +49,14 @@ public class AmazonVirtualMachine {
         this.latest = latest;
         this.hourly = hourly;
         this.ebsoptimized = ebsoptimized;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean status() {
+        return ActivationStatus;
     }
 
     /**
