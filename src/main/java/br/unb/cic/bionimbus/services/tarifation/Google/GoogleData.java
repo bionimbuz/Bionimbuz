@@ -5,11 +5,11 @@
  */
 package br.unb.cic.bionimbus.services.tarifation.Google;
 
+import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
@@ -24,13 +24,13 @@ import org.json.JSONObject;
 public class GoogleData {
 
     public JSONObject GoogleJsonService;
-    private final Map<String, String> config;
+//    private final Map<String, String> config;
     private Map<String, String> GoogleService;
-
-    public GoogleData() {
-        this.config = new HashMap<>();
-        this.config.put("Filename", "GooglePrices.txt");
-        GoogleJsonService = readJSONObject(this.config.get("Filename"));
+    
+    public GoogleData(BioNimbusConfig config) {
+//        this.config = new HashMap<>();
+//        this.config.put("Filename", "GooglePrices.txt");
+        GoogleJsonService = readJSONObject(config.getRootFolder()+"/conf/GooglePrices.txt");
         //this.GoogleJsonService = GoogleJsonService;
         this.createInfo(GoogleJsonService);
     }

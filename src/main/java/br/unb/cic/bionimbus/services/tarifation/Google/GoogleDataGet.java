@@ -5,6 +5,8 @@
  */
 package br.unb.cic.bionimbus.services.tarifation.Google;
 
+import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import static br.unb.cic.bionimbus.config.BioNimbusConfigLoader.loadHostConfig;
 import br.unb.cic.bionimbus.services.tarifation.Utils.RestfulGetter;
 import br.unb.cic.bionimbus.services.tarifation.Utils.RestfulGetterBehaviors.PricingGet;
 import java.util.HashMap;
@@ -24,12 +26,13 @@ public class GoogleDataGet {
      *
      * Server: "cloudpricingcalculator.appspot.com" Address:
      * "/static/data/pricelist.json"
+     * @param config
      */
-    public GoogleDataGet() {
+    public GoogleDataGet(BioNimbusConfig config) {
         this.config = new HashMap<>();
         this.config.put("Server", "cloudpricingcalculator.appspot.com");
         this.config.put("Address", "/static/data/pricelist.json");
-        this.config.put("Filename", "GooglePrices.txt");
+        this.config.put("Filename", config.getRootFolder()+"/conf/GooglePrices.txt");
 
         System.out.println("Getting Google prices...");
         String arrayString = this.getter.get(this.config.get("Server"), this.config.get("Address"));
@@ -42,4 +45,11 @@ public class GoogleDataGet {
         }
 
     }
+//     public static void main(String[] args) throws Exception {
+//        
+//        final String configFile = System.getProperty("config.file", "conf/node.yaml");
+//        BioNimbusConfig config = loadHostConfig(configFile);
+//
+//        new GoogleDataGet(config);
+//    } 
 }

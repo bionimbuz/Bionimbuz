@@ -5,7 +5,7 @@ rpc_port: 8080
 rpc_protocol: http
 
 # IP address of ZooKeeper server
-zookeeper_hosts: *.*.*.*:2558
+zookeeper_hosts: *.*.*.*:2181
 
 # Operation Mode
 client: false

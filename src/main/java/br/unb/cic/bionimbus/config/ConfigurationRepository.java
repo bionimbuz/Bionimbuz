@@ -1,6 +1,9 @@
 package br.unb.cic.bionimbus.config;
 
+import br.unb.cic.bionimbus.model.Instance;
 import br.unb.cic.bionimbus.plugin.PluginService;
+import br.unb.cic.bionimbus.services.tarifation.Amazon.AmazonData;
+import br.unb.cic.bionimbus.services.tarifation.Google.GoogleData;
 import br.unb.cic.bionimbus.utils.SSHCredentials;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -107,6 +110,17 @@ public class ConfigurationRepository {
             ex.printStackTrace();
         }
 
+        return null;
+    }
+    /**
+     * Get the list of instances of amazon, google, etc...
+     * @return 
+     */
+    
+    public static ArrayList<Instance> getInstances(){
+        
+         AmazonData listA = new AmazonData(config);
+         GoogleData listG = new GoogleData(config);
         return null;
     }
 

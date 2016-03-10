@@ -606,11 +606,5 @@
             <version>1.53</version>
         </dependency>
         
-        <!-- Apache HTTP Client -->
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.5.1</version>
-        </dependency>
     </dependencies>
 </project>

@@ -1,5 +1,7 @@
 package br.unb.cic.bionimbus.services.tarifation.Amazon;
 
+import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import static br.unb.cic.bionimbus.config.BioNimbusConfigLoader.loadHostConfig;
 import br.unb.cic.bionimbus.services.tarifation.Utils.RestfulGetter;
 import br.unb.cic.bionimbus.services.tarifation.Utils.RestfulGetterBehaviors.PricingGet;
 import java.util.HashMap;
@@ -21,17 +23,17 @@ public class AmazonDataGet {
      *
      * Server: "info.awsstream.com" AddressOD: "/instances.json?"
      * AddressStorage: "/storage.json?" AddressDataTransfer: "/transfer.json?"
+     * @param config
      */
-    public AmazonDataGet() {
-
+    public AmazonDataGet(BioNimbusConfig config) {
         this.config = new HashMap<>();
         this.config.put("Server", "info.awsstream.com");
         this.config.put("AddressOD", "/instances.json?");
-        this.config.put("FilenameOD", "AmazonInstancesOD.txt");
+        this.config.put("FilenameOD",  config.getRootFolder()+"/conf/AmazonInstancesOD.txt");
         this.config.put("AddressStorage", "/storage.json?");
-        this.config.put("FilenameStorage", "AmazonStorage.txt");
+        this.config.put("FilenameStorage", config.getRootFolder()+"/conf/AmazonStorage.txt");
         this.config.put("AddressDataTransfer", "/transfer.json?");
-        this.config.put("FilenameDataTransfer", "AmazonDataTransfer.txt");
+        this.config.put("FilenameDataTransfer", config.getRootFolder()+"/conf/AmazonDataTransfer.txt");
         System.out.println("Getting Amazon prices On Demand...");
         String arrayODString = this.getter.get(this.config.get("Server"), this.config.get("AddressOD"));
         System.out.println("Getting Amazon Storage prices...");
@@ -59,4 +61,11 @@ public class AmazonDataGet {
 
         System.out.println("GET process completed.");
     }
+//    public static void main(String[] args) throws Exception {
+//        
+//        final String configFile = System.getProperty("config.file", "conf/node.yaml");
+//        BioNimbusConfig config = loadHostConfig(configFile);
+//
+//        new AmazonDataGet(config);
+//    } 
 }

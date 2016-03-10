@@ -5,11 +5,11 @@
  */
 package br.unb.cic.bionimbus.services.tarifation.Amazon;
 
+import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,18 +26,17 @@ public class AmazonData {
     private Map<String, AmazonVirtualMachine> AmazonMachinesService;
     private Map<String, AmazonStorage> AmazonStorageService;
     private Map<String, AmazonDataTransfer> AmazonDataTransferService;
-    private final Map<String, String> config;
 
-    public AmazonData() {
-        this.config = new HashMap<>();
-        this.config.put("FilenameOD", "AmazonInstancesOD.txt");
-        this.config.put("FilenameStorage", "AmazonStorage.txt");
-        this.config.put("FilenameDataTransfer", "AmazonDataTransfer.txt");
+    public AmazonData(BioNimbusConfig config) {
+//        this.config = new HashMap<>();
+//        this.config.put("FilenameOD", "AmazonInstancesOD.txt");
+//        this.config.put("FilenameStorage", "AmazonStorage.txt");
+//        this.config.put("FilenameDataTransfer", "AmazonDataTransfer.txt");
 
-        JSONArray pricingODArray = readJSONArray(this.config.get("FilenameOD"));
-        JSONArray pricingStorageArray = readJSONArray(this.config.get("FilenameStorage"));
-        JSONArray pricingDataTransferArray = readJSONArray(this.config.get("FilenameDataTransfer"));
-
+        JSONArray pricingODArray = readJSONArray(config.getRootFolder()+"/conf/AmazonInstancesOD.txt");
+        JSONArray pricingStorageArray = readJSONArray(config.getRootFolder()+"/conf/AmazonStorage.txt");
+        JSONArray pricingDataTransferArray = readJSONArray(config.getRootFolder()+"/conf/AmazonDataTransfer.txt");
+        
         this.createVirtualMachines(pricingODArray);
         this.createStorageInfo(pricingStorageArray);
         this.createDataTransferInfo(pricingDataTransferArray);
@@ -78,7 +77,7 @@ public class AmazonData {
         for (int i = 0; i < AmazonDataTransferArray.length(); i++) {
             JSONObject obj = AmazonDataTransferArray.getJSONObject(i);
             AmazonDataTransfer adt = new AmazonDataTransfer(obj.getInt("id"), obj.getString("region"), obj.getString("kind"), obj.getString("tier"), obj.getDouble("price"), obj.getString("created_at"), obj.getString("updated_at"));
-            this.AmazonDataTransferService.put("" + obj.getInt("id"), adt);
+            this.getAmazonDataTransferService().put("" + obj.getInt("id"), adt);
         }
     }
 
@@ -86,7 +85,7 @@ public class AmazonData {
         for (int i = 0; i < AmazonMachinesArray.length(); i++) {
             JSONObject obj = AmazonMachinesArray.getJSONObject(i);
             AmazonVirtualMachine avm = new AmazonVirtualMachine(obj.getString("pricing"), obj.getString("region"), obj.getInt("id"), obj.getString("os"), obj.getString("model"), obj.getDouble("upfront"), obj.getString("updated_at"), obj.getDouble("term"), obj.getString("created_at"), obj.getBoolean("latest"), obj.getDouble("hourly"), obj.getBoolean("ebsoptimized"));
-            this.AmazonMachinesService.put("" + obj.getInt("id"), avm);
+            this.getAmazonMachinesService().put("" + obj.getInt("id"), avm);
         }
     }
 
@@ -94,7 +93,7 @@ public class AmazonData {
         for (int i = 0; i < AmazonStorageArray.length(); i++) {
             JSONObject obj = AmazonStorageArray.getJSONObject(i);
             AmazonStorage as = new AmazonStorage(obj.getInt("id"), obj.getString("region"), obj.getString("kind"), obj.getDouble("price"), obj.getString("unit"), obj.getString("created_at"), obj.getString("updated_at"));
-            this.AmazonStorageService.put("" + obj.getInt("id"), as);
+            this.getAmazonStorageService().put("" + obj.getInt("id"), as);
         }
     }
 
@@ -105,7 +104,7 @@ public class AmazonData {
      */
     public boolean getVMStatus(int id) {
         String Id = "" + id;
-        return this.AmazonMachinesService.get(Id).status();
+        return this.getAmazonMachinesService().get(Id).status();
     }
 
     /**
@@ -115,7 +114,7 @@ public class AmazonData {
      */
     public double getVMPrice(int id) {
         String Id = "" + id;
-        return this.AmazonMachinesService.get(Id).getHourly();
+        return this.getAmazonMachinesService().get(Id).getHourly();
     }
 
     /**
@@ -125,7 +124,7 @@ public class AmazonData {
      */
     public String getVMRegion(int id) {
         String Id = "" + id;
-        return this.AmazonMachinesService.get(Id).getRegion();
+        return this.getAmazonMachinesService().get(Id).getRegion();
     }
 
     /**
@@ -135,7 +134,7 @@ public class AmazonData {
      */
     public String getVMPricingType(int id) {
         String Id = "" + id;
-        return this.AmazonMachinesService.get(Id).getPricing();
+        return this.getAmazonMachinesService().get(Id).getPricing();
     }
 
     /**
@@ -145,7 +144,7 @@ public class AmazonData {
      */
     public String getVMOs(int id) {
         String Id = "" + id;
-        return this.AmazonMachinesService.get(Id).getOs();
+        return this.getAmazonMachinesService().get(Id).getOs();
     }
 
     /**
@@ -155,7 +154,7 @@ public class AmazonData {
      */
     public String getVMModel(int id) {
         String Id = "" + id;
-        return this.AmazonMachinesService.get(Id).getModel();
+        return this.getAmazonMachinesService().get(Id).getModel();
     }
 
     /**
@@ -165,7 +164,7 @@ public class AmazonData {
      */
     public double getVMUpfront(int id) {
         String Id = "" + id;
-        return this.AmazonMachinesService.get(Id).getUpfront();
+        return this.getAmazonMachinesService().get(Id).getUpfront();
     }
 
     /**
@@ -175,7 +174,7 @@ public class AmazonData {
      */
     public String getVMUpdatedAt(int id) {
         String Id = "" + id;
-        return this.AmazonMachinesService.get(Id).getUpdated_at();
+        return this.getAmazonMachinesService().get(Id).getUpdated_at();
     }
 
     /**
@@ -185,7 +184,7 @@ public class AmazonData {
      */
     public double getVMTerm(int id) {
         String Id = "" + id;
-        return this.AmazonMachinesService.get(Id).getTerm();
+        return this.getAmazonMachinesService().get(Id).getTerm();
     }
 
     /**
@@ -195,7 +194,7 @@ public class AmazonData {
      */
     public String getVMCreatedAt(int id) {
         String Id = "" + id;
-        return this.AmazonMachinesService.get(Id).getCreated_at();
+        return this.getAmazonMachinesService().get(Id).getCreated_at();
     }
 
     /**
@@ -205,7 +204,7 @@ public class AmazonData {
      */
     public boolean isVMLatest(int id) {
         String Id = "" + id;
-        return this.AmazonMachinesService.get(Id).isLatest();
+        return this.getAmazonMachinesService().get(Id).isLatest();
     }
 
     /**
@@ -215,7 +214,7 @@ public class AmazonData {
      */
     public boolean isVMEbsoptimized(int id) {
         String Id = "" + id;
-        return this.AmazonMachinesService.get(Id).isEbsoptimized();
+        return this.getAmazonMachinesService().get(Id).isEbsoptimized();
     }
 
     /**
@@ -225,7 +224,7 @@ public class AmazonData {
      */
     public boolean getStorageStatus(int id) {
         String Id = "" + id;
-        return this.AmazonStorageService.get(Id).status();
+        return this.getAmazonStorageService().get(Id).status();
     }
 
     /**
@@ -235,7 +234,7 @@ public class AmazonData {
      */
     public String getStorageRegion(int id) {
         String Id = "" + id;
-        return this.AmazonStorageService.get(Id).getRegion();
+        return this.getAmazonStorageService().get(Id).getRegion();
     }
 
     /**
@@ -245,7 +244,7 @@ public class AmazonData {
      */
     public String getStorageCreatedAt(int id) {
         String Id = "" + id;
-        return this.AmazonStorageService.get(Id).getCreatedAt();
+        return this.getAmazonStorageService().get(Id).getCreatedAt();
     }
 
     /**
@@ -255,7 +254,7 @@ public class AmazonData {
      */
     public String getStorageKind(int id) {
         String Id = "" + id;
-        return this.AmazonStorageService.get(Id).getKind();
+        return this.getAmazonStorageService().get(Id).getKind();
     }
 
     /**
@@ -265,7 +264,7 @@ public class AmazonData {
      */
     public String getStoragePriceUnit(int id) {
         String Id = "" + id;
-        return this.AmazonStorageService.get(Id).getPriceUnit();
+        return this.getAmazonStorageService().get(Id).getPriceUnit();
     }
 
     /**
@@ -275,7 +274,7 @@ public class AmazonData {
      */
     public String getStorageUpdatedAt(int id) {
         String Id = "" + id;
-        return this.AmazonStorageService.get(Id).getUpdatedAt();
+        return this.getAmazonStorageService().get(Id).getUpdatedAt();
     }
 
     /**
@@ -285,7 +284,7 @@ public class AmazonData {
      */
     public double getStoragePrice(int id) {
         String Id = "" + id;
-        return this.AmazonStorageService.get(Id).getPrice();
+        return this.getAmazonStorageService().get(Id).getPrice();
     }
 
     /**
@@ -295,7 +294,7 @@ public class AmazonData {
      */
     public boolean getDataTransferStatus(int id) {
         String Id = "" + id;
-        return this.AmazonDataTransferService.get(Id).status();
+        return this.getAmazonDataTransferService().get(Id).status();
     }
 
     /**
@@ -305,7 +304,7 @@ public class AmazonData {
      */
     public String getDataTransferRegion(int id) {
         String Id = "" + id;
-        return this.AmazonDataTransferService.get(Id).getRegion();
+        return this.getAmazonDataTransferService().get(Id).getRegion();
     }
 
     /**
@@ -315,7 +314,7 @@ public class AmazonData {
      */
     public String getDataTransferTier(int id) {
         String Id = "" + id;
-        return this.AmazonDataTransferService.get(Id).getTier();
+        return this.getAmazonDataTransferService().get(Id).getTier();
     }
 
     /**
@@ -325,7 +324,7 @@ public class AmazonData {
      */
     public String getDataTransferUpdateAt(int id) {
         String Id = "" + id;
-        return this.AmazonDataTransferService.get(Id).getUpdatedAt();
+        return this.getAmazonDataTransferService().get(Id).getUpdatedAt();
     }
 
     /**
@@ -335,7 +334,7 @@ public class AmazonData {
      */
     public String getDataTransferCreatedAt(int id) {
         String Id = "" + id;
-        return this.AmazonDataTransferService.get(Id).getCreatedAt();
+        return this.getAmazonDataTransferService().get(Id).getCreatedAt();
     }
 
     /**
@@ -345,7 +344,7 @@ public class AmazonData {
      */
     public String getDataTransferKind(int id) {
         String Id = "" + id;
-        return this.AmazonDataTransferService.get(Id).getKind();
+        return this.getAmazonDataTransferService().get(Id).getKind();
     }
 
     /**
@@ -355,6 +354,48 @@ public class AmazonData {
      */
     public double getDataTransferPrice(int id) {
         String Id = "" + id;
-        return this.AmazonDataTransferService.get(Id).getPrice();
+        return this.getAmazonDataTransferService().get(Id).getPrice();
+    }
+
+    /**
+     * @return the AmazonMachinesService
+     */
+    public Map<String, AmazonVirtualMachine> getAmazonMachinesService() {
+        return AmazonMachinesService;
+    }
+
+    /**
+     * @param AmazonMachinesService the AmazonMachinesService to set
+     */
+    public void setAmazonMachinesService(Map<String, AmazonVirtualMachine> AmazonMachinesService) {
+        this.AmazonMachinesService = AmazonMachinesService;
+    }
+
+    /**
+     * @return the AmazonStorageService
+     */
+    public Map<String, AmazonStorage> getAmazonStorageService() {
+        return AmazonStorageService;
+    }
+
+    /**
+     * @param AmazonStorageService the AmazonStorageService to set
+     */
+    public void setAmazonStorageService(Map<String, AmazonStorage> AmazonStorageService) {
+        this.AmazonStorageService = AmazonStorageService;
+    }
+
+    /**
+     * @return the AmazonDataTransferService
+     */
+    public Map<String, AmazonDataTransfer> getAmazonDataTransferService() {
+        return AmazonDataTransferService;
+    }
+
+    /**
+     * @param AmazonDataTransferService the AmazonDataTransferService to set
+     */
+    public void setAmazonDataTransferService(Map<String, AmazonDataTransfer> AmazonDataTransferService) {
+        this.AmazonDataTransferService = AmazonDataTransferService;
     }
 }

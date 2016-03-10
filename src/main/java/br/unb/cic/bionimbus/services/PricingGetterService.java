@@ -78,8 +78,8 @@ public class PricingGetterService extends AbstractBioService {
 
     @Override
     public void run() {
-        AmazonDataGet atg = new AmazonDataGet();
-        GoogleDataGet gdg = new GoogleDataGet();
+        AmazonDataGet atg = new AmazonDataGet(config);
+        GoogleDataGet gdg = new GoogleDataGet(config);
     }
 
 }

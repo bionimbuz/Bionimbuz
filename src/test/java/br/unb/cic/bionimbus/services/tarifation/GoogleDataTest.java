@@ -16,14 +16,14 @@ import org.json.JSONObject;
 public class GoogleDataTest {
     
     public static void main(String[] args){
-        GoogleData gd = new GoogleData();
-        JSONObject Data = gd.getGoogleJsonService().getJSONObject("gcp_price_list");
-        Iterator<String> it = Data.keys();
-        
-        while(it.hasNext()){
-            Object obj = Data.get(it.next());
-            String objClass = obj.getClass().toString();
-            System.out.println(objClass);
-        }
+//        GoogleData gd = new GoogleData();
+//        JSONObject Data = gd.getGoogleJsonService().getJSONObject("gcp_price_list");
+//        Iterator<String> it = Data.keys();
+//        
+//        while(it.hasNext()){
+//            Object obj = Data.get(it.next());
+//            String objClass = obj.getClass().toString();
+//            System.out.println(objClass);
+//        }
     }
 }
