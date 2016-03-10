@@ -5,11 +5,13 @@
  */
 package br.unb.cic.bionimbus.services.tarifation.Amazon;
 
+import br.unb.cic.bionimbus.services.tarifation.Instance;
+
 /**
  *
  * @author Gabriel Fritz Sluzala
  */
-public class AmazonDataTransfer {
+public class AmazonDataTransfer implements Instance{
 
     private boolean activationStatus;
     private int id;
@@ -44,16 +46,18 @@ public class AmazonDataTransfer {
      *
      * @return
      */
-    public boolean status() {
-        return activationStatus;
+    @Override
+    public String status() {
+        return activationStatus+"";
     }
 
     /**
      *
      * @return
      */
-    public int getId() {
-        return id;
+    @Override
+    public String getId() {
+        return id +"";
     }
 
     /**
@@ -84,8 +88,8 @@ public class AmazonDataTransfer {
      *
      * @return
      */
-    public double getPrice() {
-        return price;
+    public String getPrice() {
+        return price+"/OPERATION";
     }
 
     /**
@@ -135,4 +139,8 @@ public class AmazonDataTransfer {
         return true;
     }
 
+    @Override
+    public String getName() {
+        return this.getKind();
+    }
 }

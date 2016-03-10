@@ -5,11 +5,13 @@
  */
 package br.unb.cic.bionimbus.services.tarifation.Amazon;
 
+import br.unb.cic.bionimbus.services.tarifation.Instance;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,6 +25,7 @@ import org.json.JSONObject;
  */
 public class AmazonData {
 
+    private Map<String, Instance> AmazonInstances;
     private Map<String, AmazonVirtualMachine> AmazonMachinesService;
     private Map<String, AmazonStorage> AmazonStorageService;
     private Map<String, AmazonDataTransfer> AmazonDataTransferService;
@@ -38,9 +41,10 @@ public class AmazonData {
         JSONArray pricingStorageArray = readJSONArray(this.config.get("FilenameStorage"));
         JSONArray pricingDataTransferArray = readJSONArray(this.config.get("FilenameDataTransfer"));
 
-        this.createVirtualMachines(pricingODArray);
+        this.createVirtualMachinesInfo(pricingODArray);
         this.createStorageInfo(pricingStorageArray);
         this.createDataTransferInfo(pricingDataTransferArray);
+        this.createAmazonInstanceInfo();
     }
 
     private JSONArray readJSONArray(String filename) {
@@ -67,13 +71,25 @@ public class AmazonData {
             }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(AmazonData.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (JSONException | IOException ex) {
+        } catch (IOException ex) {
             Logger.getLogger(AmazonData.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return (null);
     }
 
+    private void createAmazonInstanceInfo (){
+        for (Map.Entry pair : this.AmazonMachinesService.entrySet()) {
+            this.AmazonInstances.put("Amazon-"+"VM-"+(String)pair.getKey(), (Instance)pair.getValue());
+        }
+        for (Map.Entry pair : this.AmazonStorageService.entrySet()) {
+            this.AmazonInstances.put("Amazon-"+"Storage-"+(String)pair.getKey(), (Instance)pair.getValue());
+        }
+        for (Map.Entry pair : this.AmazonDataTransferService.entrySet()) {
+            this.AmazonInstances.put("Amazon-"+"DataTransfer-"+(String)pair.getKey(), (Instance)pair.getValue());
+        }
+    }
+    
     private void createDataTransferInfo(JSONArray AmazonDataTransferArray) throws JSONException {
         for (int i = 0; i < AmazonDataTransferArray.length(); i++) {
             JSONObject obj = AmazonDataTransferArray.getJSONObject(i);
@@ -82,7 +98,7 @@ public class AmazonData {
         }
     }
 
-    private void createVirtualMachines(JSONArray AmazonMachinesArray) throws JSONException {
+    private void createVirtualMachinesInfo(JSONArray AmazonMachinesArray) throws JSONException {
         for (int i = 0; i < AmazonMachinesArray.length(); i++) {
             JSONObject obj = AmazonMachinesArray.getJSONObject(i);
             AmazonVirtualMachine avm = new AmazonVirtualMachine(obj.getString("pricing"), obj.getString("region"), obj.getInt("id"), obj.getString("os"), obj.getString("model"), obj.getDouble("upfront"), obj.getString("updated_at"), obj.getDouble("term"), obj.getString("created_at"), obj.getBoolean("latest"), obj.getDouble("hourly"), obj.getBoolean("ebsoptimized"));
@@ -103,7 +119,7 @@ public class AmazonData {
      * @param id
      * @return
      */
-    public boolean getVMStatus(int id) {
+    public String getVMStatus(int id) {
         String Id = "" + id;
         return this.AmazonMachinesService.get(Id).status();
     }
@@ -135,7 +151,7 @@ public class AmazonData {
      */
     public String getVMPricingType(int id) {
         String Id = "" + id;
-        return this.AmazonMachinesService.get(Id).getPricing();
+        return this.AmazonMachinesService.get(Id).getPrice();
     }
 
     /**
@@ -223,7 +239,7 @@ public class AmazonData {
      * @param id
      * @return
      */
-    public boolean getStorageStatus(int id) {
+    public String getStorageStatus(int id) {
         String Id = "" + id;
         return this.AmazonStorageService.get(Id).status();
     }
@@ -283,7 +299,7 @@ public class AmazonData {
      * @param id - ID of Amazon Storage.
      * @return - Price of AmazonStorage with this ID.
      */
-    public double getStoragePrice(int id) {
+    public String getStoragePrice(int id) {
         String Id = "" + id;
         return this.AmazonStorageService.get(Id).getPrice();
     }
@@ -293,7 +309,7 @@ public class AmazonData {
      * @param id
      * @return
      */
-    public boolean getDataTransferStatus(int id) {
+    public String getDataTransferStatus(int id) {
         String Id = "" + id;
         return this.AmazonDataTransferService.get(Id).status();
     }
@@ -353,7 +369,7 @@ public class AmazonData {
      * @param id - ID of Amazon DataTransfer
      * @return - Price of AmazonDataTransfer with this ID
      */
-    public double getDataTransferPrice(int id) {
+    public String getDataTransferPrice(int id) {
         String Id = "" + id;
         return this.AmazonDataTransferService.get(Id).getPrice();
     }
