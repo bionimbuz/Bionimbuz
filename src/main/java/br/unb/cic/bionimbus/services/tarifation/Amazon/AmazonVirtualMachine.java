@@ -1,13 +1,15 @@
 package br.unb.cic.bionimbus.services.tarifation.Amazon;
 
+import br.unb.cic.bionimbus.services.tarifation.Instance;
+
 /**
  * Classe AmazonVirtualMachine, used to represent a Amazon VM.
  *
  * @author Gabriel Fritz Sluzala
  */
-public class AmazonVirtualMachine {
+public class AmazonVirtualMachine implements Instance {
 
-    private boolean ActivationStatus;
+    private boolean activationStatus;
     private String pricing;
     private String region;
     private int id;
@@ -55,16 +57,18 @@ public class AmazonVirtualMachine {
      *
      * @return
      */
-    public boolean status() {
-        return ActivationStatus;
+    @Override
+    public String status(){
+        return activationStatus + "";
     }
 
     /**
      *
      * @return - the pricing style of VM
      */
-    public String getPricing() {
-        return pricing;
+    @Override
+    public String getPrice() {
+        return pricing + "/HOUR";
     }
 
     /**
@@ -79,8 +83,9 @@ public class AmazonVirtualMachine {
      *
      * @return - the ID of VM
      */
-    public int getId() {
-        return id;
+    @Override
+    public String getId() {
+        return id + "";
     }
 
     /**
@@ -96,6 +101,10 @@ public class AmazonVirtualMachine {
      * @return - the model of VM
      */
     public String getModel() {
+        return model;
+    }
+    
+    public String getName(){
         return model;
     }
 
