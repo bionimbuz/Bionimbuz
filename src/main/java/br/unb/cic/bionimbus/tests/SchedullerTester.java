@@ -1,20 +1,35 @@
+/*
+    BioNimbuZ is a federated cloud platform.
+    Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD), 
+    Department of Computer Science, University of Brasilia, Brazil
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package br.unb.cic.bionimbus.tests;
 
-import static br.unb.cic.bionimbus.BioNimbus.serviceInjector;
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.model.FileInfo;
-import br.unb.cic.bionimbus.model.WorkflowStatus;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.services.RepositoryService;
-import br.unb.cic.bionimbus.services.ServiceManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.inject.Guice;
@@ -57,11 +72,15 @@ public class SchedullerTester {
         cms = new CuratorMessageService();
         try {
             Enumeration<InetAddress> inet = NetworkInterface.getByName("eth0").getInetAddresses();
-            String ip = "1164.41.209.89";
-            if (ip.equals(""))
-                while (inet.hasMoreElements())
-                    ip = inet.nextElement().toString();
-            cms.connect(ip.substring(1)+":2181");
+            String ip = "164.41.209.89";
+//            if (ip.equals("")) {
+//                while (inet.hasMoreElements()) {
+//                    ip = inet.nextElement().toString();
+//                }
+//            }
+
+            cms.connect(ip + ":2181");
+
         } catch (SocketException ex) {
             java.util.logging.Logger.getLogger(SchedullerTester.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -220,6 +239,7 @@ public class SchedullerTester {
     public static void main(String[] args) throws InterruptedException, IOException {
         SchedullerTester tester = new SchedullerTester();
         boolean fileTest = false;
+
         FromMockFileTestGenerator gen = new FromMockFileTestGenerator(3);
         List<Workflow> pipelines = gen.getPipelinesTemplates();
 

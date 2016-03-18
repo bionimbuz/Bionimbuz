@@ -1,7 +1,0 @@
-3
-{serviceId:1, args:%I1%O1, inputs:[s1.fa], outputs:[out100.sam]}
-{serviceId:2, args:%I1%O1, inputs:[out100.sam], outputs:[out200.bed]}
-{serviceId:3, args:%I110000%O1, inputs:[out200.bed], outputs:[out300.out]}
-0,0,0,0
-1,0,0,0
-0,1,0,0

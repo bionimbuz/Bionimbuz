@@ -5,12 +5,15 @@
  */
 package br.unb.cic.bionimbus.services.tarifation.Amazon;
 
+import br.unb.cic.bionimbus.services.tarifation.Instance;
+
 /**
  *
  * @author Gabriel Fritz Sluzala
  */
-public class AmazonStorage {
+public class AmazonStorage implements Instance{
 
+    private boolean activationStatus;
     private int id;
     private String region;
     private String kind;
@@ -43,8 +46,18 @@ public class AmazonStorage {
      *
      * @return
      */
-    public int getId() {
-        return id;
+    @Override
+    public String status() {
+        return activationStatus+"";
+    }
+
+    /**
+     *
+     * @return
+     */
+    @Override
+    public String getId() {
+        return id+"";
     }
 
     /**
@@ -67,8 +80,9 @@ public class AmazonStorage {
      *
      * @return
      */
-    public double getPrice() {
-        return price;
+    @Override
+    public String getPrice() {
+        return price+"/"+this.getPriceUnit().toUpperCase();
     }
 
     /**
@@ -121,5 +135,10 @@ public class AmazonStorage {
         }
         final AmazonStorage other = (AmazonStorage) obj;
         return this.id == other.id;
+    }
+
+    @Override
+    public String getName() {
+        return this.getKind();
     }
 }

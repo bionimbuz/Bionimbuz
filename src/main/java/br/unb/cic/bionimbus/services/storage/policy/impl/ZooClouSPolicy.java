@@ -15,12 +15,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-/*
-* To change this template, choose Tools | Templates
-* and open the template in the editor.
  */
-
 package br.unb.cic.bionimbus.services.storage.policy.impl;
 
 import java.io.IOException;
@@ -37,21 +32,23 @@ import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.services.storage.policy.StoragePolicy;
 
-public class ZooClouSPolicy extends StoragePolicy{	
-    
+public class ZooClouSPolicy extends StoragePolicy {
+
     private final double peso_latency = 0.5;
     private final double peso_space = 0.2;
     private final double peso_uptime = 0.3;
     private final List<NodeInfo> nodes = new ArrayList<>();
     Collection<PluginInfo> best = new ArrayList<>();
-	
+
     /**
      * Calcular o custo de armazenamento de uma nuvem //ta passando so 1 plugin
+     *
      * @param cms
      * @param pluginList
-     * @return 
+     * @return
      */
     @Override
+
     public List<NodeInfo> calcBestCost(CloudMessageService cms, Collection<PluginInfo> pluginList) {
 
         double cost;
@@ -74,7 +71,7 @@ public class ZooClouSPolicy extends StoragePolicy{
 
             uptime = plugin.getUptime() / 1000;
             freesize = (plugin.getFsFreeSize() / 1024 / 1024 / 1024);
-            cost = ( (plugin.getLatency() * peso_latency) / ( (freesize * peso_space) + (uptime * peso_uptime) ) );
+            cost = ((plugin.getLatency() * peso_latency) / ((freesize * peso_space) + (uptime * peso_uptime)));
             cost = cost + costpergiga;
             /*
             * Seta o custo de armazenamento no peer

@@ -50,6 +50,8 @@ public class Job implements Serializable {
     @Transient
     private final List<String> dependencies;
 
+    private String referenceFile;
+
     public Job() {
 //        inputs = new ArrayList<>();
         inputFiles = new ArrayList<>();
@@ -164,6 +166,7 @@ public class Job implements Serializable {
 
     /**
      * Add a dependency to be executed beforehand
+     *
      * @param id The unique id of a job
      */
     public void addDependency(String id) {
@@ -180,6 +183,14 @@ public class Job implements Serializable {
 
     public void setInputURL(String inputURL) {
         this.inputURL = inputURL;
+    }
+
+    public String getReferenceFile() {
+        return referenceFile;
+    }
+
+    public void setReferenceFile(String referenceFile) {
+        this.referenceFile = referenceFile;
     }
 
     @Override

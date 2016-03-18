@@ -1,9 +1,6 @@
 {
-    "id": 1114,
-    "name": "coverageBed",
-    "arguments": ["%I1 %I2 %O1"],
-    "input": ["inputFile"],
-    "output": ["outputFile"],
-    "info": "coverageBed tool",
+    "id": 4,
+    "name": "CoverageBed",
+    "info": "The bedtools coverage tool computes both the depth and breadth of coverage of features in file B on the features in file A.",
     "path": "./programs/coverageBed.sh"
 }

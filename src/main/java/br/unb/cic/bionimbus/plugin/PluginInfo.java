@@ -15,7 +15,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package br.unb.cic.bionimbus.plugin;
 
 import java.util.List;
@@ -31,7 +31,7 @@ public class PluginInfo implements PluginOps {
     private String id;
 
     private String InstanceName;
-    
+
     private int privateCloud;
 
     private Host host;
@@ -70,12 +70,12 @@ public class PluginInfo implements PluginOps {
     private List<PluginService> services;
 
     private double costPerHour = Double.MAX_VALUE;
-    
+
     private Double bandwidth;
 
     public PluginInfo() {
     }
-    
+
     public PluginInfo(String id) {
         this.id = id;
     }
@@ -273,14 +273,15 @@ public class PluginInfo implements PluginOps {
     public double getCostPerHour() {
         return costPerHour;
     }
-    public Double getBandwidth() {
-		return bandwidth;
-	}
-    public void setBandwidth(Double bandwidth) {
-		this.bandwidth = bandwidth;
-	}
 
-    
+    public Double getBandwidth() {
+        return bandwidth;
+    }
+
+    public void setBandwidth(Double bandwidth) {
+        this.bandwidth = bandwidth;
+    }
+
     @Override
     public int hashCode() {
         return id.hashCode();

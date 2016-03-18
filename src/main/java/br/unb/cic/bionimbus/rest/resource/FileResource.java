@@ -1,13 +1,12 @@
 package br.unb.cic.bionimbus.rest.resource;
 
-import br.unb.cic.bionimbus.avro.gen.NodeInfo;
+import br.unb.cic.bionimbus.config.ConfigurationRepository;
 import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
 import br.unb.cic.bionimbus.model.FileInfo;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import javax.swing.filechooser.FileSystemView;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
@@ -22,29 +21,23 @@ import br.unb.cic.bionimbus.persistence.dao.FileDao;
 import br.unb.cic.bionimbus.rest.request.RequestInfo;
 import br.unb.cic.bionimbus.rest.request.UploadRequest;
 import br.unb.cic.bionimbus.rest.response.ResponseInfo;
-import br.unb.cic.bionimbus.security.AESEncryptor;
 import br.unb.cic.bionimbus.security.Hash;
-import br.unb.cic.bionimbus.services.storage.Ping;
-import br.unb.cic.bionimbus.utils.Nmap;
-import br.unb.cic.bionimbus.utils.Put;
-import static com.amazonaws.services.cloudsearchv2.model.IndexFieldType.Int;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
-import static com.sun.org.apache.xalan.internal.xsltc.compiler.util.Type.Int;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import javax.ws.rs.GET;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 @Path("/rest/file/")
 public class FileResource extends AbstractResource {
 
-    private static final String UPLOADED_FILES_DIRECTORY = FileSystemView.getFileSystemView().getHomeDirectory() + "/zoonimbusProject/uploaded-files/";
+    private static final String UPLOADED_FILES_DIRECTORY = ConfigurationRepository.getTemporaryUplodadedFiles();
     private final FileDao fileDao;
-    private List<NodeInfo> pluginList;
     private final Double MAXCAPACITY = 0.9;
-    private List<NodeInfo> nodesdisp = new ArrayList<>();
 
     public FileResource(JobController jobController) {
         this.fileDao = new FileDao();
@@ -74,30 +67,31 @@ public class FileResource extends AbstractResource {
 
         try {
             LOGGER.info("Upload request received [filename=" + request.getFileInfo().getName() + "]");
-            LOGGER.info("Hash from Client: " + request.getFileInfo().getHash());
-            LOGGER.info("Size: " + request.getData().length);
-            
+
             // Writes file on disk
             String filepath = writeFile(request.getData(), request.getFileInfo().getName(), request.getFileInfo().getUserId());
 
-            // Tries to write file to Zookeeper
-            if (writeFileToZookeeper(filepath, request.getFileInfo())) {
+            // Verify integrity
+            String hashedFile = verifyIntegrity(request.getFileInfo(), filepath);
+
+            // Verify file integrity and tries to write file to Zookeeper
+            if (rpcClient.getProxy().uploadFile(filepath, convertToAvroObject(hashedFile, request.getFileInfo()))) {
+
+                // Copy to data-folder
+                copyFileToDataFolder(filepath, request.getFileInfo().getName());
 
                 // Creates an UserFile using UploadadeFileInfo from request and persists on Database
                 fileDao.persist(request.getFileInfo());
 
-                return Response.status(200).entity(true).build();    
+                return Response.status(200).entity(true).build();
             }
 
         } catch (IOException e) {
             LOGGER.error("[IOException] " + e.getMessage());
             e.printStackTrace();
-        } catch (JSchException | SftpException e) {
-            LOGGER.error("[Exception] " + e.getMessage());
-            e.printStackTrace();
         }
-        
-        return Response.status(200).entity(false).build();
+
+        return Response.status(500).entity(false).build();
     }
 
     /**
@@ -112,24 +106,42 @@ public class FileResource extends AbstractResource {
     }
 
     /**
+     * Used to download a file to the user
+     *
+     * @param workflowId
+     * @param filename
+     * @return
+     */
+    @GET
+    @Path("/download/{workflow-id}/{filename}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response getFile(@PathParam("workflow-id") String workflowId, @PathParam("filename") String filename) {
+        LOGGER.info("Requested donwload of file: " + workflowId + "/" + filename);
+
+        try {
+            File file = new File(ConfigurationRepository.getWorkflowOutputFolder(workflowId) + filename);
+
+            ResponseBuilder response = Response.ok((Object) file);
+            response.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+
+            return response.build();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Return Internal Error (500)
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+
+    }
+
+    /**
      * Save file in disk
      *
      * @param file
      * @throws IOException
      */
     private String writeFile(byte[] content, String filename, long userId) throws IOException {
-        // zoonimbusProject/uploaded-files/{user-id}
-        String folderPath = UPLOADED_FILES_DIRECTORY + userId + "/";
-        File folder = new File(folderPath);
-
-        // Verifies if the user folder already exists
-        if (!folder.exists()) {
-            // If not, creates it
-            folder.mkdir();
-        }
-
-        // zoonimbusProject/uploaded-files/{user-id}/{filename}
-        String filepath = folderPath + filename;
+        String filepath = UPLOADED_FILES_DIRECTORY + filename;
         File file = new File(filepath);
 
         if (!file.exists()) {
@@ -148,93 +160,102 @@ public class FileResource extends AbstractResource {
     }
 
     /**
-     * Sends a file to ZooKeeper
+     * Verifies a file integrity.
      *
-     * @param filepath
      * @param fileInfo
+     * @param filepath
      * @return
-     * @throws IOException
-     * @throws InterruptedException
-     * @throws JSchException
-     * @throws java.security.NoSuchAlgorithmException
-     * @throws SftpException
      */
-    public boolean writeFileToZookeeper(String filepath, FileInfo fileInfo) throws IOException, JSchException, SftpException, NoSuchAlgorithmException, InterruptedException {
-        //Verifica se o arquivo existe         
-        File file = new File(filepath);
-        AESEncryptor aes = new AESEncryptor();
+    public String verifyIntegrity(FileInfo fileInfo, String filepath) {
+        String hashFile = null;
 
-        if (file.exists()) {
-            br.unb.cic.bionimbus.avro.gen.FileInfo info = new br.unb.cic.bionimbus.avro.gen.FileInfo();
+        try {
+            hashFile = Hash.calculateSha3(filepath);
 
-            //if (!file.getPath().contains("inputfiles.txt")) {
-            //TO-DO: Remove comment after William Final Commit
-            //aes.encrypt(path);
-            //}
-            String hashFile = Hash.calculateSha3(filepath);
-            
             // Verifies generated Hash from server with the hash that came from client
             if (!hashFile.equals(fileInfo.getHash())) {
-                return false;
+                return null;
             }
-            
-            info.setHash(hashFile);
-            info.setId(file.getName());
-            info.setName(file.getName());
-            info.setSize(file.length());
-            info.setUploadTimestamp(fileInfo.getUploadTimestamp());
-            
-            LOGGER.info("Calculating latency");
-            pluginList = rpcClient.getProxy().getPeersNode();
-
-            //Insere o arquivo na pasta PENDING SAVE do Zookeeper
-            rpcClient.getProxy().setFileInfo(info, "upload!");
-            for (NodeInfo plugin : pluginList) {
-                //Adiciona na lista de possiveis peers de destino somente os que possuem espaço livre para receber o arquivo
-                if ((long) (plugin.getFreesize() * MAXCAPACITY) > info.getSize()) {
-                    plugin.setLatency(Ping.calculo(plugin.getAddress()));
-                    if (plugin.getLatency().equals(Double.MAX_VALUE)) {
-                        plugin.setLatency(Nmap.nmap(plugin.getAddress()));
-                    }
-                    nodesdisp.add(plugin);
-                }
-            }
-
-            //Retorna a lista dos nos ordenados como melhores, passando a latência calculada
-            nodesdisp = new ArrayList<>(rpcClient.getProxy().callStorage(nodesdisp));
-
-            NodeInfo no = null;
-            Iterator<NodeInfo> it = nodesdisp.iterator();
-            while (it.hasNext() && no == null) {
-                NodeInfo node = (NodeInfo) it.next();
-
-                //Tenta enviar o arquivo a partir do melhor peer que está na lista
-                Put conexao = new Put(node.getAddress(), filepath);
-                if (conexao.startSession()) {
-                    no = node;
-                }
-            }
-            //Conserta o nome do arquivo encriptado
-            //TO-DO: Remove comment after William Final Commit
-            //aes.setCorrectFilePath(path);
-            if (no != null) {
-                List<String> dest = new ArrayList<>();
-                dest.add(no.getPeerId());
-                nodesdisp.remove(no);
-
-                //Envia RPC para o peer em que está conectado, para que ele sete no Zookeeper os dados do arquivo que foi upado.
-                rpcClient.getProxy().fileSent(info, dest);
-
-                // File uploaded
-                LOGGER.info("File uploaded!");
-                return true;
-            }
-
+        } catch (IOException ex) {
+            LOGGER.error("Error verifing file integrity");
         }
 
-        // Upload error
-        LOGGER.error("File not found");
-        return false;
+        return hashFile;
     }
 
+    /**
+     * Convert from FileInfo to Avro FileInfo.
+     *
+     * @param hashedFile
+     * @param fileInfo
+     * @return
+     */
+    public br.unb.cic.bionimbus.avro.gen.FileInfo convertToAvroObject(String hashedFile, FileInfo fileInfo) {
+        try {
+            br.unb.cic.bionimbus.avro.gen.FileInfo info = new br.unb.cic.bionimbus.avro.gen.FileInfo();
+
+            info.setHash(hashedFile);
+            info.setId(fileInfo.getName());
+            info.setName(fileInfo.getName());
+            info.setSize(fileInfo.getSize());
+            info.setUploadTimestamp(fileInfo.getUploadTimestamp());
+
+            return info;
+
+        } catch (Exception ex) {
+            LOGGER.error("Error converting objects");
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * It's needed because next job may need it.
+     *
+     * @param from
+     */
+    private String copyFileToDataFolder(String fromPath, String filename) {
+        InputStream inStream = null;
+        OutputStream outStream = null;
+
+        String outputFilePath = ConfigurationRepository.getDataFolder() + filename;
+
+        File from = null;
+
+        try {
+
+            from = new File(fromPath);
+            File to = new File(outputFilePath);
+
+            inStream = new FileInputStream(from);
+            outStream = new FileOutputStream(to);
+
+            byte[] buffer = new byte[1024];
+
+            int length;
+
+            // Copy the file content in bytes 
+            while ((length = inStream.read(buffer)) > 0) {
+                outStream.write(buffer, 0, length);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            try {
+                inStream.close();
+                outStream.close();
+
+                // Delete from tmp/ folder
+                from.delete();
+            } catch (IOException ex) {
+                LOGGER.error("Error closing streams");
+                ex.printStackTrace();
+            }
+        }
+
+        return outputFilePath;
+    }
 }

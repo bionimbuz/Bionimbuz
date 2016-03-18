@@ -19,212 +19,6 @@
 @namespace("br.unb.cic.bionimbus.avro.gen")
 protocol BioProto {
 
-/* ***************************** COMMENTED *************************************
-  record NodeInfo {
-    string peerId;
-    string address;
-    union {NodeState, null} nodeState; // optional
-  }
-    
-  record Pair{
-    string first;
-    long second;
-    }  
-  
-  record JobInfo {
-    string id;
-    string localId;
-    long serviceId;
-    string args ;
-    array<Pair> inputs;
-    array<string> outputs;
-    long timestamp;
-  }
- 
-  record PluginFile {
-    string id;
-    string path;
-    string name;
-    long size;
-    array<string> pluginId;
-  }
-
-  record CancelReqMessage {
-    string taskId;
-  }
-
-  record CancelRespMessage {
-    NodeInfo node;
-    //??? pluginTask;
-  }
-
-
-  record CloudReqMessage {
-    NodeInfo node;
-  }
-
-
-  record CloudRespMessage {
-    NodeInfo node;
-    //Collection<PluginInfo> values;
-  }
-
-  record EndMessage {
-    NodeInfo node;
-    //Collection<PluginInfo> values;
-  }
-
-  record GetReqMessage {
-    NodeInfo node;
-    string fileId;
-    string taskId;
-  }
-
-  record GetRespMessage {
-    NodeInfo node;
-    string taskId;
-    // PluginInfo
-    // PluginFile
-  }
-
-  // An error that may be thrown by a method
-  error Error {
-    int code;
-    union {string, null} description;
-  }
-
-  error InfoErrorMessage {
-     string pluginId;
-  }
-
-  record InfoReqMessage {
-     NodeInfo nodeInfo;
-  }
-
-  record InfoRespMessage {
-    NodeInfo nodeInfo;
-    //PluginInfo
-  }
-
-  record JobCancelReqMessage {
-    NodeInfo nodeInfo;
-    string jobId;
-  }
-
-  record JobCancelRespMessage {
-    NodeInfo nodeInfo;
-    string jobId;
-    // status
-  }
-
-  record JobReqMessage {
-    NodeInfo nodeInfo;
-    //Collection <jobInfo> values
-  }
-
-  record JobRespMessage {
-    NodeInfo nodeInfo;
-    //jobInfo
-  }
-
-  record ListReqMessage {
-    NodeInfo nodeInfo;
-  }
-
-  record ListRespMessage {
-    NodeInfo nodeInfo;
-    //collection<pluginFile>
-  }
-
-  record PingReqMessage {
-    NodeInfo nodeInfo;
-    long timestamp = 0;
-  }
-
-  record PingRespMessage {
-    NodeInfo nodeInfo;
-    long timestamp = 0;
-  }
-
-  record PrepReqMessage {
-    NodeInfo nodeInfo;
-    string taskId;
-  }
-
-  record PrepRespMessage {
-    NodeInfo nodeInfo;
-    //pluginInfo
-    //pluginfile
-    //taskId
-  }
-
-  error SchedError {
-     string jobId;
-     string message;
-  }
-
-  record SchedReqMessage {
-    NodeInfo nodeInfo;
-    //collection<jobInfo>
-  }
-
-  record SchedRespMessage{
-    NodeInfo nodeInfo;
-    string jobId;
-    //plugininfo
-  }
-
-  record StartReqMessage {
-    NodeInfo nodeInfo;
-    //jobinfo
-  }
-
-  record StartRespMessage {
-    NodeInfo nodeInfo;
-    string jobId;
-    //plugintask
-  }
-
-  record ReqMessage {
-    NodeInfo nodeInfo;
-    string taskId;
-  }
-
-  record RespMessage {
-    NodeInfo nodeInfo;
-    string jobId;
-    //plugintask
-  }
-
-  record StatusReqMessage {
-    NodeInfo nodeInfo;
-    string taskId;
-  }
-
-  record StatusRepMessage {
-    NodeInfo nodeInfo;
-    //pluginTask
-  }
-
-  record StoreReqMessage {
-    NodeInfo nodeInfo;
-    //FileInfo
-  }
-
-  record StoreRespMessage {
-    NodeInfo nodeInfo;
-    string taskId;
-    //pluginFile
-    //FileInfo
-    //pluginInfo
-  }
-  error TaskError {
-    string pluginId;
-    string taskId;
-    string message;
-  }
-***************************************************************************** */
-
     enum NodeState { STARTING, ACTIVE, CLOSING, IDLE, ERROR, DECOMMISSIONED }
 
     enum WorkflowStatus { PENDING, EXECUTING, FINALIZED_WITH_SUCCESS, FINALIZED_WITH_WARNINGS, FINALIZED_WITH_ERRORS, PAUSED, STOPPED_WITH_ERROR }
@@ -232,13 +26,6 @@ protocol BioProto {
     record JobCancel {
        string jobID;
        array<string> files;
-    }
-
-    record NodeInfo {
-      string peerId;
-      string address;
-      float freesize;
-      double latency; 
     }
 
     record FileInfo{
@@ -264,6 +51,7 @@ protocol BioProto {
       array<string> outputs;
       long timestamp;
       array<string> dependencies;
+      string referenceFile;
     }
 
     record Workflow {
@@ -325,35 +113,49 @@ protocol BioProto {
 
     string statusAllJob();
 
+    record NodeInfo {
+        string peerId;
+        string address;
+        float freesize;
+        double latency; 
+        double bandwidth;
+    }
+
     string cancelJob(string jobID);
 
-    //Set information file that will be uploaded
+    // Set information file that will be uploaded
     void setFileInfo(FileInfo file, string kindService) oneway;
 
-    //Get peers from server
+    // Get peers from server
     array<NodeInfo> getPeersNode();
 
-    //Enviar plugins
+    // Envia plugins
     // void sendPlugins(array<NodeInfo> plugins) oneway;
 
-    //Mensagem de arquivo enviado com sucesso do cliente pro servidor
+    // Mensagem de arquivo enviado com sucesso do cliente pro servidor
     string fileSent(FileInfo fileSucess,array<string> dest);
 
-    //Chamar Storage Service
-     array<NodeInfo> callStorage(array<NodeInfo> list);
+    // Chama Storage Service
+    array<NodeInfo> callStorage(array<NodeInfo> list);
 
-    //Invocar metodo de replicação
+    // Invoca metodo de replicação
     void notifyReply(string filename,string address) oneway;
 
-    //Decriptografar os arquivos do plugin
+    // Decriptografa os arquivos do plugin
     void decryptPluginFile(string filename) oneway;
 
-    //verifica se exist o arquivo e cria no znode setando o watcher
+    // Verifica se exist o arquivo e cria no znode setando o watcher
      boolean verifyFile(FileInfo fileSucess,array<string> dest);
 
-    //seta os watchers na status para a storage , pode ser setado pros outros servicos tambem
-     void setWatcher(string idPlugin) oneway; 
+    // Seta os watchers na status para a storage , pode ser setado pros outros servicos tambem
+    void setWatcher(string idPlugin) oneway; 
 
-    //verifica o tamanho do arquivo
+    // Verifica o tamanho do arquivo
     long checkFileSize (string file);
+
+    // Realiza o upload de um arquivo chamando o storage
+    boolean uploadFile(string path, FileInfo file);
+
+    // Retorna o id do peer que contém um dado arquivo
+    PluginFile getFileFromPeers(string filename);
 }

@@ -6,12 +6,13 @@ import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.controller.Controller;
 import br.unb.cic.bionimbus.model.FileInfo;
 import br.unb.cic.bionimbus.model.Job;
+import br.unb.cic.bionimbus.model.Log;
+import br.unb.cic.bionimbus.model.LogSeverity;
 import br.unb.cic.bionimbus.model.Workflow;
-import br.unb.cic.bionimbus.plugin.PluginFile;
+import br.unb.cic.bionimbus.persistence.dao.WorkflowLoggerDao;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.services.RepositoryService;
-import br.unb.cic.bionimbus.services.Service;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import com.google.common.base.Preconditions;
@@ -19,12 +20,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 import org.apache.zookeeper.WatchedEvent;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -50,6 +48,8 @@ public class JobController implements Controller, Runnable {
     private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<>();
     private final RepositoryService repositoryService;
 
+    private final WorkflowLoggerDao loggerDao;
+
     /**
      * Starts JobController execution
      *
@@ -61,6 +61,7 @@ public class JobController implements Controller, Runnable {
         Preconditions.checkNotNull(cms);
         this.repositoryService = rs;
         this.cms = cms;
+        this.loggerDao = new WorkflowLoggerDao();
 
         LOGGER.info("JobController started");
     }
@@ -121,6 +122,9 @@ public class JobController implements Controller, Runnable {
      * @throws java.lang.Exception
      */
     public void startWorkflow(Workflow workflow) throws Exception {
+        // Logs
+        loggerDao.log(new Log("Iniciando a execução do Workflow", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
+        
         List<br.unb.cic.bionimbus.avro.gen.Job> listjob = new ArrayList<>();
 
         // Iterates over the list of jobs
@@ -137,6 +141,7 @@ public class JobController implements Controller, Runnable {
             job.setTimestamp(jobInfo.getTimestamp());
             job.setOutputs(jobInfo.getOutputs());
             job.setDependencies(jobInfo.getDependencies());
+            job.setReferenceFile(jobInfo.getReferenceFile());
 
             // Avro File Info
             ArrayList<br.unb.cic.bionimbus.avro.gen.FileInfo> avroFiles = new ArrayList<>();
@@ -144,7 +149,7 @@ public class JobController implements Controller, Runnable {
             // Iterate over the inputFile list of the job to create AVRO File Info
             for (FileInfo f : jobInfo.getInputFiles()) {
                 br.unb.cic.bionimbus.avro.gen.FileInfo file = new br.unb.cic.bionimbus.avro.gen.FileInfo();
-                file.setHash("hash_hot_set");
+                file.setHash(f.getHash());
                 file.setId(f.getId());
                 file.setName(f.getName());
                 file.setUploadTimestamp(f.getUploadTimestamp());
@@ -168,6 +173,9 @@ public class JobController implements Controller, Runnable {
         avroWorkflow.setCreationDatestamp(workflow.getCreationDatestamp());
         avroWorkflow.setDescription(workflow.getDescription());
 
+        // Logs
+        loggerDao.log(new Log("Enviando Workflow para o serviço de Escalonamento do BioNimbuZ", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
+        
         rpcClient.getProxy().startWorkflow(avroWorkflow);
 
     }
@@ -206,26 +214,4 @@ public class JobController implements Controller, Runnable {
         return this.repositoryService;
     }
 
-    public List<PluginService> getSupportedServices() {
-        ArrayList<PluginService> services = new ArrayList<>();
-
-        if (cms.getZNodeExist(CuratorMessageService.Path.SERVICES.getFullPath(), null)) {
-
-            List<String> children = cms.getChildren(CuratorMessageService.Path.SERVICES.getFullPath(), null);
-
-            try {
-                for (String s : children) {
-                    ObjectMapper mapper = new ObjectMapper();
-                    PluginService service = mapper.readValue(cms.getData(CuratorMessageService.Path.NODE_SERVICE.getFullPath(s), null), PluginService.class);
-                    services.add(service);
-                }
-            } catch (IOException ex) {
-                LOGGER.error("[IOException] " + ex.getMessage());
-            }
-
-            return services;
-        }
-
-        return null;
-    }
 }

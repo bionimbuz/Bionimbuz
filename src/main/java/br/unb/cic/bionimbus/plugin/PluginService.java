@@ -18,7 +18,6 @@
 */
 package br.unb.cic.bionimbus.plugin;
 
-import java.util.List;
 
 import com.google.common.primitives.Longs;
 import java.util.logging.Level;
@@ -29,18 +28,11 @@ public class PluginService {
 
     private String id;
 
+    private String name;
+    
     private String path;
 
     private Double presetMode = null;
-
-    // NOT USED
-    private String name;
-
-    private List<String> arguments;
-
-    private List<String> input;
-
-    private List<String> output;
 
     private String info;
 
@@ -60,7 +52,6 @@ public class PluginService {
         this.presetMode = presetMode;
     }
 
-    // NOT USED
     public String getName() {
         return name;
     }
@@ -69,34 +60,6 @@ public class PluginService {
         this.name = name;
     }
 
-    // NOT USED
-    public List<String> getArguments() {
-        return arguments;
-    }
-
-    public void setArguments(List<String> arguments) {
-        this.arguments = arguments;
-    }
-
-    // NOT USED
-    public List<String> getInput() {
-        return input;
-    }
-
-    public void setInput(List<String> input) {
-        this.input = input;
-    }
-
-    // NOT USED
-    public List<String> getOutput() {
-        return output;
-    }
-
-    public void setOutput(List<String> output) {
-        this.output = output;
-    }
-
-    // NOT USED
     public String getInfo() {
         return info;
     }

@@ -6,7 +6,6 @@ import javax.persistence.TypedQuery;
 
 import br.unb.cic.bionimbus.model.User;
 import br.unb.cic.bionimbus.persistence.EntityManagerProducer;
-import java.util.ArrayList;
 
 /**
  * Class that manages database operations for User class
@@ -23,11 +22,9 @@ public class UserDao extends AbstractDao<User> {
     @Override
     public void persist(User user) {
         try {
-            // Verifies if the manager is opened before persist
-            if (!manager.isOpen()) {
-                manager = EntityManagerProducer.getEntityManager();
-            }
-            
+            // Creates entity manager
+            manager = EntityManagerProducer.getEntityManager();
+
             // Get a Transaction, persist and commit
             manager.getTransaction().begin();
             manager.persist(user);
@@ -35,8 +32,11 @@ public class UserDao extends AbstractDao<User> {
 
         } catch (Exception e) {
             manager.getTransaction().rollback();
-
             LOGGER.error("[Exception] " + e.getMessage());
+
+        } finally {
+            // Close connection
+            manager.close();
         }
     }
 
@@ -47,9 +47,16 @@ public class UserDao extends AbstractDao<User> {
      */
     @Override
     public List<User> list() {
-        TypedQuery<User> query = manager.createQuery("SELECT u FROM User u", User.class);
+        // Creates entity manager
+        manager = EntityManagerProducer.getEntityManager();
 
-        return query.getResultList();
+        TypedQuery<User> query = manager.createQuery("SELECT u FROM User u", User.class);
+        List<User> result = query.getResultList();
+
+        // Close connection
+        manager.close();
+
+        return result;
     }
 
     /**
@@ -80,7 +87,15 @@ public class UserDao extends AbstractDao<User> {
      */
     @Override
     public User findById(Long id) {
-        return manager.find(User.class, id);
+        // Creates entity manager
+        manager = EntityManagerProducer.getEntityManager();
+
+        User u = manager.find(User.class, id);
+
+        // Close connection
+        manager.close();
+
+        return u;
     }
 
     /**
@@ -91,6 +106,9 @@ public class UserDao extends AbstractDao<User> {
      * @throws java.lang.Exception
      */
     public User findByLogin(String login) throws Exception {
+        // Creates entity manager
+        manager = EntityManagerProducer.getEntityManager();
+
         TypedQuery<User> query = manager.createQuery("SELECT u FROM User u WHERE u.login = :login", User.class);
         query.setParameter("login", login);
 
@@ -101,8 +119,15 @@ public class UserDao extends AbstractDao<User> {
             userFromDB.setFiles(new FileDao().listByUserId(userFromDB.getId()));
             userFromDB.setWorkflows(new WorkflowDao().listByUserId(userFromDB.getId()));
 
+            // Close connection
+            manager.close();
+
             return userFromDB;
         } else {
+
+            // Close connection
+            manager.close();
+
             return null;
         }
     }
@@ -119,7 +144,7 @@ public class UserDao extends AbstractDao<User> {
                 return true;
             }
         }
-        
+
         return false;
     }
 

@@ -15,9 +15,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
+ */
 package br.unb.cic.bionimbus.p2p;
 
 import com.google.common.base.Objects;

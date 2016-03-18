@@ -1,14 +1,8 @@
 .project
-
-*.log
-*.prefs
 /target/
-
 biofoco.log
 /bin/
-
 .classpath
-
 /branches/zoonimbus/target/
 /branches/zoonimbus/biofoco.log
 /branches/zoonimbus/conf/node.yaml

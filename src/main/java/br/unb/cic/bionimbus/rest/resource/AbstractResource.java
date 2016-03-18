@@ -30,7 +30,6 @@ public abstract class AbstractResource implements RestResource {
     
     static {
         final String configFile = System.getProperty("config.file", "conf/node.yaml");
-        BioNimbusConfig config = null;
 
         try {
             rpcClient = new AvroClient("http", loadHostConfig(configFile).getAddress(), 8080);
