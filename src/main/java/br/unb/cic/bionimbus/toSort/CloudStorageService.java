@@ -36,7 +36,7 @@ public class CloudStorageService extends AbstractBioService{
 
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new BasicThreadFactory.Builder().namingPattern("CloudStorageService-%d").build());
     
-    private static final String BUCKETSPATH = "/home/baile/TESTE-BIO/";
+    private static String bucketsFolder;
     static private List<BioBucket> bucketList = new ArrayList<>();
     static private CloudStorageMethods methodsInstance;
     
@@ -50,18 +50,20 @@ public class CloudStorageService extends AbstractBioService{
     
     @Override
     public void run() {
-        for (BioBucket aux : bucketList) {
-            boolean result = methodsInstance.CheckStorageLatency(aux);
-            
-            if (!result) {
-                LOGGER.error("Erro ao checar a Latência do bucket " + aux.getName());
-            }  
-            
-            result = methodsInstance.CheckStorageBandwith(aux);
-            
-            if (!result) {
-                LOGGER.info("Erro ao checar a Banda do bucket " + aux.getName());
-            } 
+        
+        try {
+            for (BioBucket aux : bucketList) {
+
+                LOGGER.info("[CloudStorageService] Checking Latency for bucket " + aux.getName());
+                methodsInstance.CheckStorageLatency(aux);
+                LOGGER.info("[CloudStorageService] Latency for bucket " + aux.getName() + ": " + aux.getLatency());
+
+                LOGGER.info("[CloudStorageService] Checking Bandwith for bucket " + aux.getName());
+                methodsInstance.CheckStorageBandwith(aux);
+                LOGGER.info("[CloudStorageService] Bandwith for bucket " + aux.getName() + ": " + aux.getBandwith());
+            }
+        } catch (Throwable t) {
+            LOGGER.error("[CloudStorageService] Exception: " + t.getMessage());
         }
     }
     
@@ -73,22 +75,34 @@ public class CloudStorageService extends AbstractBioService{
             listeners.add(this);
         }
         
-        LOGGER.info("[CloudStorageService] Starting");
+        LOGGER.info("[CloudStorageService] Starting");        
         
         //Instance methods object
         methodsInstance = new CloudStorageMethodsV1();
         
+        //Getting parameters from config file
+        bucketsFolder = config.getBucketsFolder();
+        methodsInstance.setAuthFolder(config.getBucketsAuthFolder());
+        methodsInstance.setGcloudFolder(config.getGcloudFolder());
+        
         //Instance all buckets
+        LOGGER.info("[CloudStorageService] Instancing Buckets");
         InstanceBuckets();
         
-        //Authenticate providers
-        for (StorageProvider aux : StorageProvider.values()) {
-            methodsInstance.StorageAuth(aux);
-        }
-        
-        //Mount all buckets
-        for (BioBucket aux : bucketList) {
-            methodsInstance.StorageMount(aux);
+        try {
+            //Authenticate providers
+            LOGGER.info("[CloudStorageService] Authenticating Providers");
+            for (StorageProvider aux : StorageProvider.values()) {
+                methodsInstance.StorageAuth(aux);
+            }
+
+            //Mount all buckets
+            LOGGER.info("[CloudStorageService] Mounting Buckets");
+            for (BioBucket aux : bucketList) {
+                methodsInstance.StorageMount(aux);
+            }
+        } catch (Throwable t) {
+            LOGGER.error("[CloudStorageService] Exception: " + t.getMessage());
         }
         
         executorService.scheduleAtFixedRate(this, 0, 30, TimeUnit.MINUTES);
@@ -97,8 +111,12 @@ public class CloudStorageService extends AbstractBioService{
     @Override
     public void shutdown() {
         
-        for (BioBucket aux : bucketList) {
-            methodsInstance.StorageUmount(aux);
+        try {
+            for (BioBucket aux : bucketList) {
+                methodsInstance.StorageUmount(aux);
+            }
+        } catch (Throwable t) {
+            LOGGER.error("[CloudStorageService] Exception: " + t.getMessage());
         }
         
         listeners.remove(this);
@@ -126,23 +144,23 @@ public class CloudStorageService extends AbstractBioService{
         
         //AMAZON
         //Brazil
-        aux = new BioBucket(StorageProvider.AMAZON, "testbionimbuz", (BUCKETSPATH + "testbionimbuz"));
+        aux = new BioBucket(StorageProvider.AMAZON, "bionimbuz-a-br", (bucketsFolder + "bionimbuz-a-br"));
         aux.setEndPoint("s3-sa-east-1.amazonaws.com");
         bucketList.add(aux);
         //US
-        aux = new BioBucket(StorageProvider.AMAZON, "testusastandard", (BUCKETSPATH + "testusastandard"));
+        aux = new BioBucket(StorageProvider.AMAZON, "bionimbuz-a-us", (bucketsFolder + "bionimbuz-a-us"));
         bucketList.add(aux);
         //EU
-        aux = new BioBucket(StorageProvider.AMAZON, "testbucketgerman", (BUCKETSPATH + "testbucketgerman"));
+        aux = new BioBucket(StorageProvider.AMAZON, "bionimbuz-a-eu", (bucketsFolder + "bionimbuz-a-eu"));
         aux.setEndPoint("s3.eu-central-1.amazonaws.com");
         bucketList.add(aux);
         
         //GOOGLE
         //US
-        aux = new BioBucket(StorageProvider.GOOGLE, "bionimbuzteste", (BUCKETSPATH + "bionimbuzteste"));
+        aux = new BioBucket(StorageProvider.GOOGLE, "bionimbuz-g-us", (bucketsFolder + "bionimbuz-g-us"));
         bucketList.add(aux);
         //EU
-        aux = new BioBucket(StorageProvider.GOOGLE, "biotesteu", (BUCKETSPATH + "biotesteu"));
+        aux = new BioBucket(StorageProvider.GOOGLE, "bionimbuz-g-eu", (bucketsFolder + "bionimbuz-g-eu"));
         bucketList.add(aux);
     }   
     
@@ -153,5 +171,12 @@ public class CloudStorageService extends AbstractBioService{
             }
         }
         return null;
+    }
+    
+    public static void main(String[] args) {
+        System.out.println("Iniciando Teste.\n\n");
+
+
+        System.out.println("\n\nTeste Realizado.");
     }
 }

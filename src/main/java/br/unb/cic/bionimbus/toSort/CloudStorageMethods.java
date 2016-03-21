@@ -23,47 +23,48 @@ public abstract class CloudStorageMethods {
         GOOGLE
     }
 
-    protected static String JSONPATH = "/home/baile/Dropbox/cred.json";
-    protected static String AMAZONKEYPATH = "/home/baile/Dropbox/accesskey.txt";
-    protected static String GCLOUDPATH = "/home/baile/google-cloud-sdk/bin";
-
+    protected static String authFolder;
+    protected static String gcloudFolder;
     protected static AmazonS3 s3client;
     
-    public static boolean ExecCommand(String command) {
+    //Config
+    protected int LATENCY_CHECKS = 5;
+    
+    public static void ExecCommand(String command) throws Exception {
 
-        try {
+        Runtime rt = Runtime.getRuntime();
+        Process proc = rt.exec(command);
+        //System.out.println("\nRunning command: " + command);
+        InputStream stderr = proc.getErrorStream();
+        InputStreamReader isr = new InputStreamReader(stderr);
+        BufferedReader br = new BufferedReader(isr);
+        String line;
 
-            Runtime rt = Runtime.getRuntime();
-            Process proc = rt.exec(command);
-            System.out.println("\nRunning command: " + command);
-            InputStream stderr = proc.getErrorStream();
-            InputStreamReader isr = new InputStreamReader(stderr);
-            BufferedReader br = new BufferedReader(isr);
-            String line;
+//        while ((line = br.readLine()) != null) {
+//            System.out.println("[command] " + line);
+//        }
 
-            while ((line = br.readLine()) != null) {
-                System.out.println("[command] " + line);
-            }
+        int exitVal = proc.waitFor();
+        //System.out.println("[command] Process exitValue: " + exitVal);
 
-            int exitVal = proc.waitFor();
-            System.out.println("[command] Process exitValue: " + exitVal);
-
-            if (exitVal != 0) {
-                return false;
-            }
-
-        } catch (Throwable t) {
-            t.printStackTrace();
-            return false;
+        if (exitVal != 0) {
+            throw new Exception ("Error in command: " + command);
         }
-        return true;
+    }
+
+    public static void setAuthFolder(String authFolder) {
+        CloudStorageMethods.authFolder = authFolder;
+    }
+
+    public static void setGcloudFolder(String gcloudFolder) {
+        CloudStorageMethods.gcloudFolder = gcloudFolder;
     }
     
-    public abstract boolean StorageAuth(CloudStorageMethodsV1.StorageProvider sp);
-    public abstract boolean StorageUploadFile(BioBucket bucket, String bucketPath, String localPath, String fileName);
-    public abstract boolean StorageDownloadFile(BioBucket bucket, String bucketPath, String localPath, String fileName);
-    public abstract boolean StorageMount(BioBucket bucket);
-    public abstract boolean StorageUmount(BioBucket bucket);
-    public abstract boolean CheckStorageBandwith(BioBucket bucket);
-    public abstract boolean CheckStorageLatency(BioBucket bucket);
+    public abstract void StorageAuth(CloudStorageMethodsV1.StorageProvider sp) throws Exception;
+    public abstract void StorageUploadFile(BioBucket bucket, String bucketPath, String localPath, String fileName) throws Exception;
+    public abstract void StorageDownloadFile(BioBucket bucket, String bucketPath, String localPath, String fileName) throws Exception;
+    public abstract void StorageMount(BioBucket bucket) throws Exception;
+    public abstract void StorageUmount(BioBucket bucket) throws Exception;
+    public abstract void CheckStorageBandwith(BioBucket bucket) throws Exception;
+    public abstract void CheckStorageLatency(BioBucket bucket) throws Exception;
 }
