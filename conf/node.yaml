@@ -46,6 +46,15 @@ credentials-file: /*/*/*
 # Temporary uploaded files folder
 tmp-uploaded-files: /*/*/*
 
+ # Path to the folder whre the Buckets will be mounted
+buckets-folder: /*/*/*/
+
+ # Path containing the files used to authenticate the Storage Services (Bucket)
+buckets-auth-folder: /*/*/*/*/
+
+ # Path to de binary of gcloud/gsutil line-command
+gcloud-folder: /*/*/*/*/
+
 # Reference files (keep it ORDERED)
 references:
     - referencia_hg19    
