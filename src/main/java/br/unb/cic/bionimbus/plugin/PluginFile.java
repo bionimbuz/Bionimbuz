@@ -139,7 +139,7 @@ public class PluginFile {
         try {
             return new ObjectMapper().writeValueAsString(this);
         } catch (Exception ex) {
-            Logger.getLogger(PluginInfo.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PluginFile.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }

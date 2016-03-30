@@ -5,7 +5,11 @@
  */
 package br.unb.cic.bionimbus.toSort;
 
+import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.toSort.CloudStorageMethods.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *
@@ -86,5 +90,14 @@ public class BioBucket {
         this.latency = latency;
     }
     
+    @Override
+    public String toString() {
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (Exception ex) {
+            Logger.getLogger(BioBucket.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
     
 }

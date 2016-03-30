@@ -136,8 +136,9 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
                 break;
             }
             case GOOGLE: {
-                
-                command = "/usr/bin/gcsfuse --key-file=" + authFolder + "cred.json " + bucket.getName() + " " + bucket.getMountPoint();
+                //already authenticating in StorageAuth method
+                command = "/usr/bin/gcsfuse --foreground --key-file=" + authFolder + "cred.json " + bucket.getName() + " " + bucket.getMountPoint();
+                //command = "/usr/bin/gcsfuse " + bucket.getName() + " " + bucket.getMountPoint();
                 ExecCommand(command);
 
                 break;
@@ -231,7 +232,7 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
 
             Runtime rt = Runtime.getRuntime();
             Process proc = rt.exec(command);
-            //System.out.println("\nRunning command: " + command);
+            System.out.println("\nRunning command: " + command);
             InputStream stderr = proc.getErrorStream();
             InputStreamReader isr = new InputStreamReader(stderr);
             BufferedReader br = new BufferedReader(isr);
@@ -241,11 +242,11 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
 
             while ((line = br.readLine()) != null) {
                 output.add(line);
-                //System.out.println("[command] " + line);
+                System.out.println("[command] " + line);
             }
 
             int exitVal = proc.waitFor();
-            //System.out.println("[command] Process exitValue: " + exitVal);
+            System.out.println("[command] Process exitValue: " + exitVal);
 
             if (exitVal != 0) {
                 throw new Exception ("Error in command: " + command);

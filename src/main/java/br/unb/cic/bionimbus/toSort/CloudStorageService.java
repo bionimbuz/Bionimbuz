@@ -6,8 +6,10 @@
 package br.unb.cic.bionimbus.toSort;
 
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import br.unb.cic.bionimbus.model.FileInfo;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import br.unb.cic.bionimbus.toSort.CloudStorageMethods.*;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
@@ -20,7 +22,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,6 +79,11 @@ public class CloudStorageService extends AbstractBioService{
             listeners.add(this);
         }
         
+        //Criando pastas zookeeper para o módulo de armazenamento
+        if (!cms.getZNodeExist(CuratorMessageService.Path.BUCKETS.getFullPath(), null)) {
+            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.BUCKETS.getFullPath(), null);
+        }
+        
         LOGGER.info("[CloudStorageService] Starting");        
         
         //Instance methods object
@@ -100,6 +109,8 @@ public class CloudStorageService extends AbstractBioService{
             LOGGER.info("[CloudStorageService] Mounting Buckets");
             for (BioBucket aux : bucketList) {
                 methodsInstance.StorageMount(aux);
+                LOGGER.info(""); //TODO testar o path se tá setando
+                cms.setData(CuratorMessageService.Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
             }
         } catch (Throwable t) {
             LOGGER.error("[CloudStorageService] Exception: " + t.getMessage());
@@ -138,30 +149,35 @@ public class CloudStorageService extends AbstractBioService{
         
     }
     
-    private static void InstanceBuckets() {
+    private void InstanceBuckets() {
         
         BioBucket aux;
         
-        //AMAZON
-        //Brazil
-        aux = new BioBucket(StorageProvider.AMAZON, "bionimbuz-a-br", (bucketsFolder + "bionimbuz-a-br"));
-        aux.setEndPoint("s3-sa-east-1.amazonaws.com");
-        bucketList.add(aux);
-        //US
-        aux = new BioBucket(StorageProvider.AMAZON, "bionimbuz-a-us", (bucketsFolder + "bionimbuz-a-us"));
-        bucketList.add(aux);
-        //EU
-        aux = new BioBucket(StorageProvider.AMAZON, "bionimbuz-a-eu", (bucketsFolder + "bionimbuz-a-eu"));
-        aux.setEndPoint("s3.eu-central-1.amazonaws.com");
-        bucketList.add(aux);
+//        //AMAZON
+//        //Brazil
+//        aux = new BioBucket(StorageProvider.AMAZON, "bionimbuz-a-br", (bucketsFolder + "bionimbuz-a-br"));
+//        aux.setEndPoint("s3-sa-east-1.amazonaws.com");
+//        bucketList.add(aux);
+//        cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_BUCKET.getFullPath(aux.getName()), null);
+//        //US
+//        aux = new BioBucket(StorageProvider.AMAZON, "bionimbuz-a-us", (bucketsFolder + "bionimbuz-a-us"));
+//        bucketList.add(aux);
+//        cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_BUCKET.getFullPath(aux.getName()), null);
+//        //EU
+//        aux = new BioBucket(StorageProvider.AMAZON, "bionimbuz-a-eu", (bucketsFolder + "bionimbuz-a-eu"));
+//        aux.setEndPoint("s3.eu-central-1.amazonaws.com");
+//        bucketList.add(aux);
+//        cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_BUCKET.getFullPath(aux.getName()), null);
         
         //GOOGLE
         //US
         aux = new BioBucket(StorageProvider.GOOGLE, "bionimbuz-g-us", (bucketsFolder + "bionimbuz-g-us"));
         bucketList.add(aux);
+        cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_BUCKET.getFullPath(aux.getName()), null);
         //EU
         aux = new BioBucket(StorageProvider.GOOGLE, "bionimbuz-g-eu", (bucketsFolder + "bionimbuz-g-eu"));
         bucketList.add(aux);
+        cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_BUCKET.getFullPath(aux.getName()), null);
     }   
     
     private BioBucket getBucket (String name) {
@@ -171,6 +187,57 @@ public class CloudStorageService extends AbstractBioService{
             }
         }
         return null;
+    }
+    
+    public BioBucket findFile (FileInfo file) {
+        
+        List<BioBucket> buckets = new ArrayList<>();
+        
+        try {
+            
+            List<String> bucketsPaths = cms.getChildren(CuratorMessageService.Path.BUCKETS.getFullPath(), null);
+                        
+            for (String bucket_aux : bucketsPaths) {
+
+                ObjectMapper mapper = new ObjectMapper();
+                BioBucket bucket = mapper.readValue(cms.getData(bucket_aux, null), BioBucket.class);
+
+                List<String> filesPaths = cms.getChildren(CuratorMessageService.Path.BUCKET_FILES.getFullPath(bucket.getName()), null);
+
+                for (String file_aux : filesPaths) {
+                    
+                    FileInfo bucket_file = mapper.readValue(cms.getData(file_aux, null), FileInfo.class);
+                    
+                    if (bucket_file.getName() == file.getName()) {
+                        
+                        buckets.add(bucket);
+                    }
+                }
+            }
+        } catch (Throwable t) {
+            LOGGER.error("[CloudStorageService] Exception: " + t.getMessage());
+        }  
+        
+        if (buckets.isEmpty())
+        {
+            LOGGER.error("[CloudStorageService] Exception: File not found: " + file.getName());
+            return null;
+        }
+        
+        //TODO use some kind of storage policy to chose best bucket
+        return buckets.get(0);
+    }
+    
+    public static boolean checkMode (BioBucket bucket) {
+        
+        //TODO testar valores
+        if (bucket.getLatency() < 1) {
+            if (bucket.getBandwith() > (50*1024*1024)) { //tresshold = 50 MB
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     public static void main(String[] args) {

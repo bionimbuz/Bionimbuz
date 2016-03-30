@@ -40,6 +40,10 @@ import static br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import br.unb.cic.bionimbus.services.RepositoryService;
+import br.unb.cic.bionimbus.toSort.BioBucket;
+import br.unb.cic.bionimbus.toSort.CloudStorageMethods;
+import br.unb.cic.bionimbus.toSort.CloudStorageMethodsV1;
+import br.unb.cic.bionimbus.toSort.CloudStorageService;
 import br.unb.cic.bionimbus.utils.Get;
 import br.unb.cic.bionimbus.utils.Pair;
 import com.google.common.base.Preconditions;
@@ -319,17 +323,33 @@ public class SchedService extends AbstractBioService implements Runnable {
         for (FileInfo info : listFiles) {
             if (!mapFilesPlugin.containsKey(info.getName())) {
                 String ipContainsFile = getFilesIP(info.getName());
-                Get conexao = new Get();
-                try {
-                    conexao.startSession(info.getName(), ipContainsFile);
-                } catch (JSchException ex) {
-                    java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (SftpException ex) {
-                    java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+                
+                //Try on the CloudStorage
+                if (ipContainsFile == null)
+                {
+                    CloudStorageService cloud_service = new CloudStorageService(cms);
+                    BioBucket bucket = cloud_service.findFile(info);
+                    if (bucket != null) {
+                        CloudStorageMethods cloud_methods = new CloudStorageMethodsV1();
+                        try {
+                            cloud_methods.StorageDownloadFile(bucket, "/data-folder", config.getDataFolder(), info.getName()); //TODO preciso fazer algo no zookeeper aqui?
+                        } catch (Throwable t) {
+                            LOGGER.error("[SchedService] Exception: " + t.getMessage());
+                        }
+                    }
+                } 
+                else {
+                
+                    Get conexao = new Get();
+                    try {
+                        conexao.startSession(info.getName(), ipContainsFile);
+                    } catch (JSchException ex) {
+                        java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (SftpException ex) {
+                        java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
-
             }
-
         }
         checkFilesPlugin();
     }
@@ -725,7 +745,7 @@ public class SchedService extends AbstractBioService implements Runnable {
 
         for (FileInfo fileInput : listInputFiles) {
             if (mapFilesPlugin.containsKey(fileInput.getName())) {
-                return true;
+                return true; //TODO está checando apenas 1 arquivo?
             }
         }
         return false;
