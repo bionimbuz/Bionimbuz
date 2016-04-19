@@ -114,6 +114,10 @@ public class CuratorMessageService implements CloudMessageService {
         BUCKET_FILES("/files"),
         NODE_BUCKET_FILE("/");
 
+        public static String NODE_BUCKET_FILE(String bionimbuzgus, String mclovinpng) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
         private final String value;
 
         private Path(String value) {

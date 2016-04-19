@@ -24,11 +24,14 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
-
+import com.google.inject.Singleton;
+import org.apache.commons.io.FileUtils;
 /**
  *
  * @author Lucas
  */
+
+@Singleton
 public class CloudStorageMethodsV1 extends CloudStorageMethods{
 
     @Override
@@ -118,14 +121,15 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
 
     @Override
     public void StorageMount(BioBucket bucket) throws Exception {
-
-        if (bucket.isMounted()) {
-            return;
+        
+        File mountFolder = new File (bucket.getMountPoint());
+        
+        if (!mountFolder.exists()) {
+            mountFolder.mkdirs();
         }
         
-        String command = "/bin/mkdir " + bucket.getMountPoint();
-        ExecCommand(command);
-
+        String command;
+        
         switch (bucket.getProvider()) {
             
             case AMAZON: {
@@ -136,15 +140,15 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
                 break;
             }
             case GOOGLE: {
-                //already authenticating in StorageAuth method
-                command = "/usr/bin/gcsfuse --foreground --key-file=" + authFolder + "cred.json " + bucket.getName() + " " + bucket.getMountPoint();
+
+                command = "/usr/bin/gcsfuse --key-file=" + authFolder + "cred.json " + bucket.getName() + " " + bucket.getMountPoint();
                 //command = "/usr/bin/gcsfuse " + bucket.getName() + " " + bucket.getMountPoint();
                 ExecCommand(command);
 
                 break;
             }
             default: {
-                throw new Exception ("Provedor incorreto!");
+                throw new Exception ("Incorrect provider!");
             }
         }
         
@@ -153,15 +157,11 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
 
     @Override
     public void StorageUmount(BioBucket bucket) throws Exception {
-
-        if (!bucket.isMounted())
-            return;
         
         String command = "/bin/fusermount -u " + bucket.getMountPoint();
         ExecCommand(command);
 
-        command = "/bin/rm -r " + bucket.getMountPoint();
-        ExecCommand(command);
+        FileUtils.forceDelete(new File (bucket.getMountPoint()));
 
         bucket.setMounted(false);
     }
@@ -170,10 +170,10 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
     public void CheckStorageBandwith(BioBucket bucket) throws Exception {
 
         if (!bucket.isMounted())
-            return;
+            throw new Exception ("Cant check bandwith! Bucket not mounted: " + bucket.getName());
         
         //Upload
-        String command = "/bin/dd if=/dev/zero of=" + bucket.getMountPoint() + "/testfile bs=30M count=1 oflag=dsync";
+        String command = "/bin/dd if=/dev/zero of=" + bucket.getMountPoint() + "/testfile-" + myId + " bs=30M count=1 oflag=dsync";
 
         Runtime rt = Runtime.getRuntime();
         Process proc = rt.exec(command);
@@ -213,26 +213,26 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
 
         bucket.setBandwith((31 * 1024 * 1024) / value);
 
-        command = "/bin/rm " + bucket.getMountPoint() + "/testfile";
-        ExecCommand(command);
+        File faux = new File (bucket.getMountPoint() + "/testfile-" + myId);
+        faux.delete();
     }
 
     @Override
     public void CheckStorageLatency(BioBucket bucket) throws Exception {
 
         if (!bucket.isMounted())
-            return;
+            throw new Exception ("Cant check latency! Bucket not mounted: " + bucket.getName());
         
         float latency = 0;
         int i;
 
         for (i = 0; i < LATENCY_CHECKS; i++) {
             //Upload
-            String command = "/bin/dd if=/dev/zero of=" + bucket.getMountPoint() + "/pingfile bs=64 count=1 oflag=dsync";
+            String command = "/bin/dd if=/dev/zero of=" + bucket.getMountPoint() + "/pingfile-" + myId + " bs=64 count=1 oflag=dsync";
 
             Runtime rt = Runtime.getRuntime();
             Process proc = rt.exec(command);
-            System.out.println("\nRunning command: " + command);
+            //System.out.println("\nRunning command: " + command);
             InputStream stderr = proc.getErrorStream();
             InputStreamReader isr = new InputStreamReader(stderr);
             BufferedReader br = new BufferedReader(isr);
@@ -242,11 +242,11 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
 
             while ((line = br.readLine()) != null) {
                 output.add(line);
-                System.out.println("[command] " + line);
+                //System.out.println("[command] " + line);
             }
 
             int exitVal = proc.waitFor();
-            System.out.println("[command] Process exitValue: " + exitVal);
+            //System.out.println("[command] Process exitValue: " + exitVal);
 
             if (exitVal != 0) {
                 throw new Exception ("Error in command: " + command);
@@ -268,9 +268,8 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
             latency += value;
             //System.out.println("[current] Latency: " + (latency / (i + 1)));
 
-            command = "/bin/rm " + bucket.getMountPoint() + "/pingfile";
-
-            ExecCommand(command);
+            File faux = new File (bucket.getMountPoint() + "/pingfile-" + myId);
+            faux.delete();
         }
 
         bucket.setLatency(latency / (i + 1));

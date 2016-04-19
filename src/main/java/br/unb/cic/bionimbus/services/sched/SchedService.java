@@ -141,6 +141,25 @@ public class SchedService extends AbstractBioService implements Runnable {
     @Override
     public void run() {
         checkTasks();
+        
+//        try {
+//            ObjectMapper mapper = new ObjectMapper();
+//            PluginFile pfile = mapper.readValue(cms.getData("/bionimbuz/buckets/bionimbuz-g-us/files/mclovin.png", null), PluginFile.class);
+//            
+//            FileInfo ifile = new FileInfo();
+//            ifile.setId(pfile.getId());
+//            ifile.setName(pfile.getName());
+//            List<FileInfo> request = new ArrayList<>();
+//            request.add(ifile);
+//            
+//            checkFilesPlugin();
+//            requestFile(request);
+//            
+//        } catch (Throwable t) {
+//            LOGGER.error("[SchedService] Exception(run): " + t.getMessage());
+//            t.printStackTrace();
+//        }
+//        LOGGER.debug("[SchedService] File requested");
     }
 
     @Override
@@ -186,6 +205,7 @@ public class SchedService extends AbstractBioService implements Runnable {
         }
 
         schedExecService.scheduleAtFixedRate(this, 0, 5, TimeUnit.SECONDS);
+        //schedExecService.scheduleAtFixedRate(this, 1, 5, TimeUnit.MINUTES);
     }
 
     /**
@@ -321,24 +341,28 @@ public class SchedService extends AbstractBioService implements Runnable {
      */
     private void requestFile(List<FileInfo> listFiles) {
         for (FileInfo info : listFiles) {
+            
             if (!mapFilesPlugin.containsKey(info.getName())) {
-                String ipContainsFile = getFilesIP(info.getName());
                 
-                //Try on the CloudStorage
-                if (ipContainsFile == null)
-                {
-                    CloudStorageService cloud_service = new CloudStorageService(cms);
-                    BioBucket bucket = cloud_service.findFile(info);
-                    if (bucket != null) {
-                        CloudStorageMethods cloud_methods = new CloudStorageMethodsV1();
-                        try {
-                            cloud_methods.StorageDownloadFile(bucket, "/data-folder", config.getDataFolder(), info.getName()); //TODO preciso fazer algo no zookeeper aqui?
-                        } catch (Throwable t) {
-                            LOGGER.error("[SchedService] Exception: " + t.getMessage());
-                        }
+                LOGGER.debug("[SchedService] Requesting file: " + info.getName());
+                LOGGER.debug("[SchedService] Trying on the CloudStorage Buckets");
+                CloudStorageService cloud_service = new CloudStorageService(cms);
+                BioBucket bucket = cloud_service.findFile(info);
+
+                if (bucket != null) {
+                    LOGGER.debug("[SchedService] File found on bucket: " + bucket.getName());
+                    CloudStorageMethods cloud_methods = new CloudStorageMethodsV1();
+                    try {
+                        cloud_methods.StorageDownloadFile(bucket, "/data-folder", config.getDataFolder(), info.getName());
+                    } catch (Throwable t) {
+                        LOGGER.error("[SchedService] Exception(requestFile): " + t.getMessage());
+                        t.printStackTrace();
                     }
-                } 
-                else {
+                } else {
+                    LOGGER.debug("[SchedService] Trying on the instances");
+                    String ipContainsFile = getFilesIP(info.getName());
+                    
+                    LOGGER.debug("[SchedService] ipContainsFile: " + ipContainsFile);
                 
                     Get conexao = new Get();
                     try {
@@ -349,6 +373,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                         java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
+                
             }
         }
         checkFilesPlugin();

@@ -5,8 +5,10 @@
  */
 package br.unb.cic.bionimbus.toSort;
 
-import br.unb.cic.bionimbus.plugin.PluginInfo;
+import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.toSort.CloudStorageMethods.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -22,6 +24,7 @@ public class BioBucket {
     private String mountPoint;
     private String endPoint;
     private boolean mounted;
+    private boolean inUse;
     
     private float bandwith; // em B/s
     private float latency;
@@ -30,7 +33,6 @@ public class BioBucket {
         this.provider = provider;
         this.name = name;
         this.mountPoint = mountPoint;
-        this.endPoint = endPoint;
         mounted = false;
     }
     
@@ -66,6 +68,14 @@ public class BioBucket {
         this.mounted = mounted;
     }
 
+    public boolean isInUse() {
+        return inUse;
+    }
+
+    public void setInUse(boolean inUse) {
+        this.inUse = inUse;
+    }
+    
     public String getEndPoint() {
         return endPoint;
     }

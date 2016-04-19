@@ -15,6 +15,7 @@ import com.amazonaws.services.s3.AmazonS3;
  *
  * @author Lucas
  */
+
 public abstract class CloudStorageMethods {
     
     public enum StorageProvider {
@@ -27,6 +28,8 @@ public abstract class CloudStorageMethods {
     protected static String gcloudFolder;
     protected static AmazonS3 s3client;
     
+    protected static String myId;
+    
     //Config
     protected int LATENCY_CHECKS = 5;
     
@@ -34,18 +37,18 @@ public abstract class CloudStorageMethods {
 
         Runtime rt = Runtime.getRuntime();
         Process proc = rt.exec(command);
-        System.out.println("\nRunning command: " + command);
+        //System.out.println("\nRunning command: " + command);
         InputStream stderr = proc.getErrorStream();
         InputStreamReader isr = new InputStreamReader(stderr);
         BufferedReader br = new BufferedReader(isr);
         String line;
 
-        while ((line = br.readLine()) != null) {
-            System.out.println("[command] " + line);
-        }
+//        while ((line = br.readLine()) != null) {
+//            System.out.println("[command] " + line);
+//        }
 
         int exitVal = proc.waitFor();
-        System.out.println("[command] Process exitValue: " + exitVal);
+        //System.out.println("[command] Process exitValue: " + exitVal);
 
         if (exitVal != 0) {
             throw new Exception ("Error in command: " + command);
@@ -58,6 +61,14 @@ public abstract class CloudStorageMethods {
 
     public static void setGcloudFolder(String gcloudFolder) {
         CloudStorageMethods.gcloudFolder = gcloudFolder;
+    }
+
+    public static String getMyId() {
+        return myId;
+    }
+
+    public static void setMyId(String myId) {
+        CloudStorageMethods.myId = myId;
     }
     
     public abstract void StorageAuth(CloudStorageMethodsV1.StorageProvider sp) throws Exception;
