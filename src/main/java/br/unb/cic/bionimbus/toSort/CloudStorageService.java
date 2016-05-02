@@ -204,7 +204,7 @@ public class CloudStorageService extends AbstractBioService{
         }
     }   
     
-    private BioBucket getBucket (String name) {
+    public static BioBucket getBucket (String name) {
         for (BioBucket aux : bucketList) {
             if (aux.getName().equals(name)) {
                 return aux;

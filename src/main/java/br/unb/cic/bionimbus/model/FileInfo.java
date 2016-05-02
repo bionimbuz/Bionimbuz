@@ -28,6 +28,8 @@ public class FileInfo implements Serializable {
     private String uploadTimestamp;
 
     private String hash;
+    
+    private String bucket;
 
     @Transient
     @JsonProperty("payload")
@@ -94,6 +96,14 @@ public class FileInfo implements Serializable {
 
     public void setHash(String hash) {
         this.hash = hash;
+    }
+    
+    public String getBucket() {
+        return bucket;
+    }
+
+    public void setBucket(String bucket) {
+        this.bucket = bucket;
     }
 
 }

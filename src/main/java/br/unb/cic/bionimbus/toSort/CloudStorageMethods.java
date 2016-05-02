@@ -78,4 +78,5 @@ public abstract class CloudStorageMethods {
     public abstract void StorageUmount(BioBucket bucket) throws Exception;
     public abstract void CheckStorageBandwith(BioBucket bucket) throws Exception;
     public abstract void CheckStorageLatency(BioBucket bucket) throws Exception;
+    public abstract void DeleteFile(BioBucket bucket, String fileName) throws Exception;
 }

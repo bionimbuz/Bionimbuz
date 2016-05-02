@@ -274,4 +274,14 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
 
         bucket.setLatency(latency / (i + 1));
     }
+    
+    @Override
+    public void DeleteFile(BioBucket bucket, String fileName) throws Exception {
+        
+        if (!bucket.isMounted())
+            throw new Exception ("Cant delete file " + fileName + "! Bucket not mounted: " + bucket.getName());
+        
+        String command = "/bin/rm " + bucket.getMountPoint() + "/data-folder/" + fileName;
+        ExecCommand(command);
+    }
 }

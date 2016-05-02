@@ -23,6 +23,9 @@ import br.unb.cic.bionimbus.rest.request.RequestInfo;
 import br.unb.cic.bionimbus.rest.request.UploadRequest;
 import br.unb.cic.bionimbus.rest.response.ResponseInfo;
 import br.unb.cic.bionimbus.security.Hash;
+import br.unb.cic.bionimbus.toSort.BioBucket;
+import br.unb.cic.bionimbus.toSort.CloudStorageMethods;
+import br.unb.cic.bionimbus.toSort.CloudStorageService;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 import java.io.FileInputStream;
@@ -66,33 +69,39 @@ public class FileResource extends AbstractResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response handleUploadedFile(@MultipartForm UploadRequest request) throws InterruptedException, JSchException, SftpException, NoSuchAlgorithmException {
 
-        try {
-            LOGGER.info("Upload request received [filename=" + request.getFileInfo().getName() + "]");
+//        try {
+//            LOGGER.info("Upload request received [filename=" + request.getFileInfo().getName() + "]");
+//
+//            // Writes file on disk
+//            String filepath = writeFile(request.getData(), request.getFileInfo().getName(), request.getFileInfo().getUserId());
+//
+//            // Verify integrity
+//            String hashedFile = verifyIntegrity(request.getFileInfo(), filepath);
+//
+//            // Verify file integrity and tries to write file to Zookeeper
+//            if (rpcClient.getProxy().uploadFile(filepath, convertToAvroObject(hashedFile, request.getFileInfo()))) {
+//
+//                // Copy to data-folder
+//                copyFileToDataFolder(filepath, request.getFileInfo().getName());
+//
+//                // Creates an UserFile using UploadadeFileInfo from request and persists on Database
+//                fileDao.persist(request.getFileInfo());
+//
+//                return Response.status(200).entity(true).build();
+//            }
+//
+//        } catch (IOException e) {
+//            LOGGER.error("[IOException] " + e.getMessage());
+//            e.printStackTrace();
+//        }
+//
+//        return Response.status(500).entity(false).build();
+        LOGGER.info("Upload request received [filename=" + request.getFileInfo().getName() + "]");
 
-            // Writes file on disk
-            String filepath = writeFile(request.getData(), request.getFileInfo().getName(), request.getFileInfo().getUserId());
+        fileDao.persist(request.getFileInfo());
 
-            // Verify integrity
-            String hashedFile = verifyIntegrity(request.getFileInfo(), filepath);
+        return Response.status(200).entity(true).build();
 
-            // Verify file integrity and tries to write file to Zookeeper
-            if (rpcClient.getProxy().uploadFile(filepath, convertToAvroObject(hashedFile, request.getFileInfo()))) {
-
-                // Copy to data-folder
-                copyFileToDataFolder(filepath, request.getFileInfo().getName());
-
-                // Creates an UserFile using UploadadeFileInfo from request and persists on Database
-                fileDao.persist(request.getFileInfo());
-
-                return Response.status(200).entity(true).build();
-            }
-
-        } catch (IOException e) {
-            LOGGER.error("[IOException] " + e.getMessage());
-            e.printStackTrace();
-        }
-
-        return Response.status(500).entity(false).build();
     }
 
     /**
@@ -104,6 +113,22 @@ public class FileResource extends AbstractResource {
     @Path("/{fileID}")
     public void deleteFile(@PathParam("fileID") String id) {
         LOGGER.info("Delete File Request received. Id=" + id);
+
+//        try {
+//            FileInfo file = fileDao.findById(Long.valueOf(id));
+//            BioBucket bucket = CloudStorageService.getBucket(file.getBucket());
+//
+//            fileDao.delete(file);
+//
+//            CloudStorageMethods methods_instance = CloudStorageMethodsV1();
+//
+//            methods_instance.DeleteFile(bucket, file.getName());
+//
+//        } catch (Throwable t) {
+//            LOGGER.error("Exception caught: " + t.getMessage());
+//            t.printStackTrace();
+//        }
+
     }
 
     /**
@@ -258,5 +283,9 @@ public class FileResource extends AbstractResource {
         }
 
         return outputFilePath;
+    }
+
+    private CloudStorageMethods CloudStorageMethodsV1() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
