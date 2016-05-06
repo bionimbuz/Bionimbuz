@@ -1,21 +1,21 @@
 /*
-    BioNimbuZ is a federated cloud platform.
-    Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD), 
-    Department of Computer Science, University of Brasilia, Brazil
+ BioNimbuZ is a federated cloud platform.
+ Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD), 
+ Department of Computer Science, University of Brasilia, Brazil
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package br.unb.cic.bionimbus.services.sched;
 
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
@@ -97,9 +97,9 @@ public class SchedService extends AbstractBioService implements Runnable {
 
     // Workflow
     private Workflow workflow;
-    
+
     private boolean isClient = true;
-    
+
     @Inject
     public SchedService(final CloudMessageService cms, final RepositoryService rs) {
         Preconditions.checkNotNull(cms);
@@ -141,7 +141,7 @@ public class SchedService extends AbstractBioService implements Runnable {
     @Override
     public void run() {
         checkTasks();
-        
+
 //        try {
 //            ObjectMapper mapper = new ObjectMapper();
 //            PluginFile pfile = mapper.readValue(cms.getData("/bionimbuz/buckets/bionimbuz-g-us/files/mclovin.png", null), PluginFile.class);
@@ -164,7 +164,7 @@ public class SchedService extends AbstractBioService implements Runnable {
 
     @Override
     public void start(BioNimbusConfig config, List<Listeners> listeners) {
-        
+
         this.isClient = config.isClient();
         this.config = config;
         this.listeners = listeners;
@@ -172,7 +172,7 @@ public class SchedService extends AbstractBioService implements Runnable {
         listeners.add(this);
 //        }
         idPlugin = this.config.getId();
-       
+
         getPolicy().setRs(rs);
 
         //inicia o valor do zk na politica de escalonamento
@@ -256,7 +256,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                     workflowLogger.log(new Log("Job <b>" + jobInfo.getId() + "</b> com arquivo de saida <b>"
                             + jobInfo.getOutputs() + "</b> enviado para nó de processamento do BioNimbuZ",
                             workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
-                    
+
                     // Log all output files of a given workflow id
                     workflowLogger.logOutputFile(workflow.getId(), jobInfo.getOutputs());
                 } else {
@@ -340,10 +340,11 @@ public class SchedService extends AbstractBioService implements Runnable {
      * @param listFiles lista de arquivos que devem conter no plugin
      */
     private void requestFile(List<FileInfo> listFiles) {
+        
         for (FileInfo info : listFiles) {
-            
+
             if (!mapFilesPlugin.containsKey(info.getName())) {
-                
+
                 LOGGER.debug("[SchedService] Requesting file: " + info.getName());
                 LOGGER.debug("[SchedService] Trying on the CloudStorage Buckets");
                 CloudStorageService cloud_service = new CloudStorageService(cms);
@@ -351,19 +352,36 @@ public class SchedService extends AbstractBioService implements Runnable {
 
                 if (bucket != null) {
                     LOGGER.debug("[SchedService] File found on bucket: " + bucket.getName());
-                    CloudStorageMethods cloud_methods = new CloudStorageMethodsV1();
-                    try {
-                        cloud_methods.StorageDownloadFile(bucket, "/data-folder", config.getDataFolder(), info.getName());
-                    } catch (Throwable t) {
-                        LOGGER.error("[SchedService] Exception(requestFile): " + t.getMessage());
-                        t.printStackTrace();
+                    
+                    if (CloudStorageService.checkMode(bucket)) {
+                        
+                        PluginFile file = new PluginFile();
+                        
+                        file.setId(info.getId());
+                        file.setName(info.getName());
+                        
+                        String path = bucket.getMountPoint() + "/data-folder/" + info.getName();
+                        file.setPath(path);
+                        
+                        mapFilesPlugin.put(info.getId(), file);
+                        
+                    } else {
+                        CloudStorageMethods cloud_methods = new CloudStorageMethodsV1();
+
+                        try {
+                            cloud_methods.StorageDownloadFile(bucket, "/data-folder", config.getDataFolder(), info.getName());
+                        } catch (Throwable t) {
+                            LOGGER.error("[SchedService] Exception(requestFile): " + t.getMessage());
+                            t.printStackTrace();
+                        }
                     }
+                    
                 } else {
                     LOGGER.debug("[SchedService] Trying on the instances");
                     String ipContainsFile = getFilesIP(info.getName());
-                    
+
                     LOGGER.debug("[SchedService] ipContainsFile: " + ipContainsFile);
-                
+
                     Get conexao = new Get();
                     try {
                         conexao.startSession(info.getName(), ipContainsFile);
@@ -373,7 +391,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                         java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-                
+
             }
         }
         checkFilesPlugin();
@@ -662,11 +680,11 @@ public class SchedService extends AbstractBioService implements Runnable {
         try {
 
             LOGGER.info("Checking Tasks...");
-            
+
             // Check if there are any pipelines left to add
             updatePipelines();
-            
-            if (waitingTask!=null && !waitingTask.isEmpty()) {
+
+            if (waitingTask != null && !waitingTask.isEmpty()) {
                 for (Pair<PluginInfo, PluginTask> pair : waitingTask.values()) {
                     if (pair.first.getHost().getAddress().equals(myLinuxPlugin.getMyInfo().getHost().getAddress())) {
                         if (pair.second.getState() == PluginTaskState.WAITING) {
@@ -736,17 +754,17 @@ public class SchedService extends AbstractBioService implements Runnable {
             for (FileInfo f : task.getJobInfo().getInputFiles()) {
                 LOGGER.info("Arquivo: " + f.getName());
             }
-            
+
             requestFile(task.getJobInfo().getInputFiles());
 
             LOGGER.info("Task " + task.getId() + " files not present.");
         }
         if (existFiles(task.getJobInfo().getInputFiles())) {
             decryptFiles(task.getJobInfo().getInputFiles());
-            
+
             // Executes the command line and upload it to ZooKeeper
             myLinuxPlugin.startTask(task, cms, workflow);
-            
+
             LOGGER.info("Task " + task.getId() + " started.");
         } else {
             task.setState(PluginTaskState.WAITING);
@@ -880,7 +898,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                         LOGGER.info("[SchedService] Recebimento de um alerta para um pipeline, NodeChildrenChanged");
                         // checking moved to checkTasks in order to solve racing condition
 //                        updatePipelines();
-                        
+
                     } else if (eventType.getPath().contains(Path.SCHED.toString() + Path.TASKS)) {
                         LOGGER.info("[SchedService] Recebimento de um alerta para uma TAREFA");
 
@@ -948,8 +966,8 @@ public class SchedService extends AbstractBioService implements Runnable {
             java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    private void updatePipelines() throws IOException, InterruptedException, KeeperException{
+
+    private void updatePipelines() throws IOException, InterruptedException, KeeperException {
         // get all pipelines
         List<String> pipelinesId = cms.getChildren(Path.PIPELINES.getFullPath(), null);
         String datas;
@@ -957,7 +975,7 @@ public class SchedService extends AbstractBioService implements Runnable {
         if (!pipelinesId.isEmpty()) {
 
             // get pipelines and add them to pendingPipelines
-            for (String pipelineReady : pipelinesId) {                            
+            for (String pipelineReady : pipelinesId) {
                 ObjectMapper mapper = new ObjectMapper();
                 datas = cms.getData(Path.NODE_PIPELINE.getFullPath(pipelineReady), null);
 
@@ -968,20 +986,21 @@ public class SchedService extends AbstractBioService implements Runnable {
 
                 // add independent jobs to pendingJobs list and jobs with 
                 // any dependency to the dependentJobs list
-                int i=0;
+                int i = 0;
                 for (Job j : workflow.getJobs()) {
                     if (j.getDependencies().isEmpty()) {
                         pendingJobs.add(j);
                         i++;
-                    } else
+                    } else {
                         dependentJobs.add(j);
+                    }
                 }
-                
+
                 LOGGER.info("Workflow is compound by: " + i + " independent jobs and " + (workflow.getJobs().size() - i) + " jobs with dependency");
 
                 // Log it
                 workflowLogger.log(new Log(" Job(s) independente(s): <b>" + i + "</b>", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
-                workflowLogger.log(new Log("Job(s) com dependência(s): <b>" + (workflow.getJobs().size() - i) + "</b>", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));               
+                workflowLogger.log(new Log("Job(s) com dependência(s): <b>" + (workflow.getJobs().size() - i) + "</b>", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
 
                 // remove pipeline from zookeeper
                 cms.delete(Path.NODE_PIPELINE.getFullPath(pipelineReady));
@@ -992,7 +1011,7 @@ public class SchedService extends AbstractBioService implements Runnable {
             }
         }
     }
-    
+
     @Override
     public void verifyPlugins() {
         Collection<PluginInfo> temp = getPeers().values();

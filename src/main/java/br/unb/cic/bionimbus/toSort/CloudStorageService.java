@@ -252,7 +252,7 @@ public class CloudStorageService extends AbstractBioService{
         
         if (buckets.isEmpty())
         {
-            LOGGER.info("[CloudStorageService] Exception: File not found: " + file.getName());
+            LOGGER.info("[CloudStorageService] File not found on Buckets: " + file.getName());
             return null;
         }
         
@@ -351,7 +351,7 @@ public class CloudStorageService extends AbstractBioService{
         
         //TODO testar valores de treshold
         if (bucket.getLatency() < 1) {
-            if (bucket.getBandwith() > (50*1024*1024)) { //tresshold = 50 MB
+            if (bucket.getBandwith() > (4*1024*1024)) { //tresshold = 4 MB
                 return true;
             }
         }
