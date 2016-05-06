@@ -25,6 +25,7 @@ import br.unb.cic.bionimbus.rest.response.ResponseInfo;
 import br.unb.cic.bionimbus.security.Hash;
 import br.unb.cic.bionimbus.toSort.BioBucket;
 import br.unb.cic.bionimbus.toSort.CloudStorageMethods;
+import br.unb.cic.bionimbus.toSort.CloudStorageMethodsV1;
 import br.unb.cic.bionimbus.toSort.CloudStorageService;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
@@ -114,20 +115,22 @@ public class FileResource extends AbstractResource {
     public void deleteFile(@PathParam("fileID") String id) {
         LOGGER.info("Delete File Request received. Id=" + id);
 
-//        try {
-//            FileInfo file = fileDao.findById(Long.valueOf(id));
-//            BioBucket bucket = CloudStorageService.getBucket(file.getBucket());
-//
-//            fileDao.delete(file);
-//
-//            CloudStorageMethods methods_instance = CloudStorageMethodsV1();
-//
-//            methods_instance.DeleteFile(bucket, file.getName());
-//
-//        } catch (Throwable t) {
-//            LOGGER.error("Exception caught: " + t.getMessage());
-//            t.printStackTrace();
-//        }
+        try {
+            FileInfo file = fileDao.findByStringId(id);
+            BioBucket bucket = CloudStorageService.getBucket(file.getBucket());
+
+            LOGGER.info("File " + file.getName() + " found on Bucket " + file.getBucket());
+            
+            fileDao.delete(file);
+            
+            CloudStorageMethods methods_instance = new CloudStorageMethodsV1();
+
+            methods_instance.DeleteFile(bucket, file.getName());
+
+        } catch (Throwable t) {
+            LOGGER.error("Exception caught: " + t.getMessage());
+            t.printStackTrace();
+        }
 
     }
 
@@ -283,9 +286,5 @@ public class FileResource extends AbstractResource {
         }
 
         return outputFilePath;
-    }
-
-    private CloudStorageMethods CloudStorageMethodsV1() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
