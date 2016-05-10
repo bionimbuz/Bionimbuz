@@ -16,10 +16,10 @@
             <!-- Database URL -->
             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/bionimbuz_db" />
 
-            <!-- Database user -->
+            <!-- Database user MUST CHANGE-->
             <property name="javax.persistence.jdbc.user" value="****" />
 
-            <!-- Database Password -->
+            <!-- Database Password MUST CHANGE -->
             <property name="javax.persistence.jdbc.password" value="****" />
             
             <!-- Hibernate definitions -->

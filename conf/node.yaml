@@ -5,7 +5,7 @@ rpc_port: 8080
 rpc_protocol: http
 
 # IP address of ZooKeeper server
-zookeeper_hosts: *.*.*.*:2181
+zookeeper_hosts: 127.0.0.1:2181
 
 # Operation Mode
 client: false
@@ -14,37 +14,37 @@ client: false
 plugin: linux
 
 # Server root path (will be changed to root-folder
-server-path: /home/username/Bionimbuz/
+server-path: /home/biolabid2/Bionimbuz/
 
 # Own address
-address: *.*.*.*
+address: 127.0.0.1
 
 # Cost per giga?
 cost_per_giga: 0
 
 # Well... ???
-host: {"address": "*.*.*.*", "port":8080}
+host: {"address": "127.0.0.1", "port":8080}
 
 # Brazilian PIB (in mexican pesos)? A Big Mac? ... Maybe the cost of a Pokeball in 2000's (today it costs $15.99)
 cost: 0.35
 
 # Root folder of project
-root-folder: /home/username/Bionimbuz/
+root-folder: /home/biolabid2/Bionimbuz/
 
 # Folder or reference files
-reference-folder: /home/username/Bionimbuz/references/
+reference-folder: /home/biolabid2/Bionimbuz/references/
 
 # Root folder of output files (generated from programs)
-output-folder: /home/username/Bionimbuz/output-folder/
+output-folder: /home/biolabid2/Bionimbuz/output-folder/
 
 # Root folder of output files (generated from programs)
-data-folder: /home/username/Bionimbuz/data-folder/
+data-folder: /home/biolabid2/Bionimbuz/data-folder/
 
 # Folder containing file with BioNimbuZ credentials
-credentials-file: /home/username/.bionimbuz/credentials.yaml
+credentials-file: /home/biolabid2/.bionimbuz/credentials.yaml
 
 # Temporary uploaded files folder
-tmp-uploaded-files: /home/username/Bionimbuz/tmp/
+tmp-uploaded-files: /home/biolabid2/Bionimbuz/tmp/
 
 # Reference files (keep it ORDERED)
 references:
