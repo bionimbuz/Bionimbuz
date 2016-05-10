@@ -1,4 +1,9 @@
 .project
+*.save
+*.log
+*.log.*
+*.out
+/output-folder/*
 /target/
 biofoco.log
 /bin/
