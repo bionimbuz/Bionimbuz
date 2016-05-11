@@ -25,24 +25,24 @@ Instalar e configurar o Java:
 ----------------------------------------------------------------------------------------------------------------------
 sudo add-apt-repository ppa:webupd8team/java	
 sudo apt-get update
-sudo apt-get install oracle-jdk7-installer
+sudo apt-get install oracle-java8-installer
 ----------------------------------------------------------------------------------------------------------------------
 ##### 3. Zookeeper
 Apache ZooKeeper é um serviço centralizado para gerenciar e sincronizar informações de configuração em um ambiente computacional distribuído.
 ----------------------------------------------------------------------------------------------------------------------
-3.1 Realizar o download do ZooKeeper: http://ftp.unicamp.br/pub/apache/zookeeper/stable/zookeeper-3.4.6.tar.gz
+3.1 Realizar o download do ZooKeeper: http://ftp.unicamp.br/pub/apache/zookeeper/stable/zookeeper-3.4.8.tar.gz
 3.2 Descompacte na pasta opt/zookeeper/
 3.3 Configure o arquivo /opt/zookeeper/conf/zoo.cfg
 3.4 Altere a linha  dataDir=/opt/zookeeper/ 
 3.5 Salve e feche o arquivo
-3.6 Inicie o zookeeper com o comando sudo /opt/zookeeper/bin/zkServer.sh start
+3.6 Inicie o zookeeper com o comando sudo /opt/zookeeper/bin/./zkServer.sh start
 3.7 Pronto! O servidor ZooKeeper está executando, mais detalhes na documentação: https://zookeeper.apache.org/doc/r3.4.6/zookeeperStarted.html#sc_InstallingSingleMode
 ----------------------------------------------------------------------------------------------------------------------
 ##### 4. IDE de desenvolvimento Java
-Utilizamos o Netbeans 8.0.1 para desenvolvimento.
+Utilizamos o Netbeans 8.1 para desenvolvimento.
 Download:
 ----------------------------------------------------------------------------------------------------------------------
-https://netbeans.org/downloads/start.html?platform=linux&lang=pt_BR&option=javaee
+http://download.netbeans.org/netbeans/8.1/final/bundles/netbeans-8.1-javaee-linux.sh
 ----------------------------------------------------------------------------------------------------------------------
 ##### 5. Maven
 Apache Maven é um software de gerenciamento de projetos.
@@ -77,6 +77,10 @@ sudo apt-get install unzip
 Banco de Dados MySQL para persistir dados da aplicação web
 ----------------------------------------------------------------------------------------------------------------------
 apt-get install mysql-server-5.6
+----------------------------------------------------------------------------------------------------------------------
+#### 12. Configurar o persistence.xml
+----------------------------------------------------------------------------------------------------------------------
+Abra o arquivo persistence.xml e altere o usuário e senha, arquivo localizado em /src/main/resources/META-INF/persistence.xml
 ----------------------------------------------------------------------------------------------------------------------
 
 #### Passo-a-passo para execução em instâncias na nuvem (Amazon, Azure, Google, ...)
@@ -115,7 +119,8 @@ enviar bionimbus-1.0-SNAPSHOT-bundle.jar gerado na target
 ##### Executando o BioNimbuZ na nuvem
 Para iniciar a execução o servidor zookeeper deve ser iniciado.
 -------------------------------------------------------------------------------------------------------------
-1 - Alterar conf/node.yaml com as configurações de ip do servidor zookeer, ip, etc
+1 - Alterar conf/node.yaml com as configurações de ip do servidor zookeer, ip e os caminhos das pastas 
+    necessárias para a execução, etc..
 2 - Entrar na pasta zoonimbusProject/
 3 - Servidor: executar o comando "sh exported-folders/bin/server.sh"
 4 - Cliente: executar o comando "sh exported-folders/bin/client.sh" (** migrando para aplicação Web)
