@@ -37,18 +37,18 @@ public abstract class CloudStorageMethods {
 
         Runtime rt = Runtime.getRuntime();
         Process proc = rt.exec(command);
-        //System.out.println("\nRunning command: " + command);
+        System.out.println("\nRunning command: " + command);
         InputStream stderr = proc.getErrorStream();
         InputStreamReader isr = new InputStreamReader(stderr);
         BufferedReader br = new BufferedReader(isr);
         String line;
 
-//        while ((line = br.readLine()) != null) {
-//            System.out.println("[command] " + line);
-//        }
+        while ((line = br.readLine()) != null) {
+            System.out.println("[command] " + line);
+        }
 
         int exitVal = proc.waitFor();
-        //System.out.println("[command] Process exitValue: " + exitVal);
+        System.out.println("[command] Process exitValue: " + exitVal);
 
         if (exitVal != 0) {
             throw new Exception ("Error in command: " + command);

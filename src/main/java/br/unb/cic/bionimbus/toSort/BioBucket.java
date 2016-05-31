@@ -26,7 +26,8 @@ public class BioBucket {
     private boolean mounted;
     private boolean inUse;
     
-    private float bandwith; // em B/s
+    private float upBandwith; // em B/s
+    private float dlBandwith; // em B/s
     private float latency;
 
     public BioBucket (StorageProvider provider, String name, String mountPoint) {
@@ -84,12 +85,26 @@ public class BioBucket {
         this.endPoint = endpoint;
     }
 
-    public float getBandwith() {
-        return bandwith;
+    public float getUpBandwith() {
+        return upBandwith;
     }
 
-    public void setBandwith(float bandwith) {
-        this.bandwith = bandwith;
+    public void setUpBandwith(float upBandwith) {
+        this.upBandwith = upBandwith;
+    }
+
+    public float getDlBandwith() {
+        return dlBandwith;
+    }
+
+    public void setDlBandwith(float dlBandwith) {
+        this.dlBandwith = dlBandwith;
+    }
+    
+    public float getAvgBandwith() {
+        float avg = (upBandwith + dlBandwith)/2;
+        
+        return avg;
     }
     
     public float getLatency() {

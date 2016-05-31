@@ -35,7 +35,8 @@ public class BandwithChecker implements Runnable {
 
                 LOGGER.info("[BandwithChecker] Checking Bandwith for bucket " + aux.getName());
                 methodsInstance.CheckStorageBandwith(aux);
-                LOGGER.debug("[BandwithChecker] Bandwith for bucket " + aux.getName() + ": " + aux.getBandwith());
+                LOGGER.debug("[BandwithChecker] Upload for bucket " + aux.getName() + ": " + (aux.getUpBandwith()/1024)/1024 + " MB/s" );
+                LOGGER.debug("[BandwithChecker] Download for bucket " + aux.getName() + ": " + (aux.getDlBandwith()/1024)/1024 + " MB/s" );
             }
         } catch (Throwable t) {
             LOGGER.error("[BandwithChecker] Exception: " + t.getMessage());

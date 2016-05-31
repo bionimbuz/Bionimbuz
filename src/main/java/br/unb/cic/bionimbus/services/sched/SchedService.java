@@ -369,7 +369,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                         CloudStorageMethods cloud_methods = new CloudStorageMethodsV1();
 
                         try {
-                            cloud_methods.StorageDownloadFile(bucket, "/data-folder", config.getDataFolder(), info.getName());
+                            cloud_methods.StorageDownloadFile(bucket, "/data-folder/", config.getDataFolder(), info.getName());
                         } catch (Throwable t) {
                             LOGGER.error("[SchedService] Exception(requestFile): " + t.getMessage());
                             t.printStackTrace();
@@ -782,15 +782,21 @@ public class SchedService extends AbstractBioService implements Runnable {
      */
     private boolean existFiles(List<FileInfo> listInputFiles) {
 
+        int toFind = listInputFiles.size();
+        
         if (listInputFiles.isEmpty()) {
             return true;
         }
 
         for (FileInfo fileInput : listInputFiles) {
             if (mapFilesPlugin.containsKey(fileInput.getName())) {
-                return true; //TODO está checando apenas 1 arquivo?
+                toFind--;
             }
         }
+        
+        if (toFind == 0)
+            return true;
+        
         return false;
     }
 

@@ -121,11 +121,11 @@ public class FileResource extends AbstractResource {
 
             LOGGER.info("File " + file.getName() + " found on Bucket " + file.getBucket());
             
-            fileDao.delete(file);
-            
             CloudStorageMethods methods_instance = new CloudStorageMethodsV1();
 
             methods_instance.DeleteFile(bucket, file.getName());
+            
+            fileDao.delete(file);
 
         } catch (Throwable t) {
             LOGGER.error("Exception caught: " + t.getMessage());

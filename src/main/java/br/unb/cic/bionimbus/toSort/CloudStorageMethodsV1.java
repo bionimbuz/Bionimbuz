@@ -73,7 +73,7 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
             
             case AMAZON: {
                 
-                File file = new File(localPath + "/" + fileName);
+                File file = new File(localPath + fileName);
                 s3client.setEndpoint(bucket.getEndPoint());
                 s3client.putObject(new PutObjectRequest(bucket.getName() + bucketPath, fileName, file));
 
@@ -81,7 +81,7 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
             }
             case GOOGLE: {
                 
-                String command = gcloudFolder + "gsutil cp " + localPath + "/" + fileName + " gs://" + bucket.getName() + bucketPath + "/" + fileName;
+                String command = gcloudFolder + "gsutil cp " + localPath + fileName + " gs://" + bucket.getName() + bucketPath + fileName;
                 ExecCommand(command);
 
                 break;
@@ -101,14 +101,14 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
                 s3client.setEndpoint(bucket.getEndPoint());
                 S3Object object = s3client.getObject(new GetObjectRequest(bucket.getName() + bucketPath, fileName));
                 InputStream objectData = object.getObjectContent();
-                Files.copy(objectData, Paths.get(localPath + "/" + fileName));
+                Files.copy(objectData, Paths.get(localPath + fileName));
                 objectData.close();
 
                 break;
             }
             case GOOGLE: {
                 
-                String command = gcloudFolder + "gsutil cp gs://" + bucket.getName() + bucketPath + "/" + fileName + " " + localPath + "/" + fileName;
+                String command = gcloudFolder + "gsutil cp gs://" + bucket.getName() + bucketPath + fileName + " " + localPath + fileName;
                 ExecCommand(command);
 
                 break;
@@ -172,8 +172,19 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
         if (!bucket.isMounted())
             throw new Exception ("Cant check bandwith! Bucket not mounted: " + bucket.getName());
         
+        CheckStorageUpBandwith(bucket);
+        CheckStorageDlBandwith(bucket);
+        
+        File faux = new File (bucket.getMountPoint() + "/testfile-" + myId);
+        faux.delete();
+        File faux2 = new File ("/tmp/testfile");
+        faux2.delete();
+    }
+    
+    private void CheckStorageUpBandwith (BioBucket bucket) throws Exception {
+        
         //Upload
-        String command = "/bin/dd if=/dev/zero of=" + bucket.getMountPoint() + "/testfile-" + myId + " bs=30M count=1 oflag=dsync";
+        String command = "/bin/dd if=/dev/zero of=" + bucket.getMountPoint() + "/testfile-" + myId + " bs=30M count=1 iflag=nocache oflag=nocache";
 
         Runtime rt = Runtime.getRuntime();
         Process proc = rt.exec(command);
@@ -211,10 +222,51 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
 
         float value = Float.parseFloat(aux);
 
-        bucket.setBandwith((31 * 1024 * 1024) / value);
+        bucket.setUpBandwith((31 * 1024 * 1024) / value);
+    }
+    
+    private void CheckStorageDlBandwith (BioBucket bucket) throws Exception {
+        
+        //Download 
+        String command = "/bin/dd if=" + bucket.getMountPoint() + "/testfile-" + myId + " of=/tmp/testfile bs=30M count=1 iflag=nocache oflag=nocache";
+        
+        Runtime rt = Runtime.getRuntime();
+        Process proc = rt.exec(command);
+        //System.out.println("\nRunning command: " + command);
+        InputStream stderr = proc.getErrorStream();
+        InputStreamReader isr = new InputStreamReader(stderr);
+        BufferedReader br = new BufferedReader(isr);
+        String line;
 
-        File faux = new File (bucket.getMountPoint() + "/testfile-" + myId);
-        faux.delete();
+        List<String> output = new ArrayList<>();
+
+        while ((line = br.readLine()) != null) {
+            output.add(line);
+            //System.out.println("[command] " + line);
+        }
+
+        int exitVal = proc.waitFor();
+        //System.out.println("[command] Process exitValue: " + exitVal);
+
+        if (exitVal != 0) {
+            throw new Exception ("Error in command: " + command);
+        }
+
+        int pos1, pos2;
+
+        pos1 = output.get(output.size() - 1).indexOf(" copied, ");
+        pos1 += 9;
+
+        pos2 = output.get(output.size() - 1).indexOf(" s, ");
+
+        String aux;
+
+        aux = output.get(output.size() - 1).substring(pos1, pos2);
+        aux = aux.replace(',', '.');
+
+        float value = Float.parseFloat(aux);
+
+        bucket.setDlBandwith((31 * 1024 * 1024) / value);
     }
 
     @Override

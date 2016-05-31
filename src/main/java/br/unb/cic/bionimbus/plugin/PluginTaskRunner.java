@@ -98,12 +98,12 @@ public class PluginTaskRunner implements Callable<PluginTask> {
         String options = task.getJobInfo().getArgs().substring(7);
 
         // Gets only args
-        String args = task.getJobInfo().getArgs().substring(0, 7);
+        String args = task.getJobInfo().getArgs().substring(0, 7);  
 
         String reference = "";
 
         // Get reference file      
-        if (!task.getJobInfo().getReferenceFile().equals("")) {
+        if (!task.getJobInfo().getReferenceFile().equals("") && !task.getJobInfo().getReferenceFile().equals(" ")) {
             reference = ConfigurationRepository.getReferenceFolder() + task.getJobInfo().getReferenceFile() + "";
         }
 
@@ -125,7 +125,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
             args = args.replaceFirst("%O" + i, " " + outputFolder + output);
             i++;
         }
-
+        
         Process p;
 
         try {

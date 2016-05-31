@@ -62,6 +62,8 @@ public class CloudStorageService extends AbstractBioService{
         checkFiles();
         LOGGER.info("[CloudStorageService] Cleaning files on zookeeper");
         cleanFiles();
+        LOGGER.info("[CloudStorageService] Checking for new files");
+        checkNewFiles();
     }
     
     @Override
@@ -256,8 +258,7 @@ public class CloudStorageService extends AbstractBioService{
             return null;
         }
         
-        //TODO use some kind of storage policy to chose best bucket
-        return buckets.get(0);
+        return getBestBucket(buckets);
     }
     
     public synchronized void checkFiles () {
@@ -301,7 +302,39 @@ public class CloudStorageService extends AbstractBioService{
                 }
             }
             
+        } catch (Throwable t) {
+            LOGGER.error("[CloudStorageService] Exception: " + t.getMessage());
+            t.printStackTrace();
+        }
+    }
+    
+    public synchronized void checkNewFiles() {
+        
+        File dataFolder = new File (config.getDataFolder());
+        
+        try {
             
+        
+            for (File file : dataFolder.listFiles()) {
+                if (!fileExistsBuckets(file.getName()))
+                {
+                    int pos = file.getName().lastIndexOf('.');
+                    String toIgnore = ".gstmp";
+                    if (toIgnore.equals(file.getName().substring(pos)))
+                        continue;
+                            
+                    PluginFile pluginFile = new PluginFile();
+                    pluginFile.setId(file.getName());
+                    pluginFile.setName(file.getName());
+                    pluginFile.setPath(file.getPath());
+                    
+                    BioBucket dest = getBestBucket(bucketList);
+                    
+                    LOGGER.info("[CloudStorageService] New file! Uploading " + file.getPath() + "to Bucket " + dest.getName());
+                    methodsInstance.StorageUploadFile(dest, "/data-folder/", config.getDataFolder() , file.getName());
+                    cms.createZNode(CreateMode.PERSISTENT, Path.NODE_BUCKET_FILE.getFullPath(dest.getName(), pluginFile.getName()), pluginFile.toString());
+                }
+            }
             
         } catch (Throwable t) {
             LOGGER.error("[CloudStorageService] Exception: " + t.getMessage());
@@ -351,7 +384,7 @@ public class CloudStorageService extends AbstractBioService{
         
         //TODO testar valores de treshold
         if (bucket.getLatency() < 1) {
-            if (bucket.getBandwith() > (4*1024*1024)) { //tresshold = 4 MB
+            if (bucket.getDlBandwith() > (400*1024*1024)) { //tresshold = 4 MB
                 return true;
             }
         }
@@ -359,8 +392,67 @@ public class CloudStorageService extends AbstractBioService{
         return false;
     }
 
+    public boolean fileExistsZookeeper (String filename) {
+      
+        try {
+            
+            for (BioBucket bucket : bucketList) {
+                
+                List<String> bucketFiles = cms.getChildren(Path.BUCKET_FILES.getFullPath(bucket.getName()), null);
+                
+                for (String stringFile : bucketFiles) {
+                    
+                    ObjectMapper mapper = new ObjectMapper();
+                    PluginFile auxFile = mapper.readValue(cms.getData(Path.NODE_BUCKET_FILE.getFullPath(bucket.getName(), stringFile), null), PluginFile.class);
+
+                    if (filename.equals(auxFile.getName()))
+                        return true;
+                }
+            }
+            
+        } catch (Throwable t) {
+            LOGGER.error("[CloudStorageService] Exception: " + t.getMessage());
+        }
+      
+        return false;
+    }
+    
+    public static boolean fileExistsBuckets (String filename) {
+      
+        try {
+            
+            for (BioBucket bucket : bucketList) {
+                
+                File dataFolder = new File (bucket.getMountPoint() + "/data-folder/");
+                
+                for (File file : dataFolder.listFiles()) {
+                    if (filename.equals(file.getName()))
+                        return true;
+                }
+            }
+            
+        } catch (Throwable t) {
+            LOGGER.error("[CloudStorageService] Exception: " + t.getMessage());
+        }
+        
+        return false;
+    }
+    
     public static List<BioBucket> getBucketList() {
         return bucketList;
+    }
+    
+    public static BioBucket getBestBucket (List<BioBucket> buckets) {
+        BioBucket best = null;
+        
+        for (BioBucket aux : buckets) {
+            
+            if (best == null || (aux.getAvgBandwith() > best.getAvgBandwith())) 
+                best = aux;
+            
+        }
+        
+        return best;
     }
     
     public static void main(String[] args) {
