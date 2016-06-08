@@ -75,7 +75,7 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
                 
                 File file = new File(localPath + fileName);
                 s3client.setEndpoint(bucket.getEndPoint());
-                s3client.putObject(new PutObjectRequest(bucket.getName() + bucketPath, fileName, file));
+                s3client.putObject(new PutObjectRequest(bucket.getName(), bucketPath.substring(1) + fileName, file));
 
                 break;
             }
@@ -99,7 +99,7 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
             case AMAZON: {
 
                 s3client.setEndpoint(bucket.getEndPoint());
-                S3Object object = s3client.getObject(new GetObjectRequest(bucket.getName() + bucketPath, fileName));
+                S3Object object = s3client.getObject(new GetObjectRequest(bucket.getName(), bucketPath.substring(1) + fileName));
                 InputStream objectData = object.getObjectContent();
                 Files.copy(objectData, Paths.get(localPath + fileName));
                 objectData.close();
@@ -134,7 +134,7 @@ public class CloudStorageMethodsV1 extends CloudStorageMethods{
             
             case AMAZON: {
                 
-                command = "/usr/bin/s3fs " + bucket.getName() + " " + bucket.getMountPoint();
+                command = "/usr/bin/s3fs -o umask=022 " + bucket.getName() + " " + bucket.getMountPoint() + " -o passwd_file=" + authFolder + "accesskey.txt";
                 ExecCommand(command);
 
                 break;

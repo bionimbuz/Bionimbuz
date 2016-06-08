@@ -112,6 +112,9 @@ public class BioNimbusConfig {
     
     @JsonProperty("gcloud-folder")
     private String gcloudFolder;
+    
+    @JsonProperty("storage-mode")
+    private String storageMode;
 
     public void setRpcProtocol(String rpcProtocol) {
         this.rpcProtocol = rpcProtocol;
@@ -341,6 +344,14 @@ public class BioNimbusConfig {
         this.gcloudFolder = gcloudFolder;
     }
 
+        public String getStorageMode() {
+        return storageMode;
+    }
+
+    public void setStorageMode(String storageMode) {
+        this.storageMode = storageMode;
+    }
+    
     @Override
     public String toString() {
         return Objects.toStringHelper(this)

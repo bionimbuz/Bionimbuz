@@ -10,7 +10,6 @@ import br.unb.cic.bionimbus.model.FileInfo;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
-import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.toSort.CloudStorageMethods.*;
 import com.google.common.base.Preconditions;
@@ -320,7 +319,7 @@ public class CloudStorageService extends AbstractBioService{
                 {
                     int pos = file.getName().lastIndexOf('.');
                     String toIgnore = ".gstmp";
-                    if (toIgnore.equals(file.getName().substring(pos)))
+                    if (pos != -1 && toIgnore.equals(file.getName().substring(pos)))
                         continue;
                             
                     PluginFile pluginFile = new PluginFile();
@@ -330,7 +329,7 @@ public class CloudStorageService extends AbstractBioService{
                     
                     BioBucket dest = getBestBucket(bucketList);
                     
-                    LOGGER.info("[CloudStorageService] New file! Uploading " + file.getPath() + "to Bucket " + dest.getName());
+                    LOGGER.info("[CloudStorageService] New file! Uploading " + file.getPath() + " to Bucket " + dest.getName());
                     methodsInstance.StorageUploadFile(dest, "/data-folder/", config.getDataFolder() , file.getName());
                     cms.createZNode(CreateMode.PERSISTENT, Path.NODE_BUCKET_FILE.getFullPath(dest.getName(), pluginFile.getName()), pluginFile.toString());
                 }
@@ -457,7 +456,6 @@ public class CloudStorageService extends AbstractBioService{
     
     public static void main(String[] args) {
         System.out.println("Iniciando Teste.\n\n");
-
 
         System.out.println("\n\nTeste Realizado.");
     }

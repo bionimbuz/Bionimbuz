@@ -350,7 +350,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                 CloudStorageService cloud_service = new CloudStorageService(cms);
                 BioBucket bucket = cloud_service.findFile(info);
 
-                if (bucket != null) {
+                if (bucket != null && config.getStorageMode().equalsIgnoreCase("1")) {
                     LOGGER.debug("[SchedService] File found on bucket: " + bucket.getName());
                     
                     if (CloudStorageService.checkMode(bucket)) {
@@ -376,7 +376,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                         }
                     }
                     
-                } else {
+                } else { // Try old storage method
                     LOGGER.debug("[SchedService] Trying on the instances");
                     String ipContainsFile = getFilesIP(info.getName());
 

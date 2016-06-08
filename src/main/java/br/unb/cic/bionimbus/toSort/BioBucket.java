@@ -5,10 +5,7 @@
  */
 package br.unb.cic.bionimbus.toSort;
 
-import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.toSort.CloudStorageMethods.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
