@@ -33,6 +33,8 @@ import br.unb.cic.bionimbus.persistence.dao.WorkflowLoggerDao;
 import br.unb.cic.bionimbus.security.Hash;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
+import br.unb.cic.bionimbus.toSort.BioBucket;
+import br.unb.cic.bionimbus.toSort.CloudStorageService;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -114,7 +116,17 @@ public class PluginTaskRunner implements Callable<PluginTask> {
             String input = info.getName();
             //linha comentada pois arquivos de entrada não ficam mais no AbstractPlugin
             //args = args.replaceFirst("%I" + i, path + File.pathSeparator + plugin.getInputFiles().get(input).first);
-            args = args.replaceFirst("%I" + i, path + PATHFILES + input + " ");
+            
+            if (info.getBucket() == null) {
+            
+                args = args.replaceFirst("%I" + i, path + PATHFILES + input + " ");
+            } else {
+                
+                BioBucket bucket = CloudStorageService.getBucket(info.getBucket());
+                
+                args = args.replaceFirst("%I" + i, bucket.getMountPoint() + "/" + PATHFILES + input + " ");
+            }
+            
             i++;
         }
 

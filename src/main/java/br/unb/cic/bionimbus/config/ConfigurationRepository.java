@@ -110,6 +110,10 @@ public class ConfigurationRepository {
         return null;
     }
 
+    public static BioNimbusConfig getConfig() {
+        return config;
+    }
+
     /**
      * Loads configuration file from disk.
      *

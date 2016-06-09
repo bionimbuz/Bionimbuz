@@ -4,6 +4,7 @@ import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import static br.unb.cic.bionimbus.config.BioNimbusConfigLoader.loadHostConfig;
+import br.unb.cic.bionimbus.config.ConfigurationRepository;
 import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
 import br.unb.cic.bionimbus.controller.usercontroller.UserController;
 import br.unb.cic.bionimbus.rest.RestResource;
@@ -22,7 +23,7 @@ public abstract class AbstractResource implements RestResource {
     protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractResource.class);
     protected static RpcClient rpcClient;
     protected CloudMessageService cms;
-    protected BioNimbusConfig config;
+    protected BioNimbusConfig config = ConfigurationRepository.getConfig();
     
     // Controllers
     protected JobController jobController;

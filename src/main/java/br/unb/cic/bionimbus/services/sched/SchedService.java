@@ -355,6 +355,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                     
                     if (CloudStorageService.checkMode(bucket)) {
                         
+                        LOGGER.debug("[SchedService] Will execute on mounted-mode");
                         PluginFile file = new PluginFile();
                         
                         file.setId(info.getId());
@@ -363,9 +364,13 @@ public class SchedService extends AbstractBioService implements Runnable {
                         String path = bucket.getMountPoint() + "/data-folder/" + info.getName();
                         file.setPath(path);
                         
-                        mapFilesPlugin.put(info.getId(), file);
+                        mapFilesPlugin.put(info.getName(), file);
+                        
+                        info.setBucket(bucket.getName());
                         
                     } else {
+                        
+                        LOGGER.debug("[SchedService] Will execute on normal-mode (download file first)");
                         CloudStorageMethods cloud_methods = new CloudStorageMethodsV1();
 
                         try {
@@ -635,10 +640,10 @@ public class SchedService extends AbstractBioService implements Runnable {
                     String datasFile = cms.getData(Path.NODE_FILE.getFullPath(myLinuxPlugin.getMyInfo().getId(), fileChild), null);
                     PluginFile file = mapper.readValue(datasFile, PluginFile.class);
                     //Verificar o que é esse LONG TO DO
-                    Pair<String, Long> pair = new Pair<>(file.getId(), file.getSize());
+                    Pair<String, Long> pair = new Pair<>(file.getName(), file.getSize());
                     //verifica se o arquivo já estava na lista
                     if (!mapFilesPlugin.containsKey(pair.first)) {
-                        mapFilesPlugin.put(pair.first, file);
+                        mapFilesPlugin.put(file.getName(), file);
                     }
                 }
             }

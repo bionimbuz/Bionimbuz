@@ -160,31 +160,31 @@ public class CloudStorageService extends AbstractBioService{
         
         //AMAZON
         //Brazil
-//        aux = new BioBucket(StorageProvider.AMAZON, "bionimbuz-a-br", (bucketsFolder + "bionimbuz-a-br"));
-//        aux.setEndPoint("s3-sa-east-1.amazonaws.com");
-//        bucketList.add(aux);
-//        if (!cms.getZNodeExist(Path.NODE_BUCKET.getFullPath(aux.getName()), null)) {
-//            cms.createZNode(CreateMode.PERSISTENT, Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
-//            //cms.setData(Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
-//            cms.createZNode(CreateMode.PERSISTENT, Path.BUCKET_FILES.getFullPath(aux.getName()), null);
-//        }
-//        //US
-//        aux = new BioBucket(StorageProvider.AMAZON, "bionimbuz-a-us", (bucketsFolder + "bionimbuz-a-us"));
-//        bucketList.add(aux);
-//        if (!cms.getZNodeExist(Path.NODE_BUCKET.getFullPath(aux.getName()), null)) {
-//            cms.createZNode(CreateMode.PERSISTENT, Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
-//            //cms.setData(Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
-//            cms.createZNode(CreateMode.PERSISTENT, Path.BUCKET_FILES.getFullPath(aux.getName()), null);
-//        }
-//        //EU
-//        aux = new BioBucket(StorageProvider.AMAZON, "bionimbuz-a-eu", (bucketsFolder + "bionimbuz-a-eu"));
-//        aux.setEndPoint("s3.eu-central-1.amazonaws.com");
-//        bucketList.add(aux);
-//        if (!cms.getZNodeExist(Path.NODE_BUCKET.getFullPath(aux.getName()), null)) {
-//            cms.createZNode(CreateMode.PERSISTENT, Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
-//            //cms.setData(Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
-//            cms.createZNode(CreateMode.PERSISTENT, Path.BUCKET_FILES.getFullPath(aux.getName()), null);
-//        }
+        aux = new BioBucket(StorageProvider.AMAZON, "bionimbuz-a-br", (bucketsFolder + "bionimbuz-a-br"));
+        aux.setEndPoint("s3-sa-east-1.amazonaws.com");
+        bucketList.add(aux);
+        if (!cms.getZNodeExist(Path.NODE_BUCKET.getFullPath(aux.getName()), null)) {
+            cms.createZNode(CreateMode.PERSISTENT, Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
+            //cms.setData(Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
+            cms.createZNode(CreateMode.PERSISTENT, Path.BUCKET_FILES.getFullPath(aux.getName()), null);
+        }
+        //US
+        aux = new BioBucket(StorageProvider.AMAZON, "bionimbuz-a-us", (bucketsFolder + "bionimbuz-a-us"));
+        bucketList.add(aux);
+        if (!cms.getZNodeExist(Path.NODE_BUCKET.getFullPath(aux.getName()), null)) {
+            cms.createZNode(CreateMode.PERSISTENT, Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
+            //cms.setData(Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
+            cms.createZNode(CreateMode.PERSISTENT, Path.BUCKET_FILES.getFullPath(aux.getName()), null);
+        }
+        //EU
+        aux = new BioBucket(StorageProvider.AMAZON, "bionimbuz-a-eu", (bucketsFolder + "bionimbuz-a-eu"));
+        aux.setEndPoint("s3.eu-central-1.amazonaws.com");
+        bucketList.add(aux);
+        if (!cms.getZNodeExist(Path.NODE_BUCKET.getFullPath(aux.getName()), null)) {
+            cms.createZNode(CreateMode.PERSISTENT, Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
+            //cms.setData(Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
+            cms.createZNode(CreateMode.PERSISTENT, Path.BUCKET_FILES.getFullPath(aux.getName()), null);
+        }
         
         //GOOGLE
         //US
@@ -383,7 +383,7 @@ public class CloudStorageService extends AbstractBioService{
         
         //TODO testar valores de treshold
         if (bucket.getLatency() < 1) {
-            if (bucket.getDlBandwith() > (400*1024*1024)) { //tresshold = 4 MB
+            if (bucket.getDlBandwith() > (4*1024*1024)) { //tresshold = 4 MB
                 return true;
             }
         }
