@@ -58,7 +58,7 @@ public class C99Supercolider extends SchedPolicy {
 
     private ResourceList best;
     private List<JobInfo> jobs;
-    private final List<ResourceList> bestList = new ArrayList<>();
+    private List<ResourceList> bestList = new ArrayList<>();
     private int s2best = 0;
     private int s3best = 0;
     private int beam = 0;
@@ -68,7 +68,7 @@ public class C99Supercolider extends SchedPolicy {
     private final double alpha = 0.5d;
     
     public Long id = 0l;
-    private final List<ResourceList> solutionsList = new ArrayList<>();
+    private List<ResourceList> solutionsList = new ArrayList<>();
     private long prunableNodes = 0;
     private long pruned = 0;
     private long removedFromSearch = 0;
@@ -77,6 +77,8 @@ public class C99Supercolider extends SchedPolicy {
     private boolean outOfMemory = false;
     private final int numMaxResources;
     private long searchedNodes = 0;
+    
+    List<JobInfo> jobsThis = new ArrayList<>();
     
     public Lock execLock;
 
@@ -106,17 +108,42 @@ public class C99Supercolider extends SchedPolicy {
     public ResourceList schedule(ResourceList rl, List<JobInfo> jobs) {
         SearchNode root;
         
+        jobsThis = jobs;
+        
         // lock to ensure that the execution will be finished
         execLock = new ReentrantLock();
         
         try {
             execLock.lock();
             root = stageOne(rl, new LinkedList<>(jobs));
+            System.out.println("best - " + bestList.size());
+            for (ResourceList rll : bestList) {
+                System.out.println("[" + rll.getFullCost(null) + "," + rll.getMaxTime(null) + "];");
+            }
+
+            System.out.println("");
+            System.out.println("full - " + solutionsList.size());
+            for (ResourceList rll : solutionsList) {
+                System.out.println("[" + rll.getFullCost(null) + "," + rll.getMaxTime(null) + "];");
+            }
 //                recursiveSeachNodePrint(root, 0);
             stageTwo(root, new LinkedList<>(jobs));
+            System.out.println("");System.out.println("___________________________________________________________________________________________");System.out.println("");
+            System.out.println("best - " + bestList.size());
+            for (ResourceList rll : bestList) {
+                System.out.println("[" + rll.getFullCost(null) + "," + rll.getMaxTime(null) + "];");
+            }
+
+            System.out.println("");
+            System.out.println("full - " + solutionsList.size());
+            for (ResourceList rll : solutionsList) {
+                System.out.println("[" + rll.getFullCost(null) + "," + rll.getMaxTime(null) + "];");
+            }
+            System.out.println("");System.out.println("___________________________________________________________________________________________");System.out.println("");
 //                recursiveSeachNodePrint(root, 0);
             this.jobs = jobs;
             stageThree(root, rl.resources.size());
+            
 //                recursiveSeachNodePrint(root, 0);
         } catch (Exception e) {
             System.out.println("[schedule] exception: " + e.getMessage());
@@ -180,6 +207,7 @@ public class C99Supercolider extends SchedPolicy {
         // set the current best as the solution previously found
         best = node.rl;
         bestList.add(new ResourceList(best));
+        solutionsList.add(new ResourceList(best));
 
         // set the pareto lists for the pruning
         node = root;
@@ -287,6 +315,16 @@ public class C99Supercolider extends SchedPolicy {
             if (Thread.currentThread().isInterrupted()) {
                 System.out.println("[stageThree] interrupted");
                 return;
+            }
+            System.out.println("best - " + bestList.size());
+            for (ResourceList rll : bestList) {
+                System.out.println("[" + rll.getFullCost(null) + "," + rll.getMaxTime(null) + "];");
+            }
+
+            System.out.println("");
+            System.out.println("full - " + solutionsList.size());
+            for (ResourceList rll : solutionsList) {
+                System.out.println("[" + rll.getFullCost(null) + "," + rll.getMaxTime(null) + "];");
             }
         }
     }
@@ -432,20 +470,24 @@ public class C99Supercolider extends SchedPolicy {
             priorityQueue.add(new SearchNode(currentBest, id, depth));
             id++;
         }
-
+       
         // create another queue with the remaining solutions, thus, 
         // guaranteeing completeness 
-        Queue<SearchNode> remainingQueue = new LinkedList<>();
-        for (ResourceList r : remaining) {
-            SearchNode n = new SearchNode(r, id, depth);
-            n.prunable = true;
-            remainingQueue.add(n);
-            id++;
-            prunableNodes++;
+        while (!remaining.isEmpty()) {
+            Pair<List<ResourceList>, List<ResourceList>> rlPairRem = Pareto.getParetoCurve(remaining, rs);
+            List<ResourceList> paretoRem = rlPairRem.first;
+            remaining = rlPairRem.second;
+            while (!paretoRem.isEmpty()) {
+                ResourceList currentBest = Pareto.getParetoOptimal(paretoRem, alpha);
+                paretoRem.remove(currentBest);
+                SearchNode n = new SearchNode(currentBest, id, depth);
+                n.prunable = true;
+                prunableNodes++;
+                priorityQueue.add(n);
+                id++;
+            }
         }
 
-        // return both queues, with the pareto-optimal solutions first
-        priorityQueue.addAll(remainingQueue);
         return priorityQueue;
     }
 
@@ -466,19 +508,17 @@ public class C99Supercolider extends SchedPolicy {
         Pair<List<ResourceList>, List<ResourceList>> ret = Pareto.getParetoCurve(lrl, rs);
 
         // it there is no remaining elements it means that this node has a new good solution
-        if (ret.second.isEmpty()) {
+        if (!ret.second.contains(newRl)) {
             // check if the new solution isn't already there
             if (!solutionsList.contains(newRl)) {
                 solutionsList.add(newRl);
-                ResourceList newBest = Pareto.getParetoOptimal(ret.first, alpha);
+                ret = Pareto.getParetoCurve(solutionsList, rs);
+                bestList = ret.first;
+//                ResourceList newBest = Pareto.getParetoOptimal(ret.first, alpha);
 
-                if (newBest == newRl) {
-                    System.out.println("New best - node: " + node.id);
-                    bestList.add(newBest);
-                    best = newBest;
-                    finalSolutionBeam = beam;
-                    return true;
-                }
+                System.out.println("New best - node: " + node.id);
+                finalSolutionBeam = beam;
+                return true;
             }
         }
 
@@ -579,11 +619,12 @@ public class C99Supercolider extends SchedPolicy {
     public static void main(String[] args) throws InterruptedException {
 //        RandomTestGenerator gen = new RandomTestGenerator();
         PipelineTestGenerator gen = new FromLogFileTestGenerator(Double.parseDouble(args[0]), args[1], args[2]);
+//        PipelineTestGenerator gen = new FromLogFileTestGenerator(50, "LLNL-Thunder-2007-1.1-cln.swf", "res-reduced.txt");
         List<PipelineInfo> pipelines = gen.getPipelinesTemplates();
         List<PluginInfo> resources = gen.getResourceTemplates();
         
 //        testAllTimeoutPipelines(pipelines, resources);
-        testFailurePronePipelines(pipelines, resources);
+        testFailurePronePipelines(pipelines, resources, Integer.parseInt(args[0]), args[3]);
         
     }
     
@@ -670,8 +711,7 @@ public class C99Supercolider extends SchedPolicy {
         }
     }
     
-    private static void testFailurePronePipelines(List<PipelineInfo> pipelines, List<PluginInfo> resources) {
-        int maxExecTime = 50; // secs
+    private static void testFailurePronePipelines(List<PipelineInfo> pipelines, List<PluginInfo> resources, int maxExecTime, String output) {
         long resNum = resources.size();
         int i=0;
         PrintWriter writer = null;
@@ -679,16 +719,15 @@ public class C99Supercolider extends SchedPolicy {
         // open output file
         try {
             System.out.println("oppening output file");
-            writer = new PrintWriter(new FileOutputStream(
-                new File("testOut.txt"), 
-                true /* append = true */));
+            writer = new PrintWriter(new FileOutputStream(new File(output), true));
         } catch (FileNotFoundException ex) {
             Logger.getLogger(C99Supercolider.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         for (PipelineInfo pipeline : pipelines) {
             // this if is used to simulate a resumed test
-            if (i > -10) {
+            // negative i means do it from begining
+            if (i > -1) {
                 C99Supercolider scheduler = new C99Supercolider(resources.size());
                 System.out.println("running pipeline " + i + " - " + Calendar.getInstance().getTime().toString());
                 boolean finished = false;
@@ -727,6 +766,12 @@ public class C99Supercolider extends SchedPolicy {
                     result += rll.toString() + "; ";
                 }
                 result += "]";
+                
+                System.out.println("");
+                System.out.println("tasks - " + scheduler.jobsThis.size());
+                for (JobInfo rll : scheduler.jobsThis) {
+                    System.out.println(rll.toString());
+                }
 
                 // flush test data
                 writer.println(result);
@@ -739,8 +784,6 @@ public class C99Supercolider extends SchedPolicy {
     }
 
     static boolean runPipeline(List<PluginInfo> resources, int maxExecTime, C99Supercolider s, PipelineInfo p) {
-        // 10MB hedge
-        int hedge[] = new int[2621440];
 
         // convert List<PluginInfo> resources into a ResourceList
         final ResourceList rl = new ResourceList();
@@ -774,7 +817,6 @@ public class C99Supercolider extends SchedPolicy {
             future.get(maxExecTime, TimeUnit.SECONDS);
         } catch (OutOfMemoryError e) {
             // OOME: cancel task and wait for it to finish
-            hedge = null;
             System.out.println("OOME");
             future.cancel(true);
              try {
@@ -805,7 +847,6 @@ public class C99Supercolider extends SchedPolicy {
             scheduler.outOfMemory = false;
             System.out.println("timeout - task finished");
         } finally {
-            hedge = null;
             System.gc();
         }
 

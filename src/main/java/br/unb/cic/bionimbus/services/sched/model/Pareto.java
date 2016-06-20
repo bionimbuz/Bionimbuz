@@ -76,7 +76,7 @@ public class Pareto {
             return paretoCurve.get(0);
         }
         
-        return paretoCurve.get((int) Math.round(paretoCurve.size() * alpha));
+        return paretoCurve.get((int) Math.floor(paretoCurve.size() * alpha));
     }
     
     /**
@@ -103,7 +103,7 @@ public class Pareto {
         
         double max = Double.POSITIVE_INFINITY;
         for (Pair<Double, Double> pair : old) {
-            if (pair.second <= max) {
+            if (pair.second < max) {
                 max = pair.second;
                 newPareto.add(pair);
             }
