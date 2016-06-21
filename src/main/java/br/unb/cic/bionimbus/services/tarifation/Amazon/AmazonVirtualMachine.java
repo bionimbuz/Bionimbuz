@@ -38,6 +38,7 @@ public class AmazonVirtualMachine implements Instance {
      * @param hourly - Price of VM/hour.
      * @param ebsoptimized - Ebsoptimized
      */
+    
     public AmazonVirtualMachine(String pricing, String region, int id, String os, String model, double upfront, String updated_at, double term, String created_at, boolean latest, double hourly, boolean ebsoptimized) {
         this.pricing = pricing;
         this.region = region;
@@ -100,11 +101,8 @@ public class AmazonVirtualMachine implements Instance {
      *
      * @return - the model of VM
      */
-    public String getModel() {
-        return model;
-    }
-    
-    public String getName(){
+    @Override
+    public String getName() {
         return model;
     }
 

@@ -171,7 +171,7 @@ public class AmazonData {
      */
     public String getVMModel(int id) {
         String Id = "" + id;
-        return this.AmazonMachinesService.get(Id).getModel();
+        return this.AmazonMachinesService.get(Id).getName();
     }
 
     /**
