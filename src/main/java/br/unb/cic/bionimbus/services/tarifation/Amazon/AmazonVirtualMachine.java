@@ -118,7 +118,7 @@ public class AmazonVirtualMachine implements Instance {
      *
      * @return - the date of info. update
      */
-    public String getUpdated_at() {
+    public String getUpdatedAt() {
         return updated_at;
     }
 
@@ -134,7 +134,7 @@ public class AmazonVirtualMachine implements Instance {
      *
      * @return - the date of creation of info.
      */
-    public String getCreated_at() {
+    public String getCreatedAt() {
         return created_at;
     }
 

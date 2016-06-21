@@ -191,7 +191,7 @@ public class AmazonData {
      */
     public String getVMUpdatedAt(int id) {
         String Id = "" + id;
-        return this.AmazonMachinesService.get(Id).getUpdated_at();
+        return this.AmazonMachinesService.get(Id).getUpdatedAt();
     }
 
     /**
@@ -211,7 +211,7 @@ public class AmazonData {
      */
     public String getVMCreatedAt(int id) {
         String Id = "" + id;
-        return this.AmazonMachinesService.get(Id).getCreated_at();
+        return this.AmazonMachinesService.get(Id).getCreatedAt();
     }
 
     /**
