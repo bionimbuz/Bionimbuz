@@ -121,13 +121,16 @@ public class FileResource extends AbstractResource {
 
         try {
             FileInfo file = fileDao.findByStringId(id);
-            BioBucket bucket = CloudStorageService.getBucket(file.getBucket());
-
-            LOGGER.info("File " + file.getName() + " found on Bucket " + file.getBucket());
             
-            CloudStorageMethods methods_instance = new CloudStorageMethodsV1();
+            if (config.getStorageMode().equalsIgnoreCase("1")) {
+                BioBucket bucket = CloudStorageService.getBucket(file.getBucket());
 
-            methods_instance.DeleteFile(bucket, file.getName());
+                LOGGER.info("File " + file.getName() + " found on Bucket " + file.getBucket());
+
+                CloudStorageMethods methods_instance = new CloudStorageMethodsV1();
+
+                methods_instance.DeleteFile(bucket, file.getName());
+            }
             
             fileDao.delete(file);
 

@@ -482,7 +482,7 @@
         
         <!-- JAma -->
         <dependency>
-            <groupId>jama</groupId>
+            <groupId>gov.nist.math</groupId>
             <artifactId>jama</artifactId>
             <version>${jama.version}</version>
         </dependency>

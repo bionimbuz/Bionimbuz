@@ -347,38 +347,43 @@ public class SchedService extends AbstractBioService implements Runnable {
 
                 LOGGER.debug("[SchedService] Requesting file: " + info.getName());
                 LOGGER.debug("[SchedService] Trying on the CloudStorage Buckets");
-                CloudStorageService cloud_service = new CloudStorageService(cms);
-                BioBucket bucket = cloud_service.findFile(info);
+                
+                if (config.getStorageMode().equalsIgnoreCase("1")) {
+                
+                    CloudStorageService cloud_service = new CloudStorageService(cms);
+                    BioBucket bucket = cloud_service.findFile(info);
 
-                if (bucket != null && config.getStorageMode().equalsIgnoreCase("1")) {
-                    LOGGER.debug("[SchedService] File found on bucket: " + bucket.getName());
-                    
-                    if (CloudStorageService.checkMode(bucket)) {
-                        
-                        LOGGER.debug("[SchedService] Will execute on mounted-mode");
-                        PluginFile file = new PluginFile();
-                        
-                        file.setId(info.getId());
-                        file.setName(info.getName());
-                        
-                        String path = bucket.getMountPoint() + "/data-folder/" + info.getName();
-                        file.setPath(path);
-                        
-                        mapFilesPlugin.put(info.getName(), file);
-                        
-                        info.setBucket(bucket.getName());
-                        
-                    } else {
-                        
-                        LOGGER.debug("[SchedService] Will execute on normal-mode (download file first)");
-                        CloudStorageMethods cloud_methods = new CloudStorageMethodsV1();
+                    if (bucket != null) {
+                        LOGGER.debug("[SchedService] File found on bucket: " + bucket.getName());
 
-                        try {
-                            cloud_methods.StorageDownloadFile(bucket, "/data-folder/", config.getDataFolder(), info.getName());
-                        } catch (Throwable t) {
-                            LOGGER.error("[SchedService] Exception(requestFile): " + t.getMessage());
-                            t.printStackTrace();
+                        if (CloudStorageService.checkMode(bucket)) {
+
+                            LOGGER.debug("[SchedService] Will execute on mounted-mode");
+                            PluginFile file = new PluginFile();
+
+                            file.setId(info.getId());
+                            file.setName(info.getName());
+
+                            String path = bucket.getMountPoint() + "/data-folder/" + info.getName();
+                            file.setPath(path);
+
+                            mapFilesPlugin.put(info.getName(), file);
+
+                            info.setBucket(bucket.getName());
+
+                        } else {
+
+                            LOGGER.debug("[SchedService] Will execute on normal-mode (download file first)");
+                            CloudStorageMethods cloud_methods = new CloudStorageMethodsV1();
+
+                            try {
+                                cloud_methods.StorageDownloadFile(bucket, "/data-folder/", config.getDataFolder(), info.getName());
+                            } catch (Throwable t) {
+                                LOGGER.error("[SchedService] Exception(requestFile): " + t.getMessage());
+                                t.printStackTrace();
+                            }
                         }
+
                     }
                     
                 } else { // Try old storage method
