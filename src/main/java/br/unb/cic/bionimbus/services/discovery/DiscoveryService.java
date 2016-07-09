@@ -1,3 +1,21 @@
+/*
+    BioNimbuZ is a federated cloud platform.
+    Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD), 
+    Department of Computer Science, University of Brasilia, Brazil
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 package br.unb.cic.bionimbus.services.discovery;
 
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
@@ -43,17 +61,18 @@ public class DiscoveryService extends AbstractBioService {
     @Override
     public void run() {
         setDatasPluginInfo(false);
-    /**
-     * TODO: substituir por Guava Cache com expiração
-     */
+        /**
+         * TODO: substituir por Guava Cache com expiração
+         */
 
-     }
+    }
+
     public void setDatasPluginInfo(boolean start) {
         try {
-            
-            LinuxGetInfo getinfo=new LinuxGetInfo();
-            PluginInfo infopc= getinfo.call();
-            
+
+            LinuxGetInfo getinfo = new LinuxGetInfo();
+            PluginInfo infopc = getinfo.call();
+
             infopc.setId(config.getId());
             infopc.setCostPerHour(config.getCost());
             
@@ -63,10 +82,9 @@ public class DiscoveryService extends AbstractBioService {
                 LinuxPlugin linuxPlugin = new LinuxPlugin(config);
 
                 infopc.setHost(config.getHost());
-                
+
 // Update uptime information to origin from zookeeper ---------------------------------------------------------------------------
                 //infopc.setUptime(p2p.getPeerNode().uptime());
-                
                 infopc.setPrivateCloud(config.getPrivateCloud());
 
                 //definindo myInfo após a primeira leitura dos dados
@@ -100,11 +118,11 @@ public class DiscoveryService extends AbstractBioService {
             Preconditions.checkNotNull(listeners);
             this.config = config;
             this.listeners = listeners;
-            
+
             setDatasPluginInfo(true);
-            
+
             listeners.add(this);
-          
+
             schedExecService.scheduleAtFixedRate(this, 0, PERIOD_SECS, TimeUnit.SECONDS);
         } catch (Exception ex) {
             Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);
@@ -114,16 +132,17 @@ public class DiscoveryService extends AbstractBioService {
     @Override
     public void getStatus() {
     }
-    
+
     /**
-     * Trata os watchers enviados da implementação da classe Watcher que recebe uma notificação do zookeeper
+     * Trata os watchers enviados da implementação da classe Watcher que recebe
+     * uma notificação do zookeeper
+     *
      * @param eventType evento recebido do zookeeper
      */
     @Override
     public void event(WatchedEvent eventType) {
-        
-         }
 
+    }
 
     @Override
     public void shutdown() {

@@ -1,10 +1,29 @@
 /*
+    BioNimbuZ is a federated cloud platform.
+    Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD), 
+    Department of Computer Science, University of Brasilia, Brazil
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/*
 * To change this template, choose Tools | Templates
 * and open the template in the editor.
 */
 package br.unb.cic.bionimbus.services.sched.policy.impl;
 
-import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.model.FileInfo;
+import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskState;
@@ -36,9 +55,9 @@ public class AcoSched extends SchedPolicy {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AcoSched.class.getSimpleName());
     
     @Override
-    public HashMap<JobInfo, PluginInfo> schedule(List<JobInfo> jobs) {
-        HashMap jobCloud = new HashMap<JobInfo, PluginInfo>();
-        JobInfo biggerJob = getBiggerJob(jobs);
+    public HashMap<Job, PluginInfo> schedule(List<Job> jobs) {
+        HashMap jobCloud = new HashMap<Job, PluginInfo>();
+        Job biggerJob = getBiggerJob(jobs);
         biggerJob.setTimestamp(System.currentTimeMillis());
         
         jobCloud.put(biggerJob, scheduleJob(biggerJob));
@@ -54,7 +73,7 @@ public class AcoSched extends SchedPolicy {
      * @param jobInfo contém as informações do job que deve ser escalonado
      * @return o melhor recurso disponível para executar o job informado
      */
-    private PluginInfo scheduleJob(JobInfo jobInfo) {
+    private PluginInfo scheduleJob(Job jobInfo) {
         listPlugin = getExactClouds(jobInfo);
         
         //realiza a chamada do método para a leitura dos dados no servidor zookeeper
@@ -94,7 +113,7 @@ public class AcoSched extends SchedPolicy {
      * @param jobInfo
      * @return lista com as nuvens que rodam o serviço requrido
      */
-    public List getExactClouds(JobInfo jobInfo) {
+    public List getExactClouds(Job jobInfo) {
         //seleciona as nuvens disponíveis para o tipo informado
         List cloudList = filterTypeCloud(getCloudMap().values(), 2);
         
@@ -106,11 +125,11 @@ public class AcoSched extends SchedPolicy {
     }
     
     @Override
-    public synchronized List<PluginTask> relocate(Collection<Pair<JobInfo, PluginTask>> taskPairs) {
+    public synchronized List<PluginTask> relocate(Collection<Pair<Job, PluginTask>> taskPairs) {
         List<PluginTask> tasksToCancel = new ArrayList<PluginTask>();
-        for (Pair<JobInfo, PluginTask> taskPair : taskPairs) {
+        for (Pair<Job, PluginTask> taskPair : taskPairs) {
             PluginTask task = taskPair.getSecond();
-            JobInfo job = taskPair.getFirst();
+            Job job = taskPair.getFirst();
             
             if (PluginTaskState.RUNNING.equals(task.getState())) {
                 if (blackList.containsKey(task)) {
@@ -180,15 +199,15 @@ public class AcoSched extends SchedPolicy {
      * @param jobInfos
      * @return
      */
-    public static JobInfo getBiggerJob(Collection<JobInfo> jobInfos) {
+    public static Job getBiggerJob(Collection<Job> jobInfos) {
         if (jobInfos.isEmpty()) {
             return null;
         }
         
-        JobInfo bigger = null;
+        Job bigger = null;
         long biggerTotal = 0L;
         long timestamp = 0L;
-        for (JobInfo jobInfo : jobInfos) {
+        for (Job jobInfo : jobInfos) {
             long total = getTotalSizeOfJobsFiles(jobInfo);
             if (bigger == null) {
                 bigger = jobInfo;
@@ -208,11 +227,11 @@ public class AcoSched extends SchedPolicy {
      * @param jobInfo
      * @return
      */
-    private static Long getTotalSizeOfJobsFiles(JobInfo jobInfo) {
+    private static Long getTotalSizeOfJobsFiles(Job jobInfo) {
         long sum = 0;
         
-        for (Pair<String, Long> pair : jobInfo.getInputs()) {
-            sum += pair.second;
+        for (FileInfo info : jobInfo.getInputFiles()) {
+            sum += info.getSize();
         }
         
         return sum;
@@ -221,23 +240,27 @@ public class AcoSched extends SchedPolicy {
     /**
      * Retorna o nome do maior arquivo de entrda do job.
      *
-     * @param jobInfos
+     * @param jobInfo
      * @return
      */
-    public static String getBiggerInputJob(JobInfo jobInfo) {
-        Pair<String, Long> file = null;
-        for (Pair<String, Long> pair : jobInfo.getInputs()) {
-            if (file == null || file.second < pair.second) {
-                file = pair;
+    public static String getBiggerInputJob(Job jobInfo) {
+        FileInfo file = null;
+        
+        for (FileInfo info : jobInfo.getInputFiles()) {
+            if (file == null || file.getSize() < info.getSize()) {
+                file = info;
             }
         }
         
-        return file.first;
+        return file.getName();
     }
     
     /**
      * Seleciona o tipo de nuvem para escalonar, pública, privada ou ambas. 0 -
      * pública 1 - privada 2 - hibrida
+     * @param plugins
+     * @param type
+     * @return 
      */
     public List<PluginInfo> filterTypeCloud(Collection<PluginInfo> plugins, int type) {
         if (type == 2) {
@@ -624,7 +647,7 @@ public class AcoSched extends SchedPolicy {
         return map;
     }
     
-    private HashMap getMapLatency(JobInfo jobInfo) {
+    private HashMap getMapLatency(Job jobInfo) {
         HashMap<String, Double> map = new HashMap<>();
         String datasString = null;
         

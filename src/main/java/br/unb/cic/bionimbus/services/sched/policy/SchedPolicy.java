@@ -1,6 +1,24 @@
+/*
+    BioNimbuZ is a federated cloud platform.
+    Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD), 
+    Department of Computer Science, University of Brasilia, Brazil
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 package br.unb.cic.bionimbus.services.sched.policy;
 
-import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
@@ -77,9 +95,9 @@ public abstract class SchedPolicy {
         this.rs = rs;
     }
     
-    public abstract HashMap<JobInfo, PluginInfo> schedule(List<JobInfo> jobs);
+    public abstract HashMap<Job, PluginInfo> schedule(List<Job> jobs);
     
-    public abstract List<PluginTask> relocate(Collection<Pair<JobInfo, PluginTask>> taskPairs);
+    public abstract List<PluginTask> relocate(Collection<Pair<Job, PluginTask>> taskPairs);
 
     public abstract void cancelJobEvent(PluginTask task);
 

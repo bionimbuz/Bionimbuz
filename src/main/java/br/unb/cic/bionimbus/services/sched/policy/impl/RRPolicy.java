@@ -1,3 +1,21 @@
+/*
+    BioNimbuZ is a federated cloud platform.
+    Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD), 
+    Department of Computer Science, University of Brasilia, Brazil
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 package br.unb.cic.bionimbus.services.sched.policy.impl;
 
 import java.util.ArrayList;
@@ -5,7 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.services.sched.SchedException;
@@ -14,15 +32,15 @@ import br.unb.cic.bionimbus.utils.Pair;
 
 public class RRPolicy extends SchedPolicy {
 
-    private List<JobInfo> jobs = new ArrayList<JobInfo>();
+    private List<Job> jobs = new ArrayList<Job>();
 
     private List<PluginInfo> usedResources = new ArrayList<PluginInfo>();
 
-    public void addJob(JobInfo jobInfo) throws SchedException {
+    public void addJob(Job jobInfo) throws SchedException {
         jobs.add(jobInfo);
     }
 
-    public PluginInfo scheduleJob(JobInfo jobInfo) {
+    public PluginInfo scheduleJob(Job jobInfo) {
         List<PluginInfo> plugins = filterByService(jobInfo.getServiceId(), filterByUsed());
         jobInfo.setTimestamp(System.currentTimeMillis());
         if (plugins.isEmpty()) {
@@ -32,10 +50,10 @@ public class RRPolicy extends SchedPolicy {
     }
 
     @Override
-    public HashMap<JobInfo, PluginInfo> schedule(List<JobInfo> jobs) {
-        HashMap<JobInfo, PluginInfo> schedMap = new HashMap<JobInfo, PluginInfo>();
+    public HashMap<Job, PluginInfo> schedule(List<Job> jobs) {
+        HashMap<Job, PluginInfo> schedMap = new HashMap<Job, PluginInfo>();
 
-        for (JobInfo jobInfo : jobs) {
+        for (Job jobInfo : jobs) {
             jobInfo.setTimestamp(System.currentTimeMillis());
             PluginInfo resource = this.scheduleJob(jobInfo);
             schedMap.put(jobInfo, resource);
@@ -73,7 +91,7 @@ public class RRPolicy extends SchedPolicy {
 
     @Override
     public List<PluginTask> relocate(
-            Collection<Pair<JobInfo, PluginTask>> taskPairs) {
+            Collection<Pair<Job, PluginTask>> taskPairs) {
         // TODO Auto-generated method stub
         return null;
     }

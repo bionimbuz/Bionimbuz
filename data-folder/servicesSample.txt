@@ -1,4 +1,0 @@
-{serviceId:1, path:~/programs/bowtie.sh, mode:176800000000}
-{serviceId:2, path:~/programs/sam2bed.sh, mode:850000000}
-{serviceId:3, path:~/programs/genome2interval.sh, mode:2040000000000}
-{serviceId:4, path:~/programs/coverageBed.sh, mode:6800000000}

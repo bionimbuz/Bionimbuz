@@ -1,3 +1,21 @@
+/*
+    BioNimbuZ is a federated cloud platform.
+    Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD), 
+    Department of Computer Science, University of Brasilia, Brazil
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 package br.unb.cic.bionimbus.client.shell.commands;
 
 import br.unb.cic.bionimbus.avro.gen.NodeInfo;
@@ -45,7 +63,7 @@ public class Upload implements Command {
 
             String hashFile = Hash.calculateSha3(path);
             info.setHash(hashFile);
-            info.setFileId(file.getName());
+            info.setId(file.getName());
             info.setName(file.getName());
             info.setSize(file.length());
             //Verifica se existe o arquivo, e se existir vefica se é do mesmo tamanho
@@ -83,7 +101,8 @@ public class Upload implements Command {
                     }
                 }
                 //Conserta o nome do arquivo encriptado
-                aes.setCorrectFilePath(path);
+                //TO-DO: Remove comment after William Final Commit
+                //aes.setCorrectFilePath(path);
                 if (no != null) {
                     List<String> dest = new ArrayList<>();
                     dest.add(no.getPeerId());
@@ -93,7 +112,8 @@ public class Upload implements Command {
                 }
             } else {
                 //Conserta o nome do arquivo encriptado
-                aes.setCorrectFilePath(path);
+                //TO-DO: Remove comment after William Final Commit
+                //aes.setCorrectFilePath(path);
                 return "\n\n Ja existe um arquivo com mesmo nome e tamanho na federação !!!";
             }
         }
