@@ -40,7 +40,7 @@ import static br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import br.unb.cic.bionimbus.services.RepositoryService;
-import br.unb.cic.bionimbus.utils.BioBucket;
+import br.unb.cic.bionimbus.services.storage.bucket.BioBucket;
 import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageMethods;
 import br.unb.cic.bionimbus.services.storage.bucket.methods.CloudMethodsAmazonGoogle;
 import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageService;

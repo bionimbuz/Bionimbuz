@@ -6,7 +6,7 @@
 package br.unb.cic.bionimbus.services.storage.bucket.methods;
 
 import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageMethods;
-import br.unb.cic.bionimbus.utils.BioBucket;
+import br.unb.cic.bionimbus.services.storage.bucket.BioBucket;
 import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageMethods.*;
 
 import java.io.File;

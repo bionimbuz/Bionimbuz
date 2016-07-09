@@ -23,7 +23,7 @@ import br.unb.cic.bionimbus.rest.request.RequestInfo;
 import br.unb.cic.bionimbus.rest.request.UploadRequest;
 import br.unb.cic.bionimbus.rest.response.ResponseInfo;
 import br.unb.cic.bionimbus.security.Hash;
-import br.unb.cic.bionimbus.utils.BioBucket;
+import br.unb.cic.bionimbus.services.storage.bucket.BioBucket;
 import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageMethods;
 import br.unb.cic.bionimbus.services.storage.bucket.methods.CloudMethodsAmazonGoogle;
 import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageService;

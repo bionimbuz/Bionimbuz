@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.unb.cic.bionimbus.utils;
+package br.unb.cic.bionimbus.services.storage.bucket;
 
 import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageMethods.*;
 import java.util.logging.Level;

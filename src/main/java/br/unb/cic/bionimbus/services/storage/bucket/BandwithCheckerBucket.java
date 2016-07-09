@@ -6,7 +6,6 @@
 package br.unb.cic.bionimbus.services.storage.bucket;
 
 import br.unb.cic.bionimbus.services.storage.bucket.methods.CloudMethodsAmazonGoogle;
-import br.unb.cic.bionimbus.utils.BioBucket;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

@@ -6,7 +6,6 @@
 package br.unb.cic.bionimbus.services.storage.bucket;
 
 import br.unb.cic.bionimbus.services.storage.bucket.methods.CloudMethodsAmazonGoogle;
-import br.unb.cic.bionimbus.utils.BioBucket;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
