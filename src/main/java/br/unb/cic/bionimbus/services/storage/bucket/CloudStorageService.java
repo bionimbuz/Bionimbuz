@@ -3,15 +3,18 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.unb.cic.bionimbus.toSort;
+package br.unb.cic.bionimbus.services.storage.bucket;
 
+import br.unb.cic.bionimbus.services.storage.bucket.methods.CloudMethodsAmazonGoogle;
+import br.unb.cic.bionimbus.utils.BioBucket;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.model.FileInfo;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.services.AbstractBioService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
-import br.unb.cic.bionimbus.toSort.CloudStorageMethods.*;
+import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageMethods.*;
+import br.unb.cic.bionimbus.toSort.Listeners;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 
@@ -81,7 +84,7 @@ public class CloudStorageService extends AbstractBioService{
         LOGGER.info("[CloudStorageService] Starting");        
         
         //Instance methods object
-        methodsInstance = new CloudStorageMethodsV1();
+        methodsInstance = new CloudMethodsAmazonGoogle();
         
         //Getting parameters from config file
         bucketsFolder = config.getBucketsFolder();
@@ -119,7 +122,7 @@ public class CloudStorageService extends AbstractBioService{
             t.printStackTrace();
         }
         
-        BandwithChecker checker = new BandwithChecker();
+        BandwithCheckerBucket checker = new BandwithCheckerBucket();
         checker.start();
         executorService.scheduleAtFixedRate(this, 0, 1, TimeUnit.MINUTES);
     }

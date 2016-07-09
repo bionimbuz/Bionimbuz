@@ -40,10 +40,10 @@ import static br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import br.unb.cic.bionimbus.services.RepositoryService;
-import br.unb.cic.bionimbus.toSort.BioBucket;
-import br.unb.cic.bionimbus.toSort.CloudStorageMethods;
-import br.unb.cic.bionimbus.toSort.CloudStorageMethodsV1;
-import br.unb.cic.bionimbus.toSort.CloudStorageService;
+import br.unb.cic.bionimbus.utils.BioBucket;
+import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageMethods;
+import br.unb.cic.bionimbus.services.storage.bucket.methods.CloudMethodsAmazonGoogle;
+import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageService;
 import br.unb.cic.bionimbus.utils.Get;
 import br.unb.cic.bionimbus.utils.Pair;
 import com.google.common.base.Preconditions;
@@ -374,7 +374,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                         } else {
 
                             LOGGER.debug("[SchedService] Will execute on normal-mode (download file first)");
-                            CloudStorageMethods cloud_methods = new CloudStorageMethodsV1();
+                            CloudStorageMethods cloud_methods = new CloudMethodsAmazonGoogle();
 
                             try {
                                 cloud_methods.StorageDownloadFile(bucket, "/data-folder/", config.getDataFolder(), info.getName());

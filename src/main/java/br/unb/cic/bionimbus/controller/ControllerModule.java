@@ -20,7 +20,7 @@ import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import br.unb.cic.bionimbus.services.monitor.MonitoringService;
 import br.unb.cic.bionimbus.services.sched.SchedService;
 import br.unb.cic.bionimbus.services.storage.StorageService;
-import br.unb.cic.bionimbus.toSort.CloudStorageService;
+import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageService;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 

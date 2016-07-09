@@ -3,13 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.unb.cic.bionimbus.toSort;
+package br.unb.cic.bionimbus.services.storage.bucket;
 
+import br.unb.cic.bionimbus.services.storage.bucket.methods.CloudMethodsAmazonGoogle;
+import br.unb.cic.bionimbus.utils.BioBucket;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import com.amazonaws.services.s3.AmazonS3;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -17,6 +21,8 @@ import com.amazonaws.services.s3.AmazonS3;
  */
 
 public abstract class CloudStorageMethods {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(CloudStorageMethods.class);
     
     public enum StorageProvider {
 
@@ -37,18 +43,18 @@ public abstract class CloudStorageMethods {
 
         Runtime rt = Runtime.getRuntime();
         Process proc = rt.exec(command);
-        System.out.println("\nRunning command: " + command);
+        LOGGER.debug("\nRunning command: " + command);
         InputStream stderr = proc.getErrorStream();
         InputStreamReader isr = new InputStreamReader(stderr);
         BufferedReader br = new BufferedReader(isr);
         String line;
 
         while ((line = br.readLine()) != null) {
-            System.out.println("[command] " + line);
+            LOGGER.debug("[command] " + line);
         }
 
         int exitVal = proc.waitFor();
-        System.out.println("[command] Process exitValue: " + exitVal);
+        LOGGER.debug("[command] Process exitValue: " + exitVal);
 
         if (exitVal != 0) {
             throw new Exception ("Error in command: " + command);
@@ -75,7 +81,7 @@ public abstract class CloudStorageMethods {
         return s3client;
     }
     
-    public abstract void StorageAuth(CloudStorageMethodsV1.StorageProvider sp) throws Exception;
+    public abstract void StorageAuth(CloudMethodsAmazonGoogle.StorageProvider sp) throws Exception;
     public abstract void StorageUploadFile(BioBucket bucket, String bucketPath, String localPath, String fileName) throws Exception;
     public abstract void StorageDownloadFile(BioBucket bucket, String bucketPath, String localPath, String fileName) throws Exception;
     public abstract void StorageMount(BioBucket bucket) throws Exception;

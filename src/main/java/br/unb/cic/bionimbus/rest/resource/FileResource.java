@@ -23,10 +23,10 @@ import br.unb.cic.bionimbus.rest.request.RequestInfo;
 import br.unb.cic.bionimbus.rest.request.UploadRequest;
 import br.unb.cic.bionimbus.rest.response.ResponseInfo;
 import br.unb.cic.bionimbus.security.Hash;
-import br.unb.cic.bionimbus.toSort.BioBucket;
-import br.unb.cic.bionimbus.toSort.CloudStorageMethods;
-import br.unb.cic.bionimbus.toSort.CloudStorageMethodsV1;
-import br.unb.cic.bionimbus.toSort.CloudStorageService;
+import br.unb.cic.bionimbus.utils.BioBucket;
+import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageMethods;
+import br.unb.cic.bionimbus.services.storage.bucket.methods.CloudMethodsAmazonGoogle;
+import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageService;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 import java.io.FileInputStream;
@@ -127,7 +127,7 @@ public class FileResource extends AbstractResource {
 
                 LOGGER.info("File " + file.getName() + " found on Bucket " + file.getBucket());
 
-                CloudStorageMethods methods_instance = new CloudStorageMethodsV1();
+                CloudStorageMethods methods_instance = new CloudMethodsAmazonGoogle();
 
                 methods_instance.DeleteFile(bucket, file.getName());
             }

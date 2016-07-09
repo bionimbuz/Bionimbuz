@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.unb.cic.bionimbus.toSort;
+package br.unb.cic.bionimbus.services.storage.bucket;
 
+import br.unb.cic.bionimbus.services.storage.bucket.methods.CloudMethodsAmazonGoogle;
+import br.unb.cic.bionimbus.utils.BioBucket;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -16,12 +18,12 @@ import org.slf4j.LoggerFactory;
  *
  * @author Lucas
  */
-public class BandwithChecker implements Runnable {
+public class BandwithCheckerBucket implements Runnable {
 
-    Logger LOGGER = LoggerFactory.getLogger(BandwithChecker.class);
+    Logger LOGGER = LoggerFactory.getLogger(BandwithCheckerBucket.class);
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     static private List<BioBucket> bucketList = CloudStorageService.getBucketList();
-    CloudStorageMethods methodsInstance = new CloudStorageMethodsV1();
+    CloudStorageMethods methodsInstance = new CloudMethodsAmazonGoogle();
 
     @Override
     public void run() {

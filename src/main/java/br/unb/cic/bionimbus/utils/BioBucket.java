@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.unb.cic.bionimbus.toSort;
+package br.unb.cic.bionimbus.utils;
 
-import br.unb.cic.bionimbus.toSort.CloudStorageMethods.*;
+import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageMethods.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
