@@ -77,7 +77,7 @@ public class PricingGet implements RestfulGetter {
         } finally {
             try {
                 httpClient.close();
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 Logger.getLogger(PricingGet.class.getName()).log(Level.SEVERE, null, ex);
             }
         }

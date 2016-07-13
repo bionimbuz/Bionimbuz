@@ -1,18 +1,17 @@
-<<<<<<< HEAD
-
 .project
-
-*.prefs
 /target/
-
 biofoco.log
 /bin/
-
 .classpath
-
 /branches/zoonimbus/target/
 /branches/zoonimbus/biofoco.log
 /branches/zoonimbus/conf/node.yaml
 /branches/zoonimbus/conf/node.yaml
-
-/nbproject/
+/data-folder/**
+/uploaded-files/**
+/references/**
+/conf/node.yaml
+/src/main/resources/META-INF/persistence.xml
+/src/main/resources/META-INF/**
+/src/main/resources/META-INF/
+/references/**

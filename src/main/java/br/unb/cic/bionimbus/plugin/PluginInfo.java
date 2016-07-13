@@ -1,25 +1,45 @@
+/*
+    BioNimbuZ is a federated cloud platform.
+    Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD), 
+    Department of Computer Science, University of Brasilia, Brazil
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package br.unb.cic.bionimbus.plugin;
 
-import br.unb.cic.bionimbus.p2p.Host;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.codehaus.jackson.map.ObjectMapper;
+
+import br.unb.cic.bionimbus.p2p.Host;
 
 public class PluginInfo implements PluginOps {
 
     private String id;
-    
+
     private String InstanceName;
-    
+
     private int privateCloud;
-    
+
     private Host host;
 
     private long uptime;
 
     private Double latency = 0d;
-    
+
     private double costpergiga;
 
     private long timestamp;
@@ -29,13 +49,13 @@ public class PluginInfo implements PluginOps {
     private Integer numNodes;
 
     private Integer numOccupied;
-    
+
     private Double ranking = 0d;
 
     private Float fsSize;
 
     private double storagecost;
-    
+
     private Float fsFreeSize;
 
     private Double memoryTotal;
@@ -43,17 +63,19 @@ public class PluginInfo implements PluginOps {
     private Double memoryFree;
 
     private Double currentFrequencyCore;
-    
+
     // frequency in Hz
     private Double factoryFrequencyCore;
 
     private List<PluginService> services;
-    
+
     private double costPerHour = Double.MAX_VALUE;
+
+    private Double bandwidth;
 
     public PluginInfo() {
     }
-    
+
     public PluginInfo(String id) {
         this.id = id;
     }
@@ -65,7 +87,7 @@ public class PluginInfo implements PluginOps {
     public void setId(String id) {
         this.id = id;
     }
-    
+
     public String getInstanceName() {
         return InstanceName;
     }
@@ -81,7 +103,7 @@ public class PluginInfo implements PluginOps {
     public void setHost(Host host) {
         this.host = host;
     }
-    
+
     public double getCostPerGiga() {
         return costpergiga;
     }
@@ -96,16 +118,16 @@ public class PluginInfo implements PluginOps {
 
     public void setUptime(long uptime) {
         this.uptime = uptime;
-            
+
     }
-   
+
     public Double getLatency() {
         return latency;
     }
 
     public void setLatency(Double latency) {
         this.latency = latency;
-            
+
     }
 
     public double getStorageCost() {
@@ -173,12 +195,13 @@ public class PluginInfo implements PluginOps {
     }
 
     public PluginService getService(String serviceId) {
-        for (PluginService service : getServices())
-            if (service.getId().equals(serviceId))
+        for (PluginService service : getServices()) {
+            if (service.getId().equals(serviceId)) {
                 return service;
+            }
+        }
         return null;
     }
-
 
     public Double getRanking() {
         return ranking;
@@ -195,7 +218,7 @@ public class PluginInfo implements PluginOps {
     public void setCurrentFrequencyCore(Double frequencyCore) {
         this.currentFrequencyCore = frequencyCore;
     }
-    
+
     public Double getFactoryFrequencyCore() {
         return factoryFrequencyCore;
     }
@@ -222,8 +245,9 @@ public class PluginInfo implements PluginOps {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object)
+        if (this == object) {
             return true;
+        }
 
         if (!(object instanceof PluginInfo)) {
             return false;
@@ -241,27 +265,36 @@ public class PluginInfo implements PluginOps {
     public void setPrivateCloud(int privateCloud) {
         this.privateCloud = privateCloud;
     }
-    
-    public void setCostPerHour (double costPerHour) {
+
+    public void setCostPerHour(double costPerHour) {
         this.costPerHour = costPerHour;
     }
 
-    public double getCostPerHour () {
+    public double getCostPerHour() {
         return costPerHour;
     }
-    
+
+    public Double getBandwidth() {
+        return bandwidth;
+    }
+
+    public void setBandwidth(Double bandwidth) {
+        this.bandwidth = bandwidth;
+    }
+
     @Override
     public int hashCode() {
         return id.hashCode();
     }
+
     //Alterado para retornar os valores que serão gravados no znode peer old: id
     @Override
-    public String toString() {  
+    public String toString() {
         try {
             return new ObjectMapper().writeValueAsString(this);
         } catch (Exception ex) {
             Logger.getLogger(PluginInfo.class.getName()).log(Level.SEVERE, null, ex);
-        } 
+        }
         return null;
     }
 }

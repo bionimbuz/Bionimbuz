@@ -22,22 +22,23 @@ import org.json.JSONObject;
  * @author gabriel
  */
 public class GoogleData {
-    //public final JSONObject GoogleJsonService;
+
+    public JSONObject GoogleJsonService;
     private final Map<String, String> config;
     private Map<String, String> GoogleService;
-    
-    public GoogleData(){
+
+    public GoogleData() {
         this.config = new HashMap<>();
         this.config.put("Filename", "GooglePrices.txt");
-        JSONObject GoogleJsonService = readJSONObject(this.config.get("Filename"));
+        GoogleJsonService = readJSONObject(this.config.get("Filename"));
         //this.GoogleJsonService = GoogleJsonService;
         this.createInfo(GoogleJsonService);
     }
-    
+
     private JSONObject readJSONObject(String filename) {
 
         try {
-            
+
             BufferedReader br = new BufferedReader(new FileReader(filename));
             StringBuilder sb = new StringBuilder();
             String line = br.readLine();
@@ -69,11 +70,19 @@ public class GoogleData {
     private void createInfo(JSONObject GoogleJsonService) {
         JSONObject Data = GoogleJsonService.getJSONObject("gcp_price_list");
         Iterator<String> it = Data.keys();
-        while(it.hasNext()){
+        while (it.hasNext()) {
             Object obj = Data.get(it.next());
             String objClass = obj.getClass().toString();
             System.out.println(objClass);
         }
+    }
+
+    public JSONObject getGoogleJsonService() {
+        return GoogleJsonService;
+    }
+
+    public void setGoogleService(Map<String, String> GoogleService) {
+        this.GoogleService = GoogleService;
     }
 
 }

@@ -1,4 +1,22 @@
 /*
+    BioNimbuZ is a federated cloud platform.
+    Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD), 
+    Department of Computer Science, University of Brasilia, Brazil
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
@@ -13,12 +31,15 @@ import java.util.regex.Pattern;
 
 /**
  * Classe para calculo de latencia
+ *
  * @author deric
  */
 public class Ping {
 
     /**
-     * Método para realizar um ping no ip de destino para que seja calculada a latência.
+     * Método para realizar um ping no ip de destino para que seja calculada a
+     * latência.
+     *
      * @param ip - Ip onde será enviado os pacotes para o calculo necessario
      * @return - Latencia média entre quem enviou os pacotes e o destino
      * @throws IOException
@@ -26,7 +47,7 @@ public class Ping {
     public static double calculo(String ip) throws IOException {
 
         double avg = 0;
-        
+
         float sizerequest = 0;
         float temporesp = 0;
         int times = 0;
@@ -47,7 +68,7 @@ public class Ping {
             Logger.getLogger(Ping.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        if(in.ready()){
+        if (in.ready()) {
             while ((teste = in.readLine()) != null && times < 4) {
                 if (times == 0) {
                     matcher = patternBand.matcher(teste);
@@ -73,8 +94,7 @@ public class Ping {
                 }
                 times += 1;
             }
-        }
-        else{
+        } else {
             p.destroy();
             return Double.MAX_VALUE;
         }
@@ -84,5 +104,3 @@ public class Ping {
         return avglatency;
     }
 }
-
-

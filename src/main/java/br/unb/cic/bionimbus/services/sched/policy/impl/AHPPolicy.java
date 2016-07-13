@@ -1,3 +1,21 @@
+/*
+    BioNimbuZ is a federated cloud platform.
+    Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD), 
+    Department of Computer Science, University of Brasilia, Brazil
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 package br.unb.cic.bionimbus.services.sched.policy.impl;
 
 import java.util.ArrayList;
@@ -7,7 +25,8 @@ import java.util.List;
 import java.util.Map;
 
 import Jama.Matrix;
-import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.model.FileInfo;
+import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskState;
@@ -26,23 +45,23 @@ public class AHPPolicy extends SchedPolicy {
     }
 
     @Override
-    public HashMap<JobInfo, PluginInfo> schedule(List<JobInfo> jobs) {
-        List<JobInfo> jobInfos = jobs;
+    public HashMap<Job, PluginInfo> schedule(List<Job> jobs) {
+        List<Job> jobInfos = jobs;
         if (jobInfos==null || jobInfos.isEmpty()) return null;
 
-        HashMap<JobInfo, PluginInfo> jobMap = new HashMap<JobInfo, PluginInfo>();
-        JobInfo biggerJob = getBiggerJob(new ArrayList<JobInfo>(jobInfos));
+        HashMap<Job, PluginInfo> jobMap = new HashMap<Job, PluginInfo>();
+        Job biggerJob = getBiggerJob(new ArrayList<Job>(jobInfos));
         biggerJob.setTimestamp(System.currentTimeMillis());
         jobMap.put(biggerJob, this.scheduleJob(biggerJob));
         return jobMap;
     }
 
     @Override
-    public synchronized List<PluginTask> relocate(Collection<Pair<JobInfo, PluginTask>> taskPairs) {
+    public synchronized List<PluginTask> relocate(Collection<Pair<Job, PluginTask>> taskPairs) {
         List<PluginTask> tasksToCancel = new ArrayList<PluginTask>();
-        for (Pair<JobInfo, PluginTask> taskPair : taskPairs) {
+        for (Pair<Job, PluginTask> taskPair : taskPairs) {
             PluginTask task = taskPair.getSecond();
-            JobInfo job = taskPair.getFirst();
+            Job job = taskPair.getFirst();
 
             if (PluginTaskState.RUNNING.equals(task.getState())) {
                 if (blackList.containsKey(task)) {
@@ -81,7 +100,7 @@ public class AHPPolicy extends SchedPolicy {
         }
     }
 
-    private PluginInfo scheduleJob(JobInfo jobInfo) {
+    private PluginInfo scheduleJob(Job jobInfo) {
         List<PluginInfo> plugins = filterByService(jobInfo.getServiceId(),
                 getCloudMap().values());
         if (plugins.isEmpty()) {
@@ -90,12 +109,12 @@ public class AHPPolicy extends SchedPolicy {
         return getBestService(plugins);
     }
 
-    public static JobInfo getBiggerJob(List<JobInfo> jobInfos) {
+    public static Job getBiggerJob(List<Job> jobInfos) {
         if (jobInfos.isEmpty())
             return null;
-        JobInfo bigger = null;
+        Job bigger = null;
         long biggerTotal = 0L;
-        for (JobInfo jobInfo : jobInfos) {
+        for (Job jobInfo : jobInfos) {
             long total = getTotalSizeOfJobsFiles(jobInfo);
             if (bigger == null) {
                 bigger = jobInfo;
@@ -110,10 +129,10 @@ public class AHPPolicy extends SchedPolicy {
         return bigger;
     }
 
-    public static long getTotalSizeOfJobsFiles(JobInfo jobInfo) {
+    public static long getTotalSizeOfJobsFiles(Job jobInfo) {
         long sum = 0;
-        for (Pair<String, Long> pair : jobInfo.getInputs()) {
-            sum += pair.second;
+        for (FileInfo info : jobInfo.getInputFiles()) {
+            sum += info.getSize();
         }
         return sum;
     }

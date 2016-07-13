@@ -1,3 +1,21 @@
+/*
+    BioNimbuZ is a federated cloud platform.
+    Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD), 
+    Department of Computer Science, University of Brasilia, Brazil
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 package br.unb.cic.bionimbus.plugin;
 
 import br.unb.cic.bionimbus.avro.gen.FileInfo;
@@ -8,34 +26,37 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * Classe que recebe os dados do arquivo enviado pelo cliente
+ *
  * @author breno-linux
  */
-
 public class PluginFile {
 
-    public PluginFile(){
+    public PluginFile() {
     }
-    
-    //Recebe as informações do arquivo enviado pelo cliente e seta os dados do arquivo
-    public PluginFile(FileInfo fileNode){
-        this.id = fileNode.getFileId();
-        this.name= fileNode.getName();
-        this.size =fileNode.getSize();
-        this.hash=fileNode.getHash();
-    }
+
     private String id;
 
     private String path;
-    
+
     private String name;
-    
+
     private String hash;
 
     private long size;
-    
+
     private String service;
+
+    private List<String> buckets;
     
     private List<String> pluginId;
+
+    // Recebe as informações do arquivo enviado pelo cliente e seta os dados do arquivo
+    public PluginFile(FileInfo fileNode) {
+        this.id = fileNode.getId();
+        this.name = fileNode.getName();
+        this.size = fileNode.getSize();
+        this.hash = fileNode.getHash();
+    }
 
     public String getId() {
         return id;
@@ -84,19 +105,20 @@ public class PluginFile {
     public void setHash(String hash) {
         this.hash = hash;
     }
-    
+
     public String getService() {
         return service;
     }
 
     public void setService(String service) {
         this.service = service;
-    }    
-    
+    }
+
     @Override
     public boolean equals(Object object) {
-        if (this == object)
+        if (this == object) {
             return true;
+        }
 
         if (!(object instanceof PluginFile)) {
             return false;
@@ -114,11 +136,11 @@ public class PluginFile {
 
     @Override
     public String toString() {
-         try {
+        try {
             return new ObjectMapper().writeValueAsString(this);
         } catch (Exception ex) {
-            Logger.getLogger(PluginInfo.class.getName()).log(Level.SEVERE, null, ex);
-        } 
-         return null;
+            Logger.getLogger(PluginFile.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 }

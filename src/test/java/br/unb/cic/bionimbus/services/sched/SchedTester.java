@@ -1,3 +1,21 @@
+/*
+    BioNimbuZ is a federated cloud platform.
+    Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD), 
+    Department of Computer Science, University of Brasilia, Brazil
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 package br.unb.cic.bionimbus.services.sched;
 
 import java.util.ArrayList;
@@ -10,25 +28,25 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import br.unb.cic.bionimbus.client.JobInfo;
+import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 
 public class SchedTester {
+
     private final ConcurrentHashMap<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
-    private final Map<String, JobInfo> pendingJobs = new ConcurrentHashMap<String, JobInfo>();
-    private final Map<String, JobInfo> runningJobs = new ConcurrentHashMap<String, JobInfo>();
-    private final Map<PluginInfo, Queue<JobInfo>> queueMap = new ConcurrentHashMap<PluginInfo, Queue<JobInfo>>();
+    private final Map<String, Job> pendingJobs = new ConcurrentHashMap<String, Job>();
+    private final Map<String, Job> runningJobs = new ConcurrentHashMap<String, Job>();
+    private final Map<PluginInfo, Queue<Job>> queueMap = new ConcurrentHashMap<PluginInfo, Queue<Job>>();
     private SchedPolicy schedPolicy;
 
     private static final Logger LOG = LoggerFactory.getLogger(SchedService.class);
 
-
     private PluginInfo generatePlugin(String id, int numCores, int latency, int numOccupied) {
         PluginInfo p = new PluginInfo();
         p.setId(id);
-        p.setLatency((double)latency);
+        p.setLatency((double) latency);
         p.setNumCores(numCores);
         p.setNumOccupied(numOccupied);
         ArrayList<PluginService> services = new ArrayList<PluginService>();
@@ -56,15 +74,15 @@ public class SchedTester {
         return schedPolicy;
     }
 
-    private JobInfo generateJob(String id) {
-//        JobInfo j = new JobInfo(null);
+    private Job generateJob(String id) {
+//        Job j = new Job(null);
 //        j.setId(id);
 //        j.setServiceId("1");
 //        return j;]
         return null;
     }
 
-    private void addJob(JobInfo j) {
+    private void addJob(Job j) {
         pendingJobs.put(j.getId(), j);
     }
 
@@ -100,15 +118,15 @@ public class SchedTester {
         addJob(generateJob("j30"));
     }
 
-    private void addToQueue(PluginInfo p, JobInfo j) {
+    private void addToQueue(PluginInfo p, Job j) {
         LOG.info(j.getId() + "adicionado a fila de" + p.getId());
         if (!queueMap.containsKey(p)) {
-            queueMap.put(p, new LinkedList<JobInfo>());
+            queueMap.put(p, new LinkedList<Job>());
         }
         queueMap.get(p).add(j);
     }
 
-    private void simulateRun(JobInfo j, PluginInfo p) {
+    private void simulateRun(Job j, PluginInfo p) {
         if (p.getNumOccupied() >= p.getNumCores()) {
             addToQueue(p, j);
         } else {
@@ -129,12 +147,14 @@ public class SchedTester {
 
     private void scheduleJobs() {
 
-        if (!pendingJobs.isEmpty()) return;
+        if (!pendingJobs.isEmpty()) {
+            return;
+        }
 
         LOG.info("--- Inicio de escalonamento ---");
-        final Map<JobInfo, PluginInfo> schedMap = null;//getPolicy().schedule(pendingJobs.values());
-        for (Map.Entry<JobInfo, PluginInfo> entry : schedMap.entrySet()) {
-            JobInfo jobInfo = entry.getKey();
+        final Map<Job, PluginInfo> schedMap = null;//getPolicy().schedule(pendingJobs.values());
+        for (Map.Entry<Job, PluginInfo> entry : schedMap.entrySet()) {
+            Job jobInfo = entry.getKey();
             PluginInfo pluginInfo = entry.getValue();
 
             if (pluginInfo == null) {

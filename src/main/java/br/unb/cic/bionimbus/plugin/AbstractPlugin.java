@@ -1,3 +1,21 @@
+/*
+    BioNimbuZ is a federated cloud platform.
+    Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD), 
+    Department of Computer Science, University of Brasilia, Brazil
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 package br.unb.cic.bionimbus.plugin;
 
 import java.io.File;
@@ -13,8 +31,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
-import br.unb.cic.bionimbus.client.FileInfo;
+import br.unb.cic.bionimbus.model.FileInfo;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.utils.Pair;
 import com.google.inject.Inject;
@@ -22,11 +41,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
-
 public abstract class AbstractPlugin implements Plugin, Runnable {
 
     private String id;
-    
+
     private BioNimbusConfig config;
 
     private Future<PluginInfo> futureInfo = null;
@@ -52,7 +70,7 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
     private final ConcurrentMap<String, Pair<String, Integer>> inputFiles = new ConcurrentHashMap<String, Pair<String, Integer>>();
 
     private final ConcurrentMap<String, PluginFile> pluginFiles = new ConcurrentHashMap<String, PluginFile>();
-        
+
     @Inject
     public AbstractPlugin(final BioNimbusConfig config) throws IOException {
         //id provisório
@@ -66,14 +84,14 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
 
     protected abstract Future<PluginInfo> startGetInfo();
 
-    public abstract Future<PluginTask> startTask(PluginTask task, CloudMessageService cms);
+    public abstract Future<PluginTask> startTask(PluginTask task, CloudMessageService cms, Workflow workflow);
 
 //    private String getId() {
     public String getId() {
-        
+
         return id;
     }
-    
+
     public BioNimbusConfig getConfig() {
         return config;
     }
@@ -89,21 +107,20 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
     public PluginInfo getMyInfo() {
         return myInfo;
     }
+
     //private void setMyInfo(PluginInfo info) {
     public void setMyInfo(PluginInfo info) {
         myInfo = info;
 
     }
 
-
     private void setErrorString(String errorString) {
         this.errorString = errorString;
     }
 
-
     @Override
     public void start() {
-        
+
         schedExecutorService.scheduleAtFixedRate(this, 0, 3, TimeUnit.SECONDS);
     }
 
@@ -123,18 +140,20 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
 
     private void checkGetInfo() {
         myCount++;
-        if (myCount < 10)
+        if (myCount < 10) {
             return;
+        }
         myCount = 0;
 
-        Future<PluginInfo> futureinfo= getFutureInfo();
+        Future<PluginInfo> futureinfo = getFutureInfo();
         if (futureInfo == null) {
             setFutureInfo(startGetInfo());
             return;
         }
 
-        if (!futureInfo.isDone())
+        if (!futureInfo.isDone()) {
             return;
+        }
 
         try {
             PluginInfo newInfo = futureInfo.get();
@@ -159,8 +178,9 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
         for (Pair<PluginTask, Future<PluginTask>> pair : executingTasks.values()) {
             futureTask = pair.second;
 
-            if (!futureTask.isDone())
+            if (!futureTask.isDone()) {
                 continue;
+            }
 
             try {
                 task = futureTask.get();
@@ -184,7 +204,7 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
                     count++;
                 }
                 endingTasks.put(task.getId(), new Pair<PluginTask, Integer>(task, count));
-            } 
+            }
         }
     }
 
@@ -192,9 +212,10 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
 
         for (Future<PluginFile> f : pendingSaves) {
 
-            if (!f.isDone())
+            if (!f.isDone()) {
                 continue;
-                
+            }
+
             try {
                 PluginFile file = f.get();
                 List<String> pluginIds = new ArrayList<String>();
@@ -216,8 +237,9 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
 
         for (Future<PluginGetFile> f : pendingGets) {
 
-            if (!f.isDone())
+            if (!f.isDone()) {
                 continue;
+            }
 
             try {
                 PluginGetFile get = f.get();
