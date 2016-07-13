@@ -32,12 +32,16 @@ public class AmazonDataGet {
         this.config.put("FilenameStorage", "AmazonStorage.txt");
         this.config.put("AddressDataTransfer", "/transfer.json?");
         this.config.put("FilenameDataTransfer", "AmazonDataTransfer.txt");
+        this.config.put("AddressInstanceType", "/instancetypes.json?");
+        this.config.put("FilenameInstanceType", "InstanceType.txt");
         System.out.println("Getting Amazon prices On Demand...");
         String arrayODString = this.getter.get(this.config.get("Server"), this.config.get("AddressOD"));
         System.out.println("Getting Amazon Storage prices...");
         String arrayStorageString = this.getter.get(this.config.get("Server"), this.config.get("AddressStorage"));
         System.out.println("Getting Amazon Data Transfer prices...");
         String arrayDataTransferString = this.getter.get(this.config.get("Server"), this.config.get("AddressDataTransfer"));
+        System.out.println("Getting Amazon Instance Types...");
+        String arrayInstanceTypeString = this.getter.get(this.config.get("Server"), this.config.get("AddressInstanceType"));
         System.out.println("Completed.");
         if (arrayODString != null) {
             System.out.println("Saving Amazon prices On Demand...");
@@ -54,6 +58,11 @@ public class AmazonDataGet {
         if (arrayDataTransferString != null) {
             System.out.println("Saving Amazon Data Transfer prices...");
             getter.saveGet(arrayStorageString, this.config.get("FilenameDataTransfer"));
+            System.out.println("Saved.");
+        }
+        if (arrayInstanceTypeString != null) {
+            System.out.println("Saving Amazon Instance Types...");
+            getter.saveGet(arrayODString, this.config.get("FilenameInstanceType"));
             System.out.println("Saved.");
         }
 

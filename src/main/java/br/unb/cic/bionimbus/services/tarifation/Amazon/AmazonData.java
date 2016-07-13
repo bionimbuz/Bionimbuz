@@ -36,10 +36,12 @@ public class AmazonData {
         this.config.put("FilenameOD", "AmazonInstancesOD.txt");
         this.config.put("FilenameStorage", "AmazonStorage.txt");
         this.config.put("FilenameDataTransfer", "AmazonDataTransfer.txt");
+        this.config.put("FilenameInstanceType","InstanceType.txt");
 
         JSONArray pricingODArray = readJSONArray(this.config.get("FilenameOD"));
         JSONArray pricingStorageArray = readJSONArray(this.config.get("FilenameStorage"));
         JSONArray pricingDataTransferArray = readJSONArray(this.config.get("FilenameDataTransfer"));
+        JSONArray InstanceTypeArray = readJSONArray(this.config.get("FilenameInstanceType"));
 
         this.createVirtualMachinesInfo(pricingODArray);
         this.createStorageInfo(pricingStorageArray);
