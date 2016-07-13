@@ -18,24 +18,53 @@ import org.json.JSONObject;
  */
 public class Index {
 
-    private String amazonS3;
-    private String amazonGlacier;
-    private String amazonSES;
-    private String amazonRDS;
-    private String amazonSimpleDB;
-    private String amazinDynamoDB;
-    private String amazonEC2;
-    private String amazonRoute53;
-    private String amazonRedshift;
-    private String amazonElastiCache;
-    private String amazonCloudFront;
+    private String AmazonS3;
+    private String AmazonGlacier;
+    private String AmazonSES;
+    private String AmazonRDS;
+    private String AmazonSimpleDB;
+    private String AmazonDynamoDB;
+    private String AmazonEC2;
+    private String AmazonRoute53;
+    private String AmazonRedshift;
+    private String AmazonElastiCache;
+    private String AmazonCloudFront;
     private String awskms;
-    private String amazonVPC;
+    private String AmazonVPC;
     
     public Index(String server,String index) throws JSONException, IOException {
-        JSONObject amazonServicesURLs = JsonReader.readJsonFromUrl("https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/index.json");
+        JSONObject amazonServicesURLs = JsonReader.readJsonFromUrl("https://"+"pricing.us-east-1.amazonaws.com"+"/offers/v1.0/aws/index.json");
         amazonServicesURLs = amazonServicesURLs.getJSONObject("offers");
-        System.out.println(amazonServicesURLs.toString(4));
+        this.AmazonS3 ="https://" + server + amazonServicesURLs.getJSONObject("AmazonS3").getString("currentVersionUrl");
+        this.AmazonGlacier ="https://" + server + amazonServicesURLs.getJSONObject("AmazonGlacier").getString("currentVersionUrl");
+        this.AmazonSES ="https://" + server + amazonServicesURLs.getJSONObject("AmazonSES").getString("currentVersionUrl");
+        this.AmazonRDS ="https://" + server + amazonServicesURLs.getJSONObject("AmazonRDS").getString("currentVersionUrl");
+        this.AmazonSimpleDB ="https://" + server + amazonServicesURLs.getJSONObject("AmazonSimpleDB").getString("currentVersionUrl");
+        this.AmazonDynamoDB ="https://" + server + amazonServicesURLs.getJSONObject("AmazonDynamoDB").getString("currentVersionUrl");
+        this.AmazonEC2 ="https://" + server + amazonServicesURLs.getJSONObject("AmazonEC2").getString("currentVersionUrl");
+        this.AmazonRoute53 ="https://" + server + amazonServicesURLs.getJSONObject("AmazonRoute53").getString("currentVersionUrl");
+        this.AmazonEC2 ="https://" + server + amazonServicesURLs.getJSONObject("AmazonEC2").getString("currentVersionUrl");
+        this.AmazonRoute53 ="https://" + server + amazonServicesURLs.getJSONObject("AmazonRoute53").getString("currentVersionUrl");
+        this.AmazonRedshift ="https://" + server + amazonServicesURLs.getJSONObject("AmazonRedshift").getString("currentVersionUrl");
+        this.AmazonElastiCache ="https://" + server + amazonServicesURLs.getJSONObject("AmazonElastiCache").getString("currentVersionUrl");
+        this.AmazonCloudFront ="https://" + server + amazonServicesURLs.getJSONObject("AmazonCloudFront").getString("currentVersionUrl");
+        this.awskms ="https://" + server + amazonServicesURLs.getJSONObject("awskms").getString("currentVersionUrl");
+        this.AmazonVPC ="https://" + server + amazonServicesURLs.getJSONObject("AmazonVPC").getString("currentVersionUrl");
+
+        System.out.println(this.AmazonCloudFront);
+        System.out.println(this.AmazonDynamoDB);
+        System.out.println(this.AmazonEC2);
+        System.out.println(this.AmazonElastiCache);
+        System.out.println(this.AmazonGlacier);
+        System.out.println(this.AmazonRDS);
+        System.out.println(this.AmazonRedshift);
+        System.out.println(this.AmazonRoute53);
+        System.out.println(this.AmazonS3);
+        System.out.println(this.AmazonSimpleDB);
+        System.out.println(this.AmazonSES);
+        System.out.println(this.AmazonVPC);
+        System.out.println(this.awskms);
+        
         
     }
 }

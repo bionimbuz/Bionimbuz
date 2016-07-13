@@ -8,6 +8,7 @@ package br.unb.cic.bionimbus.services.tarifation;
 import br.unb.cic.bionimbus.services.tarifation.Amazon.Index;
 import com.amazonaws.util.json.JSONException;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import org.junit.Test;
 
 /**
