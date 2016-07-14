@@ -24,5 +24,6 @@ public class indexTest {
     @Test
     public void indexTest() throws JSONException, IOException{
         Index idx = new Index("pricing.us-east-1.amazonaws.com/","offers/v1.0/aws/index.json");
+        idx = new Index("pricing.us-east-1.amazonaws.com/");
     }
 }
