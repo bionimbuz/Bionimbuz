@@ -6,8 +6,6 @@
 package br.unb.cic.bionimbus.services.tarifation.Amazon;
 
 import br.unb.cic.bionimbus.services.tarifation.JsonReader;
-import br.unb.cic.bionimbus.services.tarifation.Utils.RestfulGetter;
-import br.unb.cic.bionimbus.services.tarifation.Utils.RestfulGetterBehaviors.PricingGet;
 import com.amazonaws.util.json.JSONException;
 import java.io.IOException;
 import org.json.JSONObject;
@@ -49,22 +47,6 @@ public class Index {
         this.AmazonElastiCache ="https://" + server + amazonServicesURLs.getJSONObject("AmazonElastiCache").getString("currentVersionUrl");
         this.AmazonCloudFront ="https://" + server + amazonServicesURLs.getJSONObject("AmazonCloudFront").getString("currentVersionUrl");
         this.awskms ="https://" + server + amazonServicesURLs.getJSONObject("awskms").getString("currentVersionUrl");
-        this.AmazonVPC ="https://" + server + amazonServicesURLs.getJSONObject("AmazonVPC").getString("currentVersionUrl");
-
-        System.out.println(this.AmazonCloudFront);
-        System.out.println(this.AmazonDynamoDB);
-        System.out.println(this.AmazonEC2);
-        System.out.println(this.AmazonElastiCache);
-        System.out.println(this.AmazonGlacier);
-        System.out.println(this.AmazonRDS);
-        System.out.println(this.AmazonRedshift);
-        System.out.println(this.AmazonRoute53);
-        System.out.println(this.AmazonS3);
-        System.out.println(this.AmazonSimpleDB);
-        System.out.println(this.AmazonSES);
-        System.out.println(this.AmazonVPC);
-        System.out.println(this.awskms);
-        
-        
+        this.AmazonVPC ="https://" + server + amazonServicesURLs.getJSONObject("AmazonVPC").getString("currentVersionUrl");      
     }
 }
