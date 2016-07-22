@@ -183,30 +183,54 @@ public class Index {
             }
         }
         auxString = auxString +"}";
-        System.out.println(auxString);
         return(new JSONObject(auxString));
     }
     
-    public double EC2price(String instanceType, String location, String os){
+    public JSONObject EC2Instances(String instanceType, String location){
         JSONObject products = this.AmazonEC2.getJSONObject("products");
         JSONObject prices = this.AmazonEC2.getJSONObject("terms").getJSONObject("OnDemand");
         Iterator<String> it = products.keys();
-        double result =-1.0d;
+        String auxString = "{";
+        boolean first = true;
         while(it.hasNext()){
             JSONObject aux = products.getJSONObject(it.next());
             if(aux.getString("productFamily").equals("Compute Instance")){
-                if((aux.getJSONObject("attributes").getString("instanceType").equals(instanceType))&&(aux.getJSONObject("attributes").getString("location").equals(location))&&(aux.getJSONObject("attributes").getString("operatingSystem").equals(os))){
-                    Iterator<String> pricesAux = prices.getJSONObject(aux.getString("sku")).keys();
-                    JSONObject jsonAux = prices.getJSONObject(aux.getString("sku")).
-                            getJSONObject(pricesAux.next()).getJSONObject("priceDimensions");
-                    Iterator<String> pricesAux1 = jsonAux.keys();
-                    JSONObject jsonAux1 = jsonAux.getJSONObject(pricesAux1.next()).
-                            getJSONObject("pricePerUnit");
-                    result = jsonAux1.getDouble("USD");
-                    break;
+                if((aux.getJSONObject("attributes").getString("instanceType").equals(instanceType))&&(aux.getJSONObject("attributes").getString("location").equals(location))){
+                    if(first){
+                        auxString = auxString +"\"" + aux.getString("sku")+"\":" + aux.toString(4); 
+                        first = false;
+                    }
+                    else {
+                        auxString = auxString +","+"\"" + aux.getString("sku")+"\":" + aux.toString(4); 
+                    }
                 }
             }
         }
-        return(result);
+        auxString = auxString +"}";
+        return(new JSONObject(auxString));
+    }
+    
+    public JSONObject EC2Instances(String instanceType){
+        JSONObject products = this.AmazonEC2.getJSONObject("products");
+        JSONObject prices = this.AmazonEC2.getJSONObject("terms").getJSONObject("OnDemand");
+        Iterator<String> it = products.keys();
+        String auxString = "{";
+        boolean first = true;
+        while(it.hasNext()){
+            JSONObject aux = products.getJSONObject(it.next());
+            if(aux.getString("productFamily").equals("Compute Instance")){
+                if((aux.getJSONObject("attributes").getString("instanceType").equals(instanceType))){
+                    if(first){
+                        auxString = auxString +"\"" + aux.getString("sku")+"\":" + aux.toString(4); 
+                        first = false;
+                    }
+                    else {
+                        auxString = auxString +","+"\"" + aux.getString("sku")+"\":" + aux.toString(4); 
+                    }
+                }
+            }
+        }
+        auxString = auxString +"}";
+        return(new JSONObject(auxString));
     }
 }
