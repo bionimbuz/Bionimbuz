@@ -23,7 +23,7 @@ public class indexTest {
     @Test
     public void indexTest() throws JSONException, IOException{
         //Index idx = new Index("pricing.us-east-1.amazonaws.com","/offers/v1.0/aws/index.json");
-        Index idx = new Index();
+        Index idx = new Index(); 
         System.out.println(idx.EC2Instances("i2.4xlarge","Asia Pacific (Mumbai)","Windows").toString(4));
     }
 }
