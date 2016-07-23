@@ -166,71 +166,74 @@ public class Index {
         JSONObject products = this.AmazonEC2.getJSONObject("products");
         JSONObject prices = this.AmazonEC2.getJSONObject("terms").getJSONObject("OnDemand");
         Iterator<String> it = products.keys();
-        String auxString = "{";
-        boolean first = true;
+        JSONObject result = new JSONObject();
         while(it.hasNext()){
             JSONObject aux = products.getJSONObject(it.next());
             if(aux.getString("productFamily").equals("Compute Instance")){
                 if((aux.getJSONObject("attributes").getString("instanceType").equals(instanceType))&&(aux.getJSONObject("attributes").getString("location").equals(location))&&(aux.getJSONObject("attributes").getString("operatingSystem").equals(os))){
-                    if(first){
-                        auxString = auxString +"\"" + aux.getString("sku")+"\":" + aux.toString(4); 
-                        first = false;
-                    }
-                    else {
-                        auxString = auxString +","+"\"" + aux.getString("sku")+"\":" + aux.toString(4); 
+                    Iterator<String> itPricesAux = prices.getJSONObject(aux.getString("sku")).keys();
+                    while(itPricesAux.hasNext()){
+                        JSONObject auxPricesObj = prices.getJSONObject(aux.getString("sku")).getJSONObject(itPricesAux.next());
+                        auxPricesObj = auxPricesObj.getJSONObject("priceDimensions");
+                        Iterator<String> itPricesAux1 =auxPricesObj.keys();
+                        while(itPricesAux1.hasNext()){
+                            JSONObject auxPricesObj1 = auxPricesObj.getJSONObject(itPricesAux1.next());
+                            result = result.put(auxPricesObj1.getString("rateCode"),aux.put("price",auxPricesObj1.getJSONObject("pricePerUnit").getDouble("USD")));
+                        }
                     }
                 }
             }
         }
-        auxString = auxString +"}";
-        return(new JSONObject(auxString));
+        return(result);
     }
     
     public JSONObject EC2Instances(String instanceType, String location){
         JSONObject products = this.AmazonEC2.getJSONObject("products");
         JSONObject prices = this.AmazonEC2.getJSONObject("terms").getJSONObject("OnDemand");
         Iterator<String> it = products.keys();
-        String auxString = "{";
-        boolean first = true;
+        JSONObject result = new JSONObject();
         while(it.hasNext()){
             JSONObject aux = products.getJSONObject(it.next());
             if(aux.getString("productFamily").equals("Compute Instance")){
                 if((aux.getJSONObject("attributes").getString("instanceType").equals(instanceType))&&(aux.getJSONObject("attributes").getString("location").equals(location))){
-                    if(first){
-                        auxString = auxString +"\"" + aux.getString("sku")+"\":" + aux.toString(4); 
-                        first = false;
-                    }
-                    else {
-                        auxString = auxString +","+"\"" + aux.getString("sku")+"\":" + aux.toString(4); 
+                    Iterator<String> itPricesAux = prices.getJSONObject(aux.getString("sku")).keys();
+                    while(itPricesAux.hasNext()){
+                        JSONObject auxPricesObj = prices.getJSONObject(aux.getString("sku")).getJSONObject(itPricesAux.next());
+                        auxPricesObj = auxPricesObj.getJSONObject("priceDimensions");
+                        Iterator<String> itPricesAux1 =auxPricesObj.keys();
+                        while(itPricesAux1.hasNext()){
+                            JSONObject auxPricesObj1 = auxPricesObj.getJSONObject(itPricesAux1.next());
+                            result = result.put(auxPricesObj1.getString("rateCode"),aux.put("price",auxPricesObj1.getJSONObject("pricePerUnit").getDouble("USD")));
+                        }
                     }
                 }
             }
         }
-        auxString = auxString +"}";
-        return(new JSONObject(auxString));
+        return(result);
     }
     
     public JSONObject EC2Instances(String instanceType){
         JSONObject products = this.AmazonEC2.getJSONObject("products");
         JSONObject prices = this.AmazonEC2.getJSONObject("terms").getJSONObject("OnDemand");
         Iterator<String> it = products.keys();
-        String auxString = "{";
-        boolean first = true;
+        JSONObject result = new JSONObject();
         while(it.hasNext()){
             JSONObject aux = products.getJSONObject(it.next());
             if(aux.getString("productFamily").equals("Compute Instance")){
                 if((aux.getJSONObject("attributes").getString("instanceType").equals(instanceType))){
-                    if(first){
-                        auxString = auxString +"\"" + aux.getString("sku")+"\":" + aux.toString(4); 
-                        first = false;
-                    }
-                    else {
-                        auxString = auxString +","+"\"" + aux.getString("sku")+"\":" + aux.toString(4); 
+                    Iterator<String> itPricesAux = prices.getJSONObject(aux.getString("sku")).keys();
+                    while(itPricesAux.hasNext()){
+                        JSONObject auxPricesObj = prices.getJSONObject(aux.getString("sku")).getJSONObject(itPricesAux.next());
+                        auxPricesObj = auxPricesObj.getJSONObject("priceDimensions");
+                        Iterator<String> itPricesAux1 =auxPricesObj.keys();
+                        while(itPricesAux1.hasNext()){
+                            JSONObject auxPricesObj1 = auxPricesObj.getJSONObject(itPricesAux1.next());
+                            result = result.put(auxPricesObj1.getString("rateCode"),aux.put("price",auxPricesObj1.getJSONObject("pricePerUnit").getDouble("USD")));
+                        }
                     }
                 }
             }
         }
-        auxString = auxString +"}";
-        return(new JSONObject(auxString));
+        return(result);
     }
 }
