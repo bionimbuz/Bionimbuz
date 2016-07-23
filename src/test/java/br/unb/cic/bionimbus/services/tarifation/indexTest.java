@@ -16,7 +16,7 @@ import org.junit.Test;
  */
 
 /**
- *  Notes: To check if this test is OK or no, check the Output of the method!
+ *  Notes: To check if this test is OK or no, check the Output of the method! 
  */
 public class indexTest {
     
