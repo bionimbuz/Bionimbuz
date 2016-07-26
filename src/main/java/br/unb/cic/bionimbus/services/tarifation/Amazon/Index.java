@@ -178,7 +178,12 @@ public class Index {
                         Iterator<String> itPricesAux1 =auxPricesObj.keys();
                         while(itPricesAux1.hasNext()){
                             JSONObject auxPricesObj1 = auxPricesObj.getJSONObject(itPricesAux1.next());
-                            result = result.put(auxPricesObj1.getString("rateCode"),aux.put("price",auxPricesObj1.getJSONObject("pricePerUnit").getDouble("USD")));
+                            aux = aux.put("price",auxPricesObj1.getJSONObject("pricePerUnit").getDouble("USD"));
+                            aux = aux.put("rateCode",auxPricesObj1.getString("rateCode"));
+                            aux = aux.put("description",auxPricesObj1.getString("description"));
+                            aux = aux.put("beginRange",auxPricesObj1.getString("beginRange"));
+                            aux = aux.put("endRange",auxPricesObj1.getString("endRange"));
+                            result = result.put(auxPricesObj1.getString("rateCode"),aux);
                         }
                     }
                 }
@@ -203,7 +208,9 @@ public class Index {
                         Iterator<String> itPricesAux1 =auxPricesObj.keys();
                         while(itPricesAux1.hasNext()){
                             JSONObject auxPricesObj1 = auxPricesObj.getJSONObject(itPricesAux1.next());
-                            result = result.put(auxPricesObj1.getString("rateCode"),aux.put("price",auxPricesObj1.getJSONObject("pricePerUnit").getDouble("USD")));
+                            aux = aux.put("price",auxPricesObj1.getJSONObject("pricePerUnit").getDouble("USD"));
+                            aux = aux.put("rateCode",auxPricesObj1.getString("rateCode"));
+                            result = result.put(auxPricesObj1.getString("rateCode"),aux);
                         }
                     }
                 }
@@ -228,7 +235,9 @@ public class Index {
                         Iterator<String> itPricesAux1 =auxPricesObj.keys();
                         while(itPricesAux1.hasNext()){
                             JSONObject auxPricesObj1 = auxPricesObj.getJSONObject(itPricesAux1.next());
-                            result = result.put(auxPricesObj1.getString("rateCode"),aux.put("price",auxPricesObj1.getJSONObject("pricePerUnit").getDouble("USD")));
+                            aux = aux.put("price",auxPricesObj1.getJSONObject("pricePerUnit").getDouble("USD"));
+                            aux = aux.put("rateCode",auxPricesObj1.getString("rateCode"));
+                            result = result.put(auxPricesObj1.getString("rateCode"),aux);
                         }
                     }
                 }
