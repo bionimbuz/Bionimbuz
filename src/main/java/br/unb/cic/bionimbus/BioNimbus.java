@@ -115,7 +115,9 @@ public class BioNimbus {
         BioNimbusConfig config = loadHostConfig(configFile);
 
         // !!! MEDIDA PALEATIVA !!! Para nao ter que trocar o node.yaml toda vez
+
 //        config.setZkConnString(InetAddress.getLocalHost().getHostAddress() + ":2181");
+
 //        config.setAddress(InetAddress.getLocalHost().getHostAddress());
 
         // Adiciona usuário 'root' para teste 

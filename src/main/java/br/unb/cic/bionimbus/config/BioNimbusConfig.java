@@ -103,6 +103,18 @@ public class BioNimbusConfig {
 
     @JsonProperty("credentials-file")
     private String credentialsFile;
+    
+    @JsonProperty("buckets-folder")
+    private String bucketsFolder;
+    
+    @JsonProperty("buckets-auth-folder")
+    private String bucketsAuthFolder;
+    
+    @JsonProperty("gcloud-folder")
+    private String gcloudFolder;
+    
+    @JsonProperty("storage-mode")
+    private String storageMode;
 
     public void setRpcProtocol(String rpcProtocol) {
         this.rpcProtocol = rpcProtocol;
@@ -308,6 +320,38 @@ public class BioNimbusConfig {
         this.credentialsFile = credentialsFile;
     }
 
+    public String getBucketsFolder() {
+        return bucketsFolder;
+    }
+
+    public void setBucketsFolder(String bucketsFolder) {
+        this.bucketsFolder = bucketsFolder;
+    }
+
+    public String getBucketsAuthFolder() {
+        return bucketsAuthFolder;
+    }
+
+    public void setBucketsAuthFolder(String bucketsAuthFolder) {
+        this.bucketsAuthFolder = bucketsAuthFolder;
+    }
+
+    public String getGcloudFolder() {
+        return gcloudFolder;
+    }
+
+    public void setGcloudFolder(String gcloudFolder) {
+        this.gcloudFolder = gcloudFolder;
+    }
+
+        public String getStorageMode() {
+        return storageMode;
+    }
+
+    public void setStorageMode(String storageMode) {
+        this.storageMode = storageMode;
+    }
+    
     @Override
     public String toString() {
         return Objects.toStringHelper(this)

@@ -86,7 +86,9 @@ public class FileDao extends AbstractDao<FileInfo> {
             manager = EntityManagerProducer.getEntityManager();
 
             manager.getTransaction().begin();
-            manager.remove(fileInfo);
+            //em.remove(em.contains(entity) ? entity : em.merge(entity));
+            manager.remove(manager.contains(fileInfo) ? fileInfo : manager.merge(fileInfo));
+            //manager.remove(fileInfo);
             manager.getTransaction().commit();
 
         } catch (Exception e) {
@@ -117,6 +119,21 @@ public class FileDao extends AbstractDao<FileInfo> {
         // Close connection
         manager.close();
 
+        return result;
+    }
+    
+    public FileInfo findByStringId (String id) {
+        // Creates entity manager
+        manager = EntityManagerProducer.getEntityManager();
+
+        // Find the file
+        TypedQuery<FileInfo> query = manager.createQuery("SELECT u FROM FileInfo u WHERE u.id = :id", FileInfo.class);
+        query.setParameter("id", id);
+        FileInfo result = query.getSingleResult();
+        
+        // Close connection
+        manager.close();
+        
         return result;
     }
 

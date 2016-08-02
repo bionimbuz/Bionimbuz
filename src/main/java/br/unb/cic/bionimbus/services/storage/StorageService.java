@@ -166,7 +166,7 @@ public class StorageService extends AbstractBioService {
     }
 
     /**
-     * Verifica os arquivos que existem no recurso. Alterado para synchronized
+     * Verifica os arquivos que existem no recurso e adiciona no Zookeeper os arquivos novos. Alterado para synchronized
      * para evitar condição de corrida.
      */
     public synchronized void checkFiles() {

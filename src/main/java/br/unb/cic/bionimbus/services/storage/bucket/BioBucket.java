@@ -3,9 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.unb.cic.bionimbus.toSort;
+package br.unb.cic.bionimbus.services.storage.bucket;
 
-import br.unb.cic.bionimbus.toSort.CloudStorageMethods.*;
+import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageMethods.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *
@@ -18,15 +21,16 @@ public class BioBucket {
     private String mountPoint;
     private String endPoint;
     private boolean mounted;
+    private boolean inUse;
     
-    private float bandwith; // em B/s
+    private float upBandwith; // em B/s
+    private float dlBandwith; // em B/s
     private float latency;
 
     public BioBucket (StorageProvider provider, String name, String mountPoint) {
         this.provider = provider;
         this.name = name;
         this.mountPoint = mountPoint;
-        this.endPoint = endPoint;
         mounted = false;
     }
     
@@ -62,6 +66,14 @@ public class BioBucket {
         this.mounted = mounted;
     }
 
+    public boolean isInUse() {
+        return inUse;
+    }
+
+    public void setInUse(boolean inUse) {
+        this.inUse = inUse;
+    }
+    
     public String getEndPoint() {
         return endPoint;
     }
@@ -70,12 +82,26 @@ public class BioBucket {
         this.endPoint = endpoint;
     }
 
-    public float getBandwith() {
-        return bandwith;
+    public float getUpBandwith() {
+        return upBandwith;
     }
 
-    public void setBandwith(float bandwith) {
-        this.bandwith = bandwith;
+    public void setUpBandwith(float upBandwith) {
+        this.upBandwith = upBandwith;
+    }
+
+    public float getDlBandwith() {
+        return dlBandwith;
+    }
+
+    public void setDlBandwith(float dlBandwith) {
+        this.dlBandwith = dlBandwith;
+    }
+    
+    public float getAvgBandwith() {
+        float avg = (upBandwith + dlBandwith)/2;
+        
+        return avg;
     }
     
     public float getLatency() {
@@ -86,5 +112,14 @@ public class BioBucket {
         this.latency = latency;
     }
     
+    @Override
+    public String toString() {
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (Exception ex) {
+            Logger.getLogger(BioBucket.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
     
 }

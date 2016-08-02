@@ -16,12 +16,13 @@
             <!-- Database URL -->
             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/bionimbuz_db" />
 
-            <!-- Database user MUST CHANGE-->
-            <property name="javax.persistence.jdbc.user" value="****" />
 
-            <!-- Database Password MUST CHANGE -->
-            <property name="javax.persistence.jdbc.password" value="****" />
-            
+            <!-- Database user -->
+            <property name="javax.persistence.jdbc.user" value="root" />
+
+            <!-- Database Password -->
+            <property name="javax.persistence.jdbc.password" value="root" />
+
             <!-- Hibernate definitions -->
             <property name="hibernate.show_sql" value="false" />
             <property name="hibernate.format_sql" value="false" />
@@ -31,3 +32,4 @@
         </properties>
     </persistence-unit>
 </persistence>			
+
