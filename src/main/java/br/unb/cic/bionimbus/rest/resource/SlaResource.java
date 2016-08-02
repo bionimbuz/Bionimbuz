@@ -5,12 +5,17 @@
  */
 package br.unb.cic.bionimbus.rest.resource;
 
+import br.unb.cic.bionimbus.avro.rpc.AvroClient;
+import static br.unb.cic.bionimbus.config.BioNimbusConfigLoader.loadHostConfig;
 import br.unb.cic.bionimbus.model.Log;
 import br.unb.cic.bionimbus.model.LogSeverity;
 import br.unb.cic.bionimbus.persistence.dao.WorkflowLoggerDao;
 import br.unb.cic.bionimbus.rest.request.RequestInfo;
 import br.unb.cic.bionimbus.rest.request.StartSlaRequest;
+import br.unb.cic.bionimbus.rest.request.StartWorkflowRequest;
+import static br.unb.cic.bionimbus.rest.resource.AbstractResource.rpcClient;
 import br.unb.cic.bionimbus.rest.response.ResponseInfo;
+import java.io.IOException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -22,9 +27,12 @@ import javax.ws.rs.core.Response;
  *
  * @author biolabid2
  */
+@Path("/rest")
 public class SlaResource extends AbstractResource{
     private final WorkflowLoggerDao loggerDao;
-
+    private StartWorkflowRequest startworkflow;
+    private WorkflowResource workflowR;
+    
     public SlaResource() {
         this.loggerDao = null;
     }
@@ -45,6 +53,7 @@ public class SlaResource extends AbstractResource{
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response startWorkflow(StartSlaRequest request) {
+        System.out.println(" algo"+ request.toString());
         LOGGER.info("New workflow received {id=" + request.getWorkflow().getId()
                 + ",jobs=" + request.getWorkflow().getJobs().size()
                 + ",userId=" + request.getWorkflow().getUserId()
@@ -54,14 +63,16 @@ public class SlaResource extends AbstractResource{
         loggerDao.log(new Log("QoS chegou no servidor do BioNimbuZ", request.getSla().getUser().getId(), request.getSla().getId(), LogSeverity.INFO));
 
         try {
+            startworkflow= new StartWorkflowRequest(request.getWorkflow());
+        
             // Starts it
-            jobController.startWorkflow(request.getWorkflow());
+            workflowR.startWorkflow(startworkflow);
 
             // Sets its status as EXECUTING
       //      request.getWorkflow().setStatus(WorkflowStatus.EXECUTING);
-
+             
             // If it gets started with success, persists it on database
-       //     workflowDao.persist(request.getWorkflow());
+  
 
         } catch (Exception e) {
             // Logs
