@@ -162,3 +162,72 @@ ctrl+o, enter, ctrl+x
 -------------------------------------------------------------------------------------------------------------
 sudo /etc/init.d/ssh restart
 -------------------------------------------------------------------------------------------------------------
+
+
+##### Configurações para executar o novo serviço de armazenamento (buckets)
+
+###### 1. Dependências
+
+Instale o s3fs-fuse:
+-------------------------------------------------------------------------------------------------------------
+sudo apt-get install build-essential git libfuse-dev libcurl4-openssl-dev libxml2-dev mime-support automake libtool
+sudo apt-get install pkg-config libssl-dev
+git clone https://github.com/s3fs-fuse/s3fs-fuse
+cd s3fs-fuse/
+./autogen.sh
+./configure --prefix=/usr --with-openssl
+make
+sudo make install
+-------------------------------------------------------------------------------------------------------------
+
+Instale o gcs-fuse e o gcloud:
+-------------------------------------------------------------------------------------------------------------
+export GCSFUSE_REPO=gcsfuse-`lsb_release -c -s`
+echo "deb http://packages.cloud.google.com/apt $GCSFUSE_REPO main" | sudo tee /etc/apt/sources.list.d/gcsfuse.list
+curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install gcsfuse
+sudo apt-get install google-cloud-sdk
+-------------------------------------------------------------------------------------------------------------
+
+###### 2. Arquivos de credenciais
+
+###### 2.1. Amazon
+
+Acesse o AWS, clique sobre o nome do usuário e vá em "Security Credentials".
+Em seguida vá em "Access Keys (Access Key ID and Secret Access Key)" e depois "Create New Access Key".
+Veja o conteúdo da nova key em "Show Access Key".
+Crie um novo arquivo (/-/-/Auth/accesskey.txt) com o seguinte conteúdo:
+-------------------------------------------------------------------------------------------------------------
+accessKeyId:secretAccessKey
+-------------------------------------------------------------------------------------------------------------
+Altere as permissões para esse arquivo:
+-------------------------------------------------------------------------------------------------------------
+chmod 640 /*/*/Auth/accesskey.txt
+-------------------------------------------------------------------------------------------------------------
+
+###### 2.2. Google
+
+Acesse a página de credenciais (https://console.developers.google.com/project/_/apis/credentials) e selecione o projeto.
+Clique em "Create credentials" e selecione "Service account key".
+Selecione a Service account "Compute Engine default service account" e crie um JSON.
+Salve esse JSON em (/-/-/Auth/cred.json).
+
+###### 3. Arquivos de configuração
+
+Configure os arquivos de configuração do BioNimbuz Core (conf/node.yaml) e BioNimbuZ Client (conf/conf.yaml):
+
+-------------------------------------------------------------------------------------------------------------
+ # Path to the folder whre the Buckets will be mounted
+buckets-folder: /*/*/buckets/
+
+ # Path containing the files used to authenticate the Storage Services (Bucket)
+buckets-auth-folder: /*/*/Auth/
+
+ # Path to de binary of gcloud/gsutil line-command ($ which gcloud)
+gcloud-folder: /*/*/bin/
+
+ # Coloque 1 para o novo serviço 
+storage-mode: 1
+-------------------------------------------------------------------------------------------------------------
+
