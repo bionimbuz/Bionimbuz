@@ -70,12 +70,13 @@ public class FileResource extends AbstractResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response handleUploadedFile(@MultipartForm UploadRequest request) throws InterruptedException, JSchException, SftpException, NoSuchAlgorithmException {
 
-        if (config.getStorageMode().equalsIgnoreCase("0")) {
-            try {
-                LOGGER.info("Upload request received [filename=" + request.getFileInfo().getName() + "]");
+        LOGGER.info("Upload request received [filename=" + request.getFileInfo().getName() + "]");
 
-                // Writes file on disk
-                String filepath = writeFile(request.getData(), request.getFileInfo().getName(), request.getFileInfo().getUserId());
+        try {
+            // Writes file on disk
+            String filepath = writeFile(request.getData(), request.getFileInfo().getName(), request.getFileInfo().getUserId());
+
+            if (config.getStorageMode().equalsIgnoreCase("0")) {
 
                 // Verify integrity
                 String hashedFile = verifyIntegrity(request.getFileInfo(), filepath);
@@ -85,27 +86,28 @@ public class FileResource extends AbstractResource {
 
                     // Copy to data-folder
                     copyFileToDataFolder(filepath, request.getFileInfo().getName());
-
-                    // Creates an UserFile using UploadadeFileInfo from request and persists on Database
-                    fileDao.persist(request.getFileInfo());
-
-                    return Response.status(200).entity(true).build();
                 }
 
-            } catch (IOException e) {
-                LOGGER.error("[IOException] " + e.getMessage());
-                e.printStackTrace();
+            } else {
+                CloudStorageMethods methodsInstance = new CloudMethodsAmazonGoogle();
+                
+                BioBucket dest = CloudStorageService.getBestBucket(CloudStorageService.getBucketList());
+                methodsInstance.StorageUploadFile(dest, "/data-folder/", UPLOADED_FILES_DIRECTORY , request.getFileInfo().getName());
+                
+                File temp = new File(filepath);
+                temp.delete();
             }
 
-            return Response.status(500).entity(false).build();
-            
-        } else {
-        
-            LOGGER.info("Upload request received [filename=" + request.getFileInfo().getName() + "]");
-
+            // Creates an UserFile using UploadadeFileInfo from request and persists on Database
             fileDao.persist(request.getFileInfo());
 
             return Response.status(200).entity(true).build();
+            
+        } catch (Throwable t) {
+            LOGGER.error("[Exception] " + t.getMessage());
+            t.printStackTrace();
+
+            return Response.status(500).entity(false).build();
         }
     }
 
