@@ -5,8 +5,12 @@
  */
 package br.unb.cic.bionimbus.services.tarifation;
 
+import br.unb.cic.bionimbus.services.tarifation.Google.GoogleCloud;
 import br.unb.cic.bionimbus.services.tarifation.Google.GoogleData;
+import java.io.IOException;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.json.JSONObject;
 
 /**
@@ -16,14 +20,10 @@ import org.json.JSONObject;
 public class GoogleDataTest {
     
     public static void main(String[] args){
-        GoogleData gd = new GoogleData();
-        JSONObject Data = gd.getGoogleJsonService().getJSONObject("gcp_price_list");
-        Iterator<String> it = Data.keys();
-        
-        while(it.hasNext()){
-            Object obj = Data.get(it.next());
-            String objClass = obj.getClass().toString();
-            System.out.println(objClass);
+        try {
+            GoogleCloud gc = new GoogleCloud("https://cloudpricingcalculator.appspot.com","/static/data/pricelist.json");
+        } catch (IOException ex) {
+            Logger.getLogger(GoogleDataTest.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }

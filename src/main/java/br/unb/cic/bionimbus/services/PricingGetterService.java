@@ -7,7 +7,7 @@ package br.unb.cic.bionimbus.services;
 
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
-import br.unb.cic.bionimbus.services.tarifation.Amazon.Index;
+import br.unb.cic.bionimbus.services.tarifation.Amazon.AmazonIndex;
 import br.unb.cic.bionimbus.services.tarifation.Google.GoogleDataGet;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import com.amazonaws.util.json.JSONException;
@@ -81,7 +81,7 @@ public class PricingGetterService extends AbstractBioService {
     @Override
     public void run() {
         try {
-            Index AmazonInstancesInfo = new Index("pricing.us-east-1.amazonaws.com", "/offers/v1.0/aws/index.json");
+            AmazonIndex AmazonInstancesInfo = new AmazonIndex("pricing.us-east-1.amazonaws.com", "/offers/v1.0/aws/index.json");
         } catch (JSONException | IOException ex) {
             Logger.getLogger(PricingGetterService.class.getName()).log(Level.SEVERE, null, ex);
         }

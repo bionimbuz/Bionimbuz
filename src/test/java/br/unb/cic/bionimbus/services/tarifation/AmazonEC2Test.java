@@ -6,7 +6,7 @@
 package br.unb.cic.bionimbus.services.tarifation;
 
 import br.unb.cic.bionimbus.services.tarifation.Amazon.AmazonEC2;
-import br.unb.cic.bionimbus.services.tarifation.Amazon.Index;
+import br.unb.cic.bionimbus.services.tarifation.Amazon.AmazonIndex;
 import com.amazonaws.util.json.JSONException;
 import java.io.IOException;
 import org.junit.Test;
