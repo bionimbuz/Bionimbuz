@@ -8,7 +8,7 @@ package br.unb.cic.bionimbus.services;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.tarifation.Amazon.AmazonIndex;
-import br.unb.cic.bionimbus.services.tarifation.Google.GoogleDataGet;
+import br.unb.cic.bionimbus.services.tarifation.Google.GoogleCloud;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import com.amazonaws.util.json.JSONException;
 import com.google.common.base.Preconditions;
@@ -44,18 +44,15 @@ public class PricingGetterService extends AbstractBioService {
 
     @Override
     public void start(BioNimbusConfig config, List<Listeners> listeners) {
-        try {
-            Preconditions.checkNotNull(listeners);
-            this.config = config;
-            this.listeners = listeners;
 
-            listeners.add(this);
+        Preconditions.checkNotNull(listeners);
+        this.config = config;
+        this.listeners = listeners;
 
-            schedExecService.scheduleAtFixedRate(this, 0, PERIOD_HOURS, TimeUnit.HOURS);
+        listeners.add(this);
 
-        } catch (Exception ex) {
-            Logger.getLogger(PricingGetterService.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        schedExecService.scheduleAtFixedRate(this, 0, PERIOD_HOURS, TimeUnit.HOURS);
+
     }
 
     @Override
@@ -85,7 +82,7 @@ public class PricingGetterService extends AbstractBioService {
         } catch (JSONException | IOException ex) {
             Logger.getLogger(PricingGetterService.class.getName()).log(Level.SEVERE, null, ex);
         }
-        GoogleDataGet gdg = new GoogleDataGet();
+        GoogleCloud gdg = new GoogleCloud();
     }
 
 }
