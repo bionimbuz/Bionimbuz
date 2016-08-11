@@ -2,17 +2,8 @@ package br.unb.cic.bionimbus.services.tarifation.Amazon;
 
 import br.unb.cic.bionimbus.services.tarifation.JsonReader;
 import com.amazonaws.util.json.JSONException;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.json.JSONObject;
 
 /**
@@ -95,7 +86,7 @@ public class AmazonIndex {
         String AmazonVPC = "https://" + server + amazonServicesURLs.getJSONObject("AmazonVPC").getString("currentVersionUrl");
         this.AmazonVPC = JsonReader.readJsonFromUrl(AmazonVPC);
         JsonReader.saveJson(this.AmazonVPC.toString(4), "AmazonVPC.json");
-        */
+         */
         String AmazonEC2 = "https://" + server + amazonServicesURLs.getJSONObject("AmazonEC2").getString("currentVersionUrl");
         this.AmazonEC2 = JsonReader.readJsonFromUrl(AmazonEC2);
         JsonReader.saveJson(this.AmazonEC2.toString(4), "AmazonEC2.json");
@@ -136,7 +127,7 @@ public class AmazonIndex {
         this.awskms = JsonReader.readJson(awskms);
         String AmazonVPC = "AmazonVPC.json";
         this.AmazonVPC = JsonReader.readJson(AmazonVPC);
-        */
+         */
         String AmazonEC2 = "AmazonEC2.json";
         this.AmazonEC2 = JsonReader.readJson(AmazonEC2);
     }
@@ -158,9 +149,9 @@ public class AmazonIndex {
         JSONObject result = new JSONObject();
         while (it.hasNext()) {
             JSONObject aux = products.getJSONObject(it.next());
-            if(aux.has("productFamily")){
+            if (aux.has("productFamily")) {
                 if (aux.getString("productFamily").equals("Compute Instance")) {
-                    if ((aux.getJSONObject("attributes").getString("licenseModel").equals("License Included"))&&(aux.getJSONObject("attributes").getString("tenancy").equals("Shared"))&&(aux.getJSONObject("attributes").getString("preInstalledSw").equals("NA"))&&(aux.getJSONObject("attributes").getString("instanceType").equals(instanceType)) && (aux.getJSONObject("attributes").getString("location").equals(location)) && (aux.getJSONObject("attributes").getString("operatingSystem").equals(os))) {
+                    if ((aux.getJSONObject("attributes").getString("licenseModel").equals("License Included")) && (aux.getJSONObject("attributes").getString("tenancy").equals("Shared")) && (aux.getJSONObject("attributes").getString("preInstalledSw").equals("NA")) && (aux.getJSONObject("attributes").getString("instanceType").equals(instanceType)) && (aux.getJSONObject("attributes").getString("location").equals(location)) && (aux.getJSONObject("attributes").getString("operatingSystem").equals(os))) {
                         Iterator<String> itPricesAux = prices.getJSONObject(aux.getString("sku")).keys();
                         while (itPricesAux.hasNext()) {
                             JSONObject auxPricesObj = prices.getJSONObject(aux.getString("sku")).getJSONObject(itPricesAux.next());
@@ -199,9 +190,9 @@ public class AmazonIndex {
         JSONObject result = new JSONObject();
         while (it.hasNext()) {
             JSONObject aux = products.getJSONObject(it.next());
-            if(aux.has("productFamily")){
+            if (aux.has("productFamily")) {
                 if (aux.getString("productFamily").equals("Compute Instance")) {
-                    if ((aux.getJSONObject("attributes").getString("licenseModel").equals("License Included"))&&(aux.getJSONObject("attributes").getString("tenancy").equals("Shared"))&&(aux.getJSONObject("attributes").getString("preInstalledSw").equals("NA"))&&(aux.getJSONObject("attributes").getString("instanceType").equals(instanceType)) && (aux.getJSONObject("attributes").getString("location").equals(location))) {
+                    if ((aux.getJSONObject("attributes").getString("licenseModel").equals("License Included")) && (aux.getJSONObject("attributes").getString("tenancy").equals("Shared")) && (aux.getJSONObject("attributes").getString("preInstalledSw").equals("NA")) && (aux.getJSONObject("attributes").getString("instanceType").equals(instanceType)) && (aux.getJSONObject("attributes").getString("location").equals(location))) {
                         Iterator<String> itPricesAux = prices.getJSONObject(aux.getString("sku")).keys();
                         while (itPricesAux.hasNext()) {
                             JSONObject auxPricesObj = prices.getJSONObject(aux.getString("sku")).getJSONObject(itPricesAux.next());
@@ -236,9 +227,9 @@ public class AmazonIndex {
         JSONObject result = new JSONObject();
         while (it.hasNext()) {
             JSONObject aux = products.getJSONObject(it.next());
-            if(aux.has("productFamily")){
+            if (aux.has("productFamily")) {
                 if (aux.getString("productFamily").equals("Compute Instance")) {
-                    if ((aux.getJSONObject("attributes").getString("licenseModel").equals("License Included"))&&(aux.getJSONObject("attributes").getString("tenancy").equals("Shared"))&&(aux.getJSONObject("attributes").getString("preInstalledSw").equals("NA"))&&(aux.getJSONObject("attributes").getString("instanceType").equals(instanceType))) {
+                    if ((aux.getJSONObject("attributes").getString("licenseModel").equals("License Included")) && (aux.getJSONObject("attributes").getString("tenancy").equals("Shared")) && (aux.getJSONObject("attributes").getString("preInstalledSw").equals("NA")) && (aux.getJSONObject("attributes").getString("instanceType").equals(instanceType))) {
                         Iterator<String> itPricesAux = prices.getJSONObject(aux.getString("sku")).keys();
                         while (itPricesAux.hasNext()) {
                             JSONObject auxPricesObj = prices.getJSONObject(aux.getString("sku")).getJSONObject(itPricesAux.next());

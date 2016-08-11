@@ -1,12 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package br.unb.cic.bionimbus.services.tarifation;
 
-import br.unb.cic.bionimbus.services.tarifation.Amazon.AmazonData;
-import br.unb.cic.bionimbus.services.tarifation.Amazon.AmazonDataGet;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -20,7 +13,6 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONException;
@@ -28,34 +20,34 @@ import org.json.JSONObject;
 
 public class JsonReader {
 
-  private static String readAll(Reader rd) throws IOException {
-    StringBuilder sb = new StringBuilder();
-    int cp;
-    while ((cp = rd.read()) != -1) {
-      sb.append((char) cp);
+    private static String readAll(Reader rd) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        int cp;
+        while ((cp = rd.read()) != -1) {
+            sb.append((char) cp);
+        }
+        return sb.toString();
     }
-    return sb.toString();
-  }
 
-  public static JSONObject readJsonFromUrl(String urlString) throws IOException, JSONException {
-    URL url = new URL(urlString);
-    URLConnection uc;
-    uc = url.openConnection();
-    uc.addRequestProperty("User-Agent", 
-"Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
-    uc.connect();
-    InputStream is = uc.getInputStream();
-    try {
-      BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-      String jsonText = readAll(rd);
-      JSONObject json = new JSONObject(jsonText);
-      return json;
-    } finally {
-      is.close();
+    public static JSONObject readJsonFromUrl(String urlString) throws IOException, JSONException {
+        URL url = new URL(urlString);
+        URLConnection uc;
+        uc = url.openConnection();
+        uc.addRequestProperty("User-Agent",
+                "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
+        uc.connect();
+        InputStream is = uc.getInputStream();
+        try {
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+            String jsonText = readAll(rd);
+            JSONObject json = new JSONObject(jsonText);
+            return json;
+        } finally {
+            is.close();
+        }
     }
-  }
-  
-      /*
+
+    /*
      This method is used to save jsons from services on files.
      */
     public static void saveJson(String array, String filename) {
@@ -65,12 +57,11 @@ public class JsonReader {
             OutputStreamWriter osw = new OutputStreamWriter(os);
             try (BufferedWriter bw = new BufferedWriter(osw)) {
                 bw.write(array);
+            } catch (IOException ex) {
+                Logger.getLogger(JsonReader.class.getName()).log(Level.SEVERE, null, ex);
             }
-
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(AmazonDataGet.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(AmazonDataGet.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JsonReader.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -79,8 +70,9 @@ public class JsonReader {
      */
     public static JSONObject readJson(String filename) {
 
+        BufferedReader br;
         try {
-            BufferedReader br = new BufferedReader(new FileReader(filename));
+            br = new BufferedReader(new FileReader(filename));
             StringBuilder sb = new StringBuilder();
             String line = br.readLine();
 
@@ -100,9 +92,9 @@ public class JsonReader {
                 return (null);
             }
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(AmazonData.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JsonReader.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(AmazonData.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JsonReader.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return (null);
