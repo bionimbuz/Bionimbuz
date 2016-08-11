@@ -6,6 +6,9 @@
 package br.unb.cic.bionimbus.services.tarifation;
 
 import br.unb.cic.bionimbus.services.tarifation.Google.GoogleCloud;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
