@@ -1,6 +1,6 @@
-package br.unb.cic.bionimbus.services.tarifation;
+package br.unb.cic.bionimbus.services.tarification;
 
-import br.unb.cic.bionimbus.services.tarifation.Amazon.AmazonIndex;
+import br.unb.cic.bionimbus.services.tarification.Amazon.AmazonIndex;
 import com.amazonaws.util.json.JSONException;
 import java.io.IOException;
 import org.junit.Test;

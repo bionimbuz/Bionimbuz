@@ -1,4 +1,4 @@
-package br.unb.cic.bionimbus.services.tarifation;
+package br.unb.cic.bionimbus.services.tarification;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

@@ -1,7 +1,7 @@
-package br.unb.cic.bionimbus.services.tarifation.Google;
+package br.unb.cic.bionimbus.services.tarification.Google;
 
-import br.unb.cic.bionimbus.services.tarifation.JsonReader;
-import br.unb.cic.bionimbus.services.tarifation.Utils.RestfulGetterBehaviors.PricingGet;
+import br.unb.cic.bionimbus.services.tarification.JsonReader;
+import br.unb.cic.bionimbus.services.tarification.Utils.RestfulGetterBehaviors.PricingGet;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;

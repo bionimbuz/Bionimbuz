@@ -1,6 +1,6 @@
-package br.unb.cic.bionimbus.services.tarifation.Amazon;
+package br.unb.cic.bionimbus.services.tarification.Amazon;
 
-import br.unb.cic.bionimbus.services.tarifation.JsonReader;
+import br.unb.cic.bionimbus.services.tarification.JsonReader;
 import com.amazonaws.util.json.JSONException;
 import java.io.IOException;
 import java.util.Iterator;

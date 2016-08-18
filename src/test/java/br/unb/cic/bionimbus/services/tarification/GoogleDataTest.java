@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.unb.cic.bionimbus.services.tarifation;
+package br.unb.cic.bionimbus.services.tarification;
 
-import br.unb.cic.bionimbus.services.tarifation.Google.GoogleCloud;
+import br.unb.cic.bionimbus.services.tarification.Google.GoogleCloud;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;

@@ -3,8 +3,8 @@ package br.unb.cic.bionimbus.services;
 
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
-import br.unb.cic.bionimbus.services.tarifation.Amazon.AmazonIndex;
-import br.unb.cic.bionimbus.services.tarifation.Google.GoogleCloud;
+import br.unb.cic.bionimbus.services.tarification.Amazon.AmazonIndex;
+import br.unb.cic.bionimbus.services.tarification.Google.GoogleCloud;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import com.amazonaws.util.json.JSONException;
 import com.google.common.base.Preconditions;

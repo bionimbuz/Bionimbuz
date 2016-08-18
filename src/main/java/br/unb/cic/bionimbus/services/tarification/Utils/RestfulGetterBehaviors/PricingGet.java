@@ -1,6 +1,6 @@
-package br.unb.cic.bionimbus.services.tarifation.Utils.RestfulGetterBehaviors;
+package br.unb.cic.bionimbus.services.tarification.Utils.RestfulGetterBehaviors;
 
-import br.unb.cic.bionimbus.services.tarifation.Utils.RestfulGetter;
+import br.unb.cic.bionimbus.services.tarification.Utils.RestfulGetter;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
