@@ -16,8 +16,8 @@ public class indexTest {
 
     @Test
     public void indexTest() throws JSONException, IOException {
-        AmazonIndex idx = new AmazonIndex("pricing.us-east-1.amazonaws.com", "/offers/v1.0/aws/index.json");
-        //AmazonIndex idx = new AmazonIndex(); 
-        System.out.println(idx.EC2Instances("m4.large", "Asia Pacific (Singapore)", "Windows").toString(4));
+        //AmazonIndex idx = new AmazonIndex("pricing.us-east-1.amazonaws.com", "/offers/v1.0/aws/index.json");
+        AmazonIndex idx = new AmazonIndex(); 
+        System.out.println(idx.EC2Instances("r3.xlarge").toString(4));
     }
 }

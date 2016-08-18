@@ -136,9 +136,70 @@ public class AmazonIndex {
      * This method is used to get Instance Data from EC2 based on the instance
      * type, location and Operational System.
      *
-     * @param instanceType Specifies the instance type (as in the json).
-     * @param location Specifies the location (as in the json).
-     * @param os Specifies the OS (as in the json).
+     * @param instanceType <br>
+     *      Possible values:<br><br>
+     *          - "t2.nano"<br>
+     *          - "t2.micro"<br>
+     *          - "t2.small"<br>
+     *          - "t2medium"<br>
+     *          - "t2.large"<br>
+     *          - "m4.large"<br>
+     *          - "m4.xlarge"<br>
+     *          - "m4.2xlarge"<br>
+     *          - "m4.4xlarge"<br>
+     *          - "m4.10xlarge"<br>
+     *          - "m3.medium"<br>
+     *          - "m3.large"<br>
+     *          - "m3.xlarge"<br>
+     *          - "m3.2xlarge"<br>
+     *          - "c4.large"<br>
+     *          - "c4.xlarge"<br>
+     *          - "c4.2xlarge"<br>
+     *          - "c4.4xlarge"<br>
+     *          - "c4.8xlarge"<br>
+     *          - "c3.large"<br>
+     *          - "c3.xlarge"<br>
+     *          - "c3.2xlarge"<br>
+     *          - "c3.4xlarge"<br>
+     *          - "c3.8xlarge"<br>
+     *          - "g2.2xlarge"<br>
+     *          - "g2.8xlarge"<br>
+     *          - "x1.32xlarge"<br>
+     *          - "r3.large"<br>
+     *          - "r3.xlarge"<br>
+     *          - "r3.2xlarge"<br>
+     *          - "r3.4xlarge"<br>
+     *          - "r3.8xlarge"<br>
+     *          - "i2.xlarge"<br>
+     *          - "i2.2xlarge"<br>
+     *          - "i2.4xlarge"<br>
+     *          - "i2.8xlarge"<br>
+     *          - "d2.xlarge"<br>
+     *          - "d2.2xlarge"<br>
+     *          - "d2.4xlarge"<br>
+     *          - "d2.8xlarge"<br>
+     * @param location
+     *      Possible values:<br><br>
+     *          - "Asia Pacific (Mumbai)" <br>
+     *          - "Asia Pacific (Seoul)" <br>
+     *          - "Asia Pacific (Tokyo)" <br>
+     *          - "Asia Pacific (Singapore)" <br>
+     *          - "Asia Pacific (Sydney)" <br>
+     *          - "South America (Sao Paulo)" <br>
+     *          - "AWS GovCloud (US)" <br>
+     *          - "US West (Oregon)" <br>
+     *          - "US West (N. California)" <br>
+     *          - "US East (N. Virginia)" <br>
+     *          - "EU (Frankfurt)" <br>
+     *          - "EU (Ireland)" <br>
+     * 
+     * @param os
+     *      Possible values:<br><br>
+     *          - "Windows"<br>
+     *          - "SUSE"<br>
+     *          - "Linux"<br>
+     *          - "RHEL"<br>
+     * 
      * @return A json Object with all the json objects that matches with the
      * specified input.
      */
@@ -178,8 +239,63 @@ public class AmazonIndex {
      * This method is used to get Instance Data from EC2 based on the instance
      * type and location.
      *
-     * @param instanceType Specifies the instance type (as in the json).
-     * @param location Specifies the location (as in the json).
+     * @param instanceType <br>
+     *      Possible values:<br><br>
+     *          - "t2.nano"<br>
+     *          - "t2.micro"<br>
+     *          - "t2.small"<br>
+     *          - "t2medium"<br>
+     *          - "t2.large"<br>
+     *          - "m4.large"<br>
+     *          - "m4.xlarge"<br>
+     *          - "m4.2xlarge"<br>
+     *          - "m4.4xlarge"<br>
+     *          - "m4.10xlarge"<br>
+     *          - "m3.medium"<br>
+     *          - "m3.large"<br>
+     *          - "m3.xlarge"<br>
+     *          - "m3.2xlarge"<br>
+     *          - "c4.large"<br>
+     *          - "c4.xlarge"<br>
+     *          - "c4.2xlarge"<br>
+     *          - "c4.4xlarge"<br>
+     *          - "c4.8xlarge"<br>
+     *          - "c3.large"<br>
+     *          - "c3.xlarge"<br>
+     *          - "c3.2xlarge"<br>
+     *          - "c3.4xlarge"<br>
+     *          - "c3.8xlarge"<br>
+     *          - "g2.2xlarge"<br>
+     *          - "g2.8xlarge"<br>
+     *          - "x1.32xlarge"<br>
+     *          - "r3.large"<br>
+     *          - "r3.xlarge"<br>
+     *          - "r3.2xlarge"<br>
+     *          - "r3.4xlarge"<br>
+     *          - "r3.8xlarge"<br>
+     *          - "i2.xlarge"<br>
+     *          - "i2.2xlarge"<br>
+     *          - "i2.4xlarge"<br>
+     *          - "i2.8xlarge"<br>
+     *          - "d2.xlarge"<br>
+     *          - "d2.2xlarge"<br>
+     *          - "d2.4xlarge"<br>
+     *          - "d2.8xlarge"<br>
+     * @param location
+     *      Possible values:<br><br>
+     *          - "Asia Pacific (Mumbai)" <br>
+     *          - "Asia Pacific (Seoul)" <br>
+     *          - "Asia Pacific (Tokyo)" <br>
+     *          - "Asia Pacific (Singapore)" <br>
+     *          - "Asia Pacific (Sydney)" <br>
+     *          - "South America (Sao Paulo)" <br>
+     *          - "AWS GovCloud (US)" <br>
+     *          - "US West (Oregon)" <br>
+     *          - "US West (N. California)" <br>
+     *          - "US East (N. Virginia)" <br>
+     *          - "EU (Frankfurt)" <br>
+     *          - "EU (Ireland)" <br>
+     * 
      * @return A json Object with all the json objects that matches with the
      * specified input.
      */
@@ -215,8 +331,50 @@ public class AmazonIndex {
     /**
      * This method is used to get Instance Data from EC2 based on the instance
      * type.
-     *
-     * @param instanceType Specifies the instance type (as in the json).
+     
+     * @param instanceType <br>
+     *      Possible values:<br><br>
+     *          - "t2.nano"<br>
+     *          - "t2.micro"<br>
+     *          - "t2.small"<br>
+     *          - "t2medium"<br>
+     *          - "t2.large"<br>
+     *          - "m4.large"<br>
+     *          - "m4.xlarge"<br>
+     *          - "m4.2xlarge"<br>
+     *          - "m4.4xlarge"<br>
+     *          - "m4.10xlarge"<br>
+     *          - "m3.medium"<br>
+     *          - "m3.large"<br>
+     *          - "m3.xlarge"<br>
+     *          - "m3.2xlarge"<br>
+     *          - "c4.large"<br>
+     *          - "c4.xlarge"<br>
+     *          - "c4.2xlarge"<br>
+     *          - "c4.4xlarge"<br>
+     *          - "c4.8xlarge"<br>
+     *          - "c3.large"<br>
+     *          - "c3.xlarge"<br>
+     *          - "c3.2xlarge"<br>
+     *          - "c3.4xlarge"<br>
+     *          - "c3.8xlarge"<br>
+     *          - "g2.2xlarge"<br>
+     *          - "g2.8xlarge"<br>
+     *          - "x1.32xlarge"<br>
+     *          - "r3.large"<br>
+     *          - "r3.xlarge"<br>
+     *          - "r3.2xlarge"<br>
+     *          - "r3.4xlarge"<br>
+     *          - "r3.8xlarge"<br>
+     *          - "i2.xlarge"<br>
+     *          - "i2.2xlarge"<br>
+     *          - "i2.4xlarge"<br>
+     *          - "i2.8xlarge"<br>
+     *          - "d2.xlarge"<br>
+     *          - "d2.2xlarge"<br>
+     *          - "d2.4xlarge"<br>
+     *          - "d2.8xlarge"<br>
+     * 
      * @return A json Object with all the json objects that matches with the
      * specified input.
      */

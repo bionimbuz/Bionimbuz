@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package br.unb.cic.bionimbus.services;
 
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
@@ -28,7 +24,7 @@ import org.apache.zookeeper.WatchedEvent;
  */
 public class PricingGetterService extends AbstractBioService {
 
-    private static final int PERIOD_HOURS = 12;
+    private static final int PERIOD_HOURS = 24;
     private final ScheduledExecutorService schedExecService;
 
     public PricingGetterService(final CloudMessageService cms) {
