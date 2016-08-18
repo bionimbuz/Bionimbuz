@@ -15,3 +15,4 @@ biofoco.log
 /src/main/resources/META-INF/**
 /src/main/resources/META-INF/
 /references/**
+/nbproject/
