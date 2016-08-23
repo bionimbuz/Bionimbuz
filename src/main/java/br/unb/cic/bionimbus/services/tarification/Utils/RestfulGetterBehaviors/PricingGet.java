@@ -1,12 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package br.unb.cic.bionimbus.services.tarifation.Utils.RestfulGetterBehaviors;
+package br.unb.cic.bionimbus.services.tarification.Utils.RestfulGetterBehaviors;
 
-import br.unb.cic.bionimbus.services.tarifation.Amazon.AmazonDataGet;
-import br.unb.cic.bionimbus.services.tarifation.Utils.RestfulGetter;
+import br.unb.cic.bionimbus.services.tarification.Utils.RestfulGetter;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -27,10 +21,6 @@ import org.apache.http.util.EntityUtils;
 /**
  *
  * @author Gabriel Fritz Sluzala
- */
-
-/*
- Implementação incompleta
  */
 public class PricingGet implements RestfulGetter {
 
@@ -66,7 +56,7 @@ public class PricingGet implements RestfulGetter {
             System.out.println("----------------------------------------");
             /*End of important stuff*/
 
-            /*Caso o resultado do request não seja nulo, ele é tratado*/
+ /*Caso o resultado do request não seja nulo, ele é tratado*/
             if (entity != null) {
                 return EntityUtils.toString(entity);
             } else {
@@ -83,7 +73,7 @@ public class PricingGet implements RestfulGetter {
         }
         return null;
     }
-    
+
     /**
      *
      * @param array
@@ -97,12 +87,12 @@ public class PricingGet implements RestfulGetter {
             OutputStreamWriter osw = new OutputStreamWriter(os);
             try (BufferedWriter bw = new BufferedWriter(osw)) {
                 bw.write(array);
+            } catch (IOException ex) {
+                Logger.getLogger(PricingGet.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(AmazonDataGet.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(AmazonDataGet.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PricingGet.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
