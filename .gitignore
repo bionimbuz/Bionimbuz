@@ -25,3 +25,4 @@ biofoco.log
 /conf/AmazonDataTransfer.txt
 /zookeeper.out
 /*.log
+/go-pear.phar
