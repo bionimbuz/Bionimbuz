@@ -22,13 +22,14 @@ import br.unb.cic.bionimbus.avro.gen.BioProto;
 import br.unb.cic.bionimbus.avro.rpc.AvroServer;
 import br.unb.cic.bionimbus.avro.rpc.BioProtoImpl;
 import br.unb.cic.bionimbus.avro.rpc.RpcServer;
+import br.unb.cic.bionimbus.config.ConfigurationRepository;
 import br.unb.cic.bionimbus.services.discovery.DiscoveryService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
 import br.unb.cic.bionimbus.services.monitor.MonitoringService;
 import br.unb.cic.bionimbus.services.sched.SchedService;
 import br.unb.cic.bionimbus.services.storage.StorageService;
-import br.unb.cic.bionimbus.toSort.CloudStorageService;
+import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageService;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.google.inject.AbstractModule;
@@ -69,7 +70,8 @@ public class ServiceModule extends AbstractModule {
         // 5th to be injected
         serviceBinder.addBinding().to(MonitoringService.class);
         
-        serviceBinder.addBinding().to(CloudStorageService.class);
+        if (ConfigurationRepository.getConfig().getStorageMode().equalsIgnoreCase("1"))
+            serviceBinder.addBinding().to(CloudStorageService.class);
 
     }
 

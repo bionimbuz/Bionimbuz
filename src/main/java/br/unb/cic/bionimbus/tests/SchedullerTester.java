@@ -70,9 +70,9 @@ public class SchedullerTester {
 
     private void initCommunication() {
         cms = new CuratorMessageService();
-        try {
-            Enumeration<InetAddress> inet = NetworkInterface.getByName("eth0").getInetAddresses();
-            String ip = "164.41.209.89";
+        //try {
+            //Enumeration<InetAddress> inet = NetworkInterface.getByName("eth0").getInetAddresses();
+            String ip = "10.190.60.111";
 //            if (ip.equals("")) {
 //                while (inet.hasMoreElements()) {
 //                    ip = inet.nextElement().toString();
@@ -81,9 +81,9 @@ public class SchedullerTester {
 
             cms.connect(ip + ":2181");
 
-        } catch (SocketException ex) {
-            java.util.logging.Logger.getLogger(SchedullerTester.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        } catch (SocketException ex) {
+//            java.util.logging.Logger.getLogger(SchedullerTester.class.getName()).log(Level.SEVERE, null, ex);
+//        }
 
         rs = injector.getInstance(RepositoryService.class);
 
@@ -240,7 +240,7 @@ public class SchedullerTester {
         SchedullerTester tester = new SchedullerTester();
         boolean fileTest = false;
 
-        FromMockFileTestGenerator gen = new FromMockFileTestGenerator(3);
+        FromMockFileTestGenerator gen = new FromMockFileTestGenerator(1);
         List<Workflow> pipelines = gen.getPipelinesTemplates();
 
         List<PluginService> services = gen.getServicesTemplates();
@@ -261,7 +261,7 @@ public class SchedullerTester {
         tester.addServices(services);
 //        tester.addResources(resources);
 
-        System.out.println("[SchedTester] starting testing with " + pipelines.size() + " pipelines");
+        System.out.println("[SchedTester] starting tests with " + pipelines.size() + " pipelines");
 
         // perform all tests
         Workflow fst = pipelines.get(0);

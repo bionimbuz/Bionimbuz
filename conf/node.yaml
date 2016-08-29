@@ -46,6 +46,18 @@ credentials-file: /home/biolabid2/.bionimbuz/credentials.yaml
 # Temporary uploaded files folder
 tmp-uploaded-files: /home/biolabid2/Bionimbuz/tmp/
 
+ # Path to the folder whre the Buckets will be mounted
+buckets-folder: /*/*/*/
+
+ # Path containing the files used to authenticate the Storage Services (Bucket)
+buckets-auth-folder: /*/*/*/*/
+
+ # Path to de binary of gcloud/gsutil line-command
+gcloud-folder: /*/*/*/*/
+
+ # Storage mode (0 - old/vm, 1 - cloud)
+storage-mode: 0
+
 # Reference files (keep it ORDERED)
 references:
     - referencia_hg19    

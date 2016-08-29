@@ -108,7 +108,15 @@ public class CuratorMessageService implements CloudMessageService {
         STATUS("/STATUS"),
         STATUSWAITING("/STATUSWAITING"),
         TASKS("/tasks"),
-        USERS("/users");
+        USERS("/users"),
+        BUCKETS("/buckets"),
+        NODE_BUCKET("/"),
+        BUCKET_FILES("/files"),
+        NODE_BUCKET_FILE("/");
+
+        public static String NODE_BUCKET_FILE(String bionimbuzgus, String mclovinpng) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
 
         private final String value;
 
@@ -178,6 +186,14 @@ public class CuratorMessageService implements CloudMessageService {
                     return "" + ROOT + SERVICES + NODE_SERVICE + args[0] + MODES + NODE_MODES + args[1];
                 case LOGGED_USERS:
                     return "" + ROOT + USERS + LOGGED_USERS + NODE_LOGGED_USERS + args[0];
+                case BUCKETS:
+                    return "" + ROOT + BUCKETS;
+                case NODE_BUCKET:
+                    return "" + ROOT + BUCKETS + NODE_BUCKET + args[0];
+                case BUCKET_FILES:
+                    return "" + ROOT + BUCKETS + NODE_BUCKET + args[0] + BUCKET_FILES;
+                case NODE_BUCKET_FILE:
+                    return "" + ROOT + BUCKETS + NODE_BUCKET + args[0] + BUCKET_FILES + NODE_BUCKET_FILE + args[1];
             }
             return "";
         }

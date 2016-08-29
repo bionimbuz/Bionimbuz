@@ -16,9 +16,7 @@ biofoco.log
 /uploaded-files/**
 /references/**
 /conf/node.yaml
-/src/main/resources/META-INF/**
-/references/**
-!/src/main/resources/META-INF/
+/references/**/
 /conf/GooglePrices.txt
 /conf/AmazonStorage.txt
 /conf/AmazonInstancesOD.txt
@@ -26,3 +24,4 @@ biofoco.log
 /zookeeper.out
 /*.log
 /go-pear.phar
+/nbproject/
