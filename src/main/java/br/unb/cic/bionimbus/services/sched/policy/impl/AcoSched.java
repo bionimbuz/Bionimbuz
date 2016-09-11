@@ -47,16 +47,16 @@ public class AcoSched extends SchedPolicy {
     private HashMap<String, Double> mapPluginLatency;
     private List<PluginInfo> listPlugin;
     private Double biggestProbability = Double.MIN_VALUE;
-    private Map<PluginTask, Integer> blackList = new HashMap<PluginTask, Integer>();
+    private final Map<PluginTask, Integer> blackList = new HashMap<>();
     private static final int BLACKLIST_LIMIT = 12;
     private static final String DIR_SIZEALLJOBS = "/size_jobs";
     private static final String SCHED = "/sched";
-    private static final String LATENCY = "/latency";
+  //  private static final String LATENCY = "/latency";
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AcoSched.class.getSimpleName());
     
     @Override
     public HashMap<Job, PluginInfo> schedule(List<Job> jobs) {
-        HashMap jobCloud = new HashMap<Job, PluginInfo>();
+        HashMap jobCloud = new HashMap<>();
         Job biggerJob = getBiggerJob(jobs);
         biggerJob.setTimestamp(System.currentTimeMillis());
         
@@ -169,7 +169,8 @@ public class AcoSched extends SchedPolicy {
     
     @Override
     public void jobDone(PluginTask task) {
-        String datas = getDatasZookeeper(Path.NODE_PEER.getFullPath(task.getPluginExec()), SCHED);
+         
+        String datas = getDatasZookeeper(Path.NODE_TASK.getFullPath(task.getPluginExec(),task.getJobInfo().getId()));
         
         ArrayList<Double> listAcoDatas;
         ObjectMapper mapper = new ObjectMapper();
@@ -594,7 +595,7 @@ public class AcoSched extends SchedPolicy {
         int cont = 0;
         for (PluginInfo plugin : listPlugin) {
             
-            time = new Double(getDatasZookeeper(Path.NODE_PEER.getFullPath(plugin.getId()), DIR_SIZEALLJOBS)) / ((plugin.getNumCores() - plugin.getNumOccupied()) * plugin.getCurrentFrequencyCore());
+            time = new Double(getDatasZookeeper(Path.SIZE_JOBS.getFullPath(plugin.getId()))) / ((plugin.getNumCores() - plugin.getNumOccupied()) * plugin.getCurrentFrequencyCore());
             
             if (time < timeMin) {
                 timeMin = time;
@@ -626,10 +627,10 @@ public class AcoSched extends SchedPolicy {
      * @return o mapa com os dados ACO de cada plugin
      */
     private HashMap getMapAcoDatasZooKeeper(List<PluginInfo> listClouds) {
-        HashMap map = new HashMap<String, ArrayList<Double>>();
+        HashMap map = new HashMap<>();
         String datasString;
         for (PluginInfo plugin : listClouds) {
-            datasString = getDatasZookeeper(Path.NODE_PEER.getFullPath(plugin.getId()), SCHED);
+            datasString = getDatasZookeeper(Path.TASKS.getFullPath(plugin.getId()));
             ObjectMapper mapper = new ObjectMapper();
             try {
                 if (datasString != null && !datasString.isEmpty()) {
@@ -687,10 +688,10 @@ public class AcoSched extends SchedPolicy {
      * @param dir diretório do zookeeper que contém as informações desejadas.
      * @return dados contidos no diretorio
      */
-    private String getDatasZookeeper(String zkPath, String dir) {
+    private String getDatasZookeeper(String zkPath) {
         String datas = "";
-        if (cms.getZNodeExist(zkPath + dir, null)) {
-            datas = cms.getData(zkPath + dir, null);
+        if (cms.getZNodeExist(zkPath, null)) {
+            datas = cms.getData(zkPath, null);
         }
         
         return datas;

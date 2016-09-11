@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class SchedPolicy {
     
     protected CloudMessageService cms;
-    protected RepositoryService rs;
+    protected static RepositoryService rs;
     
     public enum Policy {
         ACO_SCHED,
@@ -62,7 +62,7 @@ public abstract class SchedPolicy {
      * @return lista com as políticas.
      */
     public static List<SchedPolicy> getInstances() {
-        List<SchedPolicy> listPolicys= new ArrayList<SchedPolicy>();
+        List<SchedPolicy> listPolicys= new ArrayList<>();
         listPolicys.add(Policy.ACO_SCHED.ordinal(),new AcoSched());
         listPolicys.add(Policy.AHP.ordinal(),new AHPPolicy());
         listPolicys.add(Policy.RR.ordinal(),new RRPolicy());

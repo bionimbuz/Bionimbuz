@@ -24,3 +24,4 @@ biofoco.log
 /zookeeper.out
 /*.log
 /nbproject/
+nb-configuration.xml

@@ -79,6 +79,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
         this.workflow = workflow;
         this.service = service;
         this.task = task;
+        //server Path root
         this.path = path;
         this.cms = cms;
     }
@@ -228,7 +229,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
 
                     // Write the output files to ZooKeeper
                     rpcClient.getProxy().uploadFile(outputPath, outputFile);
-                }
+                            }
             } else {
                 task.setTimeExec(((float) (System.currentTimeMillis() - task.getJobInfo().getTimestamp()) / 1000));
                 task.setState(PluginTaskState.ERRO);
