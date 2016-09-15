@@ -76,9 +76,9 @@ public class BioNimbusConfig {
     private String proxyHost = "localhost";
 
     private int proxyPort = 8080;
-
-    @JsonProperty("root-folder")
-    private String rootFolder;
+// COMENTEI REdundante
+//    @JsonProperty("root-folder")
+//    private String rootFolder;
 
     @JsonProperty("reference-folder")
     private String referenceFolder;
@@ -247,17 +247,17 @@ public class BioNimbusConfig {
     public void SetCost(Double cost) {
         this.cost = cost;
     }
-
-    public String getRootFolder() {
-        return rootFolder;
-    }
-
-    public void setRootFolder(String rootFolder) {
-        this.rootFolder = rootFolder;
-    }
+// Comentei pois está redundante
+//    public String getRootFolder() {
+//        return rootFolder;
+//    }
+//
+//    public void setRootFolder(String rootFolder) {
+//        this.rootFolder = rootFolder;
+//    }
 
     public String getReferenceFolder() {
-        return referenceFolder;
+        return getServerPath()+referenceFolder;
     }
 
     public void setReferenceFolder(String referenceFolder) {
@@ -265,7 +265,7 @@ public class BioNimbusConfig {
     }
 
     public String getOutputFolder() {
-        return outputFolder;
+        return getServerPath()+outputFolder;
     }
 
     public void setOutputFolder(String outputFolder) {
@@ -273,7 +273,7 @@ public class BioNimbusConfig {
     }
 
     public String getDataFolder() {
-        return dataFolder;
+        return getServerPath()+dataFolder;
     }
 
     public void setDataFolder(String dataFolder) {
@@ -289,7 +289,7 @@ public class BioNimbusConfig {
     }
 
     public String getTemporaryUploadedFiles() {
-        return temporaryUploadedFiles;
+        return getServerPath()+temporaryUploadedFiles;
     }
 
     public void setTemporaryUploadedFiles(String temporaryUploadedFiles) {
@@ -321,7 +321,7 @@ public class BioNimbusConfig {
     }
 
     public String getBucketsFolder() {
-        return bucketsFolder;
+        return getServerPath()+bucketsFolder;
     }
 
     public void setBucketsFolder(String bucketsFolder) {
@@ -329,7 +329,7 @@ public class BioNimbusConfig {
     }
 
     public String getBucketsAuthFolder() {
-        return bucketsAuthFolder;
+        return getServerPath()+bucketsAuthFolder;
     }
 
     public void setBucketsAuthFolder(String bucketsAuthFolder) {
@@ -337,7 +337,7 @@ public class BioNimbusConfig {
     }
 
     public String getGcloudFolder() {
-        return gcloudFolder;
+        return getServerPath()+gcloudFolder;
     }
 
     public void setGcloudFolder(String gcloudFolder) {
@@ -365,7 +365,6 @@ public class BioNimbusConfig {
                 .add("cost_per_giga", costpergiga)
                 .add("server-path", serverPath)
                 .add("cost", cost)
-                .add("root-folder", rootFolder)
                 .add("reference-folder", referenceFolder)
                 .add("output-folder", outputFolder)
                 .add("data-folder", dataFolder)
@@ -376,5 +375,5 @@ public class BioNimbusConfig {
                 .add("tmp-uploaded-files", temporaryUploadedFiles)
                 .toString();
     }
-
+    //                .add("root-folder", rootFolder)
 }

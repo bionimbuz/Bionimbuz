@@ -1,6 +1,5 @@
 package br.unb.cic.bionimbus.config;
 
-import br.unb.cic.bionimbus.model.Instance;
 import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.utils.SSHCredentials;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,12 +24,12 @@ public class ConfigurationRepository {
 
     /**
      * Gets root folder of the project.
-     *
+     * COMENTEI POIS NÂO ESTÁ SENDO USADA
      * @return
      */
-    public static String getRootFolder() {
-        return config.getRootFolder();
-    }
+//    public static String getRootFolder() {
+//        return config.getRootFolder();
+//    }
 
     /**
      * Get Reference Folder of the project.

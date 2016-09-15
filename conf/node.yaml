@@ -14,7 +14,7 @@ client: false
 plugin: linux
 
 # Server root path (will be changed to root-folder
-server-path: /home/biolabid2/Bionimbuz/
+server-path: /home/breno/Bionimbuz/
 
 # Own address
 address: 127.0.0.1
@@ -28,32 +28,32 @@ host: {"address": "127.0.0.1", "port":8080}
 # Brazilian PIB (in mexican pesos)? A Big Mac? ... Maybe the cost of a Pokeball in 2000's (today it costs $15.99)
 cost: 0.35
 
-# Root folder of project
-root-folder: /home/biolabid2/Bionimbuz/
+# Root folder of project COMENTEI POIS ESTÁ REDUNDANTE
+#root-folder: /home/breno/Bionimbuz/
 
 # Folder or reference files
-reference-folder: /home/biolabid2/Bionimbuz/references/
+reference-folder: references/
 
 # Root folder of output files (generated from programs)
-output-folder: /home/biolabid2/Bionimbuz/output-folder/
+output-folder: output-folder/
 
 # Root folder of output files (generated from programs)
-data-folder: /home/biolabid2/Bionimbuz/data-folder/
+data-folder: data-folder/
 
 # Folder containing file with BioNimbuZ credentials
-credentials-file: /home/biolabid2/.bionimbuz/credentials.yaml
+credentials-file: /home/breno/.bionimbuz/credentials.yaml
 
 # Temporary uploaded files folder
-tmp-uploaded-files: /home/biolabid2/Bionimbuz/tmp/
+tmp-uploaded-files: tmp/
 
  # Path to the folder whre the Buckets will be mounted
-buckets-folder: /*/*/*/
+buckets-folder: tmp/
 
  # Path containing the files used to authenticate the Storage Services (Bucket)
-buckets-auth-folder: /*/*/*/*/
+buckets-auth-folder: tmp/
 
  # Path to de binary of gcloud/gsutil line-command
-gcloud-folder: /*/*/*/*/
+gcloud-folder: tmp/
 
  # Storage mode (0 - old/vm, 1 - cloud)
 storage-mode: 0
