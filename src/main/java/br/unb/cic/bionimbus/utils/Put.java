@@ -116,7 +116,7 @@ public class Put {
              * questões de segurança, talvez isso deva ser repensado
              * futuramente.
              */
-            sftpChannel.chmod(777, path);
+            //sftpChannel.chmod(777, path);
             System.out.println("\n Uploading file.....\n\n\n");
             sftpChannel.put(toBeSent, pathDest);
             sftpChannel.exit();

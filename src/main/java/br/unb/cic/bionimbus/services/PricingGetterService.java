@@ -1,17 +1,15 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package br.unb.cic.bionimbus.services;
 
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
-import br.unb.cic.bionimbus.services.tarifation.Amazon.AmazonDataGet;
-import br.unb.cic.bionimbus.services.tarifation.Google.GoogleDataGet;
+import br.unb.cic.bionimbus.services.tarification.Amazon.AmazonIndex;
+import br.unb.cic.bionimbus.services.tarification.Google.GoogleCloud;
 import br.unb.cic.bionimbus.toSort.Listeners;
+import com.amazonaws.util.json.JSONException;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -26,7 +24,7 @@ import org.apache.zookeeper.WatchedEvent;
  */
 public class PricingGetterService extends AbstractBioService {
 
-    private static final int PERIOD_HOURS = 12;
+    private static final int PERIOD_HOURS = 24;
     private final ScheduledExecutorService schedExecService;
 
     public PricingGetterService(final CloudMessageService cms) {
@@ -42,18 +40,15 @@ public class PricingGetterService extends AbstractBioService {
 
     @Override
     public void start(BioNimbusConfig config, List<Listeners> listeners) {
-        try {
-            Preconditions.checkNotNull(listeners);
-            this.config = config;
-            this.listeners = listeners;
 
-            listeners.add(this);
+        Preconditions.checkNotNull(listeners);
+        this.config = config;
+        this.listeners = listeners;
 
-            schedExecService.scheduleAtFixedRate(this, 0, PERIOD_HOURS, TimeUnit.HOURS);
+        listeners.add(this);
 
-        } catch (Exception ex) {
-            Logger.getLogger(PricingGetterService.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        schedExecService.scheduleAtFixedRate(this, 0, PERIOD_HOURS, TimeUnit.HOURS);
+
     }
 
     @Override
@@ -78,8 +73,14 @@ public class PricingGetterService extends AbstractBioService {
 
     @Override
     public void run() {
-        AmazonDataGet atg = new AmazonDataGet();
-        GoogleDataGet gdg = new GoogleDataGet();
+        try {
+            AmazonIndex AmazonInstancesInfo = new AmazonIndex("pricing.us-east-1.amazonaws.com", "/offers/v1.0/aws/index.json");
+            GoogleCloud gdg = new GoogleCloud();
+        } catch (JSONException ex) {
+            Logger.getLogger(PricingGetterService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(PricingGetterService.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 }

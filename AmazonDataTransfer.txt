@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<!-- This site was created in Webflow. http://www.webflow.com-->
+<!-- Last Published: Tue Jun 28 2016 19:55:22 GMT+0000 (UTC) -->
+<html data-wf-site="5772c8b96ea686cf4f621160" data-wf-page="5772c8ba6ea686cf4f621198">
+<head>
+  <meta charset="utf-8">
+  <title>AWS Price Information Website</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="Webflow">
+  <link rel="stylesheet" type="text/css" href="https://res.ocean9.io/css/normalize.css">
+  <link rel="stylesheet" type="text/css" href="https://res.ocean9.io/css/webflow.css">
+  <link rel="stylesheet" type="text/css" href="https://res.ocean9.io/css/franks-pricing-site.webflow.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js"></script>
+  <script>
+    WebFont.load({
+      google: {
+        families: ["Open Sans:300,300italic,400,400italic,600,600italic,700,700italic,800,800italic","Roboto:300,regular,500"]
+      }
+    });
+  </script>
+  <script type="text/javascript" src="js/modernizr.js"></script>
+  <link href="https://res.ocean9.io/images/56f75672c505ae3308556c16_favicon-01%20-%2032x32.png" rel="shortcut icon" type="image/x-icon" >
+  <link href="https://res.ocean9.io/images/56f75699c505ae3308556c18_favicon-01.png" rel="apple-touch-icon" >
+
+</head>
+<body>
+  <!--<div class="centered hero-section w-section">
+    <div class="w-container" data-ix="new-interaction">
+      <h1 class="hero-heading" data-ix="fade-in-bottom-page-loads">404</h1>
+      <div class="hero-subheading" data-ix="fade-in-bottom-page-loads">This is the former home of AN AWS pricing website</div>
+    </div>
+  </div>-->
+  <div class="section w-section">
+    <div class="flex w-container">
+      <div class="section-title-group">
+        <div class="w-row">
+          <div class="w-clearfix w-col w-col-6"><img class="aws o9" src="https://res.ocean9.io/images/Technology Partner Logo - 270 x 115.png"><a class="aws button w-button" href="https://aws.amazon.com/pricing/" target="_blank">Amazon&nbsp;Web&nbsp;Services</a>
+          </div>
+          <div class="w-clearfix w-col w-col-6"><img class="aws" id="o9" src="https://res.ocean9.io/images/ocean9_PRNewswire.png" width="284"><a class="button w-button" href="http://www.ocean9.io/saphana-aws" target="_blank">Ocean9 for SAP HANA on AWS</a>
+          </div>
+        </div>
+        <div class="w-row">
+          <div class="w-col w-col-4">
+            <a class="w-inline-block" href="https://www.linkedin.com/in/frankstienhans" target="_blank"><img src="https://res.ocean9.io/images/Frank Stienhans - Square 400x400.jpg" width="271">
+            </a>
+          </div>
+          <div class="w-col w-col-8">
+            <div class="w-richtext">
+              <h2>Hi there,</h2>
+              <p>My name is Frank Stienhans and I am a former employee and still the largest fan of Amazon Web Services. During my time in AWS Professional Services focusing on SAP and SAP HANA, I build the pricing website that you came to expect at this URL.&nbsp;</p>
+              <p>After leaving AWS Professional Services earlier this year, I started my own company called Ocean9 with the goal of further supporting what I love to do: SAP HANA on AWS. I was happy that this website continued to exist.</p>
+              <p>Recently I noticed the site had been removed and I felt responsible to point the countless users to answers for their questions. Please either go to the AWS Pricing pages or visit my new firm Ocean9 and see what we do around SAP HANA on AWS.</p>
+              <p>You can also <a href="mailto:frankstienhans@ocean9.io">contact me</a> if you have a question.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+  <script type="text/javascript" src="https://res.ocean9.io/js/webflow.js"></script>
+  <script async="" src="//www.google-analytics.com/analytics.js"></script>
+  <script src="http://www.google-analytics.com/ga.js"></script>
+  <!--[if lte IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/placeholders/3.0.2/placeholders.min.js"></script><![endif]-->
+</body>
+</html>

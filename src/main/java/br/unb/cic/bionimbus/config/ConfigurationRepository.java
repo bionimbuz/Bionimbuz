@@ -24,12 +24,12 @@ public class ConfigurationRepository {
 
     /**
      * Gets root folder of the project.
-     *
+     * COMENTEI POIS NÂO ESTÁ SENDO USADA
      * @return
      */
-    public static String getRootFolder() {
-        return config.getRootFolder();
-    }
+//    public static String getRootFolder() {
+//        return config.getRootFolder();
+//    }
 
     /**
      * Get Reference Folder of the project.
@@ -109,7 +109,7 @@ public class ConfigurationRepository {
 
         return null;
     }
-
+    
     public static BioNimbusConfig getConfig() {
         return config;
     }

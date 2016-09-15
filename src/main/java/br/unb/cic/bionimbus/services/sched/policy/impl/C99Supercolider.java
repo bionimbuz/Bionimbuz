@@ -120,13 +120,13 @@ public class C99Supercolider extends SchedPolicy {
             root = stageOne(rl, new LinkedList<>(jobs));
             System.out.println("best - " + bestList.size());
             for (ResourceList rll : bestList) {
-                System.out.println("[" + rll.getFullCost(null) + "," + rll.getMaxTime(null) + "];");
+                System.out.println("[" + rll.getFullCost(rs) + "," + rll.getMaxTime(rs) + "];");
             }
 
             System.out.println("");
             System.out.println("full - " + solutionsList.size());
             for (ResourceList rll : solutionsList) {
-                System.out.println("[" + rll.getFullCost(null) + "," + rll.getMaxTime(null) + "];");
+                System.out.println("[" + rll.getFullCost(rs) + "," + rll.getMaxTime(rs) + "];");
             }
 //                recursiveSeachNodePrint(root, 0);
             stageTwo(root, new LinkedList<>(jobs));
@@ -135,13 +135,13 @@ public class C99Supercolider extends SchedPolicy {
             System.out.println("");
             System.out.println("best - " + bestList.size());
             for (ResourceList rll : bestList) {
-                System.out.println("[" + rll.getFullCost(null) + "," + rll.getMaxTime(null) + "];");
+                System.out.println("[" + rll.getFullCost(rs) + "," + rll.getMaxTime(rs) + "];");
             }
 
             System.out.println("");
             System.out.println("full - " + solutionsList.size());
             for (ResourceList rll : solutionsList) {
-                System.out.println("[" + rll.getFullCost(null) + "," + rll.getMaxTime(null) + "];");
+                System.out.println("[" + rll.getFullCost(rs) + "," + rll.getMaxTime(rs) + "];");
             }
             System.out.println("");
             System.out.println("___________________________________________________________________________________________");
@@ -324,13 +324,13 @@ public class C99Supercolider extends SchedPolicy {
             }
             System.out.println("best - " + bestList.size());
             for (ResourceList rll : bestList) {
-                System.out.println("[" + rll.getFullCost(null) + "," + rll.getMaxTime(null) + "];");
+                System.out.println("[" + rll.getFullCost(rs) + "," + rll.getMaxTime(rs) + "];");
             }
 
             System.out.println("");
             System.out.println("full - " + solutionsList.size());
             for (ResourceList rll : solutionsList) {
-                System.out.println("[" + rll.getFullCost(null) + "," + rll.getMaxTime(null) + "];");
+                System.out.println("[" + rll.getFullCost(rs) + "," + rll.getMaxTime(rs) + "];");
             }
         }
     }
@@ -692,16 +692,16 @@ public class C99Supercolider extends SchedPolicy {
                     // returns 1 if r2 before r1 and -1 otherwise
                     @Override
                     public int compare(ResourceList r1, ResourceList r2) {
-                        if (r2.getMaxTime(null) < r1.getMaxTime(null)) {
+                        if (r2.getMaxTime(rs) < r1.getMaxTime(rs)) {
                             return 1;
                         }
-                        if (r2.getMaxTime(null) > r1.getMaxTime(null)) {
+                        if (r2.getMaxTime(rs) > r1.getMaxTime(rs)) {
                             return -1;
                         } else {
-                            if (r2.getFullCost(null) < r1.getFullCost(null)) {
+                            if (r2.getFullCost(rs) < r1.getFullCost(rs)) {
                                 return 1;
                             }
-                            if (r2.getFullCost(null) > r1.getFullCost(null)) {
+                            if (r2.getFullCost(rs) > r1.getFullCost(rs)) {
                                 return -1;
                             }
                         }
@@ -780,7 +780,7 @@ public class C99Supercolider extends SchedPolicy {
                         + scheduler.outOfMemory + "\t"
                         + finished + "\t[";
                 for (ResourceList rll : scheduler.bestList) {
-                    result += rll.result(null) + "; ";
+                    result += rll.result(rs) + "; ";
                 }
                 result += "]\t";
                 for (ResourceList rll : scheduler.bestList) {

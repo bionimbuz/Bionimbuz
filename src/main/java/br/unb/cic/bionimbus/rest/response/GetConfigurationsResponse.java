@@ -1,5 +1,6 @@
 package br.unb.cic.bionimbus.rest.response;
 
+import br.unb.cic.bionimbus.model.Instance;
 import br.unb.cic.bionimbus.plugin.PluginService;
 import java.util.List;
 
@@ -14,14 +15,17 @@ public class GetConfigurationsResponse implements ResponseInfo {
     private List<String> references;
 
     private List<String> supportedFormats;
+    
+//    private List<Instance> instancesList;
 
     public GetConfigurationsResponse() {
     }
-
+//, List<Instance> instancesList 
     public GetConfigurationsResponse(List<PluginService> servicesList, List<String> references, List<String> supportedFormats) {
         this.servicesList = servicesList;
         this.references = references;
         this.supportedFormats = supportedFormats;
+//        this.instancesList = instancesList; 
     }
 
     public List<PluginService> getServicesList() {
@@ -47,5 +51,19 @@ public class GetConfigurationsResponse implements ResponseInfo {
     public void setSupportedFormats(List<String> supportedFormats) {
         this.supportedFormats = supportedFormats;
     }
+
+    /**
+     * @return the instancesList
+     */
+//    public List<Instance> getInstancesList() {
+//        return instancesList;
+//    }
+
+    /**
+     * @param instancesList the instancesList to set
+     */
+//    public void setInstancesList(List<Instance> instancesList) {
+//        this.instancesList = instancesList;
+//    }
 
 }
