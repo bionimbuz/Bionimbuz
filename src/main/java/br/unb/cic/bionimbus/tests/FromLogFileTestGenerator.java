@@ -90,7 +90,7 @@ public class FromLogFileTestGenerator extends PipelineTestGenerator {
 
                     // set task execution cycles based test file enviroment
                     Job job = new Job(Double.parseDouble(elements[4]) * clock);
-                    job.testId = Long.parseLong(elements[1]);
+                    job.setTestId(Long.parseLong(elements[1]));
                     pipeline.addJob(job);
                 }
 

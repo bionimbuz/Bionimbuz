@@ -23,7 +23,7 @@ public class Job implements Serializable {
     @Id
     private String id;
 
-    public long testId;
+    private long testId;
 
     private String localId;
 
@@ -193,7 +193,15 @@ public class Job implements Serializable {
         this.referenceFile = referenceFile;
     }
 
-    @Override
+    public long getTestId() {
+		return testId;
+	}
+
+	public void setTestId(long testId) {
+		this.testId = testId;
+	}
+
+	@Override
     public String toString() {
         try {
             return new ObjectMapper().writeValueAsString(this);
