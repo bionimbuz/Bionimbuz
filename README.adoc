@@ -31,7 +31,7 @@ sudo apt-get install oracle-java8-installer
 ##### 3. Zookeeper
 Apache ZooKeeper é um serviço centralizado para gerenciar e sincronizar informações de configuração em um ambiente computacional distribuído.
 ----------------------------------------------------------------------------------------------------------------------
-3.1 Realizar o download do ZooKeeper: http://ftp.unicamp.br/pub/apache/zookeeper/stable/zookeeper-3.4.8.tar.gz
+3.1 Realizar o download do ZooKeeper: http://ftp.unicamp.br/pub/apache/zookeeper/zookeeper-3.4.8/zookeeper-3.4.8.tar.gz
 3.2 Descompacte na pasta opt/zookeeper/
 3.3 Configure o arquivo /opt/zookeeper/conf/zoo.cfg
 3.4 Altere a linha  dataDir=/opt/zookeeper/ 
