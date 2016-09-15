@@ -25,3 +25,4 @@ biofoco.log
 /*.log
 /go-pear.phar
 /nbproject/
+/.settings/
