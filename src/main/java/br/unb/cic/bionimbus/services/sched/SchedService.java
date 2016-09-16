@@ -18,15 +18,45 @@
  */
 package br.unb.cic.bionimbus.services.sched;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.SftpException;
+
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
-import br.unb.cic.bionimbus.model.Job;
-import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.model.FileInfo;
+import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.model.Log;
 import br.unb.cic.bionimbus.model.LogSeverity;
-import br.unb.cic.bionimbus.model.WorkflowOutputFile;
+import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.persistence.dao.WorkflowLoggerDao;
 import br.unb.cic.bionimbus.plugin.PluginFile;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
@@ -34,38 +64,18 @@ import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskState;
 import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
 import br.unb.cic.bionimbus.services.AbstractBioService;
+import br.unb.cic.bionimbus.services.RepositoryService;
 import br.unb.cic.bionimbus.services.UpdatePeerData;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
-import static br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
-import br.unb.cic.bionimbus.toSort.Listeners;
-import br.unb.cic.bionimbus.services.RepositoryService;
 import br.unb.cic.bionimbus.services.storage.bucket.BioBucket;
 import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageMethods;
-import br.unb.cic.bionimbus.services.storage.bucket.methods.CloudMethodsAmazonGoogle;
 import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageService;
+import br.unb.cic.bionimbus.services.storage.bucket.methods.CloudMethodsAmazonGoogle;
+import br.unb.cic.bionimbus.toSort.Listeners;
 import br.unb.cic.bionimbus.utils.Get;
 import br.unb.cic.bionimbus.utils.Pair;
-import com.google.common.base.Preconditions;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.SftpException;
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.logging.Level;
-import org.apache.commons.lang3.concurrent.BasicThreadFactory;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
-import static org.apache.zookeeper.Watcher.Event.EventType.NodeChildrenChanged;
-import static org.apache.zookeeper.Watcher.Event.EventType.NodeDataChanged;
-import static org.apache.zookeeper.Watcher.Event.EventType.NodeDeleted;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Singleton
 public class SchedService extends AbstractBioService implements Runnable {

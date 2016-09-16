@@ -1,9 +1,20 @@
 package br.unb.cic.bionimbus.rest.resource;
 
-import br.unb.cic.bionimbus.avro.gen.PluginFile;
-import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import static br.unb.cic.bionimbus.config.BioNimbusConfigLoader.loadHostConfig;
-import br.unb.cic.bionimbus.config.ConfigurationRepository;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
 import br.unb.cic.bionimbus.model.FileInfo;
 import br.unb.cic.bionimbus.model.Log;
@@ -20,18 +31,6 @@ import br.unb.cic.bionimbus.rest.request.StartWorkflowRequest;
 import br.unb.cic.bionimbus.rest.response.GetWorkflowHistoryResponse;
 import br.unb.cic.bionimbus.rest.response.GetWorkflowStatusResponse;
 import br.unb.cic.bionimbus.rest.response.ResponseInfo;
-import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 /**
  * Class that handle sent workflow via REST request

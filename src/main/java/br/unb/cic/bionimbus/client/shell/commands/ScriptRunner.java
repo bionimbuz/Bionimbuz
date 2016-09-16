@@ -37,16 +37,19 @@ public class ScriptRunner implements Command {
     @Override
     public String execute(String... params) throws Exception {
         for (String script : params) {
-            if (script.endsWith(".nimbus")) {
-                shell.print(String.format("executing %s\n", script));
-                BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(script)));
-                String line = null;
-                while ((line = reader.readLine()) != null) {
-                    line = line.trim();
-                    if (line.length() != 0 && !line.startsWith("#")) {
-                        shell.executeCommand(line, false);
-                    }
-                }
+            if (!script.endsWith(".nimbus")) 
+        		continue;
+
+            shell.print(String.format("executing %s\n", script));
+            
+            try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(script)))){
+	            String line = null;
+	            while ((line = reader.readLine()) != null) {
+	                line = line.trim();
+	                if (line.length() != 0 && !line.startsWith("#")) {
+	                    shell.executeCommand(line, false);
+	                }
+	            }
             }
         }
         return "";

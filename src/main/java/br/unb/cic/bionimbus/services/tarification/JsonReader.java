@@ -15,6 +15,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -69,10 +70,7 @@ public class JsonReader {
      This method is used to get the json data from the files.
      */
     public static JSONObject readJson(String filename) {
-
-        BufferedReader br;
-        try {
-            br = new BufferedReader(new FileReader(filename));
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))){
             StringBuilder sb = new StringBuilder();
             String line = br.readLine();
 

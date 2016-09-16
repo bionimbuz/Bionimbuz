@@ -5,32 +5,33 @@
  */
 package br.unb.cic.bionimbus.services.storage.bucket;
 
-import br.unb.cic.bionimbus.services.storage.bucket.methods.CloudMethodsAmazonGoogle;
-import br.unb.cic.bionimbus.config.BioNimbusConfig;
-import br.unb.cic.bionimbus.model.FileInfo;
-import br.unb.cic.bionimbus.plugin.PluginFile;
-import br.unb.cic.bionimbus.services.AbstractBioService;
-import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
-import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
-import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageMethods.*;
-import br.unb.cic.bionimbus.toSort.Listeners;
-import com.google.common.base.Preconditions;
-import com.google.inject.Inject;
-
-import java.util.List;
-
-import com.google.inject.Singleton;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
+import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import br.unb.cic.bionimbus.model.FileInfo;
+import br.unb.cic.bionimbus.plugin.PluginFile;
+import br.unb.cic.bionimbus.services.AbstractBioService;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
+import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageMethods.StorageProvider;
+import br.unb.cic.bionimbus.services.storage.bucket.methods.CloudMethodsAmazonGoogle;
+import br.unb.cic.bionimbus.toSort.Listeners;
 
 /**
  *
@@ -87,9 +88,9 @@ public class CloudStorageService extends AbstractBioService{
         
         //Getting parameters from config file
         bucketsFolder = config.getBucketsFolder();
-        methodsInstance.setAuthFolder(config.getBucketsAuthFolder());
-        methodsInstance.setGcloudFolder(config.getGcloudFolder());
-        methodsInstance.setMyId(config.getId());
+        CloudStorageMethods.setAuthFolder(config.getBucketsAuthFolder());
+        CloudStorageMethods.setGcloudFolder(config.getGcloudFolder());
+        CloudStorageMethods.setMyId(config.getId());
         
         //Instance all buckets
         LOGGER.info("[CloudStorageService] Instancing Buckets");

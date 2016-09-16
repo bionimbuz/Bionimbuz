@@ -18,18 +18,19 @@
  */
 package br.unb.cic.bionimbus.tests;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Arrays;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import br.unb.cic.bionimbus.model.FileInfo;
 import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.security.AESEncryptor;
-import static com.sun.corba.se.impl.util.Utility.printStackTrace;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Arrays;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -71,9 +72,7 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
         }
 
         for (int ii = 1; ii <= numPipelines; ii++) {
-            try {
-                BufferedReader br = new BufferedReader(new FileReader(path + "pipelineSample" + ii + ".txt"));
-
+            try (BufferedReader br = new BufferedReader(new FileReader(path + "pipelineSample" + ii + ".txt"))){
                 // get first line: number of tasks
                 String line = br.readLine();
                 int tasksNumber = Integer.parseInt(line);
@@ -137,7 +136,7 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
                 }
             } catch (IOException | NumberFormatException e) {
                 e.getMessage();
-                printStackTrace();
+                e.printStackTrace();
             }
 
             // push taskList to the pipelineTemplates
@@ -163,9 +162,8 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
         } catch (Exception ex) {
             LOGGER.error("Exception - " + ex.getMessage());
         }
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(path + "servicesSample.txt"));
-
+        try (BufferedReader br = new BufferedReader(new FileReader(path + "servicesSample.txt"))){
+            
             String line;
             while ((line = br.readLine()) != null) {
                 PluginService service = new PluginService();
@@ -186,7 +184,7 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
             }
         } catch (Exception e) {
             System.out.println(e.toString());
-            printStackTrace();
+            e.printStackTrace();
         }
     }
 

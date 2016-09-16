@@ -5,17 +5,19 @@
  */
 package br.unb.cic.bionimbus.controller;
 
-import br.unb.cic.bionimbus.config.BioNimbusConfig;
-import br.unb.cic.bionimbus.services.Service;
-import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.logging.Level;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
+import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import br.unb.cic.bionimbus.services.Service;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 
 /**
  *

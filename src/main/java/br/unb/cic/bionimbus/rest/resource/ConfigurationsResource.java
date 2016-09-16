@@ -1,21 +1,21 @@
 package br.unb.cic.bionimbus.rest.resource;
 
-import br.unb.cic.bionimbus.config.ConfigurationRepository;
-import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
-import br.unb.cic.bionimbus.model.Instance;
-import br.unb.cic.bionimbus.plugin.PluginInfo;
-import br.unb.cic.bionimbus.plugin.PluginService;
-import br.unb.cic.bionimbus.rest.request.GetConfigurationsRequest;
-import br.unb.cic.bionimbus.rest.request.RequestInfo;
-import br.unb.cic.bionimbus.rest.response.GetConfigurationsResponse;
-import br.unb.cic.bionimbus.rest.response.ResponseInfo;
 import java.util.List;
+
 import javax.annotation.security.PermitAll;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+
+import br.unb.cic.bionimbus.config.ConfigurationRepository;
+import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
+import br.unb.cic.bionimbus.plugin.PluginService;
+import br.unb.cic.bionimbus.rest.request.GetConfigurationsRequest;
+import br.unb.cic.bionimbus.rest.request.RequestInfo;
+import br.unb.cic.bionimbus.rest.response.GetConfigurationsResponse;
+import br.unb.cic.bionimbus.rest.response.ResponseInfo;
 
 /**
  *

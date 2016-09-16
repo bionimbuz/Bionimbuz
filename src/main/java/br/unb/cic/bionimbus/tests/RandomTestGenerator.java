@@ -5,15 +5,16 @@
  */
 package br.unb.cic.bionimbus.tests;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
+
 import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.p2p.Host;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.PluginService;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
 
 /**
  *
@@ -24,9 +25,6 @@ public class RandomTestGenerator extends PipelineTestGenerator {
     public static int numMaxResources = 30;
     public int numTasksStep = 5;
     public int numMaxTasks = numTasksStep;
-
-    private final double modeStart = 50000000000d;
-    private final double modeMaxStep = 500000000000d;
 
     private final Random rn = new Random(9455);
 

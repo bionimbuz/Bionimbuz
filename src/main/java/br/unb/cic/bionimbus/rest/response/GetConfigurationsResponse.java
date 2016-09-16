@@ -1,8 +1,8 @@
 package br.unb.cic.bionimbus.rest.response;
 
-import br.unb.cic.bionimbus.model.Instance;
-import br.unb.cic.bionimbus.plugin.PluginService;
 import java.util.List;
+
+import br.unb.cic.bionimbus.plugin.PluginService;
 
 /**
  *

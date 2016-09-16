@@ -5,10 +5,11 @@
  */
 package br.unb.cic.bionimbus.services.sched.model;
 
-import br.unb.cic.bionimbus.model.Job;
-import br.unb.cic.bionimbus.services.RepositoryService;
 import java.util.ArrayList;
 import java.util.List;
+
+import br.unb.cic.bionimbus.model.Job;
+import br.unb.cic.bionimbus.services.RepositoryService;
 
 /**
  *
@@ -26,8 +27,8 @@ public class Resource {
         this.id = id;
         this.clock = clock;
         this.cost = cost;
-        allocatedTasks = new ArrayList();
-        preAllocatedTasks = new ArrayList();
+        allocatedTasks = new ArrayList<>();
+        preAllocatedTasks = new ArrayList<>();
     }
     
     // Copy constructor
@@ -35,8 +36,8 @@ public class Resource {
         this.id = resource.id;
         this.clock = resource.clock;
         this.cost = resource.cost;
-        allocatedTasks = new ArrayList(resource.getAllocatedTasks());
-        preAllocatedTasks = new ArrayList(resource.getPreAllocatedTasks());
+        allocatedTasks = new ArrayList<>(resource.getAllocatedTasks());
+        preAllocatedTasks = new ArrayList<>(resource.getPreAllocatedTasks());
     }
     
     

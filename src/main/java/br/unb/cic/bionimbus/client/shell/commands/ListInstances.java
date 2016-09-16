@@ -27,8 +27,6 @@ package br.unb.cic.bionimbus.client.shell.commands;
 import br.unb.cic.bionimbus.client.shell.Command;
 import br.unb.cic.bionimbus.client.shell.SimpleShell;
 import br.unb.cic.bionimbus.services.elasticity.Ec2Commands;
-import java.io.IOException;
-import java.util.Scanner;
 /**
  *
  * @author brenokx
@@ -36,7 +34,6 @@ import java.util.Scanner;
 public class ListInstances implements Command{
     public static final String NAME = "listinstances";
     private final SimpleShell shell;
-     private static Scanner test;
     public ListInstances (SimpleShell shell) {
         this.shell = shell;
     }

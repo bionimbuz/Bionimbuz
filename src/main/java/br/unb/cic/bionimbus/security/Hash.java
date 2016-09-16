@@ -7,6 +7,7 @@ package br.unb.cic.bionimbus.security;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+
 import org.bouncycastle.jcajce.provider.digest.SHA3;
 
 /**
@@ -16,24 +17,21 @@ import org.bouncycastle.jcajce.provider.digest.SHA3;
 public class Hash {
     
     public static String calculateSha3(String path) throws IOException {
-        FileInputStream fis = new FileInputStream(path);
-        byte[] dataBytes = new byte[256];
-
-        int nread = 0; 
-
-        SHA3.DigestSHA3 md = new SHA3.DigestSHA3(256);
-        while ((nread = fis.read(dataBytes)) != -1) {
-          md.update(dataBytes, 0, nread);
+        StringBuilder sb = new StringBuilder("");        
+        try(FileInputStream fis = new FileInputStream(path)) {
+            byte[] dataBytes = new byte[256];
+            int nread = 0;             
+	        SHA3.DigestSHA3 md = new SHA3.DigestSHA3(256);
+	        while ((nread = fis.read(dataBytes)) != -1) {
+	          md.update(dataBytes, 0, nread);
+	        }
+	        byte[] mdbytes = md.digest();
+	
+	        //Convert the byte to hex format
+	        for (int i = 0; i < mdbytes.length; i++) {
+	            sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
+	        }
         }
-        
-        byte[] mdbytes = md.digest();
-
-        //Convert the byte to hex format
-        StringBuilder sb = new StringBuilder("");
-        for (int i = 0; i < mdbytes.length; i++) {
-            sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
-        }
-
         return sb.toString();
     }
 }

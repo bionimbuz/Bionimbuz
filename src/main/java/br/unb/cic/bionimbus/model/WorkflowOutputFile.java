@@ -2,6 +2,7 @@ package br.unb.cic.bionimbus.model;
 
 import java.io.Serializable;
 import java.util.UUID;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -16,7 +17,7 @@ import javax.persistence.Table;
 public class WorkflowOutputFile implements Serializable {
 
     @Id
-    private final String id = UUID.randomUUID().toString();
+    private String id = UUID.randomUUID().toString();
 
     private String workflowId;
 

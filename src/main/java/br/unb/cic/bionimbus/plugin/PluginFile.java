@@ -18,11 +18,13 @@
 */
 package br.unb.cic.bionimbus.plugin;
 
-import br.unb.cic.bionimbus.avro.gen.FileInfo;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.codehaus.jackson.map.ObjectMapper;
+
+import br.unb.cic.bionimbus.avro.gen.FileInfo;
 
 /**
  * Classe que recebe os dados do arquivo enviado pelo cliente
@@ -45,8 +47,6 @@ public class PluginFile {
     private long size;
 
     private String service;
-
-    private List<String> buckets;
     
     private List<String> pluginId;
 
