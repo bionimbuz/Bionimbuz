@@ -22,6 +22,20 @@
 */
 package br.unb.cic.bionimbus.services.sched.policy.impl;
 
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.LoggerFactory;
+
 import br.unb.cic.bionimbus.model.FileInfo;
 import br.unb.cic.bionimbus.model.Job;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
@@ -30,13 +44,6 @@ import br.unb.cic.bionimbus.plugin.PluginTaskState;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbus.utils.Pair;
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author gabriel
@@ -56,7 +63,7 @@ public class AcoSched extends SchedPolicy {
     
     @Override
     public HashMap<Job, PluginInfo> schedule(List<Job> jobs) {
-        HashMap jobCloud = new HashMap<>();
+        HashMap<Job, PluginInfo> jobCloud = new HashMap<>();
         Job biggerJob = getBiggerJob(jobs);
         biggerJob.setTimestamp(System.currentTimeMillis());
         
@@ -316,7 +323,7 @@ public class AcoSched extends SchedPolicy {
         
         //nAnts = (plugins.size() - Math.round(new Float(plugins.size() * 0.3)));
         Random selectPlugin = new Random();
-        ArrayList datasVm;
+        ArrayList<Double> datasVm;
         List<Integer> listVmVisited = null;
         
         int numIterator = cms.getChildren(Path.PEERS.getFullPath(), null).size();
@@ -334,8 +341,8 @@ public class AcoSched extends SchedPolicy {
                     datasVm.set(1, probabilityNextPlugin(nPlugin, plugins));
                     
                     //condição para verificar a maior probabilidade calculada de todas as VMs visitadas
-                    if (((Double) datasVm.get(1)) > biggestProbability) {
-                        biggestProbability = (Double) datasVm.get(1);
+                    if (datasVm.get(1) > biggestProbability) {
+                        biggestProbability = datasVm.get(1);
                     }
                     
                     listVmVisited.add(nPlugin);
@@ -643,26 +650,6 @@ public class AcoSched extends SchedPolicy {
             } catch (Exception ex) {
                 Logger.getLogger(AcoSched.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }
-        
-        return map;
-    }
-    
-    private HashMap getMapLatency(Job jobInfo) {
-        HashMap<String, Double> map = new HashMap<>();
-        String datasString = null;
-        
-        // NEED to have pipeline id in order to get job data
-//        datasString = cms.getData(Path.PREFIX_JOB.getFullPath("", "", jobInfo.getId()), LATENCY);
-        
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            if (datasString != null && !datasString.isEmpty()) {
-                map = mapper.readValue(datasString, HashMap.class);
-            }
-            
-        } catch (Exception ex) {
-            Logger.getLogger(AcoSched.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         return map;

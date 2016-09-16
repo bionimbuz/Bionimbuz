@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -23,7 +24,7 @@ public class Log implements Serializable {
 
     @Id
     @Column(name = "id", length = 40)
-    private final String id = UUID.randomUUID().toString();
+    private String id = UUID.randomUUID().toString();
 
     @Column(name = "text", length = 1000)
     private String text;

@@ -18,13 +18,14 @@
 */
 package br.unb.cic.bionimbus.plugin;
 
-import java.util.UUID;
-
-import br.unb.cic.bionimbus.model.Job;
 import java.io.IOException;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.codehaus.jackson.map.ObjectMapper;
+
+import br.unb.cic.bionimbus.model.Job;
 
 public class PluginTask implements PluginOps {
 
@@ -35,8 +36,6 @@ public class PluginTask implements PluginOps {
     private String pluginExec;
 
     private String id = UUID.randomUUID().toString();
-
-    private String pluginTaskPathZk;
 
     private Job jobInfo;
 

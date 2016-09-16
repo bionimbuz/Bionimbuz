@@ -1,11 +1,12 @@
 package br.unb.cic.bionimbus.persistence.dao;
 
+import java.util.List;
+
+import javax.persistence.TypedQuery;
+
 import br.unb.cic.bionimbus.model.Workflow;
-import br.unb.cic.bionimbus.model.WorkflowOutputFile;
 import br.unb.cic.bionimbus.model.WorkflowStatus;
 import br.unb.cic.bionimbus.persistence.EntityManagerProducer;
-import java.util.List;
-import javax.persistence.TypedQuery;
 
 /**
  * Class that manages database operations for Workflow class

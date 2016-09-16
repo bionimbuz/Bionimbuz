@@ -5,29 +5,29 @@
  */
 package br.unb.cic.bionimbus.services.storage.bucket.methods;
 
-import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageMethods;
-import br.unb.cic.bionimbus.services.storage.bucket.BioBucket;
-import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageMethods.*;
-
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.BufferedReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.io.FileUtils;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 //import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.google.inject.Singleton;
-import org.apache.commons.io.FileUtils;
+
+import br.unb.cic.bionimbus.services.storage.bucket.BioBucket;
+import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageMethods;
 /**
  *
  * @author Lucas
@@ -289,14 +289,14 @@ public class CloudMethodsAmazonGoogle extends CloudStorageMethods{
             //System.out.println("\nRunning command: " + command);
             InputStream stderr = proc.getErrorStream();
             InputStreamReader isr = new InputStreamReader(stderr);
-            BufferedReader br = new BufferedReader(isr);
-            String line;
 
             List<String> output = new ArrayList<>();
-
-            while ((line = br.readLine()) != null) {
-                output.add(line);
-                //System.out.println("[command] " + line);
+            try(BufferedReader br = new BufferedReader(isr)) {
+	            String line;	
+	            while ((line = br.readLine()) != null) {
+	                output.add(line);
+	                //System.out.println("[command] " + line);
+	            }
             }
 
             int exitVal = proc.waitFor();

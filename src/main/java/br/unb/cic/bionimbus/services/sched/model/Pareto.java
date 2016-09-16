@@ -5,13 +5,13 @@
 */
 package br.unb.cic.bionimbus.services.sched.model;
 
-import br.unb.cic.bionimbus.services.RepositoryService;
-import br.unb.cic.bionimbus.utils.Pair;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
+
+import br.unb.cic.bionimbus.services.RepositoryService;
+import br.unb.cic.bionimbus.utils.Pair;
 
 /**
  *
@@ -29,8 +29,8 @@ public class Pareto {
      */
     public static Pair<List<ResourceList>, List<ResourceList>> getParetoCurve(List<ResourceList> resources, final RepositoryService rs) {
         
-        List<ResourceList> paretoCurve = new ArrayList();
-        List<ResourceList> remaining = new ArrayList();
+        List<ResourceList> paretoCurve = new ArrayList<>();
+        List<ResourceList> remaining = new ArrayList<>();
         
         double limitCost = Double.POSITIVE_INFINITY;
         
@@ -59,7 +59,7 @@ public class Pareto {
                 remaining.add(resource);
         }
         
-        return new Pair(paretoCurve, remaining);
+        return new Pair<>(paretoCurve, remaining);
     }
     /**
      * Get the point from the ordered list closest to the intersection 

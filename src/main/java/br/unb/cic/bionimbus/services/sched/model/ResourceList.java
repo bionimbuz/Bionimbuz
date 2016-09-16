@@ -5,9 +5,10 @@
  */
 package br.unb.cic.bionimbus.services.sched.model;
 
-import br.unb.cic.bionimbus.services.RepositoryService;
 import java.util.ArrayList;
 import java.util.List;
+
+import br.unb.cic.bionimbus.services.RepositoryService;
 
 /**
  *
@@ -18,13 +19,13 @@ public class ResourceList {
     public final List<Resource> resources;
 
     public ResourceList() {
-        this.resources = new ArrayList();
+        this.resources = new ArrayList<>();
     }
 
     // Copy constructor
     public ResourceList(ResourceList resourceList) {
 
-        resources = new ArrayList();
+        resources = new ArrayList<>();
 
         for (Resource resource : resourceList.resources) {
             if (resource != null) {

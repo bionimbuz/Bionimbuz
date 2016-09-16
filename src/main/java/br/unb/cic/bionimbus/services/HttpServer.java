@@ -18,17 +18,17 @@
 */
 package br.unb.cic.bionimbus.services;
 
-import br.unb.cic.bionimbus.persistence.EntityManagerProducer;
-import javax.servlet.http.HttpServlet;
-
-import com.google.inject.Inject;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import javax.servlet.http.HttpServlet;
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.inject.Inject;
 
 /**
  * HTTP server that will handle REST requests and responses on port 8181

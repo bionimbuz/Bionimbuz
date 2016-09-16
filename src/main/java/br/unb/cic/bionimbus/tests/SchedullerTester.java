@@ -18,36 +18,36 @@
  */
 package br.unb.cic.bionimbus.tests;
 
-import br.unb.cic.bionimbus.avro.rpc.AvroClient;
-import br.unb.cic.bionimbus.avro.rpc.RpcClient;
-import br.unb.cic.bionimbus.model.Job;
-import br.unb.cic.bionimbus.model.Workflow;
-import br.unb.cic.bionimbus.config.BioNimbusConfig;
-import br.unb.cic.bionimbus.model.FileInfo;
-import br.unb.cic.bionimbus.plugin.PluginInfo;
-import br.unb.cic.bionimbus.plugin.PluginService;
-import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
-import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
-import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
-import br.unb.cic.bionimbus.services.RepositoryService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
+
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
+import br.unb.cic.bionimbus.avro.rpc.AvroClient;
+import br.unb.cic.bionimbus.avro.rpc.RpcClient;
+import br.unb.cic.bionimbus.config.BioNimbusConfig;
+import br.unb.cic.bionimbus.model.FileInfo;
+import br.unb.cic.bionimbus.model.Job;
+import br.unb.cic.bionimbus.model.Workflow;
+import br.unb.cic.bionimbus.plugin.PluginInfo;
+import br.unb.cic.bionimbus.plugin.PluginService;
+import br.unb.cic.bionimbus.services.RepositoryService;
+import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 
 /**
  *
@@ -188,13 +188,11 @@ public class SchedullerTester {
         private final CloudMessageService cms;
         private final SchedullerTester st;
         private final List<Workflow> remaining;
-        private final String prevId;
 
         public SendPipeline(CloudMessageService cms, SchedullerTester st, List<Workflow> remaining, String prevId) {
             this.cms = cms;
             this.st = st;
             this.remaining = remaining;
-            this.prevId = prevId;
         }
 
         /**

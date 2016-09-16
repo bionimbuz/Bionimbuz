@@ -18,6 +18,20 @@
  */
 package br.unb.cic.bionimbus.services;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import br.unb.cic.bionimbus.avro.rpc.RpcServer;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import br.unb.cic.bionimbus.config.ConfigurationRepository;
@@ -25,18 +39,6 @@ import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbus.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbus.toSort.Listeners;
-import com.codahale.metrics.MetricRegistry;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Singleton
 public class ServiceManager {
@@ -50,9 +52,6 @@ public class ServiceManager {
     private final RpcServer rpcServer;
 
     private final HttpServer httpServer;
-
-    @Inject
-    private MetricRegistry metricRegistry;
 
     @Inject
     public ServiceManager(Set<Service> services, CloudMessageService cms, RpcServer rpcServer, HttpServer httpServer) {

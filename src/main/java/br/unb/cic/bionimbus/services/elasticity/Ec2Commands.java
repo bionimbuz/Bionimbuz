@@ -19,8 +19,21 @@
 
 package br.unb.cic.bionimbus.services.elasticity;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Scanner;
+import java.util.Set;
+
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.PropertiesCredentials;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.CreateImageRequest;
@@ -39,10 +52,6 @@ import com.amazonaws.services.ec2.model.StartInstancesRequest;
 import com.amazonaws.services.ec2.model.StopInstancesRequest;
 import com.amazonaws.services.ec2.model.StopInstancesResult;
 import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
-import com.amazonaws.auth.PropertiesCredentials;
-
-import java.io.*;
-import java.util.*;
 
 public class Ec2Commands {
 
@@ -113,48 +122,49 @@ public class Ec2Commands {
             RunInstancesRequest rir = new RunInstancesRequest(imageId, minInstanceCount, maxInstanceCount);
             rir.setInstanceType("t1.micro");
 
-            Scanner keyscan = new Scanner(System.in);
-            System.out.println("Do you want to use an existing keypair or do you want to create a new one?");
-            System.out.println("#1 Use existing keypair");
-            System.out.println("#2 Create a new keypair");
-            int keypairoption;
-            String key; //existing keypair name
-            keypairoption = keyscan.nextInt();
-            if (keypairoption == 1) {
-                System.out.println("Enter the existing keypair name to use with the new instance");
-                key = keyscan.next();
-                rir.withKeyName(key);
-            } else if (keypairoption == 2) {
-                //count++;
-                System.out.println("Enter the keypair name to create");
-                String newkeyname;
-                newkeyname = keyscan.next();
-                CreateKeyPairRequest newKeyRequest = new CreateKeyPairRequest();
-                newKeyRequest.setKeyName(newkeyname);
-                CreateKeyPairResult keyresult = EC2.createKeyPair(newKeyRequest);
-
-                keyPair = keyresult.getKeyPair();
-                System.out.println("The key we created is = "
-                        + keyPair.getKeyName() + "\nIts fingerprint is="
-                        + keyPair.getKeyFingerprint() + "\nIts material is= \n"
-                        + keyPair.getKeyMaterial());
-
-                System.out.println("Enter the directory to store .pem file (eg: Windows C:\\Users\\user\\Desktop\\, Linux /user/home)");
-                String dir;
-                dir = keyscan.next();
-                String fileName = dir + newkeyname + ".pem";
-                File distFile = new File(fileName);
-                BufferedReader bufferedReader = new BufferedReader(new StringReader(keyPair.getKeyMaterial()));
-                BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(distFile));
-                char buf[] = new char[1024];
-                int len;
-                while ((len = bufferedReader.read(buf)) != -1) {
-                    bufferedWriter.write(buf, 0, len);
-                }
-                bufferedWriter.flush();
-                bufferedReader.close();
-                bufferedWriter.close();
-
+            try(Scanner keyscan = new Scanner(System.in)) {
+	            System.out.println("Do you want to use an existing keypair or do you want to create a new one?");
+	            System.out.println("#1 Use existing keypair");
+	            System.out.println("#2 Create a new keypair");
+	            int keypairoption;
+	            String key; //existing keypair name
+	            keypairoption = keyscan.nextInt();
+	            if (keypairoption == 1) {
+	                System.out.println("Enter the existing keypair name to use with the new instance");
+	                key = keyscan.next();
+	                rir.withKeyName(key);
+	            } else if (keypairoption == 2) {
+	                //count++;
+	                System.out.println("Enter the keypair name to create");
+	                String newkeyname;
+	                newkeyname = keyscan.next();
+	                CreateKeyPairRequest newKeyRequest = new CreateKeyPairRequest();
+	                newKeyRequest.setKeyName(newkeyname);
+	                CreateKeyPairResult keyresult = EC2.createKeyPair(newKeyRequest);
+	
+	                keyPair = keyresult.getKeyPair();
+	                System.out.println("The key we created is = "
+	                        + keyPair.getKeyName() + "\nIts fingerprint is="
+	                        + keyPair.getKeyFingerprint() + "\nIts material is= \n"
+	                        + keyPair.getKeyMaterial());
+	
+	                System.out.println("Enter the directory to store .pem file (eg: Windows C:\\Users\\user\\Desktop\\, Linux /user/home)");
+	                String dir;
+	                dir = keyscan.next();
+	                String fileName = dir + newkeyname + ".pem";
+	                File distFile = new File(fileName);
+	                BufferedReader bufferedReader = new BufferedReader(new StringReader(keyPair.getKeyMaterial()));
+	                BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(distFile));
+	                char buf[] = new char[1024];
+	                int len;
+	                while ((len = bufferedReader.read(buf)) != -1) {
+	                    bufferedWriter.write(buf, 0, len);
+	                }
+	                bufferedWriter.flush();
+	                bufferedReader.close();
+	                bufferedWriter.close();
+	
+	            }
             }
 
             rir.withSecurityGroups("default");

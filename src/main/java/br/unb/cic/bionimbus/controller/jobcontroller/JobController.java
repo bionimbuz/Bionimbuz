@@ -1,5 +1,19 @@
 package br.unb.cic.bionimbus.controller.jobcontroller;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.zookeeper.WatchedEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
@@ -11,22 +25,8 @@ import br.unb.cic.bionimbus.model.LogSeverity;
 import br.unb.cic.bionimbus.model.Workflow;
 import br.unb.cic.bionimbus.persistence.dao.WorkflowLoggerDao;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
-import br.unb.cic.bionimbus.plugin.PluginService;
 import br.unb.cic.bionimbus.services.RepositoryService;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
-import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
-import com.google.common.base.Preconditions;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import org.apache.zookeeper.WatchedEvent;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class that links the User Interface (Web) with the BioNimbuZ Application

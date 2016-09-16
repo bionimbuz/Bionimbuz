@@ -1,33 +1,31 @@
 package br.unb.cic.bionimbus.rest.resource;
 
-import br.unb.cic.bionimbus.config.ConfigurationRepository;
-import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
-import br.unb.cic.bionimbus.controller.usercontroller.UserController;
-import br.unb.cic.bionimbus.model.FileInfo;
-import br.unb.cic.bionimbus.persistence.dao.FileDao;
-import br.unb.cic.bionimbus.persistence.dao.UserDao;
-import br.unb.cic.bionimbus.model.User;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.annotation.security.PermitAll;
 import javax.persistence.NoResultException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
+import br.unb.cic.bionimbus.controller.usercontroller.UserController;
+import br.unb.cic.bionimbus.model.FileInfo;
+import br.unb.cic.bionimbus.model.User;
+import br.unb.cic.bionimbus.persistence.dao.FileDao;
+import br.unb.cic.bionimbus.persistence.dao.UserDao;
 import br.unb.cic.bionimbus.rest.request.LoginRequest;
 import br.unb.cic.bionimbus.rest.request.LogoutRequest;
 import br.unb.cic.bionimbus.rest.request.RequestInfo;
 import br.unb.cic.bionimbus.rest.request.SignUpRequest;
 import br.unb.cic.bionimbus.rest.response.ResponseInfo;
 import br.unb.cic.bionimbus.rest.response.SignUpResponse;
-import java.io.File;
-import javax.annotation.security.PermitAll;
-import javax.ws.rs.core.Response;
 
 @Path("/rest")
 public class UserResource extends AbstractResource {

@@ -18,15 +18,14 @@
 */
 package br.unb.cic.bionimbus.services.discovery;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.assertTrue;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 /**
  * Created by IntelliJ IDEA. User: edward Date: 5/12/12 Time: 9:37 PM To change

@@ -5,23 +5,20 @@
  */
 package br.unb.cic.bionimbus.rest.resource;
 
-import br.unb.cic.bionimbus.avro.rpc.AvroClient;
-import static br.unb.cic.bionimbus.config.BioNimbusConfigLoader.loadHostConfig;
-import br.unb.cic.bionimbus.model.Log;
-import br.unb.cic.bionimbus.model.LogSeverity;
-import br.unb.cic.bionimbus.persistence.dao.WorkflowLoggerDao;
-import br.unb.cic.bionimbus.rest.request.RequestInfo;
-import br.unb.cic.bionimbus.rest.request.StartSlaRequest;
-import br.unb.cic.bionimbus.rest.request.StartWorkflowRequest;
-import static br.unb.cic.bionimbus.rest.resource.AbstractResource.rpcClient;
-import br.unb.cic.bionimbus.rest.response.ResponseInfo;
-import java.io.IOException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import br.unb.cic.bionimbus.model.Log;
+import br.unb.cic.bionimbus.model.LogSeverity;
+import br.unb.cic.bionimbus.persistence.dao.WorkflowLoggerDao;
+import br.unb.cic.bionimbus.rest.request.RequestInfo;
+import br.unb.cic.bionimbus.rest.request.StartSlaRequest;
+import br.unb.cic.bionimbus.rest.request.StartWorkflowRequest;
+import br.unb.cic.bionimbus.rest.response.ResponseInfo;
 
 /**
  *
