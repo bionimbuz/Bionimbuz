@@ -1,62 +1,64 @@
 package br.unb.cic.bionimbus.rest.resource;
 
-import br.unb.cic.bionimbus.config.ConfigurationRepository;
-import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
-import br.unb.cic.bionimbus.model.FileInfo;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.NoSuchAlgorithmException;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
+import org.apache.http.HttpStatus;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.SftpException;
+
+import br.unb.cic.bionimbus.config.ConfigurationRepository;
+import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
+import br.unb.cic.bionimbus.model.FileInfo;
 import br.unb.cic.bionimbus.persistence.dao.FileDao;
 import br.unb.cic.bionimbus.rest.request.RequestInfo;
 import br.unb.cic.bionimbus.rest.request.UploadRequest;
 import br.unb.cic.bionimbus.rest.response.ResponseInfo;
-import br.unb.cic.bionimbus.security.Hash;
+import br.unb.cic.bionimbus.security.HashUtil;
 import br.unb.cic.bionimbus.services.storage.bucket.BioBucket;
 import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageMethods;
-import br.unb.cic.bionimbus.services.storage.bucket.methods.CloudMethodsAmazonGoogle;
 import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageService;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.SftpException;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.security.NoSuchAlgorithmException;
-import javax.ws.rs.GET;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
+import br.unb.cic.bionimbus.services.storage.bucket.methods.CloudMethodsAmazonGoogle;
 
 @Path("/rest/file/")
 public class FileResource extends AbstractResource {
-
+    
     private static final String UPLOADED_FILES_DIRECTORY = ConfigurationRepository.getTemporaryUplodadedFiles();
     private final FileDao fileDao;
-    private final Double MAXCAPACITY = 0.9;
-
-    public FileResource(JobController jobController) {
+    
+    public FileResource(final JobController jobController) {
         this.fileDao = new FileDao();
         this.jobController = jobController;
     }
-
+    
     @Override
-    public ResponseInfo handleIncoming(RequestInfo request) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public ResponseInfo handleIncoming(final RequestInfo request) {
+        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose Tools | Templates.
     }
-
+    
     /**
      * Handles uploaded file from client
      *
-     * @param request
+     * @param form
      * @return
      * @throws java.lang.InterruptedException
      * @throws com.jcraft.jsch.JSchException
@@ -67,49 +69,38 @@ public class FileResource extends AbstractResource {
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response handleUploadedFile(@MultipartForm UploadRequest request) throws InterruptedException, JSchException, SftpException, NoSuchAlgorithmException {
-
-        LOGGER.info("Upload request received [filename=" + request.getFileInfo().getName() + "]");
-
+    public Response handleUploadedFile(@MultipartForm UploadRequest form) throws InterruptedException, JSchException, SftpException, NoSuchAlgorithmException {
+        
+        LOGGER.info("Upload request received [filename=" + form.getFileInfo().getName() + "]");
+        
         try {
             // Writes file on disk
-            String filepath = writeFile(request.getData(), request.getFileInfo().getName(), request.getFileInfo().getUserId());
-
-            if (config.getStorageMode().equalsIgnoreCase("0")) {
-
+            final String filepath = this.writeFile(form.getData(), form.getFileInfo().getName(), form.getFileInfo().getUserId());
+            if (this.config.getStorageMode().equalsIgnoreCase("0")) {
                 // Verify integrity
-                String hashedFile = verifyIntegrity(request.getFileInfo(), filepath);
-
+                final String hashedFile = verifyIntegrity(form.getFileInfo(), filepath);
                 // Verify file integrity and tries to write file to Zookeeper
-                if (rpcClient.getProxy().uploadFile(filepath, convertToAvroObject(hashedFile, request.getFileInfo()))) {
-
+                if (rpcClient.getProxy().uploadFile(filepath, this.convertToAvroObject(hashedFile, form.getFileInfo()))) {
                     // Copy to data-folder
-                    copyFileToDataFolder(filepath, request.getFileInfo().getName());
+                    this.copyFileToDataFolder(filepath, form.getFileInfo().getName());
                 }
-
+                
             } else {
-                CloudStorageMethods methodsInstance = new CloudMethodsAmazonGoogle();
-                
-                BioBucket dest = CloudStorageService.getBestBucket(CloudStorageService.getBucketList());
-                methodsInstance.StorageUploadFile(dest, "/data-folder/", UPLOADED_FILES_DIRECTORY , request.getFileInfo().getName());
-                
-                File temp = new File(filepath);
+                final CloudStorageMethods methodsInstance = new CloudMethodsAmazonGoogle();
+                final BioBucket dest = CloudStorageService.getBestBucket(CloudStorageService.getBucketList());
+                methodsInstance.StorageUploadFile(dest, "/data-folder/", UPLOADED_FILES_DIRECTORY, form.getFileInfo().getName());
+                final File temp = new File(filepath);
                 temp.delete();
             }
-
             // Creates an UserFile using UploadadeFileInfo from request and persists on Database
-            fileDao.persist(request.getFileInfo());
-
-            return Response.status(200).entity(true).build();
-            
-        } catch (Throwable t) {
-            LOGGER.error("[Exception] " + t.getMessage());
-            t.printStackTrace();
-
-            return Response.status(500).entity(false).build();
+            this.fileDao.persist(form.getFileInfo());
+            return Response.status(HttpStatus.SC_OK).entity(true).build();
+        } catch (final Throwable t) {
+            LOGGER.error("[Exception] ", t.getMessage());
+            return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).entity(false).build();
         }
     }
-
+    
     /**
      * Delete a file
      *
@@ -117,31 +108,33 @@ public class FileResource extends AbstractResource {
      */
     @DELETE
     @Path("/{fileID}")
-    public void deleteFile(@PathParam("fileID") String id) {
+    public void deleteFile(@PathParam("fileID") final String id) {
         LOGGER.info("Delete File Request received. Id=" + id);
-
+        
         try {
-            FileInfo file = fileDao.findByStringId(id);
+            final FileInfo file = this.fileDao.findByStringId(id);
             
-            if (config.getStorageMode().equalsIgnoreCase("1")) {
-                BioBucket bucket = CloudStorageService.getBucket(file.getBucket());
-
+            if (this.config.getStorageMode().equalsIgnoreCase("1")) {
+                final BioBucket bucket = CloudStorageService.getBucket(file.getBucket());
+                
                 LOGGER.info("File " + file.getName() + " found on Bucket " + file.getBucket());
-
-                CloudStorageMethods methods_instance = new CloudMethodsAmazonGoogle();
-
+                
+                final CloudStorageMethods methods_instance = new CloudMethodsAmazonGoogle();
+                
                 methods_instance.DeleteFile(bucket, file.getName());
+                
+                // TODO also delete from data-folder
             }
             
-            fileDao.delete(file);
-
-        } catch (Throwable t) {
+            this.fileDao.delete(file);
+            
+        } catch (final Throwable t) {
             LOGGER.error("Exception caught: " + t.getMessage());
             t.printStackTrace();
         }
-
+        
     }
-
+    
     /**
      * Used to download a file to the user
      *
@@ -152,74 +145,72 @@ public class FileResource extends AbstractResource {
     @GET
     @Path("/download/{workflow-id}/{filename}")
     @Produces(MediaType.TEXT_PLAIN)
-    public Response getFile(@PathParam("workflow-id") String workflowId, @PathParam("filename") String filename) {
+    public Response getFile(@PathParam("workflow-id") final String workflowId, @PathParam("filename") final String filename) {
         LOGGER.info("Requested donwload of file: " + workflowId + "/" + filename);
-
+        
         try {
-            File file = new File(ConfigurationRepository.getWorkflowOutputFolder(workflowId) + filename);
-
-            ResponseBuilder response = Response.ok((Object) file);
+            final File file = new File(ConfigurationRepository.getWorkflowOutputFolder(workflowId) + filename);
+            
+            final ResponseBuilder response = Response.ok(file);
             response.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-
+            
             return response.build();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
         }
-
+        
         // Return Internal Error (500)
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-
+        
     }
-
+    
     /**
      * Save file in disk
      *
      * @param file
      * @throws IOException
      */
-    private String writeFile(byte[] content, String filename, long userId) throws IOException {
-        String filepath = UPLOADED_FILES_DIRECTORY + filename;
-        File file = new File(filepath);
-
-        if (!file.exists()) {
-            file.createNewFile();
+    private String writeFile(final InputStream inputStream, final String filename, final long userId) throws IOException {
+        final File file = new File(UPLOADED_FILES_DIRECTORY + filename);
+        if (!file.getParentFile().exists()) {
+            file.getParentFile().mkdirs();
         }
-
-        FileOutputStream fop = new FileOutputStream(file);
-
-        LOGGER.info("File created. [path=" + filepath + "]");
-
-        fop.write(content);
-        fop.flush();
-        fop.close();
-
-        return filepath;
+        file.createNewFile();
+        
+        final String absolutePath = file.getAbsolutePath();
+        try (
+             final FileOutputStream fileOutputStream = new FileOutputStream(file);) {
+            int read = 0;
+            final byte[] bytes = new byte[1024];
+            while ((read = inputStream.read(bytes)) != -1) {
+                fileOutputStream.write(bytes, 0, read);
+            }
+            LOGGER.info("File created. [path=" + absolutePath + "]");
+        }
+        return absolutePath;
     }
-
+    
     /**
      * Verifies a file integrity.
      *
      * @param fileInfo
      * @param filepath
      * @return
+     * @throws InterruptedException
      */
-    public String verifyIntegrity(FileInfo fileInfo, String filepath) {
-        String hashFile = null;
-
+    public static String verifyIntegrity(final FileInfo fileInfo, final String filepath) {
         try {
-            hashFile = Hash.calculateSha3(filepath);
-
+            final String computedHash = HashUtil.computeNativeSHA3(filepath);
             // Verifies generated Hash from server with the hash that came from client
-            if (!hashFile.equals(fileInfo.getHash())) {
-                return null;
+            if (computedHash.equals(fileInfo.getHash())) {
+                return computedHash;
             }
-        } catch (IOException ex) {
-            LOGGER.error("Error verifing file integrity");
+        } catch (final InterruptedException | IOException e) {
+            LOGGER.error("Error verifing file hash integrity", e);
         }
-
-        return hashFile;
+        return null;
     }
-
+    
     /**
      * Convert from FileInfo to Avro FileInfo.
      *
@@ -227,72 +218,48 @@ public class FileResource extends AbstractResource {
      * @param fileInfo
      * @return
      */
-    public br.unb.cic.bionimbus.avro.gen.FileInfo convertToAvroObject(String hashedFile, FileInfo fileInfo) {
+    public br.unb.cic.bionimbus.avro.gen.FileInfo convertToAvroObject(final String hashedFile, final FileInfo fileInfo) {
         try {
-            br.unb.cic.bionimbus.avro.gen.FileInfo info = new br.unb.cic.bionimbus.avro.gen.FileInfo();
-
+            final br.unb.cic.bionimbus.avro.gen.FileInfo info = new br.unb.cic.bionimbus.avro.gen.FileInfo();
+            
             info.setHash(hashedFile);
             info.setId(fileInfo.getName());
             info.setName(fileInfo.getName());
             info.setSize(fileInfo.getSize());
             info.setUploadTimestamp(fileInfo.getUploadTimestamp());
-
+            
             return info;
-
-        } catch (Exception ex) {
-            LOGGER.error("Error converting objects");
-            ex.printStackTrace();
+            
+        } catch (final Exception e) {
+            LOGGER.error("Error converting objects", e);
         }
-
+        
         return null;
     }
-
+    
     /**
      * It's needed because next job may need it.
      *
      * @param from
+     * @throws IOException
+     * @throws FileNotFoundException
      */
-    private String copyFileToDataFolder(String fromPath, String filename) {
-        InputStream inStream = null;
-        OutputStream outStream = null;
-
-        String outputFilePath = ConfigurationRepository.getDataFolder() + filename;
-
-        File from = null;
-
-        try {
-
-            from = new File(fromPath);
-            File to = new File(outputFilePath);
-
-            inStream = new FileInputStream(from);
-            outStream = new FileOutputStream(to);
-
-            byte[] buffer = new byte[1024];
-
+    private void copyFileToDataFolder(final String fromPath, final String filename) throws FileNotFoundException, IOException {
+        final File from = new File(fromPath);
+        final File to = new File(ConfigurationRepository.getDataFolder() + filename);
+        try (
+             InputStream inStream = new FileInputStream(from);
+             OutputStream outStream = new FileOutputStream(to);) {
+            
+            final byte[] buffer = new byte[1024];
             int length;
-
-            // Copy the file content in bytes 
             while ((length = inStream.read(buffer)) > 0) {
                 outStream.write(buffer, 0, length);
             }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
         } finally {
-            try {
-                inStream.close();
-                outStream.close();
-
-                // Delete from tmp/ folder
+            if (from.exists()) {
                 from.delete();
-            } catch (IOException ex) {
-                LOGGER.error("Error closing streams");
-                ex.printStackTrace();
             }
         }
-
-        return outputFilePath;
     }
 }
