@@ -18,6 +18,7 @@
  */
 package br.unb.cic.bionimbus.services.storage;
 
+
 import static br.unb.cic.bionimbus.config.BioNimbusConfigLoader.loadHostConfig;
 
 import java.io.File;
@@ -43,6 +44,7 @@ import org.apache.zookeeper.WatchedEvent;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Preconditions;
@@ -78,8 +80,10 @@ import br.unb.cic.bionimbus.utils.Put;
 public class StorageService extends AbstractBioService {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(StorageService.class);
+
     
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new BasicThreadFactory.Builder().namingPattern("StorageService-%d").build());
+
     private Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<>();
     private final Map<String, PluginFile> savedFiles = new ConcurrentHashMap<>();
     // private Set<String> pendingSaveFiles = new HashSet<String>();
@@ -87,7 +91,7 @@ public class StorageService extends AbstractBioService {
     private final Double MAXCAPACITY = 0.9;
     private final int PORT = 8080;
     private final int REPLICATIONFACTOR = 2;
-    
+
     @Inject
     public StorageService(final CloudMessageService cms, MetricRegistry metricRegistry) {
         

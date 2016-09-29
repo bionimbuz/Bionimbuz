@@ -70,10 +70,12 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
         } catch (final Exception ex) {
             LOGGER.error("Exception - " + ex.getMessage());
         }
+
         
         for (int ii = 1; ii <= this.numPipelines; ii++) {
             try (
                  BufferedReader br = new BufferedReader(new FileReader(path + "pipelineSample" + ii + ".txt"))) {
+
                 // get first line: number of tasks
                 String line = br.readLine();
                 final int tasksNumber = Integer.parseInt(line);
@@ -164,8 +166,10 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
         } catch (final Exception ex) {
             LOGGER.error("Exception - " + ex.getMessage());
         }
+
         try (
              BufferedReader br = new BufferedReader(new FileReader(path + "servicesSample.txt"))) {
+
             
             String line;
             while ((line = br.readLine()) != null) {
