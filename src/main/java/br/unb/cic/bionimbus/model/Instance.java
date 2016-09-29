@@ -200,7 +200,9 @@ public class Instance {
                 + "CPUType: " + this.cpuType+", "
                 + "Ram:" + this.memory + "Gb, " 
                 + "HD: " + this.hd + "Gb, " 
-                + "Custo por hora : " + this.valueHour;
+                + "Custo por hora : " + this.valueHour
+                + "Quantidade: "+ this.quantity;
+        
     }
 
     /**

@@ -2,6 +2,7 @@ package br.unb.cic.bionimbus.model;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.InputStream;
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;

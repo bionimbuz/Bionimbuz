@@ -19,7 +19,9 @@
 package br.unb.cic.bionimbus.plugin;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.primitives.Longs;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -35,6 +37,13 @@ public class PluginService {
     private Double presetMode = null;
 
     private String info;
+    
+    @JsonIgnore
+    private List<String> arguments;
+    @JsonIgnore
+    private List<String> input;
+    @JsonIgnore
+    private List<String> output;
 
     public String getId() {
         return id;
@@ -102,5 +111,47 @@ public class PluginService {
             Logger.getLogger(PluginService.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
+    }
+
+    /**
+     * @return the arguments
+     */
+    public List<String> getArguments() {
+        return arguments;
+    }
+
+    /**
+     * @param arguments the arguments to set
+     */
+    public void setArguments(List<String> arguments) {
+        this.arguments = arguments;
+    }
+
+    /**
+     * @return the input
+     */
+    public List<String> getInput() {
+        return input;
+    }
+
+    /**
+     * @param input the input to set
+     */
+    public void setInput(List<String> input) {
+        this.input = input;
+    }
+
+    /**
+     * @return the output
+     */
+    public List<String> getOutput() {
+        return output;
+    }
+
+    /**
+     * @param output the output to set
+     */
+    public void setOutput(List<String> output) {
+        this.output = output;
     }
 }
