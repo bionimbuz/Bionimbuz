@@ -57,19 +57,19 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
 
     private final ScheduledExecutorService schedExecutorService = Executors.newScheduledThreadPool(1, new BasicThreadFactory.Builder().namingPattern("bionimbus-plugin-%d").build());
 
-    private final ConcurrentMap<String, Pair<PluginTask, Integer>> pendingTasks = new ConcurrentHashMap<String, Pair<PluginTask, Integer>>();
+    private final ConcurrentMap<String, Pair<PluginTask, Integer>> pendingTasks = new ConcurrentHashMap<>();
 
-    private final ConcurrentMap<String, Pair<PluginTask, Future<PluginTask>>> executingTasks = new ConcurrentHashMap<String, Pair<PluginTask, Future<PluginTask>>>();
+    private final ConcurrentMap<String, Pair<PluginTask, Future<PluginTask>>> executingTasks = new ConcurrentHashMap<>();
 
-    private final ConcurrentMap<String, Pair<PluginTask, Integer>> endingTasks = new ConcurrentHashMap<String, Pair<PluginTask, Integer>>();
+    private final ConcurrentMap<String, Pair<PluginTask, Integer>> endingTasks = new ConcurrentHashMap<>();
 
-    private final List<Future<PluginFile>> pendingSaves = new CopyOnWriteArrayList<Future<PluginFile>>();
+    private final List<Future<PluginFile>> pendingSaves = new CopyOnWriteArrayList<>();
 
-    private final List<Future<PluginGetFile>> pendingGets = new CopyOnWriteArrayList<Future<PluginGetFile>>();
+    private final List<Future<PluginGetFile>> pendingGets = new CopyOnWriteArrayList<>();
 
-    private final ConcurrentMap<String, Pair<String, Integer>> inputFiles = new ConcurrentHashMap<String, Pair<String, Integer>>();
+    private final ConcurrentMap<String, Pair<String, Integer>> inputFiles = new ConcurrentHashMap<>();
 
-    private final ConcurrentMap<String, PluginFile> pluginFiles = new ConcurrentHashMap<String, PluginFile>();
+    private final ConcurrentMap<String, PluginFile> pluginFiles = new ConcurrentHashMap<>();
 
     @Inject
     public AbstractPlugin(final BioNimbusConfig config) throws IOException {
@@ -144,8 +144,8 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
             return;
         }
         myCount = 0;
-
-        Future<PluginInfo> futureinfo = getFutureInfo();
+        // Future<PluginInfo> futureinfo = getFutureInfo(); HAVE TO CHECK
+        futureInfo = getFutureInfo();
         if (futureInfo == null) {
             setFutureInfo(startGetInfo());
             return;
@@ -160,10 +160,7 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
             newInfo.setId(getId());
 
             setMyInfo(newInfo);
-        } catch (InterruptedException e) {
-            setErrorString(e.getMessage());
-            setMyInfo(null);
-        } catch (ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             setErrorString(e.getMessage());
             setMyInfo(null);
         }
@@ -184,10 +181,7 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
 
             try {
                 task = futureTask.get();
-            } catch (InterruptedException e) {
-                task = pair.first;
-                continue;
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 task = pair.first;
                 continue;
             }
@@ -203,7 +197,7 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
                     info.setSize(file.length());
                     count++;
                 }
-                endingTasks.put(task.getId(), new Pair<PluginTask, Integer>(task, count));
+                endingTasks.put(task.getId(), new Pair<>(task, count));
             }
         }
     }
@@ -223,13 +217,12 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
                 file.setPluginId(pluginIds);
                 pendingSaves.remove(f);
                 pluginFiles.put(file.getId(), file);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                //TODO criar mensagem de erro?
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
                 //TODO criar mensagem de erro?
             }
+            //TODO criar mensagem de erro?
+            
         }
     }
 
@@ -244,13 +237,12 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
             try {
                 PluginGetFile get = f.get();
                 pendingGets.remove(f);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                // TODO criar mensagem de erro?
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
                 // TODO criar mensagem de erro?
             }
+            // TODO criar mensagem de erro?
+            
         }
     }
 

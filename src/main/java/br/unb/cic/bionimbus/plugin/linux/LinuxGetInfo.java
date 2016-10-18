@@ -95,7 +95,7 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
         try {
             InputStreamReader read ;
             BufferedReader buffer ;
-            List<Integer> linesCPU= new ArrayList<Integer>(numCpu);
+            List<Integer> linesCPU= new ArrayList<>(numCpu);
             String[] columns,lines;
             String line;
             int count=0,i=0;
@@ -166,7 +166,7 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
     }
 
     private void getServices() throws Exception {
-        final List<PluginService> list = new CopyOnWriteArrayList<PluginService>();
+        final List<PluginService> list = new CopyOnWriteArrayList<>();
         File dir = new File(SERVICE_DIR);
 
         if (dir.isDirectory()) {

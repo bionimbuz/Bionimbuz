@@ -57,7 +57,8 @@ storage-mode: 0
 
 # Reference files (keep it ORDERED)
 references:
-    - referencia_hg19    
+    - referencia_hg19
+    - ref
  
 # Supported formats to be concateanted with each file name (keep it ORDERED)
 supported-formats:
@@ -72,6 +73,7 @@ supported-formats:
     - .out
     - .sam
     - .txt
+    - .fastq
     
 # Supported services of BioNimbuZ    
 supported-services:
@@ -97,10 +99,17 @@ supported-services:
         # No one knows what this means (only Willian)
         presetMode: 4242000000
         info: genome2interval tool.      
+#    - !br.unb.cic.bionimbus.plugin.PluginService 
+#        id: 4
+#        name: TopHat2
+#        path: ./programs/tophat.sh
+#        # No one knows what this means (only Willian)
+#        presetMode: 4242000000
+#        info: TopHat2 e um alinhador de reads baseado em arquivos de referencia.
     - !br.unb.cic.bionimbus.plugin.PluginService 
         id: 4
         name: CoverageBed
         path: ./programs/coverageBed.sh
         # No one knows what this means (only Willian)
         presetMode: 4242000000
-        info: The bedtools coverage tool computes both the depth and breadth of coverage of features in file B on the features in file A.      
+        info: The bedtools coverage tool computes both the depth and breadth of coverage of features in file B on the features in file A.

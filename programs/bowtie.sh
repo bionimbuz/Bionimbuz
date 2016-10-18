@@ -9,8 +9,11 @@ echo $0 $*
 
 tmp=`echo $$`
 
+ncpu=`nproc`
+
 #bowtie-build $1 index-$tmp
 #bowtie -f -p 8 --sam-nohead -k 2 index-$tmp $2 $3
 #rm -rf index-$tmp.*
 
-bowtie -f -p 1 --sam-nohead -k 2 $1 $2 $3
+#bowtie -f -p $ncpu --sam-nohead -k 2 $1 $2 $3
+/home/biolabid2/Bionimbuz/programs/tophat-2.1.1.Linux_x86_64/tophat2 -T -p $ncpu --output-dir $3 $1 $2
