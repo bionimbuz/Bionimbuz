@@ -7,6 +7,7 @@ package br.unb.cic.bionimbus.rest.application;
 
 import br.unb.cic.bionimbus.BioNimbus;
 import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
+import br.unb.cic.bionimbus.controller.slacontroller.SlaController;
 import br.unb.cic.bionimbus.controller.usercontroller.UserController;
 import br.unb.cic.bionimbus.rest.resource.AbstractResource;
 import br.unb.cic.bionimbus.rest.resource.FileResource;
@@ -58,13 +59,13 @@ public class RestApplication extends Application {
         // Retrieves injector from BioNimbus class
         JobController jobController = BioNimbus.controllerInjector.getInstance(JobController.class);
         UserController userController = BioNimbus.controllerInjector.getInstance(UserController.class);
-
+        SlaController slaController = BioNimbus.controllerInjector.getInstance(SlaController.class);
         addResource(new UserResource(jobController, userController));
         addResource(new FileResource(jobController));
         addResource(new WorkflowResource(jobController));
         addResource(new ConfigurationsResource(jobController));
         addResource(new PingResource());
-        addResource(new StartSlaResource());
+        addResource(new StartSlaResource(slaController));
 
         LOGGER.info("RestApplication started with " + resourceCounter + " Resources");
 

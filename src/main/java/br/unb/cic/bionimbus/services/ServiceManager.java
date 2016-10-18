@@ -45,7 +45,7 @@ public class ServiceManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceManager.class);
 
-    private final Set<Service> services = new LinkedHashSet<Service>();
+    private final Set<Service> services = new LinkedHashSet<>();
 
     private final CloudMessageService cms;
 

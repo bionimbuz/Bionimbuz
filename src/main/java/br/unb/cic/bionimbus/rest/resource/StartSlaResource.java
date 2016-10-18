@@ -5,6 +5,7 @@
  */
 package br.unb.cic.bionimbus.rest.resource;
 
+import br.unb.cic.bionimbus.controller.slacontroller.SlaController;
 import br.unb.cic.bionimbus.model.Instance;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -33,6 +34,10 @@ public class StartSlaResource extends AbstractResource{
         this.loggerDao = null;
     }    
     
+    public StartSlaResource(SlaController slaController) {
+        this.slaController = slaController;
+        this.loggerDao = null;
+    }    
     /**
      * Handles StartWorkflowRequests by submiting them to the Core
      * 
@@ -60,7 +65,9 @@ public class StartSlaResource extends AbstractResource{
                 sla.getInstances().stream().forEach((Instance f) -> {
                     LOGGER.info(f.toString()+"\n");
                 });
-
+                
+                slaController.createSlaTemplate(sla, workflow);
+        
         // Logs
 //        loggerDao.log(new Log("QoS chegou no servidor do BioNimbuZ", sla.getUser().getId(), sla.getId(), LogSeverity.INFO));
 
@@ -85,8 +92,7 @@ public class StartSlaResource extends AbstractResource{
 //        }
 
 //        return Response.status(200).entity(true).build();
-    SLA response=sla;
-    return response;
+    return sla;
     }
     @Override
     public ResponseInfo handleIncoming(RequestInfo request) {

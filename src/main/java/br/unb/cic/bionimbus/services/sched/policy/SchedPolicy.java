@@ -47,7 +47,7 @@ public abstract class SchedPolicy {
         C99SUPERCOLIDER
     }
     
-    private ConcurrentHashMap<String, PluginInfo> cloudMap = new ConcurrentHashMap<String, PluginInfo>();
+    private ConcurrentHashMap<String, PluginInfo> cloudMap = new ConcurrentHashMap<>();
 
     public void setCloudMap(ConcurrentHashMap<String, PluginInfo> cloudMap) {
         this.cloudMap = cloudMap;
