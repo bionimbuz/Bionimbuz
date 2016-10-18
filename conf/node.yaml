@@ -20,10 +20,10 @@ client: false
 plugin: linux
 
 # Server root path (will be changed to root-folder
-server-path: /home/felipel/projects/Bionimbuz/
+server-path: /home/bionimbuz/Bionimbuz/
 
 # Folder containing file with BioNimbuZ credentials
-credentials-file: /home/felipel/projects/.bionimbuz/credentials.yaml
+credentials-file: /home/bionimbuz/.bionimbuz/credentials.yaml
 
 # Folder or reference files
 reference-folder: references/
