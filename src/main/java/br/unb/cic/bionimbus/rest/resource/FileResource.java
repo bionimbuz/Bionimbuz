@@ -38,6 +38,7 @@ import br.unb.cic.bionimbus.services.storage.bucket.BioBucket;
 import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageMethods;
 import br.unb.cic.bionimbus.services.storage.bucket.CloudStorageService;
 import br.unb.cic.bionimbus.services.storage.bucket.methods.CloudMethodsAmazonGoogle;
+import org.json.JSONObject;
 
 @Path("/rest/file/")
 public class FileResource extends AbstractResource {
@@ -75,8 +76,9 @@ public class FileResource extends AbstractResource {
         
         try {
             // Writes file on disk
-            final String filepath = this.writeFile(form.getData(), form.getFileInfo().getName(), form.getFileInfo().getUserId());
+  
             if (this.config.getStorageMode().equalsIgnoreCase("0")) {
+                final String filepath = this.writeFile(form.getData(), form.getFileInfo().getName(), form.getFileInfo().getUserId());
                 // Verify integrity
                 final String hashedFile = verifyIntegrity(form.getFileInfo(), filepath);
                 // Verify file integrity and tries to write file to Zookeeper
@@ -88,13 +90,19 @@ public class FileResource extends AbstractResource {
             } else {
                 final CloudStorageMethods methodsInstance = new CloudMethodsAmazonGoogle();
                 final BioBucket dest = CloudStorageService.getBestBucket(CloudStorageService.getBucketList());
-                methodsInstance.StorageUploadFile(dest, "/data-folder/", UPLOADED_FILES_DIRECTORY, form.getFileInfo().getName());
-                final File temp = new File(filepath);
-                temp.delete();
+//                methodsInstance.StorageUploadFile(dest, "/data-folder/", UPLOADED_FILES_DIRECTORY, form.getFileInfo().getName());
+////                final File temp = new File(filepath);
+//                Response.accepted(dest.getName());
+                //System.out.println("nome:"+dest.getName());
+                return Response.ok(dest.getName(), MediaType.TEXT_PLAIN).build();
+//                temp.delete();
             }
             // Creates an UserFile using UploadadeFileInfo from request and persists on Database
             this.fileDao.persist(form.getFileInfo());
             return Response.status(HttpStatus.SC_OK).entity(true).build();
+//            JSONObject n = new JSONObject().put("name", "testandoBucket");
+//            return Response.ok(n, MediaType.APPLICATION_JSON).build();
+            //return Response.ok("testandoBucket", MediaType.TEXT_PLAIN).build();
         } catch (final Throwable t) {
             LOGGER.error("[Exception] ", t.getMessage());
             return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).entity(false).build();

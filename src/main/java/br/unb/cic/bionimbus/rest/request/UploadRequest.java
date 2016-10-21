@@ -18,6 +18,7 @@ public class UploadRequest implements RequestInfo {
     
     private InputStream data;
     private FileInfo fileInfo;
+    private String bucketName;
     
     // --------------------------------------------------------------
     // Constructors.
@@ -44,5 +45,13 @@ public class UploadRequest implements RequestInfo {
     @PartType(MediaType.APPLICATION_JSON)
     public void setFileInfo(FileInfo fileInfo) {
         this.fileInfo = fileInfo;
+    }
+    
+    public String getBucketName() {
+        return bucketName;
+    }
+
+    public void setBucketName(String bucketName) {
+        this.bucketName = bucketName;
     }
 }
