@@ -77,7 +77,7 @@ public final class RepositoryService extends AbstractBioService {
         this.config = config;
         this.listeners = listeners;
 
-        // Add current instance as a peer
+        // Add current instance as a peer HERE THE PEER IS ADD IN ZOOKEEPER
         addPeerToZookeeper(new PluginInfo(config.getId()));
 
         listeners.add(this);

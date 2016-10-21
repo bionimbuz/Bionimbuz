@@ -1,9 +1,14 @@
 package br.unb.cic.bionimbus.services.tarification.Amazon;
 
+import br.unb.cic.bionimbus.model.Instance;
 import br.unb.cic.bionimbus.services.tarification.JsonReader;
 import com.amazonaws.util.json.JSONException;
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.json.JSONObject;
 
 /**
@@ -23,15 +28,35 @@ public class AmazonIndex {
     private JSONObject AmazonRDS;
     private JSONObject AmazonSimpleDB;
     private JSONObject AmazonDynamoDB;
-    private JSONObject AmazonEC2;
     private JSONObject AmazonRoute53;
     private JSONObject AmazonRedshift;
     private JSONObject AmazonElastiCache;
     private JSONObject AmazonCloudFront;
     private JSONObject awskms;
     private JSONObject AmazonVPC;
-
-    /**
+    final private JSONObject AmazonEC2;
+    //Hard Code TODO Change 
+    final private String defaultConfigPathname = System.getProperty("user.home") + "/Bionimbuz/conf/AmazonEC2.json";
+    final String http="https://";
+    final String server="pricing.us-east-1.amazonaws.com";
+    final String index="/offers/v1.0/aws/index.json";
+    private String allInstanceTypeName []= {"t2.nano", "t2.micro", "t2.small", 
+        "t2medium", "t2.large", "m4.large", "m4.xlarge", "m4.2xlarge", 
+        "m4.4xlarge", "m4.10xlarge", "m3.medium", "m3.large", "m3.xlarge", 
+        "m3.2xlarge", "c4.large", "c4.xlarge", "c4.2xlarge", "c4.4xlarge", 
+        "c4.8xlarge", "c3.large", "c3.xlarge", "c3.2xlarge", "c3.4xlarge", 
+        "c3.8xlarge", "g2.2xlarge", "g2.8xlarge", "x1.32xlarge", "r3.large", 
+        "r3.xlarge", "r3.2xlarge", "r3.4xlarge", "r3.8xlarge", "i2.xlarge", 
+        "i2.2xlarge", "i2.4xlarge", "i2.8xlarge", "d2.xlarge", "d2.2xlarge", 
+        "d2.4xlarge", "d2.8xlarge"};
+    private String allLocation[]={"Asia Pacific (Mumbai)", 
+        "Asia Pacific (Seoul)", "Asia Pacific (Tokyo)", 
+        "Asia Pacific (Singapore)", "Asia Pacific (Sydney)", 
+        "South America (Sao Paulo)", "AWS GovCloud (US)", "US West (Oregon)", 
+        "US West (N. California)", "US East (N. Virginia)", "EU (Frankfurt)", 
+        "EU (Ireland)"};
+    private String allSO[]={"Windows", "SUSE", "Linux", "RHEL"};
+    /**pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonEC2/current/index.json
      * The index constructor is responsible to read the jsons of the services
      * from the URL and create the json objects relatives to the attributes of
      * the class.
@@ -46,7 +71,7 @@ public class AmazonIndex {
      * @throws IOException
      */
     public AmazonIndex(String server, String index) throws JSONException, IOException {
-        JSONObject amazonServicesURLs = JsonReader.readJsonFromUrl("https://" + "pricing.us-east-1.amazonaws.com" + "/offers/v1.0/aws/index.json");
+        JSONObject amazonServicesURLs = JsonReader.readJsonFromUrl(http + server + index);
         JsonReader.saveJson(amazonServicesURLs.toString(4), "index.json");
         amazonServicesURLs = amazonServicesURLs.getJSONObject("offers");
         /*
@@ -87,10 +112,10 @@ public class AmazonIndex {
         this.AmazonVPC = JsonReader.readJsonFromUrl(AmazonVPC);
         JsonReader.saveJson(this.AmazonVPC.toString(4), "AmazonVPC.json");
          */
-        String AmazonEC2 = "https://" + server + amazonServicesURLs.getJSONObject("AmazonEC2").getString("currentVersionUrl");
-        this.AmazonEC2 = JsonReader.readJsonFromUrl(AmazonEC2);
-        JsonReader.saveJson(this.AmazonEC2.toString(4), "AmazonEC2.json");
-        System.out.println(AmazonEC2);
+        String AmazonEC2Instances = http + server + amazonServicesURLs.getJSONObject("AmazonEC2").getString("currentVersionUrl");
+        this.AmazonEC2 = JsonReader.readJsonFromUrl(AmazonEC2Instances);
+        JsonReader.saveJson(this.AmazonEC2.toString(4), defaultConfigPathname);
+        System.out.println(AmazonEC2Instances);
     }
 
     /**
@@ -128,8 +153,15 @@ public class AmazonIndex {
         String AmazonVPC = "AmazonVPC.json";
         this.AmazonVPC = JsonReader.readJson(AmazonVPC);
          */
-        String AmazonEC2 = "AmazonEC2.json";
-        this.AmazonEC2 = JsonReader.readJson(AmazonEC2);
+        File f = new File(defaultConfigPathname);
+        if(!f.exists()) { 
+           try {
+                new AmazonIndex(server, index);
+            } catch (JSONException | IOException ex) {
+                Logger.getLogger(AmazonIndex.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        this.AmazonEC2 = JsonReader.readJson(defaultConfigPathname);
     }
 
     /**
@@ -405,5 +437,66 @@ public class AmazonIndex {
             }
         }
         return (result);
+    }
+    
+    public ArrayList<JSONObject> getListJsonObjectInstances(){
+        ArrayList<JSONObject> result = new ArrayList<>();
+        for(String instanceTypeName : allInstanceTypeName){
+            for(String location: allLocation){
+                for(String sO: allSO){
+                  result.add(EC2Instances(instanceTypeName, location, sO));
+                }
+            }
+        }
+        return result;
+    }
+    public ArrayList<Instance> getListInstanceEc2(){
+        ArrayList<Instance> listInstancesEc2 = new ArrayList();
+        for(JSONObject jsonObjectInstance : getListJsonObjectInstances()){
+            
+        }
+        
+        return listInstancesEc2;
+    }
+    /**
+     * @return the allInstanceType
+     */
+    public String[] getAllInstanceTypeName() {
+        return allInstanceTypeName;
+    }
+
+    /**
+     * @param allInstanceTypeName the allInstanceType to set
+     */
+    public void setAllInstanceTypeName(String[] allInstanceTypeName) {
+        this.allInstanceTypeName = allInstanceTypeName;
+    }
+
+    /**
+     * @return the allLocation
+     */
+    public String[] getAllLocation() {
+        return allLocation;
+    }
+
+    /**
+     * @param allLocation the allLocation to set
+     */
+    public void setAllLocation(String[] allLocation) {
+        this.allLocation = allLocation;
+    }
+
+    /**
+     * @return the allSO
+     */
+    public String[] getAllSO() {
+        return allSO;
+    }
+
+    /**
+     * @param allSO the allSO to set
+     */
+    public void setAllSO(String[] allSO) {
+        this.allSO = allSO;
     }
 }

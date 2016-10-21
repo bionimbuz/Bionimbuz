@@ -31,6 +31,9 @@ public class Job implements Serializable {
     private String serviceId;
 
     private String args = "";
+    
+    @Transient
+    private String ipjob;
 
 //    @Transient
     // inputs = [{input.id, input.size}]
@@ -85,7 +88,21 @@ public class Job implements Serializable {
         outputs = new ArrayList<>();
         dependencies = new ArrayList<>();
     }
-
+    
+    /**
+     * Receives the String ID and ipjob
+     *
+     * @param id
+     * @param ipjob
+     */
+    public Job(String id, String ipjob) {
+        this.id = id;
+        inputFiles = new ArrayList<>();
+        outputs = new ArrayList<>();
+        dependencies = new ArrayList<>();
+        this.ipjob=ipjob;
+    }
+    
     public String getId() {
         return id;
     }
@@ -211,6 +228,20 @@ public class Job implements Serializable {
         }
 
         return null;
+    }
+
+    /**
+     * @return the ipjob
+     */
+    public String getIpjob() {
+        return ipjob;
+    }
+
+    /**
+     * @param ipjob the ipjob to set
+     */
+    public void setIpjob(String ipjob) {
+        this.ipjob = ipjob;
     }
 
 }

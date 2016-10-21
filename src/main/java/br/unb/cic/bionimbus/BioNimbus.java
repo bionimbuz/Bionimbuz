@@ -41,6 +41,7 @@ import br.unb.cic.bionimbus.plugin.linux.LinuxGetInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import br.unb.cic.bionimbus.utils.PBKDF2;
+//import br.unb.cic.bionimbus.utils.RuntimeUtil;
 
 import static com.google.inject.Guice.createInjector;
 import java.security.NoSuchAlgorithmException;
@@ -74,7 +75,8 @@ public class BioNimbus {
      * @throws InterruptedException
      */
     public BioNimbus(BioNimbusConfig config) throws IOException, InterruptedException {
-
+//        String ip = RuntimeUtil.runCommand("curl ifconfig.co");
+//        config.setId(ip);
         config.setId(UUID.randomUUID().toString());
         List<Listeners> listeners = new CopyOnWriteArrayList<>();
 
