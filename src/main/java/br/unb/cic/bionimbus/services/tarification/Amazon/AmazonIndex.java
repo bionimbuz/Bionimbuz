@@ -156,6 +156,7 @@ public class AmazonIndex {
         File f = new File(defaultConfigPathname);
         if(!f.exists()) { 
            try {
+               System.out.println("exist");
                 new AmazonIndex(server, index);
             } catch (JSONException | IOException ex) {
                 Logger.getLogger(AmazonIndex.class.getName()).log(Level.SEVERE, null, ex);
@@ -244,7 +245,9 @@ public class AmazonIndex {
             JSONObject aux = products.getJSONObject(it.next());
             if (aux.has("productFamily")) {
                 if (aux.getString("productFamily").equals("Compute Instance")) {
-                    if ((aux.getJSONObject("attributes").getString("licenseModel").equals("License Included")) && (aux.getJSONObject("attributes").getString("tenancy").equals("Shared")) && (aux.getJSONObject("attributes").getString("preInstalledSw").equals("NA")) && (aux.getJSONObject("attributes").getString("instanceType").equals(instanceType)) && (aux.getJSONObject("attributes").getString("location").equals(location)) && (aux.getJSONObject("attributes").getString("operatingSystem").equals(os))) {
+                    //aux.getJSONObject("attributes").getString("licenseModel").equals("No License required")
+                    //aux.getJSONObject("attributes").getString("licenseModel").equals("License Included")
+                    if ((aux.getJSONObject("attributes").getString("licenseModel").equals("No License required")) && (aux.getJSONObject("attributes").getString("tenancy").equals("Shared")) && (aux.getJSONObject("attributes").getString("preInstalledSw").equals("NA")) && (aux.getJSONObject("attributes").getString("instanceType").equals(instanceType)) && (aux.getJSONObject("attributes").getString("location").equals(location)) && (aux.getJSONObject("attributes").getString("operatingSystem").equals(os))) {
                         Iterator<String> itPricesAux = prices.getJSONObject(aux.getString("sku")).keys();
                         while (itPricesAux.hasNext()) {
                             JSONObject auxPricesObj = prices.getJSONObject(aux.getString("sku")).getJSONObject(itPricesAux.next());
@@ -441,19 +444,40 @@ public class AmazonIndex {
     
     public ArrayList<JSONObject> getListJsonObjectInstances(){
         ArrayList<JSONObject> result = new ArrayList<>();
+        JSONObject aux= new JSONObject();
         for(String instanceTypeName : allInstanceTypeName){
             for(String location: allLocation){
-                for(String sO: allSO){
-                  result.add(EC2Instances(instanceTypeName, location, sO));
-                }
+                //allSO is the base of so, but we need just linux, so Linux so
+                aux=EC2Instances(instanceTypeName, location,"Linux");
+                if(aux.keys().hasNext())
+                    result.add(aux);                    
             }
         }
         return result;
     }
     public ArrayList<Instance> getListInstanceEc2(){
         ArrayList<Instance> listInstancesEc2 = new ArrayList();
-        for(JSONObject jsonObjectInstance : getListJsonObjectInstances()){
-            
+        Instance instanceAux;
+        ArrayList<JSONObject> listJsonObject =getListJsonObjectInstances();
+        System.out.println("Interno jsonlist: "+listJsonObject.size());
+        for(JSONObject jsonObjectInstance : listJsonObject){
+                   
+//            System.out.println(instance);
+//            if(jsonObjectInstance.keys().hasNext()){
+                JSONObject i = jsonObjectInstance.getJSONObject(jsonObjectInstance.keys().next()).getJSONObject("attributes");
+    //            System.out.println("instanceType: "+i.getString("instanceType"));
+    //            System.out.println("Price: "+instance.getJSONObject(instance.keys().next()).getDouble("price"));
+    //            System.out.println("location: "+i.getString("location"));
+    //            System.out.println("memory: "+i.getString("memory"));
+    //            System.out.println("cpuHtz: "+i.getString("clockSpeed"));
+    //            System.out.println("cpuType: "+i.getString("physicalProcessor"));
+    //            System.out.println("storage: "+i.getString("storage"));
+    //            System.out.println("processorArchitecture: "+i.getString("processorArchitecture"));
+
+                //String id, String type, Double valueHour, int quantity, String locality, String memory, String cpuHtz, String cpuType, int quantityCPU, String hd, String hdType,String cpuArch, String provider
+                instanceAux =new Instance(jsonObjectInstance.keys().next(), i.getString("instanceType"),jsonObjectInstance.getJSONObject(jsonObjectInstance.keys().next()).getDouble("price"), 0, i.getString("location"), i.getString("memory"),i.getString("clockSpeed"), i.getString("physicalProcessor"),i.getInt("vcpu"), i.getString("storage"),  i.getString("storage"), i.getString("processorArchitecture"),"Amazon EC2");
+                listInstancesEc2.add(instanceAux);
+//            }
         }
         
         return listInstancesEc2;
