@@ -22,21 +22,21 @@ public class AmazonIndex {
      * They keep the JSON's from AWS with the Service Object's informations.
      *
      */
-    private JSONObject AmazonS3;
-    private JSONObject AmazonGlacier;
-    private JSONObject AmazonSES;
-    private JSONObject AmazonRDS;
-    private JSONObject AmazonSimpleDB;
-    private JSONObject AmazonDynamoDB;
-    private JSONObject AmazonRoute53;
-    private JSONObject AmazonRedshift;
-    private JSONObject AmazonElastiCache;
-    private JSONObject AmazonCloudFront;
+    private JSONObject amazonS3;
+    private JSONObject amazonGlacier;
+    private JSONObject amazonSES;
+    private JSONObject amazonRDS;
+    private JSONObject amazonSimpleDB;
+    private JSONObject amazonDynamoDB;
+    private JSONObject amazonRoute53;
+    private JSONObject amazonRedshift;
+    private JSONObject amazonElastiCache;
+    private JSONObject amazonCloudFront;
     private JSONObject awskms;
-    private JSONObject AmazonVPC;
-    final private JSONObject AmazonEC2;
+    private JSONObject amazonVPC;
+    final private JSONObject amazonEC2;
     //Hard Code TODO Change 
-    final private String defaultConfigPathname = System.getProperty("user.home") + "/Bionimbuz/conf/AmazonEC2.json";
+    final private String defaultConfigPathname = System.getProperty("user.home") + "/Bionimbuz/conf/amazonEC2.json";
     final String http="https://";
     final String server="pricing.us-east-1.amazonaws.com";
     final String index="/offers/v1.0/aws/index.json";
@@ -112,10 +112,10 @@ public class AmazonIndex {
         this.AmazonVPC = JsonReader.readJsonFromUrl(AmazonVPC);
         JsonReader.saveJson(this.AmazonVPC.toString(4), "AmazonVPC.json");
          */
-        String AmazonEC2Instances = http + server + amazonServicesURLs.getJSONObject("AmazonEC2").getString("currentVersionUrl");
-        this.AmazonEC2 = JsonReader.readJsonFromUrl(AmazonEC2Instances);
-        JsonReader.saveJson(this.AmazonEC2.toString(4), defaultConfigPathname);
-        System.out.println(AmazonEC2Instances);
+        String amazonEC2Instances = http + server + amazonServicesURLs.getJSONObject("AmazonEC2").getString("currentVersionUrl");
+        this.amazonEC2 = JsonReader.readJsonFromUrl(amazonEC2Instances);
+        JsonReader.saveJson(this.amazonEC2.toString(4), defaultConfigPathname);
+        System.out.println(amazonEC2Instances);
     }
 
     /**
@@ -162,7 +162,7 @@ public class AmazonIndex {
                 Logger.getLogger(AmazonIndex.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        this.AmazonEC2 = JsonReader.readJson(defaultConfigPathname);
+        this.amazonEC2 = JsonReader.readJson(defaultConfigPathname);
     }
 
     /**
@@ -237,8 +237,8 @@ public class AmazonIndex {
      * specified input.
      */
     public JSONObject EC2Instances(String instanceType, String location, String os) {
-        JSONObject products = this.AmazonEC2.getJSONObject("products");
-        JSONObject prices = this.AmazonEC2.getJSONObject("terms").getJSONObject("OnDemand");
+        JSONObject products = this.amazonEC2.getJSONObject("products");
+        JSONObject prices = this.amazonEC2.getJSONObject("terms").getJSONObject("OnDemand");
         Iterator<String> it = products.keys();
         JSONObject result = new JSONObject();
         while (it.hasNext()) {
@@ -335,8 +335,8 @@ public class AmazonIndex {
      * specified input.
      */
     public JSONObject EC2Instances(String instanceType, String location) {
-        JSONObject products = this.AmazonEC2.getJSONObject("products");
-        JSONObject prices = this.AmazonEC2.getJSONObject("terms").getJSONObject("OnDemand");
+        JSONObject products = this.amazonEC2.getJSONObject("products");
+        JSONObject prices = this.amazonEC2.getJSONObject("terms").getJSONObject("OnDemand");
         Iterator<String> it = products.keys();
         JSONObject result = new JSONObject();
         while (it.hasNext()) {
@@ -414,8 +414,8 @@ public class AmazonIndex {
      * specified input.
      */
     public JSONObject EC2Instances(String instanceType) {
-        JSONObject products = this.AmazonEC2.getJSONObject("products");
-        JSONObject prices = this.AmazonEC2.getJSONObject("terms").getJSONObject("OnDemand");
+        JSONObject products = this.amazonEC2.getJSONObject("products");
+        JSONObject prices = this.amazonEC2.getJSONObject("terms").getJSONObject("OnDemand");
         Iterator<String> it = products.keys();
         JSONObject result = new JSONObject();
         while (it.hasNext()) {
@@ -458,25 +458,63 @@ public class AmazonIndex {
     public ArrayList<Instance> getListInstanceEc2(){
         ArrayList<Instance> listInstancesEc2 = new ArrayList();
         Instance instanceAux;
+        Double memory,hd, cpuhtz,qtd;
+        String aux= "",hdType="";      
         ArrayList<JSONObject> listJsonObject =getListJsonObjectInstances();
         System.out.println("Interno jsonlist: "+listJsonObject.size());
         for(JSONObject jsonObjectInstance : listJsonObject){
-                   
-//            System.out.println(instance);
-//            if(jsonObjectInstance.keys().hasNext()){
-                JSONObject i = jsonObjectInstance.getJSONObject(jsonObjectInstance.keys().next()).getJSONObject("attributes");
-    //            System.out.println("instanceType: "+i.getString("instanceType"));
-    //            System.out.println("Price: "+instance.getJSONObject(instance.keys().next()).getDouble("price"));
-    //            System.out.println("location: "+i.getString("location"));
-    //            System.out.println("memory: "+i.getString("memory"));
-    //            System.out.println("cpuHtz: "+i.getString("clockSpeed"));
-    //            System.out.println("cpuType: "+i.getString("physicalProcessor"));
-    //            System.out.println("storage: "+i.getString("storage"));
-    //            System.out.println("processorArchitecture: "+i.getString("processorArchitecture"));
+            JSONObject i = jsonObjectInstance.getJSONObject(jsonObjectInstance.keys().next()).getJSONObject("attributes");
+                    
+//            System.out.println("instanceType: "+i.getString("instanceType"));
+//            System.out.println("Price: "+instance.getJSONObject(instance.keys().next()).getDouble("price"));
+//            System.out.println("location: "+i.getString("location"));
+//            System.out.print("memory: "+i.getString("memory"));
+//            System.out.print("cpuHtz: "+i.getString("clockSpeed"));
+//            System.out.println("cpuType: "+i.getString("physicalProcessor"));
+            aux=i.getString("memory");
+            String part[]=aux.split("(?= )");
+            if(part[0].contains(",")){
+                part[0]=part[0].replace(",", ".");
+            }
+            memory=Double.parseDouble(part[0]);
+//            System.out.print("memory: D: "+memory+" S: "+i.getString("memory")+" ");
+            
+            aux=i.getString("clockSpeed");
+            part=aux.split("(?= )");
 
-                //String id, String type, Double valueHour, int quantity, String locality, String memory, String cpuHtz, String cpuType, int quantityCPU, String hd, String hdType,String cpuArch, String provider
-                instanceAux =new Instance(jsonObjectInstance.keys().next(), i.getString("instanceType"),jsonObjectInstance.getJSONObject(jsonObjectInstance.keys().next()).getDouble("price"), 0, i.getString("location"), i.getString("memory"),i.getString("clockSpeed"), i.getString("physicalProcessor"),i.getInt("vcpu"), i.getString("storage"),  i.getString("storage"), i.getString("processorArchitecture"),"Amazon EC2");
-                listInstancesEc2.add(instanceAux);
+            if(part.length>3)
+                cpuhtz = Double.parseDouble(part[2]);
+            else
+                cpuhtz = Double.parseDouble(part[0]);
+//            System.out.print("cpuHtz: D: "+cpuhtz+" S: " +i.getString("clockSpeed")+" ");
+            
+            aux=i.getString("storage");
+            part=aux.split("(?= )");
+            switch (part.length) {
+                case 2:
+                    hd = 80D;
+                    hdType=part[0];
+                    break;
+                case 3:
+                    qtd = Double.parseDouble(part[0]);
+                    part[2]=part[2].replace(",", ".");
+                    hd = qtd * Double.parseDouble(part[2]);
+                    hdType="HDD";
+                    break;
+                default:
+                    qtd = Double.parseDouble(part[0]);
+                    hd = qtd * Double.parseDouble(part[2]);
+                    hdType=part[3];
+                    break;
+            }
+//            System.out.println("storage: D: "+hd+" S: " +i.getString("storage"));
+            
+            
+//            System.out.println("processorArchitecture: "+i.getString("processorArchitecture"));
+
+            //String id, String type, Double valueHour, int quantity, String locality, String memory, String cpuHtz, String cpuType, int quantityCPU, String hd, String hdType,String cpuArch, String provider
+            instanceAux =new Instance(jsonObjectInstance.keys().next(), i.getString("instanceType"),jsonObjectInstance.getJSONObject(jsonObjectInstance.keys().next()).getDouble("price"), 0, i.getString("location"), memory,cpuhtz, i.getString("physicalProcessor"),i.getInt("vcpu"), hd, hdType, i.getString("processorArchitecture"),"Amazon EC2");
+            listInstancesEc2.add(instanceAux);
 //            }
         }
         

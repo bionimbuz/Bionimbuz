@@ -16,7 +16,8 @@ import br.unb.cic.bionimbus.services.tarification.Google.GoogleCloud;
 public class GoogleDataTest {
 
     public static void main(String[] args) throws IOException {
-//        GoogleCloud gc = new GoogleCloud();
+        GoogleCloud gc = new GoogleCloud("cloudpricingcalculator.appspot.com","/static/data/pricelist.json");
+//        gc.getListJsonObjectInstances();
 //        System.out.println(gc.GoogleComputeEngineInstances("N1.STANDARD-4.PREEMPTIBLE", "").toString(4));
     }
 }

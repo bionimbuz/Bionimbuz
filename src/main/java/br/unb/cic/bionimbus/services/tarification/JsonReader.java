@@ -19,8 +19,29 @@ import java.util.logging.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class JsonReader {
+public class JsonReader{
 
+//    public JsonReader(String json){
+//        super(json);
+//    }
+//    
+//    @Override
+//    public JSONObject putOnce(String key, Object value) throws JSONException {
+//            Object storedValue;
+//            String keyaux;
+//            if (key != null && value != null) {
+//                storedValue=value;
+//                if ((storedValue = this.opt(key)) != null ) {
+//                    if(!storedValue.equals(value))                          //Only through Exception for different values with same key
+//                        throw new JSONException("Duplicate key \"" + key + "\"");
+//                    else
+//                        return this;
+//                }
+//                this.put(key, value);
+//            }
+//            return this;
+//    }
+    
     private static String readAll(Reader rd) throws IOException {
         StringBuilder sb = new StringBuilder();
         int cp;
@@ -37,14 +58,12 @@ public class JsonReader {
         uc.addRequestProperty("User-Agent",
                 "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
         uc.connect();
-        InputStream is = uc.getInputStream();
-        try {
+        try (InputStream is = uc.getInputStream()) {
             BufferedReader rd = new BufferedReader(new InputStreamReader(is));
             String jsonText = readAll(rd);
+            
             JSONObject json = new JSONObject(jsonText);
             return json;
-        } finally {
-            is.close();
         }
     }
 

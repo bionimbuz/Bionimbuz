@@ -7,7 +7,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *
@@ -15,11 +17,12 @@ import org.json.JSONObject;
  */
 public class GoogleCloud {
 
-    private JSONObject ComputeEngine;
+    private JSONObject computeEngine;
     final String defaultConfigPathname = System.getProperty("user.home") + "/Bionimbuz/conf/GoogleCloud.json";
+    final String http="https://";
     final String server= "cloudpricingcalculator.appspot.com";
     final String index= "/static/data/pricelist.json";
-    private String allInstanceType[] ={"F1.MICRO", "G1.SMALL", "N1.STANDARD-1", 
+    private String allInstanceTypeName[] ={"F1.MICRO", "G1.SMALL", "N1.STANDARD-1", 
         "N1.STANDARD-2", "N1.STANDARD-4", "N1.STANDARD-8", "N1.STANDARD-16", 
         "N1.STANDARD-32", "N1.HIGHMEM-2", "N1.HIGHMEM-4", "N1.HIGHMEM-8", 
         "N1.HIGHMEM-16", "N1.HIGHMEM-32", "N1.HIGHCPU-2", "N1.HIGHCPU-4", 
@@ -45,12 +48,19 @@ public class GoogleCloud {
      * @param index Remaining URL info.
      * @throws IOException
      */
-    public GoogleCloud(String server, String index) throws IOException {
+    public GoogleCloud(String server, String index) throws IOException,JSONException {
         PricingGet getter = new PricingGet();
-        String ComputerEngineString = getter.get(server, index);
-        JsonReader.saveJson(ComputerEngineString, defaultConfigPathname);
-        this.ComputeEngine = new JSONObject(ComputerEngineString);
-        System.out.println(this.ComputeEngine.toString(4));
+        String computerEngineString = getter.get(server, index);
+//        this.computeEngine= JsonReader.readJsonFromUrl(http+server+index);
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayList j = new ArrayList(mapper.readValue(computerEngineString, ArrayList.class));
+        for(Object j1 : j){
+            System.out.println(j1.toString());
+        }
+//        this.computeEngine = new JSONObject(computerEngineString);
+//        JsonReader.saveJson(this.computeEngine.toString(4), defaultConfigPathname);
+            
+//        System.out.println(this.computeEngine.toString(4));
     }
 
     /**
@@ -58,17 +68,17 @@ public class GoogleCloud {
      * Engine's VMs from local file.<br>
      */
     public GoogleCloud() {
-//        String ComputeEngine = "GoogleCloud.json";
+//        String computeEngine = "GoogleCloud.json";
 
         File f = new File(defaultConfigPathname);
         if(f.exists() && !f.isDirectory()) { 
             // do something
-            this.ComputeEngine = JsonReader.readJson(defaultConfigPathname);
+            this.computeEngine = JsonReader.readJson(defaultConfigPathname);
         }else
             GoogleComputeEngineInstances(index, server);
  
-        this.ComputeEngine = this.ComputeEngine.getJSONObject("gcp_price_list");
-        Iterator<String> it = this.ComputeEngine.keys();
+        this.computeEngine = this.computeEngine.getJSONObject("gcp_price_list");
+        Iterator<String> it = this.computeEngine.keys();
         ArrayList<String> invalidKeys = new ArrayList<>();
         while (it.hasNext()) {
             String key = it.next();
@@ -79,7 +89,7 @@ public class GoogleCloud {
         it = invalidKeys.iterator();
         while (it.hasNext()) {
             String key = it.next();
-            this.ComputeEngine.remove(key);
+            this.computeEngine.remove(key);
         }
     }
     /**
@@ -135,7 +145,7 @@ public class GoogleCloud {
      */
     public JSONObject GoogleComputeEngineInstances(String instanceType, String location) {
         String typeParse[] = instanceType.split("\\.");
-        Iterator<String> it = this.ComputeEngine.keys();
+        Iterator<String> it = this.computeEngine.keys();
         JSONObject result = new JSONObject();
         while (it.hasNext()) {
             String key = it.next();
@@ -146,40 +156,104 @@ public class GoogleCloud {
                 }
             }
             if (vm) {
-                result.put(key, this.ComputeEngine.getJSONObject(key));
+                result.put(key, this.computeEngine.getJSONObject(key));
             }
         }
         return (result);
     }
-    public ArrayList<Instance> getInstancesAmazon(){
-        
-        return null;
+     public ArrayList<JSONObject> getListJsonObjectInstances(){
+        ArrayList<JSONObject> result = new ArrayList<>();
+        JSONObject aux= new JSONObject();
+        for(String instanceTypeName : allInstanceTypeName){
+            for(String location: allLocation){
+                //allSO is the base of so, but we need just linux, so Linux so
+                aux=GoogleComputeEngineInstances(instanceTypeName, location);
+                System.out.print(aux);
+                System.out.println(" "+aux.keys().next());
+                if(aux.keys().hasNext())
+                    result.add(aux);                    
+            }
+        }
+        return result;
     }
-
-    /**
-     * @return the allInstanceType
-     */
+    public ArrayList<Instance> getListInstanceGCE(){
+        ArrayList<Instance> listInstancesEc2 = new ArrayList();
+//        Instance instanceAux;
+//        Double memory,hd, cpuhtz,qtd;
+//        String aux= "",hdType="";      
+//        ArrayList<JSONObject> listJsonObject =getListJsonObjectInstances();
+//        System.out.println("Interno jsonlist: "+listJsonObject.size());
+//        for(JSONObject jsonObjectInstance : listJsonObject){
+//            JSONObject i = jsonObjectInstance.getJSONObject(jsonObjectInstance.keys().next()).getJSONObject("attributes");
+//                    
+//            System.out.println("instanceType: "+i.getString("instanceType"));
+//            System.out.println("Price: "+instance.getJSONObject(instance.keys().next()).getDouble("price"));
+//            System.out.println("location: "+i.getString("location"));
+//            System.out.print("memory: "+i.getString("memory"));
+//            System.out.print("cpuHtz: "+i.getString("clockSpeed"));
+//            System.out.println("cpuType: "+i.getString("physicalProcessor"));
+//            aux=i.getString("memory");
+//            String part[]=aux.split("(?= )");
+//            if(part[0].contains(",")){
+//                part[0]=part[0].replace(",", ".");
+//            }
+//            memory=Double.parseDouble(part[0]);
+////            System.out.print("memory: D: "+memory+" S: "+i.getString("memory")+" ");
+//            
+//            aux=i.getString("clockSpeed");
+//            part=aux.split("(?= )");
+//
+//            if(part.length>3)
+//                cpuhtz = Double.parseDouble(part[2]);
+//            else
+//                cpuhtz = Double.parseDouble(part[0]);
+////            System.out.print("cpuHtz: D: "+cpuhtz+" S: " +i.getString("clockSpeed")+" ");
+//            
+//            aux=i.getString("storage");
+//            part=aux.split("(?= )");
+//            switch (part.length) {
+//                case 2:
+//                    hd = 80D;
+//                    hdType=part[0];
+//                    break;
+//                case 3:
+//                    qtd = Double.parseDouble(part[0]);
+//                    part[2]=part[2].replace(",", ".");
+//                    hd = qtd * Double.parseDouble(part[2]);
+//                    hdType="HDD";
+//                    break;
+//                default:
+//                    qtd = Double.parseDouble(part[0]);
+//                    hd = qtd * Double.parseDouble(part[2]);
+//                    hdType=part[3];
+//                    break;
+//            }
+////            System.out.println("storage: D: "+hd+" S: " +i.getString("storage"));
+//            
+//            
+////            System.out.println("processorArchitecture: "+i.getString("processorArchitecture"));
+//
+//            //String id, String type, Double valueHour, int quantity, String locality, String memory, String cpuHtz, String cpuType, int quantityCPU, String hd, String hdType,String cpuArch, String provider
+//            instanceAux =new Instance(jsonObjectInstance.keys().next(), i.getString("instanceType"),jsonObjectInstance.getJSONObject(jsonObjectInstance.keys().next()).getDouble("price"), 0, i.getString("location"), memory,cpuhtz, i.getString("physicalProcessor"),i.getInt("vcpu"), hd, hdType, i.getString("processorArchitecture"),"Amazon EC2");
+//            listInstancesEc2.add(instanceAux);
+////            }
+//        }
+//        
+        return listInstancesEc2;
+    }
+    
     public String[] getAllInstanceType() {
-        return allInstanceType;
+        return allInstanceTypeName;
     }
 
-    /**
-     * @param allInstanceType the allInstanceType to set
-     */
-    public void setAllInstanceType(String[] allInstanceType) {
-        this.allInstanceType = allInstanceType;
+    public void setAllInstanceType(String[] allInstanceTypeName) {
+        this.allInstanceTypeName = allInstanceTypeName;
     }
 
-    /**
-     * @return the allLocation
-     */
     public String[] getAllLocation() {
         return allLocation;
     }
 
-    /**
-     * @param allLocation the allLocation to set
-     */
     public void setAllLocation(String[] allLocation) {
         this.allLocation = allLocation;
     }

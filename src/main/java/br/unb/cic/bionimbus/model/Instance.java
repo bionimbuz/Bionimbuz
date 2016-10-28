@@ -12,15 +12,15 @@ package br.unb.cic.bionimbus.model;
 public class Instance {
     private String id;
     private String type;
-    private Double valueHour;
+    private Double costPerHour;
     private int quantity;
     private String locality;
-    private String memory;
-    private String cpuHtz;
+    private Double memoryTotal;
+    private Double cpuHtz;
     private String cpuType;
-    private String hd;
+    private Double hd;
     private String hdType;
-    private int quantityCPU;
+    private Integer numCores;
     private String description;
     private String cpuArch;
     private String provider;
@@ -31,13 +31,13 @@ public class Instance {
     public Instance(){
 //        this.id = "vazia";
 //        this.type = "vazia";
-//        this.valueHour = 0.0D;
+//        this.costPerHour = 0.0D;
 //        this.quantity = 0;
 //        this.locality = "vazia";
-//        this.memory = "vazia";
+//        this.memoryTotal = "vazia";
 //        this.cpuHtz = "vazia";
 //        this.cpuType = "vazia";
-//        this.quantityCPU=0;
+//        this.numCores=0;
 //        this.hd = "vazia";
 //        this.hdType = "vazia";
 //        this.cpuArch= "vazia";
@@ -49,31 +49,31 @@ public class Instance {
      * Constructor
      * @param id
      * @param type
-     * @param valueHour
+     * @param costPerHour
      * @param quantity
      * @param locality 
-     * @param memory 
+     * @param memoryTotal 
      * @param cpuHtz 
      * @param cpuType 
-     * @param quantityCPU 
+     * @param numCores 
      * @param hd 
      * @param hdType 
      * @param cpuArch 
      * @param provider 
      */
-    public Instance(String id, String type, Double valueHour, int quantity, 
-            String locality, String memory, String cpuHtz, String cpuType, 
-            int quantityCPU, String hd, String hdType,String cpuArch,
+    public Instance(String id, String type, Double costPerHour, int quantity, 
+            String locality, Double memoryTotal, Double cpuHtz, String cpuType, 
+            int numCores, Double hd, String hdType,String cpuArch,
             String provider){
         this.id =id;
         this.type = type;
-        this.valueHour = valueHour;
+        this.costPerHour = costPerHour;
         this.quantity = quantity;
         this.locality = locality;
-        this.memory = memory;
+        this.memoryTotal = memoryTotal;
         this.cpuHtz = cpuHtz;
         this.cpuType = cpuType;
-        this.quantityCPU=quantityCPU;
+        this.numCores=numCores;
         this.hd = hd;
         this.hdType = hdType;
         this.cpuArch= cpuArch;
@@ -90,11 +90,11 @@ public class Instance {
     }
 
     public Double getValueHour() {
-        return valueHour;
+        return costPerHour;
     }
 
-    public void setValueHour(Double valueHour) {
-        this.valueHour = valueHour;
+    public void setValueHour(Double costPerHour) {
+        this.costPerHour = costPerHour;
     }
 
     public int getQuantity() {
@@ -113,20 +113,20 @@ public class Instance {
         this.locality = locality;
     }
 
-    public String getMemory() {
-        return memory;
+    public Double getMemory() {
+        return memoryTotal;
     }
 
 
-    public void setMemory(String memory) {
-        this.memory = memory;
+    public void setMemory(Double memoryTotal) {
+        this.memoryTotal = memoryTotal;
     }
 
-    public String getCpuHtz() {
+    public Double getCpuHtz() {
         return cpuHtz;
     }
 
-    public void setCpuHtz(String cpuHtz) {
+    public void setCpuHtz(Double cpuHtz) {
         this.cpuHtz = cpuHtz;
     }
 
@@ -138,11 +138,11 @@ public class Instance {
         this.cpuType = cpuType;
     }
 
-    public String getHd() {
+    public Double getHd() {
         return hd;
     }
 
-    public void setHd(String hd) {
+    public void setHd(Double hd) {
         this.hd = hd;
     }
 
@@ -158,12 +158,15 @@ public class Instance {
     public String toString() {
         
         return "Type: "+ this.type +", "
-                + "CPU: "+ getQuantityCPU()+" "+ this.cpuHtz+", "
+                + "CPU: "+ this.numCores+" "+ this.cpuHtz+" Ghz, "
                 + "CPUType: " + this.cpuType+", "
-                + "Ram:" + this.memory + ", " 
-                + "HD: " + this.hd + ", " 
-                + "Custo por hora : " + this.valueHour+", "
-                + "Quantidade: "+ this.quantity;
+                + "Ram:" + this.memoryTotal + " GB, " 
+                + "HD: " + this.hd + " GB "+ this.hdType+", " 
+                + "Custo por hora : $" + this.costPerHour+", "
+                + "Quantidade: "+ this.quantity+", "
+                + "Localidade: "+this.locality+", "
+                + "Provider: "+this.provider+", "
+                + "Id: "+this.id;
         
     }
 
@@ -176,11 +179,11 @@ public class Instance {
     }
 
     public int getQuantityCPU() {
-        return quantityCPU;
+        return numCores;
     }
 
-    public void setQuantityCPU(int quantityCPU) {
-        this.quantityCPU = quantityCPU;
+    public void setQuantityCPU(int numCores) {
+        this.numCores = numCores;
     }
 
     public String getId() {
