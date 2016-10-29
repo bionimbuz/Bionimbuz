@@ -7,6 +7,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.http.Header;
@@ -58,7 +62,23 @@ public class PricingGet implements RestfulGetter {
 
  /*Caso o resultado do request não seja nulo, ele é tratado*/
             if (entity != null) {
-                return EntityUtils.toString(entity);
+                String ent =EntityUtils.toString(entity);
+                ArrayList<String> j = new ArrayList(Arrays.asList(ent.split("},")));
+                ArrayList<String> j2 = new ArrayList();
+                Set<String> hs = new LinkedHashSet<>();
+                int aux = 1;
+                for (String j1 : j) {
+                    if (aux++ != j.size()) 
+                        j1= j1.concat("}");
+                    j2.add(j1);
+                }
+                hs.addAll(j2);
+                j2.clear();
+                j.clear();
+                String computeEngineAux = hs.toString();
+                computeEngineAux= computeEngineAux.substring(1, computeEngineAux.length()-1);
+                computeEngineAux=computeEngineAux.replaceAll("}, ", "},");
+                return computeEngineAux;
             } else {
                 return null;
             }

@@ -7,9 +7,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *
@@ -19,25 +20,25 @@ public class GoogleCloud {
 
     private JSONObject computeEngine;
     final String defaultConfigPathname = System.getProperty("user.home") + "/Bionimbuz/conf/GoogleCloud.json";
-    final String http="https://";
-    final String server= "cloudpricingcalculator.appspot.com";
-    final String index= "/static/data/pricelist.json";
-    private String allInstanceTypeName[] ={"F1.MICRO", "G1.SMALL", "N1.STANDARD-1", 
-        "N1.STANDARD-2", "N1.STANDARD-4", "N1.STANDARD-8", "N1.STANDARD-16", 
-        "N1.STANDARD-32", "N1.HIGHMEM-2", "N1.HIGHMEM-4", "N1.HIGHMEM-8", 
-        "N1.HIGHMEM-16", "N1.HIGHMEM-32", "N1.HIGHCPU-2", "N1.HIGHCPU-4", 
-        "N1.HIGHCPU-8", "N1.HIGHCPU-16", "N1.HIGHCPU-32", 
-        "F1.MICRO.PREEMPTIBLE", "G1.SMALL.PREEMPTIBLE", 
-        "N1.STANDARD-1.PREEMPTIBLE", "N1.STANDARD-2.PREEMPTIBLE", 
-        "N1.STANDARD-4.PREEMPTIBLE", "N1.STANDARD-8.PREEMPTIBLE", 
-        "N1.STANDARD-16.PREEMPTIBLE", "N1.STANDARD-32.PREEMPTIBLE", 
-        "N1.HIGHMEM-2.PREEMPTIBLE", "N1.HIGHMEM-4.PREEMPTIBLE", 
-        "N1.HIGHMEM-8.PREEMPTIBLE", "N1.HIGHMEM-16.PREEMPTIBLE", 
-        "N1.HIGHMEM-32.PREEMPTIBLE", "N1.HIGHCPU-2.PREEMPTIBLE", 
-        "N1.HIGHCPU-4.PREEMPTIBLE", "N1.HIGHCPU-8.PREEMPTIBLE", 
+    final String http = "https://";
+    final String server = "cloudpricingcalculator.appspot.com";
+    final String index = "/static/data/pricelist.json";
+    private String allInstanceTypeName[] = {"F1.MICRO", "G1.SMALL", "N1.STANDARD-1",
+        "N1.STANDARD-2", "N1.STANDARD-4", "N1.STANDARD-8", "N1.STANDARD-16",
+        "N1.STANDARD-32", "N1.HIGHMEM-2", "N1.HIGHMEM-4", "N1.HIGHMEM-8",
+        "N1.HIGHMEM-16", "N1.HIGHMEM-32", "N1.HIGHCPU-2", "N1.HIGHCPU-4",
+        "N1.HIGHCPU-8", "N1.HIGHCPU-16", "N1.HIGHCPU-32",
+        "F1.MICRO.PREEMPTIBLE", "G1.SMALL.PREEMPTIBLE",
+        "N1.STANDARD-1.PREEMPTIBLE", "N1.STANDARD-2.PREEMPTIBLE",
+        "N1.STANDARD-4.PREEMPTIBLE", "N1.STANDARD-8.PREEMPTIBLE",
+        "N1.STANDARD-16.PREEMPTIBLE", "N1.STANDARD-32.PREEMPTIBLE",
+        "N1.HIGHMEM-2.PREEMPTIBLE", "N1.HIGHMEM-4.PREEMPTIBLE",
+        "N1.HIGHMEM-8.PREEMPTIBLE", "N1.HIGHMEM-16.PREEMPTIBLE",
+        "N1.HIGHMEM-32.PREEMPTIBLE", "N1.HIGHCPU-2.PREEMPTIBLE",
+        "N1.HIGHCPU-4.PREEMPTIBLE", "N1.HIGHCPU-8.PREEMPTIBLE",
         "N1.HIGHCPU-16.PREEMPTIBLE", "N1.HIGHCPU-32.PREEMPTIBLE"};
-    private String allLocation []= {"asia", "europe", "us"};
-    
+    private String allLocation[] = {"asia", "europe", "us"};
+
     /**
      * Constructor responsible for obtaining data about Google Cloud Compute
      * Engine's VMs from Web.<br>
@@ -48,18 +49,26 @@ public class GoogleCloud {
      * @param index Remaining URL info.
      * @throws IOException
      */
-    public GoogleCloud(String server, String index) throws IOException,JSONException {
+    public GoogleCloud(String server, String index) throws IOException, JSONException {
         PricingGet getter = new PricingGet();
         String computerEngineString = getter.get(server, index);
 //        this.computeEngine= JsonReader.readJsonFromUrl(http+server+index);
-        ObjectMapper mapper = new ObjectMapper();
-        ArrayList j = new ArrayList(mapper.readValue(computerEngineString, ArrayList.class));
-        for(Object j1 : j){
-            System.out.println(j1.toString());
-        }
+        
+//        System.out.println(computeEngineAux);
+//        System.out.println("\n\n");        
+        this.computeEngine= new JSONObject(computerEngineString);
 //        this.computeEngine = new JSONObject(computerEngineString);
-//        JsonReader.saveJson(this.computeEngine.toString(4), defaultConfigPathname);
-            
+        JsonReader.saveJson(computerEngineString, defaultConfigPathname);
+//       try( PrintWriter out = new PrintWriter( System.getProperty("user.home") + "/Bionimbuz/hsS.json") ){
+//            out.println( computeEngineAux );
+//        }
+//        
+////        this.computeEngine = new JSONObject(computeEngineAux);
+//        try( PrintWriter out = new PrintWriter( System.getProperty("user.home") + "/Bionimbuz/jsS.json") ){
+//            out.println( this.computeEngine);
+//        }
+//        System.out.println(this.computeEngine.toString(4));
+//        this.computeEngine = new JSONObject(computerEngineString);
 //        System.out.println(this.computeEngine.toString(4));
     }
 
@@ -71,12 +80,14 @@ public class GoogleCloud {
 //        String computeEngine = "GoogleCloud.json";
 
         File f = new File(defaultConfigPathname);
-        if(f.exists() && !f.isDirectory()) { 
-            // do something
-            this.computeEngine = JsonReader.readJson(defaultConfigPathname);
-        }else
-            GoogleComputeEngineInstances(index, server);
- 
+        if (!(f.exists() && !f.isDirectory())) {
+            try {
+                new GoogleCloud(server,index );
+            } catch (IOException | JSONException ex) {
+                Logger.getLogger(GoogleCloud.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        this.computeEngine = JsonReader.readJson(defaultConfigPathname);
         this.computeEngine = this.computeEngine.getJSONObject("gcp_price_list");
         Iterator<String> it = this.computeEngine.keys();
         ArrayList<String> invalidKeys = new ArrayList<>();
@@ -92,6 +103,7 @@ public class GoogleCloud {
             this.computeEngine.remove(key);
         }
     }
+
     /**
      * Method responsible for Google Cloud's Compute Engine instance data
      * obtaining.
@@ -145,7 +157,7 @@ public class GoogleCloud {
      */
     public JSONObject GoogleComputeEngineInstances(String instanceType, String location) {
         String typeParse[] = instanceType.split("\\.");
-        Iterator<String> it = this.computeEngine.keys();
+        Iterator<String> it = this.getComputeEngine().keys();
         JSONObject result = new JSONObject();
         while (it.hasNext()) {
             String key = it.next();
@@ -156,27 +168,30 @@ public class GoogleCloud {
                 }
             }
             if (vm) {
-                result.put(key, this.computeEngine.getJSONObject(key));
+                result.put(key, this.getComputeEngine().getJSONObject(key));
             }
         }
         return (result);
     }
-     public ArrayList<JSONObject> getListJsonObjectInstances(){
+
+    public ArrayList<JSONObject> getListJsonObjectInstances() {
         ArrayList<JSONObject> result = new ArrayList<>();
-        JSONObject aux= new JSONObject();
-        for(String instanceTypeName : allInstanceTypeName){
-            for(String location: allLocation){
+        JSONObject aux = new JSONObject();
+        for (String instanceTypeName : allInstanceTypeName) {
+            for (String location : allLocation) {
                 //allSO is the base of so, but we need just linux, so Linux so
-                aux=GoogleComputeEngineInstances(instanceTypeName, location);
+                aux = GoogleComputeEngineInstances(instanceTypeName, location);
                 System.out.print(aux);
-                System.out.println(" "+aux.keys().next());
-                if(aux.keys().hasNext())
-                    result.add(aux);                    
+                System.out.println(" " + aux.keys().next());
+                if (aux.keys().hasNext()) {
+                    result.add(aux);
+                }
             }
         }
         return result;
     }
-    public ArrayList<Instance> getListInstanceGCE(){
+
+    public ArrayList<Instance> getListInstanceGCE() {
         ArrayList<Instance> listInstancesEc2 = new ArrayList();
 //        Instance instanceAux;
 //        Double memory,hd, cpuhtz,qtd;
@@ -241,7 +256,7 @@ public class GoogleCloud {
 //        
         return listInstancesEc2;
     }
-    
+
     public String[] getAllInstanceType() {
         return allInstanceTypeName;
     }
@@ -256,5 +271,19 @@ public class GoogleCloud {
 
     public void setAllLocation(String[] allLocation) {
         this.allLocation = allLocation;
+    }
+
+    /**
+     * @return the computeEngine
+     */
+    public JSONObject getComputeEngine() {
+        return computeEngine;
+    }
+
+    /**
+     * @param computeEngine the computeEngine to set
+     */
+    public void setComputeEngine(JSONObject computeEngine) {
+        this.computeEngine = computeEngine;
     }
 }
