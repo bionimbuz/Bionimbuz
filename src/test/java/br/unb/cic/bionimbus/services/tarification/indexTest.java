@@ -25,9 +25,9 @@ public class indexTest {
 //      
          ArrayList<Instance> result=idx.getListInstanceEc2();
          
-         for(Instance inst : result){
-             System.out.println(inst.toString());
-         }
+//         for(Instance inst : result){
+//             System.out.println(inst.toString());
+//         }
 
     }
 }

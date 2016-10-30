@@ -22,8 +22,10 @@ public class GoogleDataTest {
         GoogleCloud gc = new GoogleCloud();    
 //        gc.getListJsonObjectInstances();
 //        System.out.println(gc.GoogleComputeEngineInstances("N1.STANDARD-4.PREEMPTIBLE", "").toString(4));
-        ArrayList<Instance> instancesGoogle=gc.getListInstanceGCE();
-        for(Instance i: instancesGoogle){
+//        ArrayList<Instance> instancesGoogle=gc.getListInstanceGCE();
+        
+        gc.getListJsonObjectInstances();
+        for(Instance i: gc.getListInstanceGCE()){
             System.out.println(i);
             
         }

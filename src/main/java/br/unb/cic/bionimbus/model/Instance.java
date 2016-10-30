@@ -7,9 +7,11 @@ package br.unb.cic.bionimbus.model;
 
 /**
  * Class that defines the Instance
+ *
  * @author brenokx
  */
 public class Instance {
+
     private String id;
     private String type;
     private Double costPerHour;
@@ -18,18 +20,16 @@ public class Instance {
     private Double memoryTotal;
     private Double cpuHtz;
     private String cpuType;
-    private Double hd;
-    private Double priceHd;
-    private String hdType;
+    private StorageInstance storage;
     private Integer numCores;
     private String description;
     private String cpuArch;
     private String provider;
-    
+
     /**
      * Constructor
      */
-    public Instance(){
+    public Instance() {
 //        this.id = "vazia";
 //        this.type = "vazia";
 //        this.costPerHour = 0.0D;
@@ -45,28 +45,27 @@ public class Instance {
 //        this.provider = "vazia";
 //        setDescription();
     }
-    
+
     /**
-     * Constructor
+     *
      * @param id
      * @param type
      * @param costPerHour
      * @param quantity
-     * @param locality 
-     * @param memoryTotal 
-     * @param cpuHtz 
-     * @param cpuType 
-     * @param numCores 
-     * @param hd 
-     * @param hdType 
-     * @param cpuArch 
-     * @param provider 
+     * @param locality
+     * @param memoryTotal
+     * @param cpuHtz
+     * @param cpuType
+     * @param storage
+     * @param numCores
+     * @param cpuArch
+     * @param provider
      */
-    public Instance(String id, String type, Double costPerHour, int quantity, 
-            String locality, Double memoryTotal, Double cpuHtz, String cpuType, 
-            int numCores, Double hd, String hdType,String cpuArch,
-            String provider){
-        this.id =id;
+    public Instance(String id, String type, Double costPerHour, int quantity,
+            String locality, Double memoryTotal, Double cpuHtz, String cpuType,
+            StorageInstance storage, Integer numCores,
+            String cpuArch, String provider) {
+        this.id = id;
         this.type = type;
         this.costPerHour = costPerHour;
         this.quantity = quantity;
@@ -74,11 +73,10 @@ public class Instance {
         this.memoryTotal = memoryTotal;
         this.cpuHtz = cpuHtz;
         this.cpuType = cpuType;
-        this.numCores=numCores;
-        this.hd = hd;
-        this.hdType = hdType;
-        this.cpuArch= cpuArch;
-        this.provider=provider;
+        this.storage = storage;
+        this.numCores = numCores;
+        this.cpuArch = cpuArch;
+        this.provider = provider;
         setDescription();
     }
 
@@ -91,11 +89,11 @@ public class Instance {
     }
 
     public Double getValueHour() {
-        return costPerHour;
+        return getCostPerHour();
     }
 
     public void setValueHour(Double costPerHour) {
-        this.costPerHour = costPerHour;
+        this.setCostPerHour(costPerHour);
     }
 
     public int getQuantity() {
@@ -115,12 +113,11 @@ public class Instance {
     }
 
     public Double getMemory() {
-        return memoryTotal;
+        return getMemoryTotal();
     }
 
-
     public void setMemory(Double memoryTotal) {
-        this.memoryTotal = memoryTotal;
+        this.setMemoryTotal(memoryTotal);
     }
 
     public Double getCpuHtz() {
@@ -139,36 +136,19 @@ public class Instance {
         this.cpuType = cpuType;
     }
 
-    public Double getHd() {
-        return hd;
-    }
-
-    public void setHd(Double hd) {
-        this.hd = hd;
-    }
-
-    public String getHdType() {
-        return hdType;
-    }
-
-    public void setHdType(String hdType) {
-        this.hdType = hdType;
-    }
-    
-     @Override
+    @Override
     public String toString() {
-        
-        return "Type: "+ this.type +", "
-                + "CPU: "+ this.numCores+" "+ this.cpuHtz+" Ghz, "
-                + "CPUType: " + this.cpuType+", "
-                + "Ram:" + this.memoryTotal + " GB, " 
-                + "HD: " + this.hd + " GB "+ this.hdType+", " 
-                + "Custo por hora : $" + this.costPerHour+", "
-                + "Quantidade: "+ this.quantity+", "
-                + "Localidade: "+this.locality+", "
-                + "Provider: "+this.provider+", "
-                + "Id: "+this.id;
-        
+
+        return "Type: " + this.getType() + ", "
+                + "CPU: " + this.getNumCores() + " " + this.getCpuHtz() + " Ghz, "
+                + "CPUType: " + this.getCpuType() + ", "
+                + "Ram:" + this.getMemoryTotal() + " GB, "
+                + "Custo por hora : $" + this.getCostPerHour() + ", "
+                + "Quantidade: " + this.getQuantity() + ", "
+                + "Localidade: " + this.getLocality() + ", "
+                + "Provider: " + this.getProvider() + ", "
+                + "Id: " + this.getId();
+
     }
 
     public String getDescription() {
@@ -176,15 +156,15 @@ public class Instance {
     }
 
     public void setDescription() {
-        this.description = this.toString();
+        this.setDescription(this.toString());
     }
 
     public int getQuantityCPU() {
-        return numCores;
+        return getNumCores();
     }
 
     public void setQuantityCPU(int numCores) {
-        this.numCores = numCores;
+        this.setNumCores((Integer) numCores);
     }
 
     public String getId() {
@@ -207,17 +187,43 @@ public class Instance {
         this.cpuArch = cpuArch;
     }
 
-    /**
-     * @return the priceHd
-     */
-    public Double getPriceHd() {
-        return priceHd;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    /**
-     * @param priceHd the priceHd to set
-     */
-    public void setPriceHd(Double priceHd) {
-        this.priceHd = priceHd;
+    public Double getCostPerHour() {
+        return costPerHour;
+    }
+
+    public void setCostPerHour(Double costPerHour) {
+        this.costPerHour = costPerHour;
+    }
+
+    public Double getMemoryTotal() {
+        return memoryTotal;
+    }
+
+    public void setMemoryTotal(Double memoryTotal) {
+        this.memoryTotal = memoryTotal;
+    }
+
+    public StorageInstance getStorage() {
+        return storage;
+    }
+
+    public void setStorage(StorageInstance storage) {
+        this.storage = storage;
+    }
+
+    public Integer getNumCores() {
+        return numCores;
+    }
+
+    public void setNumCores(Integer numCores) {
+        this.numCores = numCores;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

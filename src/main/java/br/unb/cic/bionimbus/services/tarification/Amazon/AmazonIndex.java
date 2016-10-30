@@ -1,6 +1,7 @@
 package br.unb.cic.bionimbus.services.tarification.Amazon;
 
 import br.unb.cic.bionimbus.model.Instance;
+import br.unb.cic.bionimbus.model.StorageInstance;
 import br.unb.cic.bionimbus.services.tarification.JsonReader;
 import com.amazonaws.util.json.JSONException;
 import java.io.File;
@@ -37,26 +38,28 @@ public class AmazonIndex {
     final private JSONObject amazonEC2;
     //Hard Code TODO Change 
     final private String defaultConfigPathname = System.getProperty("user.home") + "/Bionimbuz/conf/amazonEC2.json";
-    final String http="https://";
-    final String server="pricing.us-east-1.amazonaws.com";
-    final String index="/offers/v1.0/aws/index.json";
-    private String allInstanceTypeName []= {"t2.nano", "t2.micro", "t2.small", 
-        "t2medium", "t2.large", "m4.large", "m4.xlarge", "m4.2xlarge", 
-        "m4.4xlarge", "m4.10xlarge", "m3.medium", "m3.large", "m3.xlarge", 
-        "m3.2xlarge", "c4.large", "c4.xlarge", "c4.2xlarge", "c4.4xlarge", 
-        "c4.8xlarge", "c3.large", "c3.xlarge", "c3.2xlarge", "c3.4xlarge", 
-        "c3.8xlarge", "g2.2xlarge", "g2.8xlarge", "x1.32xlarge", "r3.large", 
-        "r3.xlarge", "r3.2xlarge", "r3.4xlarge", "r3.8xlarge", "i2.xlarge", 
-        "i2.2xlarge", "i2.4xlarge", "i2.8xlarge", "d2.xlarge", "d2.2xlarge", 
+    final String http = "https://";
+    final String server = "pricing.us-east-1.amazonaws.com";
+    final String index = "/offers/v1.0/aws/index.json";
+    private String allInstanceTypeName[] = {"t2.nano", "t2.micro", "t2.small",
+        "t2medium", "t2.large", "m4.large", "m4.xlarge", "m4.2xlarge",
+        "m4.4xlarge", "m4.10xlarge", "m3.medium", "m3.large", "m3.xlarge",
+        "m3.2xlarge", "c4.large", "c4.xlarge", "c4.2xlarge", "c4.4xlarge",
+        "c4.8xlarge", "c3.large", "c3.xlarge", "c3.2xlarge", "c3.4xlarge",
+        "c3.8xlarge", "g2.2xlarge", "g2.8xlarge", "x1.32xlarge", "r3.large",
+        "r3.xlarge", "r3.2xlarge", "r3.4xlarge", "r3.8xlarge", "i2.xlarge",
+        "i2.2xlarge", "i2.4xlarge", "i2.8xlarge", "d2.xlarge", "d2.2xlarge",
         "d2.4xlarge", "d2.8xlarge"};
-    private String allLocation[]={"Asia Pacific (Mumbai)", 
-        "Asia Pacific (Seoul)", "Asia Pacific (Tokyo)", 
-        "Asia Pacific (Singapore)", "Asia Pacific (Sydney)", 
-        "South America (Sao Paulo)", "AWS GovCloud (US)", "US West (Oregon)", 
-        "US West (N. California)", "US East (N. Virginia)", "EU (Frankfurt)", 
+    private String allLocation[] = {"Asia Pacific (Mumbai)",
+        "Asia Pacific (Seoul)", "Asia Pacific (Tokyo)",
+        "Asia Pacific (Singapore)", "Asia Pacific (Sydney)",
+        "South America (Sao Paulo)", "AWS GovCloud (US)", "US West (Oregon)",
+        "US West (N. California)", "US East (N. Virginia)", "EU (Frankfurt)",
         "EU (Ireland)"};
-    private String allSO[]={"Windows", "SUSE", "Linux", "RHEL"};
-    /**pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonEC2/current/index.json
+    private String allSO[] = {"Windows", "SUSE", "Linux", "RHEL"};
+
+    /**
+     * pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonEC2/current/index.json
      * The index constructor is responsible to read the jsons of the services
      * from the URL and create the json objects relatives to the attributes of
      * the class.
@@ -154,9 +157,9 @@ public class AmazonIndex {
         this.AmazonVPC = JsonReader.readJson(AmazonVPC);
          */
         File f = new File(defaultConfigPathname);
-        if(!f.exists()) { 
-           try {
-               System.out.println("exist");
+        if (!f.exists()) {
+            try {
+                System.out.println("exist");
                 new AmazonIndex(server, index);
             } catch (JSONException | IOException ex) {
                 Logger.getLogger(AmazonIndex.class.getName()).log(Level.SEVERE, null, ex);
@@ -170,69 +173,67 @@ public class AmazonIndex {
      * type, location and Operational System.
      *
      * @param instanceType <br>
-     *      Possible values:<br><br>
-     *          - "t2.nano"<br>
-     *          - "t2.micro"<br>
-     *          - "t2.small"<br>
-     *          - "t2medium"<br>
-     *          - "t2.large"<br>
-     *          - "m4.large"<br>
-     *          - "m4.xlarge"<br>
-     *          - "m4.2xlarge"<br>
-     *          - "m4.4xlarge"<br>
-     *          - "m4.10xlarge"<br>
-     *          - "m3.medium"<br>
-     *          - "m3.large"<br>
-     *          - "m3.xlarge"<br>
-     *          - "m3.2xlarge"<br>
-     *          - "c4.large"<br>
-     *          - "c4.xlarge"<br>
-     *          - "c4.2xlarge"<br>
-     *          - "c4.4xlarge"<br>
-     *          - "c4.8xlarge"<br>
-     *          - "c3.large"<br>
-     *          - "c3.xlarge"<br>
-     *          - "c3.2xlarge"<br>
-     *          - "c3.4xlarge"<br>
-     *          - "c3.8xlarge"<br>
-     *          - "g2.2xlarge"<br>
-     *          - "g2.8xlarge"<br>
-     *          - "x1.32xlarge"<br>
-     *          - "r3.large"<br>
-     *          - "r3.xlarge"<br>
-     *          - "r3.2xlarge"<br>
-     *          - "r3.4xlarge"<br>
-     *          - "r3.8xlarge"<br>
-     *          - "i2.xlarge"<br>
-     *          - "i2.2xlarge"<br>
-     *          - "i2.4xlarge"<br>
-     *          - "i2.8xlarge"<br>
-     *          - "d2.xlarge"<br>
-     *          - "d2.2xlarge"<br>
-     *          - "d2.4xlarge"<br>
-     *          - "d2.8xlarge"<br>
-     * @param location
-     *      Possible values:<br><br>
-     *          - "Asia Pacific (Mumbai)" <br>
-     *          - "Asia Pacific (Seoul)" <br>
-     *          - "Asia Pacific (Tokyo)" <br>
-     *          - "Asia Pacific (Singapore)" <br>
-     *          - "Asia Pacific (Sydney)" <br>
-     *          - "South America (Sao Paulo)" <br>
-     *          - "AWS GovCloud (US)" <br>
-     *          - "US West (Oregon)" <br>
-     *          - "US West (N. California)" <br>
-     *          - "US East (N. Virginia)" <br>
-     *          - "EU (Frankfurt)" <br>
-     *          - "EU (Ireland)" <br>
-     * 
-     * @param os
-     *      Possible values:<br><br>
-     *          - "Windows"<br>
-     *          - "SUSE"<br>
-     *          - "Linux"<br>
-     *          - "RHEL"<br>
-     * 
+     * Possible values:<br><br>
+     * - "t2.nano"<br>
+     * - "t2.micro"<br>
+     * - "t2.small"<br>
+     * - "t2medium"<br>
+     * - "t2.large"<br>
+     * - "m4.large"<br>
+     * - "m4.xlarge"<br>
+     * - "m4.2xlarge"<br>
+     * - "m4.4xlarge"<br>
+     * - "m4.10xlarge"<br>
+     * - "m3.medium"<br>
+     * - "m3.large"<br>
+     * - "m3.xlarge"<br>
+     * - "m3.2xlarge"<br>
+     * - "c4.large"<br>
+     * - "c4.xlarge"<br>
+     * - "c4.2xlarge"<br>
+     * - "c4.4xlarge"<br>
+     * - "c4.8xlarge"<br>
+     * - "c3.large"<br>
+     * - "c3.xlarge"<br>
+     * - "c3.2xlarge"<br>
+     * - "c3.4xlarge"<br>
+     * - "c3.8xlarge"<br>
+     * - "g2.2xlarge"<br>
+     * - "g2.8xlarge"<br>
+     * - "x1.32xlarge"<br>
+     * - "r3.large"<br>
+     * - "r3.xlarge"<br>
+     * - "r3.2xlarge"<br>
+     * - "r3.4xlarge"<br>
+     * - "r3.8xlarge"<br>
+     * - "i2.xlarge"<br>
+     * - "i2.2xlarge"<br>
+     * - "i2.4xlarge"<br>
+     * - "i2.8xlarge"<br>
+     * - "d2.xlarge"<br>
+     * - "d2.2xlarge"<br>
+     * - "d2.4xlarge"<br>
+     * - "d2.8xlarge"<br>
+     * @param location Possible values:<br><br>
+     * - "Asia Pacific (Mumbai)" <br>
+     * - "Asia Pacific (Seoul)" <br>
+     * - "Asia Pacific (Tokyo)" <br>
+     * - "Asia Pacific (Singapore)" <br>
+     * - "Asia Pacific (Sydney)" <br>
+     * - "South America (Sao Paulo)" <br>
+     * - "AWS GovCloud (US)" <br>
+     * - "US West (Oregon)" <br>
+     * - "US West (N. California)" <br>
+     * - "US East (N. Virginia)" <br>
+     * - "EU (Frankfurt)" <br>
+     * - "EU (Ireland)" <br>
+     *
+     * @param os Possible values:<br><br>
+     * - "Windows"<br>
+     * - "SUSE"<br>
+     * - "Linux"<br>
+     * - "RHEL"<br>
+     *
      * @return A json Object with all the json objects that matches with the
      * specified input.
      */
@@ -275,62 +276,61 @@ public class AmazonIndex {
      * type and location.
      *
      * @param instanceType <br>
-     *      Possible values:<br><br>
-     *          - "t2.nano"<br>
-     *          - "t2.micro"<br>
-     *          - "t2.small"<br>
-     *          - "t2medium"<br>
-     *          - "t2.large"<br>
-     *          - "m4.large"<br>
-     *          - "m4.xlarge"<br>
-     *          - "m4.2xlarge"<br>
-     *          - "m4.4xlarge"<br>
-     *          - "m4.10xlarge"<br>
-     *          - "m3.medium"<br>
-     *          - "m3.large"<br>
-     *          - "m3.xlarge"<br>
-     *          - "m3.2xlarge"<br>
-     *          - "c4.large"<br>
-     *          - "c4.xlarge"<br>
-     *          - "c4.2xlarge"<br>
-     *          - "c4.4xlarge"<br>
-     *          - "c4.8xlarge"<br>
-     *          - "c3.large"<br>
-     *          - "c3.xlarge"<br>
-     *          - "c3.2xlarge"<br>
-     *          - "c3.4xlarge"<br>
-     *          - "c3.8xlarge"<br>
-     *          - "g2.2xlarge"<br>
-     *          - "g2.8xlarge"<br>
-     *          - "x1.32xlarge"<br>
-     *          - "r3.large"<br>
-     *          - "r3.xlarge"<br>
-     *          - "r3.2xlarge"<br>
-     *          - "r3.4xlarge"<br>
-     *          - "r3.8xlarge"<br>
-     *          - "i2.xlarge"<br>
-     *          - "i2.2xlarge"<br>
-     *          - "i2.4xlarge"<br>
-     *          - "i2.8xlarge"<br>
-     *          - "d2.xlarge"<br>
-     *          - "d2.2xlarge"<br>
-     *          - "d2.4xlarge"<br>
-     *          - "d2.8xlarge"<br>
-     * @param location
-     *      Possible values:<br><br>
-     *          - "Asia Pacific (Mumbai)" <br>
-     *          - "Asia Pacific (Seoul)" <br>
-     *          - "Asia Pacific (Tokyo)" <br>
-     *          - "Asia Pacific (Singapore)" <br>
-     *          - "Asia Pacific (Sydney)" <br>
-     *          - "South America (Sao Paulo)" <br>
-     *          - "AWS GovCloud (US)" <br>
-     *          - "US West (Oregon)" <br>
-     *          - "US West (N. California)" <br>
-     *          - "US East (N. Virginia)" <br>
-     *          - "EU (Frankfurt)" <br>
-     *          - "EU (Ireland)" <br>
-     * 
+     * Possible values:<br><br>
+     * - "t2.nano"<br>
+     * - "t2.micro"<br>
+     * - "t2.small"<br>
+     * - "t2medium"<br>
+     * - "t2.large"<br>
+     * - "m4.large"<br>
+     * - "m4.xlarge"<br>
+     * - "m4.2xlarge"<br>
+     * - "m4.4xlarge"<br>
+     * - "m4.10xlarge"<br>
+     * - "m3.medium"<br>
+     * - "m3.large"<br>
+     * - "m3.xlarge"<br>
+     * - "m3.2xlarge"<br>
+     * - "c4.large"<br>
+     * - "c4.xlarge"<br>
+     * - "c4.2xlarge"<br>
+     * - "c4.4xlarge"<br>
+     * - "c4.8xlarge"<br>
+     * - "c3.large"<br>
+     * - "c3.xlarge"<br>
+     * - "c3.2xlarge"<br>
+     * - "c3.4xlarge"<br>
+     * - "c3.8xlarge"<br>
+     * - "g2.2xlarge"<br>
+     * - "g2.8xlarge"<br>
+     * - "x1.32xlarge"<br>
+     * - "r3.large"<br>
+     * - "r3.xlarge"<br>
+     * - "r3.2xlarge"<br>
+     * - "r3.4xlarge"<br>
+     * - "r3.8xlarge"<br>
+     * - "i2.xlarge"<br>
+     * - "i2.2xlarge"<br>
+     * - "i2.4xlarge"<br>
+     * - "i2.8xlarge"<br>
+     * - "d2.xlarge"<br>
+     * - "d2.2xlarge"<br>
+     * - "d2.4xlarge"<br>
+     * - "d2.8xlarge"<br>
+     * @param location Possible values:<br><br>
+     * - "Asia Pacific (Mumbai)" <br>
+     * - "Asia Pacific (Seoul)" <br>
+     * - "Asia Pacific (Tokyo)" <br>
+     * - "Asia Pacific (Singapore)" <br>
+     * - "Asia Pacific (Sydney)" <br>
+     * - "South America (Sao Paulo)" <br>
+     * - "AWS GovCloud (US)" <br>
+     * - "US West (Oregon)" <br>
+     * - "US West (N. California)" <br>
+     * - "US East (N. Virginia)" <br>
+     * - "EU (Frankfurt)" <br>
+     * - "EU (Ireland)" <br>
+     *
      * @return A json Object with all the json objects that matches with the
      * specified input.
      */
@@ -343,7 +343,7 @@ public class AmazonIndex {
             JSONObject aux = products.getJSONObject(it.next());
             if (aux.has("productFamily")) {
                 if (aux.getString("productFamily").equals("Compute Instance")) {
-                    if ((aux.getJSONObject("attributes").getString("licenseModel").equals("License Included")) && (aux.getJSONObject("attributes").getString("tenancy").equals("Shared")) && (aux.getJSONObject("attributes").getString("preInstalledSw").equals("NA")) && (aux.getJSONObject("attributes").getString("instanceType").equals(instanceType)) && (aux.getJSONObject("attributes").getString("location").equals(location))) {
+                    if ((aux.getJSONObject("attributes").getString("licenseModel").equals("No License required")) && (aux.getJSONObject("attributes").getString("tenancy").equals("Shared")) && (aux.getJSONObject("attributes").getString("preInstalledSw").equals("NA")) && (aux.getJSONObject("attributes").getString("instanceType").equals(instanceType)) && (aux.getJSONObject("attributes").getString("location").equals(location))) {
                         Iterator<String> itPricesAux = prices.getJSONObject(aux.getString("sku")).keys();
                         while (itPricesAux.hasNext()) {
                             JSONObject auxPricesObj = prices.getJSONObject(aux.getString("sku")).getJSONObject(itPricesAux.next());
@@ -366,50 +366,50 @@ public class AmazonIndex {
     /**
      * This method is used to get Instance Data from EC2 based on the instance
      * type.
-     
+     *
      * @param instanceType <br>
-     *      Possible values:<br><br>
-     *          - "t2.nano"<br>
-     *          - "t2.micro"<br>
-     *          - "t2.small"<br>
-     *          - "t2medium"<br>
-     *          - "t2.large"<br>
-     *          - "m4.large"<br>
-     *          - "m4.xlarge"<br>
-     *          - "m4.2xlarge"<br>
-     *          - "m4.4xlarge"<br>
-     *          - "m4.10xlarge"<br>
-     *          - "m3.medium"<br>
-     *          - "m3.large"<br>
-     *          - "m3.xlarge"<br>
-     *          - "m3.2xlarge"<br>
-     *          - "c4.large"<br>
-     *          - "c4.xlarge"<br>
-     *          - "c4.2xlarge"<br>
-     *          - "c4.4xlarge"<br>
-     *          - "c4.8xlarge"<br>
-     *          - "c3.large"<br>
-     *          - "c3.xlarge"<br>
-     *          - "c3.2xlarge"<br>
-     *          - "c3.4xlarge"<br>
-     *          - "c3.8xlarge"<br>
-     *          - "g2.2xlarge"<br>
-     *          - "g2.8xlarge"<br>
-     *          - "x1.32xlarge"<br>
-     *          - "r3.large"<br>
-     *          - "r3.xlarge"<br>
-     *          - "r3.2xlarge"<br>
-     *          - "r3.4xlarge"<br>
-     *          - "r3.8xlarge"<br>
-     *          - "i2.xlarge"<br>
-     *          - "i2.2xlarge"<br>
-     *          - "i2.4xlarge"<br>
-     *          - "i2.8xlarge"<br>
-     *          - "d2.xlarge"<br>
-     *          - "d2.2xlarge"<br>
-     *          - "d2.4xlarge"<br>
-     *          - "d2.8xlarge"<br>
-     * 
+     * Possible values:<br><br>
+     * - "t2.nano"<br>
+     * - "t2.micro"<br>
+     * - "t2.small"<br>
+     * - "t2medium"<br>
+     * - "t2.large"<br>
+     * - "m4.large"<br>
+     * - "m4.xlarge"<br>
+     * - "m4.2xlarge"<br>
+     * - "m4.4xlarge"<br>
+     * - "m4.10xlarge"<br>
+     * - "m3.medium"<br>
+     * - "m3.large"<br>
+     * - "m3.xlarge"<br>
+     * - "m3.2xlarge"<br>
+     * - "c4.large"<br>
+     * - "c4.xlarge"<br>
+     * - "c4.2xlarge"<br>
+     * - "c4.4xlarge"<br>
+     * - "c4.8xlarge"<br>
+     * - "c3.large"<br>
+     * - "c3.xlarge"<br>
+     * - "c3.2xlarge"<br>
+     * - "c3.4xlarge"<br>
+     * - "c3.8xlarge"<br>
+     * - "g2.2xlarge"<br>
+     * - "g2.8xlarge"<br>
+     * - "x1.32xlarge"<br>
+     * - "r3.large"<br>
+     * - "r3.xlarge"<br>
+     * - "r3.2xlarge"<br>
+     * - "r3.4xlarge"<br>
+     * - "r3.8xlarge"<br>
+     * - "i2.xlarge"<br>
+     * - "i2.2xlarge"<br>
+     * - "i2.4xlarge"<br>
+     * - "i2.8xlarge"<br>
+     * - "d2.xlarge"<br>
+     * - "d2.2xlarge"<br>
+     * - "d2.4xlarge"<br>
+     * - "d2.8xlarge"<br>
+     *
      * @return A json Object with all the json objects that matches with the
      * specified input.
      */
@@ -422,7 +422,7 @@ public class AmazonIndex {
             JSONObject aux = products.getJSONObject(it.next());
             if (aux.has("productFamily")) {
                 if (aux.getString("productFamily").equals("Compute Instance")) {
-                    if ((aux.getJSONObject("attributes").getString("licenseModel").equals("License Included")) && (aux.getJSONObject("attributes").getString("tenancy").equals("Shared")) && (aux.getJSONObject("attributes").getString("preInstalledSw").equals("NA")) && (aux.getJSONObject("attributes").getString("instanceType").equals(instanceType))) {
+                    if ((aux.getJSONObject("attributes").getString("licenseModel").equals("No License required")) && (aux.getJSONObject("attributes").getString("tenancy").equals("Shared")) && (aux.getJSONObject("attributes").getString("preInstalledSw").equals("NA")) && (aux.getJSONObject("attributes").getString("instanceType").equals(instanceType))) {
                         Iterator<String> itPricesAux = prices.getJSONObject(aux.getString("sku")).keys();
                         while (itPricesAux.hasNext()) {
                             JSONObject auxPricesObj = prices.getJSONObject(aux.getString("sku")).getJSONObject(itPricesAux.next());
@@ -441,123 +441,120 @@ public class AmazonIndex {
         }
         return (result);
     }
-    
-    public ArrayList<JSONObject> getListJsonObjectInstances(){
+
+    public ArrayList<JSONObject> getListJsonObjectInstances() {
         ArrayList<JSONObject> result = new ArrayList<>();
-        JSONObject aux= new JSONObject();
-        for(String instanceTypeName : allInstanceTypeName){
-            for(String location: allLocation){
+        JSONObject aux = new JSONObject();
+        for (String instanceTypeName : allInstanceTypeName) {
+            for (String location : allLocation) {
                 //allSO is the base of so, but we need just linux, so Linux so
-                aux=EC2Instances(instanceTypeName, location,"Linux");
-                if(aux.keys().hasNext())
-                    result.add(aux);                    
+                aux = EC2Instances(instanceTypeName, location, "Linux");
+                System.out.println(aux);
+                if (aux.keys().hasNext()) {
+                    result.add(aux);
+                }
             }
         }
         return result;
     }
-    public ArrayList<Instance> getListInstanceEc2(){
+
+    public ArrayList<Instance> getListInstanceEc2() {
         ArrayList<Instance> listInstancesEc2 = new ArrayList();
         Instance instanceAux;
-        Double memory,hd, cpuhtz,qtd;
-        String aux= "",hdType="";      
-        ArrayList<JSONObject> listJsonObject =getListJsonObjectInstances();
-        System.out.println("Interno jsonlist: "+listJsonObject.size());
-        for(JSONObject jsonObjectInstance : listJsonObject){
+        Double memory, hd, cpuhtz, qtd;
+        String aux = "", hdType = "";
+        StorageInstance storage = new StorageInstance();
+        ArrayList<JSONObject> listJsonObject = getListJsonObjectInstances();
+        System.out.println("Interno jsonlist: " + listJsonObject.size());
+        for (JSONObject jsonObjectInstance : listJsonObject) {
             JSONObject i = jsonObjectInstance.getJSONObject(jsonObjectInstance.keys().next()).getJSONObject("attributes");
-                    
+
 //            System.out.println("instanceType: "+i.getString("instanceType"));
 //            System.out.println("Price: "+instance.getJSONObject(instance.keys().next()).getDouble("price"));
 //            System.out.println("location: "+i.getString("location"));
 //            System.out.print("memory: "+i.getString("memory"));
 //            System.out.print("cpuHtz: "+i.getString("clockSpeed"));
 //            System.out.println("cpuType: "+i.getString("physicalProcessor"));
-            aux=i.getString("memory");
-            String part[]=aux.split("(?= )");
-            if(part[0].contains(",")){
-                part[0]=part[0].replace(",", ".");
+            aux = i.getString("memory");
+            String part[] = aux.split("(?= )");
+            if (part[0].contains(",")) {
+                part[0] = part[0].replace(",", ".");
             }
-            memory=Double.parseDouble(part[0]);
+            memory = Double.parseDouble(part[0]);
 //            System.out.print("memory: D: "+memory+" S: "+i.getString("memory")+" ");
-            
-            aux=i.getString("clockSpeed");
-            part=aux.split("(?= )");
 
-            if(part.length>3)
+            aux = i.getString("clockSpeed");
+            part = aux.split("(?= )");
+
+            if (part.length > 3) {
                 cpuhtz = Double.parseDouble(part[2]);
-            else
+            } else {
                 cpuhtz = Double.parseDouble(part[0]);
+            }
 //            System.out.print("cpuHtz: D: "+cpuhtz+" S: " +i.getString("clockSpeed")+" ");
-            
-            aux=i.getString("storage");
-            part=aux.split("(?= )");
+
+            aux = i.getString("storage");
+            part = aux.split("(?= )");
             switch (part.length) {
                 case 2:
                     hd = 80D;
-                    hdType=part[0];
+                    hdType = part[0];
+                    storage = new StorageInstance(hd, 0.0D, hdType, hdType, "Amazon");
                     break;
                 case 3:
                     qtd = Double.parseDouble(part[0]);
-                    part[2]=part[2].replace(",", "");
+                    part[2] = part[2].replace(",", "");
                     hd = qtd * Double.parseDouble(part[2]);
-                    hdType="HDD";
+                    hdType = "HDD";
+                    storage = new StorageInstance(hd, 0.0D, hdType, hdType, "Amazon");
                     break;
                 default:
                     qtd = Double.parseDouble(part[0]);
                     hd = qtd * Double.parseDouble(part[2]);
-                    hdType=part[3];
+                    hdType = part[3];
+                    storage = new StorageInstance(hd, 0.0D, hdType, hdType, "Amazon");
                     break;
             }
 //            System.out.println("storage: D: "+hd+" S: " +i.getString("storage"));
-            
-            
-//            System.out.println("processorArchitecture: "+i.getString("processorArchitecture"));
 
-            //String id, String type, Double valueHour, int quantity, String locality, String memory, String cpuHtz, String cpuType, int quantityCPU, String hd, String hdType,String cpuArch, String provider
-            instanceAux =new Instance(jsonObjectInstance.keys().next(), i.getString("instanceType"),jsonObjectInstance.getJSONObject(jsonObjectInstance.keys().next()).getDouble("price"), 0, i.getString("location"), memory,cpuhtz, i.getString("physicalProcessor"),i.getInt("vcpu"), hd, hdType, i.getString("processorArchitecture"),"Amazon EC2");
+//            System.out.println("processorArchitecture: "+i.getString("processorArchitecture"));
+            //String id, String type, Double costPerHour, int quantity,
+//            String locality, Double memoryTotal, Double cpuHtz, String cpuType,
+//            StorageInstance storage, Integer numCores,
+//            String cpuArch, String provider
+            instanceAux = new Instance(jsonObjectInstance.keys().next(),
+                    i.getString("instanceType"),
+                    jsonObjectInstance.getJSONObject(jsonObjectInstance.keys().next()).getDouble("price"),
+                    0, i.getString("location"), memory, cpuhtz,
+                    i.getString("physicalProcessor"), storage, i.getInt("vcpu"),
+                    i.getString("processorArchitecture"), "Amazon EC2");
             listInstancesEc2.add(instanceAux);
 //            }
         }
-        
+
         return listInstancesEc2;
     }
-    /**
-     * @return the allInstanceType
-     */
+
     public String[] getAllInstanceTypeName() {
         return allInstanceTypeName;
     }
 
-    /**
-     * @param allInstanceTypeName the allInstanceType to set
-     */
     public void setAllInstanceTypeName(String[] allInstanceTypeName) {
         this.allInstanceTypeName = allInstanceTypeName;
     }
 
-    /**
-     * @return the allLocation
-     */
     public String[] getAllLocation() {
         return allLocation;
     }
 
-    /**
-     * @param allLocation the allLocation to set
-     */
     public void setAllLocation(String[] allLocation) {
         this.allLocation = allLocation;
     }
 
-    /**
-     * @return the allSO
-     */
     public String[] getAllSO() {
         return allSO;
     }
 
-    /**
-     * @param allSO the allSO to set
-     */
     public void setAllSO(String[] allSO) {
         this.allSO = allSO;
     }
