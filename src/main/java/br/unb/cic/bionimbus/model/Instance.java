@@ -19,6 +19,7 @@ public class Instance {
     private Double cpuHtz;
     private String cpuType;
     private Double hd;
+    private Double priceHd;
     private String hdType;
     private Integer numCores;
     private String description;
@@ -204,5 +205,19 @@ public class Instance {
 
     public void setCpuArch(String cpuArch) {
         this.cpuArch = cpuArch;
+    }
+
+    /**
+     * @return the priceHd
+     */
+    public Double getPriceHd() {
+        return priceHd;
+    }
+
+    /**
+     * @param priceHd the priceHd to set
+     */
+    public void setPriceHd(Double priceHd) {
+        this.priceHd = priceHd;
     }
 }

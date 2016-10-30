@@ -72,7 +72,7 @@ public class AmazonIndex {
      */
     public AmazonIndex(String server, String index) throws JSONException, IOException {
         JSONObject amazonServicesURLs = JsonReader.readJsonFromUrl(http + server + index);
-        JsonReader.saveJson(amazonServicesURLs.toString(4), "index.json");
+        JsonReader.saveJson(amazonServicesURLs.toString(4), defaultConfigPathname);
         amazonServicesURLs = amazonServicesURLs.getJSONObject("offers");
         /*
         String AmazonS3 = "https://" + server + amazonServicesURLs.getJSONObject("AmazonS3").getString("currentVersionUrl");
@@ -497,7 +497,7 @@ public class AmazonIndex {
                     break;
                 case 3:
                     qtd = Double.parseDouble(part[0]);
-                    part[2]=part[2].replace(",", ".");
+                    part[2]=part[2].replace(",", "");
                     hd = qtd * Double.parseDouble(part[2]);
                     hdType="HDD";
                     break;
