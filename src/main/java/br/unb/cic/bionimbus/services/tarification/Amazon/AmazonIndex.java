@@ -78,9 +78,6 @@ public class AmazonIndex {
      * @throws IOException
      */
     public AmazonIndex(String server, String index) throws JSONException, IOException {
-        JSONObject amazonServicesURLs = JsonReader.readJsonFromUrl(http + server + index);
-        JsonReader.saveJson(amazonServicesURLs.toString(4), defaultConfigPathname);
-        amazonServicesURLs = amazonServicesURLs.getJSONObject("offers");
         /*
         String AmazonS3 = "https://" + server + amazonServicesURLs.getJSONObject("AmazonS3").getString("currentVersionUrl");
         this.AmazonS3 = JsonReader.readJsonFromUrl(AmazonS3);
@@ -119,8 +116,11 @@ public class AmazonIndex {
         this.AmazonVPC = JsonReader.readJsonFromUrl(AmazonVPC);
         JsonReader.saveJson(this.AmazonVPC.toString(4), "AmazonVPC.json");
          */
-        String amazonEC2Instances = http + server + amazonServicesURLs.getJSONObject("AmazonEC2").getString("currentVersionUrl");
+        JSONObject amazonServicesURLs = JsonReader.readJsonFromUrl(http + server + index);
+//        JsonReader.saveJson(amazonServicesURLs.toString(4), defaultConfigPathname);
+        String amazonEC2Instances = http + server + amazonServicesURLs.getJSONObject("offers").getJSONObject("AmazonEC2").getString("currentVersionUrl");
         this.amazonEC2 = JsonReader.readJsonFromUrl(amazonEC2Instances);
+        
         JsonReader.saveJson(this.amazonEC2.toString(4), defaultConfigPathname);
         System.out.println(amazonEC2Instances);
     }
