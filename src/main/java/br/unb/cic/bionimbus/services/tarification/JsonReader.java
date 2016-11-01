@@ -72,9 +72,9 @@ public class JsonReader {
 //        }
         JSONObject jo = new JSONObject();
         try {
-            jo = (JSONObject) new JSONTokener(IOUtils.toString(new URL(urlString).openStream‌​())).nextValue();
+            jo = (JSONObject) new JSONTokener(IOUtils.toString(new URL(urlString).openStream())).nextValue();
         } catch (IOException | JSONException ex) {
-            String ent = IOUtils.toString(new URL(urlString).openStream‌());
+            String ent = IOUtils.toString(new URL(urlString).openStream());
             ArrayList<String> j = new ArrayList(Arrays.asList(ent.split("},")));
             ArrayList<String> j2 = new ArrayList();
             Set<String> hs = new LinkedHashSet<>();
