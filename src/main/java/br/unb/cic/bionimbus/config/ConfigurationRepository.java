@@ -99,13 +99,16 @@ public class ConfigurationRepository {
     }
     
     public static ArrayList<Instance> getInstances(){
+        ArrayList<Instance> result =new ArrayList<>();
         AmazonIndex idx= new AmazonIndex();
-//        GoogleCloud gc= new GoogleCloud();
+        GoogleCloud gc= new GoogleCloud();
+        result.addAll(idx.getListInstanceEc2());
+        result.addAll(gc.getListInstanceGCE());
 //        idx.EC2Instances("r3.xlarge").toString(4);
 //        gc.GoogleComputeEngineInstances("N1.STANDARD-4.PREEMPTIBLE", "").toString(4);
 //        AmazonIndex idx = new AmazonIndex(); 
         
-        return idx.getListInstanceEc2();
+        return result;
     }
     
     public static SSHCredentials getSSHCredentials() {

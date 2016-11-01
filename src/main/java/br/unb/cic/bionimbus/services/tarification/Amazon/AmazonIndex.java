@@ -5,11 +5,15 @@ import br.unb.cic.bionimbus.model.StorageInstance;
 import br.unb.cic.bionimbus.services.tarification.JsonReader;
 import com.amazonaws.util.json.JSONException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.io.IOUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONObject;
 
 /**
@@ -129,7 +133,7 @@ public class AmazonIndex {
      * For BioNimbuZ users: This should be used to consult data about services.
      * Have fun xD
      */
-    public AmazonIndex() {
+    public AmazonIndex(){
         /*
         String AmazonS3 = "AmazonS3.json";
         this.AmazonS3 = JsonReader.readJson(AmazonS3);
@@ -156,16 +160,24 @@ public class AmazonIndex {
         String AmazonVPC = "AmazonVPC.json";
         this.AmazonVPC = JsonReader.readJson(AmazonVPC);
          */
-        File f = new File(defaultConfigPathname);
-        if (!f.exists()) {
+       
+        File f = new File(defaultConfigPathname); 
+        JSONObject aux = new JSONObject();
+        
+        try (InputStream is = new FileInputStream(defaultConfigPathname);){      
+            
+            String jsonTxt = IOUtils.toString(is);
+            aux= new JSONObject(jsonTxt);
+        } catch (IOException ex) {
             try {
-                System.out.println("exist");
                 new AmazonIndex(server, index);
-            } catch (JSONException | IOException ex) {
-                Logger.getLogger(AmazonIndex.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (JSONException | IOException ex1) {
+                Logger.getLogger(AmazonIndex.class.getName()).log(Level.SEVERE, null, ex1);
             }
+            Logger.getLogger(AmazonIndex.class.getName()).log(Level.SEVERE, null, ex);
         }
-        this.amazonEC2 = JsonReader.readJson(defaultConfigPathname);
+        
+        this.amazonEC2  =aux;
     }
 
     /**
@@ -449,7 +461,7 @@ public class AmazonIndex {
             for (String location : allLocation) {
                 //allSO is the base of so, but we need just linux, so Linux so
                 aux = EC2Instances(instanceTypeName, location, "Linux");
-                System.out.println(aux);
+//                System.out.println(aux);
                 if (aux.keys().hasNext()) {
                     result.add(aux);
                 }

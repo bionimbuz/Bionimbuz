@@ -49,7 +49,8 @@ public class ControllerModule extends AbstractModule {
         // Marks the controllers as EagerSingleton
         bind(JobController.class).asEagerSingleton();
         bind(UserController.class).asEagerSingleton();
-
+        bind(SlaController.class).asEagerSingleton();
+        
         // Binds Services classes
         Multibinder<Service> serviceBinder = Multibinder.newSetBinder(binder(), Service.class);
 
