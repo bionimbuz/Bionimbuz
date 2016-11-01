@@ -13,13 +13,19 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.io.IOUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
-public class JsonReader{
+public class JsonReader {
 
 //    public JsonReader(String json){
 //        super(json);
@@ -41,30 +47,55 @@ public class JsonReader{
 //            }
 //            return this;
 //    }
-    
-    private static String readAll(Reader rd) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        int cp;
-        while ((cp = rd.read()) != -1) {
-            sb.append((char) cp);
-        }
-        return sb.toString();
-    }
+//    private static String readAll(Reader rd) throws IOException {
+//        StringBuilder sb = new StringBuilder();
+//        int cp;
+//        while ((cp = rd.read()) != -1) {
+//            sb.append((char) cp);
+//        }
+//        return sb.toString();
+//    }
 
     public static JSONObject readJsonFromUrl(String urlString) throws IOException, JSONException {
-        URL url = new URL(urlString);
-        URLConnection uc;
-        uc = url.openConnection();
-        uc.addRequestProperty("User-Agent",
-                "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
-        uc.connect();
-        try (InputStream is = uc.getInputStream()) {
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            String jsonText = readAll(rd);
+//        URL url = new URL(urlString);
+//        URLConnection uc;
+//        uc = url.openConnection();
+//        uc.addRequestProperty("User-Agent",
+//                "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
+//        uc.connect();
+//        try (InputStream is = uc.getInputStream()) {
+//            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+//            String jsonText = readAll(rd);
+//            
+//            JSONObject json = new JSONObject(jsonText);
+//            return json;
+//        }
+        JSONObject jo = new JSONObject();
+        try {
+            jo = (JSONObject) new JSONTokener(IOUtils.toString(new URL(urlString).openStream‌​())).nextValue();
+        } catch (IOException | JSONException ex) {
+            String ent = IOUtils.toString(new URL(urlString).openStream‌());
+            ArrayList<String> j = new ArrayList(Arrays.asList(ent.split("},")));
+            ArrayList<String> j2 = new ArrayList();
+            Set<String> hs = new LinkedHashSet<>();
+            int aux = 1;
+            for (String j1 : j) {
+                if (aux++ != j.size()) {
+                    j1 = j1.concat("}");
+                }
+                j2.add(j1);
+            }
+            hs.addAll(j2);
+            j2.clear();
+            j.clear();
+            String computeEngineAux = hs.toString();
+            computeEngineAux = computeEngineAux.substring(1, computeEngineAux.length() - 1);
+            computeEngineAux = computeEngineAux.replaceAll("}, ", "},");
+            jo = (JSONObject) new JSONTokener(computeEngineAux).nextValue();
             
-            JSONObject json = new JSONObject(jsonText);
-            return json;
+            Logger.getLogger(JsonReader.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return jo;
     }
 
     /*
@@ -89,7 +120,7 @@ public class JsonReader{
      This method is used to get the json data from the files.
      */
     public static JSONObject readJson(String filename) {
-        try (BufferedReader br = new BufferedReader(new FileReader(filename))){
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
             StringBuilder sb = new StringBuilder();
             String line = br.readLine();
 

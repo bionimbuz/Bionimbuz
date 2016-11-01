@@ -179,7 +179,10 @@ public class AmazonIndex {
         
         this.amazonEC2  =aux;
     }
-
+    public AmazonIndex(JSONObject allOffers){
+        this.amazonEC2=allOffers;
+        
+    }
     /**
      * This method is used to get Instance Data from EC2 based on the instance
      * type, location and Operational System.
@@ -453,7 +456,22 @@ public class AmazonIndex {
         }
         return (result);
     }
-
+    
+    public JSONObject getJsonObjectInstances() {
+        JSONObject result = new JSONObject();
+        JSONObject aux = new JSONObject();
+        for (String instanceTypeName : allInstanceTypeName) {
+            for (String location : allLocation) {
+                //allSO is the base of so, but we need just linux, so Linux so
+                aux = EC2Instances(instanceTypeName, location, "Linux");
+//                System.out.println(aux);
+                if (aux.keys().hasNext()) {
+                    result.put(aux.keys().next(),aux);
+                }
+            }
+        }
+        return result;
+    }
     public ArrayList<JSONObject> getListJsonObjectInstances() {
         ArrayList<JSONObject> result = new ArrayList<>();
         JSONObject aux = new JSONObject();
