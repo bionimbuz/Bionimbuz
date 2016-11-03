@@ -3,15 +3,16 @@ package br.unb.cic.bionimbus.services.tarification.Google;
 import br.unb.cic.bionimbus.model.Instance;
 import br.unb.cic.bionimbus.model.StorageInstance;
 import br.unb.cic.bionimbus.services.tarification.JsonReader;
-import br.unb.cic.bionimbus.services.tarification.Utils.RestfulGetterBehaviors.PricingGet;
-import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 /**
  *
@@ -19,9 +20,25 @@ import org.json.JSONObject;
  */
 public class GoogleCloud {
 
+    private static final String GOOGLE = "Google";
+    private static final String GOOGLE__COMPUTE__ENGINE = "Google Compute Engine";
+    private static final String DEFAULT = "default";
+    private static final String ASIANORTHEAST = "asia-northeast";
+    private static final String ASIAEAST = "asia-east";
+    private static final String ASIA = "asia";
+    private static final String EUROPE = "europe";
+    private static final String US = "us";
+    private static final String CPCOMPUTEENGINESTORAGEPDSSD = "CP-COMPUTEENGINE-STORAGE-PD-SSD";
+    private static final String CPCOMPUTEENGINESTORAGEPDSNAPSHOT = "CP-COMPUTEENGINE-STORAGE-PD-SNAPSHOT";
+    private static final String CPCOMPUTEENGINEPDIOREQUEST = "CP-COMPUTEENGINE-PD-IO-REQUEST";
+    private static final String CPCOMPUTEENGINESTORAGEPDCAPACITY = "CP-COMPUTEENGINE-STORAGE-PD-CAPACITY";
+    private static final String COMPUTEENGINEVMIMAGE = "COMPUTEENGINE-VMIMAGE";
+    private static final String GCP_PRICE_LIST = "gcp_price_list";
     private JSONObject computeEngine, storageEngine;
-    final String defaultConfigPathname = System.getProperty("user.home") + "/Bionimbuz/conf/GoogleCloud.json";
-    final String http = "https://";
+    final String defaultConfigPathnameInstance = System.getProperty("user.home") + "/Bionimbuz/conf/googleCloudInstance.json";
+    final String defaultConfigPathnameStorage = System.getProperty("user.home") + "/Bionimbuz/conf/googleCloudStorage.json";
+    //TAKE CARE WITH HTTPS, on Google just http ...
+    final String http = "http://";
     final String server = "cloudpricingcalculator.appspot.com";
     final String index = "/static/data/pricelist.json";
     private String allInstanceTypeName[] = {"F1.MICRO", "G1.SMALL", "N1.STANDARD-1",
@@ -39,10 +56,7 @@ public class GoogleCloud {
         "N1.HIGHCPU-4.PREEMPTIBLE", "N1.HIGHCPU-8.PREEMPTIBLE",
         "N1.HIGHCPU-16.PREEMPTIBLE", "N1.HIGHCPU-32.PREEMPTIBLE"};
     private String allLocation[] = {"asia", "europe", "us"};
-    private String allStorage[] = {"CP-COMPUTEENGINE-STORAGE-PD-CAPACITY",
-        "CP-COMPUTEENGINE-STORAGE-PD-SSD",
-        "CP-COMPUTEENGINE-PD-IO-REQUEST",
-        "CP-COMPUTEENGINE-STORAGE-PD-SNAPSHOT"};
+//    private String allStorage[] = {CPCOMPUTEENGINESTORAGEPDCAPACITY, CPCOMPUTEENGINESTORAGEPDSSD, CPCOMPUTEENGINEPDIOREQUEST, CPCOMPUTEENGINESTORAGEPDSNAPSHOT};
 
     /**
      * Constructor responsible for obtaining data about Google Cloud Compute
@@ -54,12 +68,15 @@ public class GoogleCloud {
      * @param index Remaining URL info.
      * @throws IOException
      */
+//        PricingGet getter = new PricingGet();
+//        String computerEngineString = getter.get(server, index);
     public GoogleCloud(String server, String index) throws IOException, JSONException {
-        PricingGet getter = new PricingGet();
-        String computerEngineString = getter.get(server, index);
-        JsonReader.saveJson(computerEngineString, defaultConfigPathname);
-        this.computeEngine = getGcpInstance();
+        this.computeEngine = JsonReader.readJsonFromUrl(http + server + index);
         this.storageEngine = getGcpStorage();
+        this.computeEngine = getGcpInstance();
+        JsonReader.saveJson(this.computeEngine.toString(), defaultConfigPathnameInstance);
+        JsonReader.saveJson(this.storageEngine.toString(), defaultConfigPathnameStorage);
+
     }
 
     /**
@@ -68,56 +85,75 @@ public class GoogleCloud {
      */
     public GoogleCloud() {
 //        String computeEngine = "GoogleCloud.json";
-
-        File f = new File(defaultConfigPathname);
-        if (!(f.exists() && !f.isDirectory())) {
+        JSONObject aux = null;
+        try (InputStream is = new FileInputStream(this.defaultConfigPathnameInstance);) {
+            aux = (JSONObject) new JSONTokener(is).nextValue();
+        } catch (IOException ex) {
             try {
-                new GoogleCloud(server, index);
-            } catch (IOException | JSONException ex) {
+                GoogleCloud googleCloud = new GoogleCloud(server, index);
+                aux = googleCloud.computeEngine;
+            } catch (IOException | JSONException ex1) {
                 Logger.getLogger(GoogleCloud.class.getName()).log(Level.SEVERE, null, ex);
             }
+//            Logger.getLogger(GoogleCloud.class.getName()).log(Level.SEVERE, null, ex);
         }
-        this.computeEngine = getGcpInstance();
-        this.storageEngine = getGcpStorage();
+        this.computeEngine = aux;
+        try (InputStream is = new FileInputStream(this.defaultConfigPathnameStorage);) {
+            aux = (JSONObject) new JSONTokener(is).nextValue();
+        } catch (IOException ex) {
+            Logger.getLogger(GoogleCloud.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        this.storageEngine = aux;
     }
 
     /**
      * Get gcp_price_list and Computeengine-vimage
      *
-     * @return
+     * @return JSONObject
      */
     private JSONObject getGcpInstance() {
-        this.computeEngine = JsonReader.readJson(defaultConfigPathname);
-        this.computeEngine = this.computeEngine.getJSONObject("gcp_price_list");
-        Iterator<String> it = this.computeEngine.keys();
+//        this.computeEngine = JsonReader.readJson(defaultConfigPathnameInstance);
+        JSONObject aux = this.computeEngine.getJSONObject(GCP_PRICE_LIST);
+        Iterator<String> it = aux.keys();
         ArrayList<String> invalidKeys = new ArrayList<>();
         while (it.hasNext()) {
             String key = it.next();
-            if (!key.contains("COMPUTEENGINE-VMIMAGE")) {
+            if (!key.contains(COMPUTEENGINEVMIMAGE)) {
                 invalidKeys.add(key);
             }
         }
         it = invalidKeys.iterator();
         while (it.hasNext()) {
             String key = it.next();
-            this.computeEngine.remove(key);
+            aux.remove(key);
         }
-        return this.computeEngine;
+        return aux;
     }
-
-    private JSONObject getGcpStorage() {
-        JSONObject jsonList = JsonReader.readJson(defaultConfigPathname);
-        JSONObject priceList = jsonList.getJSONObject("gcp_price_list");
-        JSONObject result = new JSONObject();
-        result.put("CP-COMPUTEENGINE-STORAGE-PD-CAPACITY", priceList.getJSONObject("CP-COMPUTEENGINE-STORAGE-PD-CAPACITY"));
+//        JSONObject priceList = aux.getJSONObject("gcp_price_list");
 //        System.out.println(priceList.getJSONObject("CP-COMPUTEENGINE-STORAGE-PD-CAPACITY"));
-        result.put("CP-COMPUTEENGINE-PD-IO-REQUEST", priceList.getJSONObject("CP-COMPUTEENGINE-PD-IO-REQUEST"));
 //        System.out.println(priceList.getJSONObject("CP-COMPUTEENGINE-PD-IO-REQUEST"));
-        result.put("CP-COMPUTEENGINE-STORAGE-PD-SNAPSHOT", priceList.getJSONObject("CP-COMPUTEENGINE-STORAGE-PD-SNAPSHOT"));
 //        System.out.println(priceList.getJSONObject("CP-COMPUTEENGINE-STORAGE-PD-SNAPSHOT"));
-        result.put("CP-COMPUTEENGINE-STORAGE-PD-SSD", priceList.getJSONObject("CP-COMPUTEENGINE-STORAGE-PD-SSD"));
 //        System.out.println(priceList.getJSONObject("CP-COMPUTEENGINE-STORAGE-PD-SSD"));
 
+    /**
+     * Method get all the storage price for compute engine and returns a
+     * objectjson with they
+     *
+     * @return JSONObject
+     */
+    private JSONObject getGcpStorage() {
+        JSONObject result = new JSONObject();
+        try {
+            result.put(CPCOMPUTEENGINESTORAGEPDCAPACITY, this.storageEngine.getJSONObject(CPCOMPUTEENGINESTORAGEPDCAPACITY));
+            result.put(CPCOMPUTEENGINEPDIOREQUEST, this.storageEngine.getJSONObject(CPCOMPUTEENGINEPDIOREQUEST));
+            result.put(CPCOMPUTEENGINESTORAGEPDSNAPSHOT, this.storageEngine.getJSONObject(CPCOMPUTEENGINESTORAGEPDSNAPSHOT));
+            result.put(CPCOMPUTEENGINESTORAGEPDSSD, this.storageEngine.getJSONObject(CPCOMPUTEENGINESTORAGEPDSSD));
+        } catch (NullPointerException | JSONException ex) {
+            result.put(CPCOMPUTEENGINESTORAGEPDCAPACITY, this.computeEngine.getJSONObject(GCP_PRICE_LIST).getJSONObject(CPCOMPUTEENGINESTORAGEPDCAPACITY));
+            result.put(CPCOMPUTEENGINEPDIOREQUEST, this.computeEngine.getJSONObject(GCP_PRICE_LIST).getJSONObject(CPCOMPUTEENGINEPDIOREQUEST));
+            result.put(CPCOMPUTEENGINESTORAGEPDSNAPSHOT, this.computeEngine.getJSONObject(GCP_PRICE_LIST).getJSONObject(CPCOMPUTEENGINESTORAGEPDSNAPSHOT));
+            result.put(CPCOMPUTEENGINESTORAGEPDSSD, this.computeEngine.getJSONObject(GCP_PRICE_LIST).getJSONObject(CPCOMPUTEENGINESTORAGEPDSSD));
+        }
         return (result);
     }
 
@@ -166,9 +202,9 @@ public class GoogleCloud {
      *
      * @return JSONObject containing all VM's data that matches with input.
      */
-    public JSONObject googleComputeEngineInstances(String instanceType) {
+    public JSONObject gCEngineInstances(String instanceType) {
         String typeParse[] = instanceType.split("\\.");
-        Iterator<String> it = this.getComputeEngine().keys();
+        Iterator<String> it = this.computeEngine.keys();
         JSONObject result = new JSONObject();
         while (it.hasNext()) {
             String key = it.next();
@@ -179,53 +215,36 @@ public class GoogleCloud {
                 }
             }
             if (vm) {
-                result.put(key, this.getComputeEngine().getJSONObject(key));
+                result.put(key, this.computeEngine.getJSONObject(key));
             }
         }
         return (result);
     }
 
+    /**
+     * Method get the computengine with just the instances and return a list
+     * with Jsonobjects
+     *
+     * @return ArrayList<JSONObject>
+     */
     public ArrayList<JSONObject> getListJsonObjectInstances() {
         ArrayList<JSONObject> result = new ArrayList<>();
-        JSONObject aux;
-        for (String instanceTypeName : allInstanceTypeName) {
-            aux = googleComputeEngineInstances(instanceTypeName);
-            if (aux.keys().hasNext()) {
-                result.add(aux);
-//                System.out.println(aux);
-            }
+
+        final Iterator<String> it = this.computeEngine.keys();
+        while (it.hasNext()) {
+            JSONObject aux = new JSONObject();
+            aux.put(it.next(), this.computeEngine.getJSONObject(it.next()));
+            result.add(aux);
         }
         return result;
     }
 
-    public ArrayList<Instance> getListInstanceGCE() {
-        ArrayList<Instance> listInstancesGCE = new ArrayList();
-
-        Instance instanceAux;
-        String id, type, cpuType, locality, cpuArch, provider;
-        Double costPerHour = 0D, memoryTotal = 0D, cpuHtz = 0D, hd = 0D, priceHd = 0D, hdType = 0D, numCores = 0D, gceu = 0D;
-        int cores;
-
-        ArrayList<JSONObject> listJsonObject = getListJsonObjectInstances();
 //        System.out.println("Interno jsonlist: " + listJsonObject.size());
-        for (JSONObject jsonObjectInstance : listJsonObject) {
-            JSONObject i = jsonObjectInstance.getJSONObject(jsonObjectInstance.keys().next());
-            try {
 //                System.out.print("Gceu: " + i.getDouble("gceu") + " ,");
-                cpuHtz = i.getDouble("gceu");
-            } catch (JSONException ex) {
 //                System.out.print("Não tem Gceu ,");
-                cpuHtz = 0.0D;
-            }
 //            System.out.print("memory: " + i.getDouble("memory") + " ,");
-            memoryTotal = i.getDouble("memory");
-            try {
 //                System.out.print("cores: " + i.getInt("cores") + " ,");
-                cores = i.getInt("cores");
-            } catch (JSONException ex) {
 //                System.out.print("coresS: " + i.getString("cores") + " ,");
-                cores = 0;
-            }
 //            try {
 //                System.out.print("maxNumberOfPd: " + i.getInt("maxNumberOfPd") + "maxPdSize: " + i.getInt("maxPdSize") + ", ");
 //            } catch (JSONException ex) {
@@ -236,12 +255,7 @@ public class GoogleCloud {
 //            } catch (JSONException ex) {
 //                System.out.print("Não tem SSD");
 //            }
-            if (cores != 0 && cpuHtz != 0) {
-                cpuHtz = cpuHtz / cores;
 //                System.out.print("CPUHTz: " + cpuHtz + " ,");
-            }
-            //Need to Improve
-            StorageInstance storageI = new StorageInstance(1D, 0.0008, "Bucket", "us", "Google");
 //            System.out.print("Price us: " + i.getDouble("us") + " ,");
 //            System.out.print("Price europe: " + i.getDouble("europe") + " ,");
 //            System.out.print("Price asia: " + i.getDouble("asia") + " ,");
@@ -251,20 +265,51 @@ public class GoogleCloud {
 //            String locality, Double memoryTotal, Double cpuHtz, String cpuType,
 //            StorageInstance storage, Integer numCores,
 //            String cpuArch, String provider
-            costPerHour = i.getDouble("us");
-            Instance instanceUS = new Instance(jsonObjectInstance.keys().next(), jsonObjectInstance.keys().next(), costPerHour, 0, "us", memoryTotal, cpuHtz, "default", storageI, cores, "default", "Google Compute Engine");
+    /**
+     * Method that get googleengine with all instance object json and return
+     *
+     * @return ArrayList<Instance>
+     */
+    public ArrayList<Instance> getListInstanceGCE() {
+        ArrayList<Instance> listInstancesGCE = new ArrayList();
+        Instance instanceAux;
+        String id, type, cpuType, locality, cpuArch, provider;
+        Double costPerHour = 0D, memoryTotal = 0D, cpuHtz = 0D, hd = 0D, priceHd = 0D, hdType = 0D, numCores = 0D, gceu = 0D;
+        int cores;
+        ArrayList<JSONObject> listJsonObject = getListJsonObjectInstances();
+        for (JSONObject jsonObjectInstance : listJsonObject) {
+            JSONObject i = jsonObjectInstance.getJSONObject(jsonObjectInstance.keys().next());
+            try {
+                cpuHtz = i.getDouble("gceu");
+            } catch (JSONException ex) {
+                cpuHtz = 0.0D;
+            }
+            memoryTotal = i.getDouble("memory");
+            try {
+                cores = i.getInt("cores");
+            } catch (JSONException ex) {
+                cores = 0;
+            }
+            if (cores != 0 && cpuHtz != 0) {
+                cpuHtz = cpuHtz / cores;
+            }
+            //Need to Improve 0.026 is the price offer from bucket for mounth, 
+            //divide by 30 days and after for 24 hour(0,026÷30)/24=0,000036111
+            StorageInstance storageI = new StorageInstance(1D, 0.000036111, "Bucket", US, GOOGLE);
+            costPerHour = i.getDouble(US);
+            Instance instanceUS = new Instance(jsonObjectInstance.keys().next(), jsonObjectInstance.keys().next(), costPerHour, 0, US, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE__COMPUTE__ENGINE);
             listInstancesGCE.add(instanceUS);
-            costPerHour = i.getDouble("europe");
-            Instance instanceEURO = new Instance(jsonObjectInstance.keys().next(), jsonObjectInstance.keys().next(), costPerHour, 0, "europe", memoryTotal, cpuHtz, "default", storageI, cores, "default", "Google Compute Engine");
+            costPerHour = i.getDouble(EUROPE);
+            Instance instanceEURO = new Instance(jsonObjectInstance.keys().next(), jsonObjectInstance.keys().next(), costPerHour, 0, EUROPE, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE__COMPUTE__ENGINE);
             listInstancesGCE.add(instanceEURO);
-            costPerHour = i.getDouble("asia");
-            Instance instanceASIA = new Instance(jsonObjectInstance.keys().next(), jsonObjectInstance.keys().next(), costPerHour, 0, "asia", memoryTotal, cpuHtz, "default", storageI, cores, "default", "Google Compute Engine");
+            costPerHour = i.getDouble(ASIA);
+            Instance instanceASIA = new Instance(jsonObjectInstance.keys().next(), jsonObjectInstance.keys().next(), costPerHour, 0, ASIA, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE__COMPUTE__ENGINE);
             listInstancesGCE.add(instanceASIA);
-            costPerHour = i.getDouble("asia-east");
-            Instance instanceASIAE = new Instance(jsonObjectInstance.keys().next(), jsonObjectInstance.keys().next(), costPerHour, 0, "asia-east", memoryTotal, cpuHtz, "default", storageI, cores, "default", "Google Compute Engine");
+            costPerHour = i.getDouble(ASIAEAST);
+            Instance instanceASIAE = new Instance(jsonObjectInstance.keys().next(), jsonObjectInstance.keys().next(), costPerHour, 0, ASIAEAST, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE__COMPUTE__ENGINE);
             listInstancesGCE.add(instanceASIAE);
-            costPerHour = i.getDouble("asia-northeast");
-            Instance instanceASIAN = new Instance(jsonObjectInstance.keys().next(), jsonObjectInstance.keys().next(), costPerHour, 0, "asia-northeast", memoryTotal, cpuHtz, "default", storageI, cores, "default", "Google Compute Engine");
+            costPerHour = i.getDouble(ASIANORTHEAST);
+            Instance instanceASIAN = new Instance(jsonObjectInstance.keys().next(), jsonObjectInstance.keys().next(), costPerHour, 0, ASIANORTHEAST, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE__COMPUTE__ENGINE);
             listInstancesGCE.add(instanceASIAN);
         }
         return listInstancesGCE;
@@ -286,19 +331,5 @@ public class GoogleCloud {
         this.allLocation = allLocation;
     }
 
-    public JSONObject getComputeEngine() {
-        return computeEngine;
-    }
 
-    public void setComputeEngine(JSONObject computeEngine) {
-        this.computeEngine = computeEngine;
-    }
-
-    public JSONObject getStorageEngine() {
-        return storageEngine;
-    }
-
-    public void setStorageEngine(JSONObject storageEngine) {
-        this.storageEngine = storageEngine;
-    }
 }

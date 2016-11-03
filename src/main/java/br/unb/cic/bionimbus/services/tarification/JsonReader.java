@@ -56,7 +56,13 @@ public class JsonReader {
 //        return sb.toString();
 //    }
 
-    public static JSONObject readJsonFromUrl(String urlString) throws IOException, JSONException {
+    /**
+     * Method that read jsonobject from url
+     * @param urlString
+     * @return
+     * @throws IOException
+     * @throws JSONException 
+     */
 //        URL url = new URL(urlString);
 //        URLConnection uc;
 //        uc = url.openConnection();
@@ -70,10 +76,12 @@ public class JsonReader {
 //            JSONObject json = new JSONObject(jsonText);
 //            return json;
 //        }
+    public static JSONObject readJsonFromUrl(String urlString) throws IOException, JSONException  {
         JSONObject jo = new JSONObject();
-        try {
-            jo = (JSONObject) new JSONTokener(IOUtils.toString(new URL(urlString).openStream())).nextValue();
-        } catch (IOException | JSONException ex) {
+        
+        try(final InputStream openedStream = new URL(urlString).openStream();) {
+            jo = (JSONObject) new JSONTokener(openedStream).nextValue();
+        } catch (JSONException | ClassCastException ex) {
             String ent = IOUtils.toString(new URL(urlString).openStream());
             ArrayList<String> j = new ArrayList(Arrays.asList(ent.split("},")));
             ArrayList<String> j2 = new ArrayList();
@@ -93,7 +101,7 @@ public class JsonReader {
             computeEngineAux = computeEngineAux.replaceAll("}, ", "},");
             jo = (JSONObject) new JSONTokener(computeEngineAux).nextValue();
             
-            Logger.getLogger(JsonReader.class.getName()).log(Level.SEVERE, null, ex);
+//            Logger.getLogger(JsonReader.class.getName()).log(Level.SEVERE, null, ex);
         }
         return jo;
     }
@@ -119,32 +127,32 @@ public class JsonReader {
     /*
      This method is used to get the json data from the files.
      */
-    public static JSONObject readJson(String filename) {
-        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
-            StringBuilder sb = new StringBuilder();
-            String line = br.readLine();
-
-            while (line != null) {
-                sb.append(line);
-                sb.append(System.lineSeparator());
-                line = br.readLine();
-            }
-
-            String everything = sb.toString();
-
-            if (everything != null) {
-
-                return (new JSONObject(everything));
-            } else {
-
-                return (null);
-            }
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(JsonReader.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(JsonReader.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        return (null);
-    }
+//    public static JSONObject readJson(String filename) {
+//        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+//            StringBuilder sb = new StringBuilder();
+//            String line = br.readLine();
+//
+//            while (line != null) {
+//                sb.append(line);
+//                sb.append(System.lineSeparator());
+//                line = br.readLine();
+//            }
+//
+//            String everything = sb.toString();
+//
+//            if (everything != null) {
+//
+//                return (new JSONObject(everything));
+//            } else {
+//
+//                return (null);
+//            }
+//        } catch (FileNotFoundException ex) {
+//            Logger.getLogger(JsonReader.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (IOException ex) {
+//            Logger.getLogger(JsonReader.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//
+//        return (null);
+//    }
 }
