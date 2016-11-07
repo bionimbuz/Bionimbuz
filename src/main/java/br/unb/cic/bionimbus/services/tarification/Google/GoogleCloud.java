@@ -280,9 +280,9 @@ public class GoogleCloud {
         for (JSONObject jsonObjectInstance : listJsonObject) {
             JSONObject i = jsonObjectInstance.getJSONObject(jsonObjectInstance.keys().next());
             try {
-                cpuHtz = i.getDouble("gceu");
+                gceu = i.getDouble("gceu");
             } catch (JSONException ex) {
-                cpuHtz = 0.0D;
+                gceu = 0.0D;
             }
             memoryTotal = i.getDouble("memory");
             try {
@@ -290,9 +290,13 @@ public class GoogleCloud {
             } catch (JSONException ex) {
                 cores = 0;
             }
-            if (cores != 0 && cpuHtz != 0) {
-                cpuHtz = cpuHtz / cores;
-            }
+            if (cores != 0 && gceu != 0.0D) 
+                cpuHtz = gceu / cores;
+            else
+                cpuHtz=0.0D;
+            System.out.print("gceu/cores: "+ gceu+"/");
+            System.out.print(cores + " =");
+            System.out.println("CPUHTz: " + cpuHtz );
             //Need to Improve 0.026 is the price offer from bucket for mounth, 
             //divide by 30 days and after for 24 hour(0,026÷30)/24=0,000036111
             StorageInstance storageI = new StorageInstance(1D, 0.000036111, "Bucket", US, GOOGLE);
