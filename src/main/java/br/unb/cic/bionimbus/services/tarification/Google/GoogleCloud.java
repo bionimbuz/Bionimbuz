@@ -227,17 +227,17 @@ public class GoogleCloud {
      *
      * @return ArrayList<JSONObject>
      */
-    public ArrayList<JSONObject> getListJsonObjectInstances() {
-        ArrayList<JSONObject> result = new ArrayList<>();
-
-        final Iterator<String> it = this.computeEngine.keys();
-        while (it.hasNext()) {
-            JSONObject aux = new JSONObject();
-            aux.put(it.next(), this.computeEngine.getJSONObject(it.next()));
-            result.add(aux);
-        }
-        return result;
-    }
+//    public ArrayList<JSONObject> getListJsonObjectInstances() {
+//        ArrayList<JSONObject> result = new ArrayList<>();
+//
+//        final Iterator<String> it = this.computeEngine.keys();
+//        while (it.hasNext()) {
+//            JSONObject aux = new JSONObject();
+//            aux.put(it.next(), this.computeEngine.getJSONObject(it.next()));
+//            result.add(aux);
+//        }
+//        return result;
+//    }
 
 //        System.out.println("Interno jsonlist: " + listJsonObject.size());
 //                System.out.print("Gceu: " + i.getDouble("gceu") + " ,");
@@ -265,6 +265,11 @@ public class GoogleCloud {
 //            String locality, Double memoryTotal, Double cpuHtz, String cpuType,
 //            StorageInstance storage, Integer numCores,
 //            String cpuArch, String provider
+//            System.out.print("TYPE: "+key);
+//            System.out.print("");
+//            System.out.print("gceu/cores: "+ gceu+"/");
+//            System.out.print(cores + " =");
+//            System.out.println("CPUHTz: " + cpuHtz );
     /**
      * Method that get googleengine with all instance object json and return
      *
@@ -275,18 +280,20 @@ public class GoogleCloud {
         Instance instanceAux;
         String id, type, cpuType, locality, cpuArch, provider;
         Double costPerHour = 0D, memoryTotal = 0D, cpuHtz = 0D, hd = 0D, priceHd = 0D, hdType = 0D, numCores = 0D, gceu = 0D;
-        int cores;
-        ArrayList<JSONObject> listJsonObject = getListJsonObjectInstances();
-        for (JSONObject jsonObjectInstance : listJsonObject) {
-            JSONObject i = jsonObjectInstance.getJSONObject(jsonObjectInstance.keys().next());
+        int cores=0;
+        String key;
+        final Iterator<String> it = this.computeEngine.keys();
+        while (it.hasNext()) {
+            key=it.next();
+            JSONObject aux = this.computeEngine.getJSONObject(key);
             try {
-                gceu = i.getDouble("gceu");
+                gceu = aux.getDouble("gceu");
             } catch (JSONException ex) {
                 gceu = 0.0D;
             }
-            memoryTotal = i.getDouble("memory");
+            memoryTotal = aux.getDouble("memory");
             try {
-                cores = i.getInt("cores");
+                cores = aux.getInt("cores");
             } catch (JSONException ex) {
                 cores = 0;
             }
@@ -294,26 +301,23 @@ public class GoogleCloud {
                 cpuHtz = gceu / cores;
             else
                 cpuHtz=0.0D;
-            System.out.print("gceu/cores: "+ gceu+"/");
-            System.out.print(cores + " =");
-            System.out.println("CPUHTz: " + cpuHtz );
             //Need to Improve 0.026 is the price offer from bucket for mounth, 
             //divide by 30 days and after for 24 hour(0,026÷30)/24=0,000036111
             StorageInstance storageI = new StorageInstance(1D, 0.000036111, "Bucket", US, GOOGLE);
-            costPerHour = i.getDouble(US);
-            Instance instanceUS = new Instance(jsonObjectInstance.keys().next(), jsonObjectInstance.keys().next(), costPerHour, 0, US, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE__COMPUTE__ENGINE);
+            costPerHour = aux.getDouble(US);
+            Instance instanceUS = new Instance(key, key, costPerHour, 0, US, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE__COMPUTE__ENGINE);
             listInstancesGCE.add(instanceUS);
-            costPerHour = i.getDouble(EUROPE);
-            Instance instanceEURO = new Instance(jsonObjectInstance.keys().next(), jsonObjectInstance.keys().next(), costPerHour, 0, EUROPE, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE__COMPUTE__ENGINE);
+            costPerHour = aux.getDouble(EUROPE);
+            Instance instanceEURO = new Instance(key, key, costPerHour, 0, EUROPE, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE__COMPUTE__ENGINE);
             listInstancesGCE.add(instanceEURO);
-            costPerHour = i.getDouble(ASIA);
-            Instance instanceASIA = new Instance(jsonObjectInstance.keys().next(), jsonObjectInstance.keys().next(), costPerHour, 0, ASIA, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE__COMPUTE__ENGINE);
+            costPerHour = aux.getDouble(ASIA);
+            Instance instanceASIA = new Instance(key, key, costPerHour, 0, ASIA, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE__COMPUTE__ENGINE);
             listInstancesGCE.add(instanceASIA);
-            costPerHour = i.getDouble(ASIAEAST);
-            Instance instanceASIAE = new Instance(jsonObjectInstance.keys().next(), jsonObjectInstance.keys().next(), costPerHour, 0, ASIAEAST, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE__COMPUTE__ENGINE);
+            costPerHour = aux.getDouble(ASIAEAST);
+            Instance instanceASIAE = new Instance(key,key, costPerHour, 0, ASIAEAST, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE__COMPUTE__ENGINE);
             listInstancesGCE.add(instanceASIAE);
-            costPerHour = i.getDouble(ASIANORTHEAST);
-            Instance instanceASIAN = new Instance(jsonObjectInstance.keys().next(), jsonObjectInstance.keys().next(), costPerHour, 0, ASIANORTHEAST, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE__COMPUTE__ENGINE);
+            costPerHour = aux.getDouble(ASIANORTHEAST);
+            Instance instanceASIAN = new Instance(key, key, costPerHour, 0, ASIANORTHEAST, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE__COMPUTE__ENGINE);
             listInstancesGCE.add(instanceASIAN);
         }
         return listInstancesGCE;
