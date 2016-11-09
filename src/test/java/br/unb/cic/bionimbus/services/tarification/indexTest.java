@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import br.unb.cic.bionimbus.model.Instance;
 import br.unb.cic.bionimbus.services.tarification.Amazon.AmazonIndex;
+import org.junit.Test;
 
 /**
  *
@@ -14,12 +15,12 @@ import br.unb.cic.bionimbus.services.tarification.Amazon.AmazonIndex;
  */
 public class indexTest {
     
-    // @Test
-    // public void indexTest() throws JSONException, IOException {
+     @Test
+     public void indexTest(){
     //// AmazonIndex idx = new AmazonIndex("pricing.us-east-1.amazonaws.com", "/offers/v1.0/aws/index.json");
     // AmazonIndex idx = new AmazonIndex();
     // System.out.println(idx.EC2Instances("r3.xlarge","US East (N. Virginia)").toString(4));
-    // }
+     }
     
 //        long now = System.currentTimeMillis();
 //        

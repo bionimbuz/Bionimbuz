@@ -22,11 +22,11 @@ public class GetConfigurationsResponse implements ResponseInfo {
     public GetConfigurationsResponse() {
     }
 //, List<Instance> instancesList 
-    public GetConfigurationsResponse(List<PluginService> servicesList, List<String> references, List<String> supportedFormats, List<Instance> instancesList) {
+    public GetConfigurationsResponse(List<PluginService> servicesList, List<String> references, List<String> supportedFormats, List<Instance> instances) {
         this.servicesList = servicesList;
         this.references = references;
         this.supportedFormats = supportedFormats;
-        this.instances = instancesList; 
+        this.instances = instances; 
     }
 
     public List<PluginService> getServicesList() {
@@ -53,12 +53,12 @@ public class GetConfigurationsResponse implements ResponseInfo {
         this.supportedFormats = supportedFormats;
     }
     
-    public List<Instance> getInstancesList() {
+    public List<Instance> getInstances() {
         return instances;
     }
    
-    public void setInstancesList(List<Instance> instancesList) {
-        this.instances = instancesList;
+    public void setInstances(List<Instance> instances) {
+        this.instances = instances;
     }
 
 }
