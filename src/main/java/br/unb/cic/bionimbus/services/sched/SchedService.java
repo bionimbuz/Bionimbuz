@@ -96,7 +96,7 @@ public class SchedService extends AbstractBioService implements Runnable {
     private RpcClient rpcClient;
 
     // change this to select scheduling policy
-    private final SchedPolicy.Policy policy = SchedPolicy.Policy.C99SUPERCOLIDER;
+    private final SchedPolicy.Policy policy = SchedPolicy.Policy.BasicSchedPolicy;
     private String idPlugin;
 
     private LinuxPlugin myLinuxPlugin;
@@ -820,7 +820,7 @@ public class SchedService extends AbstractBioService implements Runnable {
         return false;
     }
 
-    /**
+    /**MEtodo aparentemente não utilizado
      * Verifica a existência dos arquivos de entrada na federação, caso não
      * exista retorna false.
      *

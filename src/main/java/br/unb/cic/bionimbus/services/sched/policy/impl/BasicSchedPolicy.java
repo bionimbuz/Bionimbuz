@@ -35,11 +35,10 @@ public class BasicSchedPolicy extends SchedPolicy {
     private final int NODES_WEIGHT = 2;
 
     private List<PluginInfo> filterByService(String serviceId) {
-        ArrayList<PluginInfo> plugins = new ArrayList<PluginInfo>();
-        for (PluginInfo pluginInfo : getCloudMap().values()) {
-            if (pluginInfo.getService(serviceId) != null)
-                plugins.add(pluginInfo);
-        }
+        ArrayList<PluginInfo> plugins = new ArrayList<>();
+        getCloudMap().values().stream().filter((pluginInfo) -> (pluginInfo.getService(serviceId) != null)).forEach((pluginInfo) -> {
+            plugins.add(pluginInfo);
+        });
 
         return plugins;
     }
@@ -47,9 +46,12 @@ public class BasicSchedPolicy extends SchedPolicy {
     private PluginInfo getBestPluginForJob(List<PluginInfo> plugins, Job job) {
         PluginInfo best = plugins.get(0);
         for (PluginInfo plugin : plugins) {
+            if(plugin.getHost().getAddress().equalsIgnoreCase(job.getIpjob()))
+                return plugin;
+        }
+        for (PluginInfo plugin : plugins) {
             if (calculateWeightSum(plugin) > calculateWeightSum(best)) best = plugin;
         }
-
         return best;
     }
 
@@ -59,19 +61,17 @@ public class BasicSchedPolicy extends SchedPolicy {
 
     @Override
     public HashMap<Job, PluginInfo> schedule(List<Job> jobs) {
-        HashMap<Job, PluginInfo> schedMap = new HashMap<Job, PluginInfo>();
-
-        for (Job jobInfo : jobs) {
+        HashMap<Job, PluginInfo> schedMap = new HashMap<>();
+        jobs.stream().forEach((jobInfo) -> {
             PluginInfo resource = this.scheduleJob(jobInfo);
             schedMap.put(jobInfo, resource);
-        }
-
+        });
         return schedMap;
     }
 
     public PluginInfo scheduleJob(Job jobInfo) {
         List<PluginInfo> availablePlugins = filterByService(jobInfo.getServiceId());
-        if (availablePlugins.size() == 0) {
+        if (availablePlugins.isEmpty()) {
             return null;
         }
         return getBestPluginForJob(availablePlugins, jobInfo);

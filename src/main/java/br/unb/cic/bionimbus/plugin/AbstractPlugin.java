@@ -150,11 +150,9 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
             setFutureInfo(startGetInfo());
             return;
         }
-
         if (!futureInfo.isDone()) {
             return;
         }
-
         try {
             PluginInfo newInfo = futureInfo.get();
             newInfo.setId(getId());
@@ -164,30 +162,24 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
             setErrorString(e.getMessage());
             setMyInfo(null);
         }
-
         setFutureInfo(null);
     }
 
     private void checkFinishedTasks() {
         Future<PluginTask> futureTask;
         PluginTask task;
-
         for (Pair<PluginTask, Future<PluginTask>> pair : executingTasks.values()) {
             futureTask = pair.second;
-
             if (!futureTask.isDone()) {
                 continue;
             }
-
             try {
                 task = futureTask.get();
             } catch (InterruptedException | ExecutionException e) {
                 task = pair.first;
                 continue;
             }
-
             executingTasks.remove(task.getId());
-
             if (task.getJobInfo().getOutputs().size() > 0) {
                 int count = 0;
                 for (String output : task.getJobInfo().getOutputs()) {
@@ -203,13 +195,10 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
     }
 
     private void checkPendingSaves() {
-
         for (Future<PluginFile> f : pendingSaves) {
-
             if (!f.isDone()) {
                 continue;
             }
-
             try {
                 PluginFile file = f.get();
                 List<String> pluginIds = new ArrayList<String>();
@@ -221,19 +210,15 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
                 e.printStackTrace();
                 //TODO criar mensagem de erro?
             }
-            //TODO criar mensagem de erro?
-            
         }
     }
 
     private void checkPendingGets() {
 
         for (Future<PluginGetFile> f : pendingGets) {
-
             if (!f.isDone()) {
                 continue;
             }
-
             try {
                 PluginGetFile get = f.get();
                 pendingGets.remove(f);
@@ -241,9 +226,6 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
                 e.printStackTrace();
                 // TODO criar mensagem de erro?
             }
-            // TODO criar mensagem de erro?
-            
         }
     }
-
 }

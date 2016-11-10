@@ -1,5 +1,6 @@
 package br.unb.cic.bionimbus.model;
 
+
 import java.io.IOException;
 import java.io.Serializable;
 

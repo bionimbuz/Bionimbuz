@@ -34,7 +34,6 @@ import br.unb.cic.bionimbus.toSort.Listeners;
 /**
  *
  * @author will O nome da classe é temporario, assim como sua localização
- *
  * Dados disponiveis atraves de metodos get
  */
 @Singleton
@@ -77,7 +76,7 @@ public final class RepositoryService extends AbstractBioService {
         this.config = config;
         this.listeners = listeners;
 
-        // Add current instance as a peer
+        // Add current instance as a peer HERE THE PEER IS ADD IN ZOOKEEPER
         addPeerToZookeeper(new PluginInfo(config.getId()));
 
         listeners.add(this);
@@ -185,8 +184,6 @@ public final class RepositoryService extends AbstractBioService {
     }
 
     /**
-     *
-     *
      * @param resource Resource to be added
      */
     public void addPeerToZookeeper(PluginInfo resource) {
@@ -198,7 +195,6 @@ public final class RepositoryService extends AbstractBioService {
 
     /**
      * Returns the list of BioNimbuZ supported services
-     *
      * @return
      */
     public List<PluginService> getSupportedServices() {

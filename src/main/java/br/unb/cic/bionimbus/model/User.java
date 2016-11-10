@@ -40,7 +40,10 @@ public class User implements Serializable {
     private String securityToken;
 
     private Long storageUsage;
-
+    
+    @Transient
+    private List<Instance> instances;
+    
     @Transient
     private List<FileInfo> files;
 
@@ -143,4 +146,11 @@ public class User implements Serializable {
         this.workflows = workflows;
     }
 
+    public List<Instance> getInstances() {
+        return instances;
+    }
+
+    public void setInstances(List<Instance> instances) {
+        this.instances = instances;
+    }
 }

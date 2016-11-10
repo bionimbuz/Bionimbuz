@@ -15,41 +15,53 @@ import javax.persistence.Id;
  * @author Breno Rodrigues
  */
 public class SLA {
+
     @Id
     private String id;
-    
     private User user;
     private User provider;
     private int objective;
     private Long period;
-    private List <PluginService> services;
+    private List<PluginService> services;
     private List<Instance> instances;
     private Double value;
     private Date time;
+    private Integer limitationType;
+    private String limitationValueExecutionTime;
+    private String limitationValueExecutionCost;
     
-            
-    public SLA(){
-        this.user=null;
-        this.provider=null;
-        this.objective= 0;
+    public SLA() {
+        this.user = null;
+        this.provider = null;
+        this.objective = 0;
         this.period = 0l;
-        this.instances=null;
-        this.services=null;
-        this.time=null;
-        this.time=new Date();
-        
-    }
-    
+        this.instances = null;
+        this.services = null;
+        this.time = null;
+        this.time = new Date();
 
-    
-    public SLA(User user, User provider, List<PluginService> service,Date time, Double value){
-        this.user=user;
-        this.provider=provider;
-        this.services=service;
-        this.time= time;
-        this.value=value;
     }
-    
+
+    public SLA(SLA sla) {
+
+        this.user = sla.getUser();
+        this.provider = sla.getProvider();
+        this.objective = sla.getObjective();
+        this.period = sla.getPeriod();
+        this.instances = sla.getInstances();
+        this.services = sla.getServices();
+        this.time = sla.getTime();
+
+    }
+
+    public SLA(User user, User provider, List<PluginService> service, Date time, Double value) {
+        this.user = user;
+        this.provider = provider;
+        this.services = service;
+        this.time = time;
+        this.value = value;
+    }
+
     /**
      * @return the user
      */
@@ -109,14 +121,14 @@ public class SLA {
     /**
      * @return the services
      */
-    public List <PluginService> getServices() {
+    public List<PluginService> getServices() {
         return services;
     }
 
     /**
      * @param services the services to set
      */
-    public void setServices(List <PluginService> services) {
+    public void setServices(List<PluginService> services) {
         this.services = services;
     }
 
@@ -175,5 +187,47 @@ public class SLA {
     public void setId(String id) {
         this.id = id;
     }
-    
+
+    /**
+     * @return the limitationType
+     */
+    public Integer getLimitationType() {
+        return limitationType;
+    }
+
+    /**
+     * @param limitationType the limitationType to set
+     */
+    public void setLimitationType(Integer limitationType) {
+        this.limitationType = limitationType;
+    }
+
+    /**
+     * @return the limitationValueExecutionTime
+     */
+    public String getLimitationValueExecutionTime() {
+        return limitationValueExecutionTime;
+    }
+
+    /**
+     * @param limitationValueExecutionTime the limitationValueExecutionTime to set
+     */
+    public void setLimitationValueExecutionTime(String limitationValueExecutionTime) {
+        this.limitationValueExecutionTime = limitationValueExecutionTime;
+    }
+
+    /**
+     * @return the limitationValueExecutionCost
+     */
+    public String getLimitationValueExecutionCost() {
+        return limitationValueExecutionCost;
+    }
+
+    /**
+     * @param limitationValueExecutionCost the limitationValueExecutionCost to set
+     */
+    public void setLimitationValueExecutionCost(String limitationValueExecutionCost) {
+        this.limitationValueExecutionCost = limitationValueExecutionCost;
+    }
+
 }

@@ -35,19 +35,12 @@ import org.codehaus.jackson.map.ObjectMapper;
 public class LinuxGetInfo implements Callable<PluginInfo> {
 
     private static final String SERVICE_DIR = "services";
-
     public static final String PATH = "files";
-
     public static final String CORES = "dstat -cf";
-
     public static final String CPUMHz = "grep -m 1 MHz /proc/cpuinfo";
-    
     public static final String CPUGHz = "grep -m 1 GHz /proc/cpuinfo";
-
     public static final String MemTotal = "grep -m 1 MemTotal /proc/meminfo";
-
     public static final String MemFree = "grep -m 1 MemFree /proc/meminfo";
-
     private final PluginInfo pluginInfo = new PluginInfo();
 
     public LinuxGetInfo() {
@@ -55,7 +48,6 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
 
     @Override
     public PluginInfo call() {
-        
         try {
             getCpuInfo();
             getMemoryInfo();
@@ -68,7 +60,6 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
         return pluginInfo;
     }
 
-    
     /**
      * Obtem as informações do processador do recurso e realiza o setter dessa informações na classe pluginInfo.
      * Número de cores, frequencia do processador(GHz) e quantidade de cores ocupados.
@@ -116,7 +107,6 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
                             linesCPU.add(j,new Integer(lines[0]));
 
                         }
-
                     }
                 i++;
                 }
@@ -124,18 +114,14 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
             }
             //finaliza a execução
             p.destroy();
-
             for(i=0; i<numCpu;i++){
                 if((linesCPU.get(i)/3)>80){
                     nCpuOccupied++;
                 }
             }
-
         } catch (IOException ex) {
             Logger.getLogger(LinuxGetInfo.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-
         return nCpuOccupied;
     }
     
@@ -182,7 +168,7 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
         pluginInfo.setServices(list);
     }
     
-      private void getUptime(){
+    private void getUptime(){
         pluginInfo.setUptime(System.currentTimeMillis());
     }
 
@@ -197,16 +183,12 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
         String line = null;
         InputStreamReader read;
         try {
-
             read = new InputStreamReader(Runtime.getRuntime().exec(Command).getInputStream());
             BufferedReader buffer = new BufferedReader(read);
-
             line = buffer.readLine();
-
         } catch (IOException ex) {
             Logger.getLogger(LinuxGetInfo.class.getName()).log(Level.SEVERE, null, ex);
         }
-
         return line;
     }
 }
