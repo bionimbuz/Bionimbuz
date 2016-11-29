@@ -52,7 +52,7 @@ public class AmazonIndex {
      * Te following JSONObjects are relative to each of the Amazon Services.
      * They keep the JSON's from AWS with the Service Object's informations.
      *
-     */
+   
     private JSONObject amazonS3;
     private JSONObject amazonGlacier;
     private JSONObject amazonSES;
@@ -64,8 +64,8 @@ public class AmazonIndex {
     private JSONObject amazonElastiCache;
     private JSONObject amazonCloudFront;
     private JSONObject awskms;
-    private JSONObject amazonVPC;
-    private JSONObject amazonEC2;
+    private JSONObject amazonVPC; */
+    private JSONObject amazonEC2; 
     // Hard Code TODO Change
     final private String defaultConfigPathname = System.getProperty("user.home") 
             + "/Bionimbuz/conf/amazonEC2.json";

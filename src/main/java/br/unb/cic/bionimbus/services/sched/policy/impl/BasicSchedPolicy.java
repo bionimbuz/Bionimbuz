@@ -46,8 +46,9 @@ public class BasicSchedPolicy extends SchedPolicy {
     private PluginInfo getBestPluginForJob(List<PluginInfo> plugins, Job job) {
         PluginInfo best = plugins.get(0);
         for (PluginInfo plugin : plugins) {
-            if(plugin.getHost().getAddress().equalsIgnoreCase(job.getIpjob()))
-                return plugin;
+            for (String ip : job.getIpjob())
+                if(plugin.getHost().getAddress().equalsIgnoreCase(ip))
+                    return plugin;
         }
         for (PluginInfo plugin : plugins) {
             if (calculateWeightSum(plugin) > calculateWeightSum(best)) best = plugin;

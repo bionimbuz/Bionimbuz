@@ -33,7 +33,7 @@ public class Job implements Serializable {
     private String args = "";
     
     @Transient
-    private String ipjob;
+    private List< String> ipjob;
 
 //    @Transient
     // inputs = [{input.id, input.size}]
@@ -61,6 +61,7 @@ public class Job implements Serializable {
         inputFiles = new ArrayList<>();
         outputs = new ArrayList<>();
         dependencies = new ArrayList<>();
+        ipjob =new ArrayList<>();
     }
 
     /**
@@ -74,6 +75,7 @@ public class Job implements Serializable {
         inputFiles = new ArrayList<>();
         outputs = new ArrayList<>();
         dependencies = new ArrayList<>();
+        ipjob=new ArrayList<>();
     }
 
     /**
@@ -87,6 +89,7 @@ public class Job implements Serializable {
         inputFiles = new ArrayList<>();
         outputs = new ArrayList<>();
         dependencies = new ArrayList<>();
+        ipjob=new ArrayList<>();
     }
     
     /**
@@ -95,12 +98,12 @@ public class Job implements Serializable {
      * @param id
      * @param ipjob
      */
-    public Job(String id, String ipjob) {
+    public Job(String id, List<String> ipjob) {
         this.id = id;
         inputFiles = new ArrayList<>();
         outputs = new ArrayList<>();
         dependencies = new ArrayList<>();
-        this.ipjob=ipjob;
+        ipjob=ipjob;
     }
     
     public String getId() {
@@ -233,14 +236,14 @@ public class Job implements Serializable {
     /**
      * @return the ipjob
      */
-    public String getIpjob() {
+    public List<String> getIpjob() {
         return ipjob;
     }
 
     /**
      * @param ipjob the ipjob to set
      */
-    public void setIpjob(String ipjob) {
+    public void setIpjob(List<String> ipjob) {
         this.ipjob = ipjob;
     }
 
