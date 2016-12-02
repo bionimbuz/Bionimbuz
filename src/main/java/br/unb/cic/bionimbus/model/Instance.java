@@ -4,10 +4,12 @@
  * and open the template in the editor.
  */
 package br.unb.cic.bionimbus.model;
+import br.unb.cic.bionimbus.plugin.PluginService;
+import java.util.List;
+import org.joda.time.DateTime;
 
 /**
  * Class that defines the Instance
- *
  * @author brenokx
  */
 public class Instance {
@@ -25,6 +27,11 @@ public class Instance {
     private String description;
     private String cpuArch;
     private String provider;
+    private List <PluginService> programas;
+    public DateTime creationTimer;
+    public int delay;
+    public DateTime timetocreate;
+    public String isnow; 
 
     /**
      * Constructor
@@ -79,6 +86,19 @@ public class Instance {
         this.provider = provider;
         setDescription();
     }
+     public Instance(String id, String type, Double costPerHour, Double memoria, int numCores, String provider, List<PluginService> programas, DateTime creationTimer, int delay, DateTime timetocreate, String isnow) {
+        this.id = id;
+        this.type = type;
+        this.costPerHour = costPerHour;
+        this.memoryTotal = memoria;
+        this.numCores = numCores;
+        this.provider = provider;
+        this.programas = programas;
+        this.creationTimer = creationTimer;
+        this.delay = delay;
+        this.timetocreate = timetocreate;
+        this.isnow = isnow;
+    }
 
     public String getType() {
         return type;
@@ -86,14 +106,6 @@ public class Instance {
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public Double getValueHour() {
-        return getCostPerHour();
-    }
-
-    public void setValueHour(Double costPerHour) {
-        this.setCostPerHour(costPerHour);
     }
 
     public int getQuantity() {
@@ -110,14 +122,6 @@ public class Instance {
 
     public void setLocality(String locality) {
         this.locality = locality;
-    }
-
-    public Double getMemory() {
-        return getMemoryTotal();
-    }
-
-    public void setMemory(Double memoryTotal) {
-        this.setMemoryTotal(memoryTotal);
     }
 
     public Double getCpuHtz() {
@@ -141,22 +145,22 @@ public class Instance {
 
         return "Type: " + this.getType() + ", "
                 + "CPU: " + this.getNumCores() + " " + this.getCpuHtz() + " Ghz, "
-                + "CPUType: " + this.getCpuType() + ", "
                 + "Ram:" + this.getMemoryTotal() + " GB, "
                 + "Custo por hora : $" + this.getCostPerHour() + ", "
-                + "Quantidade: " + this.getQuantity() + ", "
-                + "Localidade: " + this.getLocality() + ", "
-                + "Provider: " + this.getProvider() + ", "
-                + "Id: " + this.getId();
+                + "Localidade: " + this.getLocality();
 
     }
 
     public String getDescription() {
-        return description;
+        return "Type: " + this.getType() + ", "
+                + "CPU: " + this.getNumCores() + " - " + this.getCpuHtz() + " Ghz, "
+                + "Ram:" + this.getMemoryTotal() + " GB, "
+                + "Custo por hora : $" + this.getCostPerHour() + ", "
+                + "Localidade: " + this.getLocality();
     }
 
     public void setDescription() {
-        this.setDescription(this.toString());
+        this.setDescription(toString());
     }
 
     public int getQuantityCPU() {
@@ -225,5 +229,45 @@ public class Instance {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public List <PluginService> getProgramas() {
+        return programas;
+    }
+
+    public void setProgramas(List <PluginService> programas) {
+        this.programas = programas;
+    }
+    
+     public DateTime getCreationTimer() {
+        return creationTimer;
+    }
+
+    public void setCreationTimer(DateTime creationTimer) {
+        this.creationTimer = creationTimer;
+    }
+
+    public int getDelay() {
+        return delay;
+    }
+
+    public void setDelay(int delay) {
+        this.delay = delay;
+    }
+
+    public DateTime getTimetocreate() {
+        return timetocreate;
+    }
+
+    public void setTimetocreate(DateTime timetocreate) {
+        this.timetocreate = timetocreate;
+    }
+
+    public String getIsnow() {
+        return isnow;
+    }
+
+    public void setIsnow(String isnow) {
+        this.isnow = isnow;
     }
 }
