@@ -609,7 +609,7 @@ public class AmazonIndex {
             // StorageInstance storage, Integer numCores,
             // String cpuArch, String provider
             instanceAux = new Instance(jsonObjectInstance.keys().next(), i.getString(INSTANCE_TYPE), jsonObjectInstance.getJSONObject(jsonObjectInstance.keys().next()).getDouble(PRICE), 0,
-                    i.getString(LOCATION2), memory, cpuhtz, i.getString("physicalProcessor"), storage, i.getInt("vcpu"), i.getString("processorArchitecture"), "Amazon EC2");
+                    i.getString(LOCATION2), memory, cpuhtz, i.getString("physicalProcessor"), storage, i.getInt("vcpu"), i.getString("processorArchitecture"), "Amazon");
             listInstancesEc2.add(instanceAux);
         }
         

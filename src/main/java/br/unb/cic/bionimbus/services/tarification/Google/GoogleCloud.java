@@ -21,7 +21,6 @@ import org.json.JSONTokener;
 public class GoogleCloud {
 
     private static final String GOOGLE = "Google";
-    private static final String GOOGLE__COMPUTE__ENGINE = "Google Compute Engine";
     private static final String DEFAULT = "default";
     private static final String ASIANORTHEAST = "asia-northeast";
     private static final String ASIAEAST = "asia-east";
@@ -305,19 +304,19 @@ public class GoogleCloud {
             //divide by 30 days and after for 24 hour(0,026÷30)/24=0,000036111
             StorageInstance storageI = new StorageInstance(1D, 0.000036111, "Bucket", US, GOOGLE);
             costPerHour = aux.getDouble(US);
-            Instance instanceUS = new Instance(key, key, costPerHour, 0, US, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE__COMPUTE__ENGINE);
+            Instance instanceUS = new Instance(key, key, costPerHour, 0, US, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE);
             listInstancesGCE.add(instanceUS);
             costPerHour = aux.getDouble(EUROPE);
-            Instance instanceEURO = new Instance(key, key, costPerHour, 0, EUROPE, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE__COMPUTE__ENGINE);
+            Instance instanceEURO = new Instance(key, key, costPerHour, 0, EUROPE, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE);
             listInstancesGCE.add(instanceEURO);
             costPerHour = aux.getDouble(ASIA);
-            Instance instanceASIA = new Instance(key, key, costPerHour, 0, ASIA, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE__COMPUTE__ENGINE);
+            Instance instanceASIA = new Instance(key, key, costPerHour, 0, ASIA, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE);
             listInstancesGCE.add(instanceASIA);
             costPerHour = aux.getDouble(ASIAEAST);
-            Instance instanceASIAE = new Instance(key,key, costPerHour, 0, ASIAEAST, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE__COMPUTE__ENGINE);
+            Instance instanceASIAE = new Instance(key,key, costPerHour, 0, ASIAEAST, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE);
             listInstancesGCE.add(instanceASIAE);
             costPerHour = aux.getDouble(ASIANORTHEAST);
-            Instance instanceASIAN = new Instance(key, key, costPerHour, 0, ASIANORTHEAST, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE__COMPUTE__ENGINE);
+            Instance instanceASIAN = new Instance(key, key, costPerHour, 0, ASIANORTHEAST, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE);
             listInstancesGCE.add(instanceASIAN);
         }
         return listInstancesGCE;
