@@ -33,6 +33,9 @@ public class Workflow implements Serializable {
     @Transient
     private List<Job> jobs;
 
+    @Transient
+    private List<Instance> intancesWorkflow;
+    
     private String creationDatestamp;
 
     private long userId;
@@ -139,5 +142,13 @@ public class Workflow implements Serializable {
         }
 
         return null;
+    }
+
+    public List<Instance> getIntancesWorkflow() {
+        return intancesWorkflow;
+    }
+
+    public void setIntancesWorkflow(List<Instance> intancesWorkflow) {
+        this.intancesWorkflow = intancesWorkflow;
     }
 }
