@@ -72,7 +72,7 @@ public class WorkflowResource extends AbstractResource {
                 + ",jobs=" + request.getWorkflow().getJobs().size()
                 + ",userId=" + request.getWorkflow().getUserId()
                 + "}");
-
+        LOGGER.info(" INTANSCIAS"+request.getWorkflow().getIntancesWorkflow().toString());
         // Logs
         loggerDao.log(new Log("Workflow chegou no servidor do BioNimbuZ", request.getWorkflow().getUserId(), request.getWorkflow().getId(), LogSeverity.INFO));
 

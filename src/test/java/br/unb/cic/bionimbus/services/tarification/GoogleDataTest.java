@@ -8,6 +8,9 @@ package br.unb.cic.bionimbus.services.tarification;
 import java.io.IOException;
 
 import br.unb.cic.bionimbus.services.tarification.Google.GoogleCloud;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.json.JSONException;
 import org.junit.Test;
 
 /**
@@ -24,8 +27,13 @@ public class GoogleDataTest {
     // System.out.println(idx.EC2Instances("r3.xlarge","US East (N. Virginia)").toString(4));
      }
     public static void main(String[] args){
-//        GoogleCloud gc = new GoogleCloud("cloudpricingcalculator.appspot.com","/static/data/pricelist.json");
-        GoogleCloud gc = new GoogleCloud();    
+        GoogleCloud gc=null;
+         try {
+             gc = new GoogleCloud("www.cloudpricingcalculator.appspot.com","/static/data/pricelist.json");
+         } catch (IOException | JSONException ex) {
+             Logger.getLogger(GoogleDataTest.class.getName()).log(Level.SEVERE, null, ex);
+         }
+//        GoogleCloud gc = new GoogleCloud();    
 //        gc.getListJsonObjectInstances();
 ////        System.out.println(gc.GoogleComputeEngineInstances("N1.STANDARD-4.PREEMPTIBLE", "").toString(4));
 ////        ArrayList<Instance> instancesGoogle=gc.getListInstanceGCE();

@@ -39,8 +39,12 @@ import static br.unb.cic.bionimbus.plugin.PluginFactory.getPlugin;
 import br.unb.cic.bionimbus.plugin.PluginInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxGetInfo;
 import br.unb.cic.bionimbus.plugin.linux.LinuxPlugin;
+import br.unb.cic.bionimbus.services.PricingGetterService;
+import br.unb.cic.bionimbus.services.tarification.Amazon.AmazonIndex;
+import br.unb.cic.bionimbus.services.tarification.Google.GoogleCloud;
 import br.unb.cic.bionimbus.toSort.Listeners;
 import br.unb.cic.bionimbus.utils.PBKDF2;
+import com.amazonaws.util.json.JSONException;
 //import br.unb.cic.bionimbus.utils.RuntimeUtil;
 
 import static com.google.inject.Guice.createInjector;
@@ -49,6 +53,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
 
 public class BioNimbus {
 
@@ -134,6 +139,10 @@ public class BioNimbus {
 
             new UserDao().persist(u);
         }
+        //medida paleativa para criar o arquivo das instancias da google e da amazon precisa por no serviço
+            AmazonIndex amazonIndex = new AmazonIndex();
+            GoogleCloud googleCloud = new GoogleCloud();
+
 
         // !!! Fim MEDIDA PALEATIVA !!!
         LOGGER.debug("config = " + config);

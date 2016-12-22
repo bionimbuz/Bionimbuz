@@ -16,7 +16,6 @@ public class Instance {
     private String id;
     private String type;
     private Double costPerHour;
-    private int quantity;
     private String locality;
     private Double memoryTotal;
     private Double cpuHtz;
@@ -31,6 +30,8 @@ public class Instance {
     public int delay;
     public DateTime timetocreate;
     public String isnow; 
+    private Long idUser;
+    
 
     /**
      * Constructor
@@ -67,14 +68,13 @@ public class Instance {
      * @param cpuArch
      * @param provider
      */
-    public Instance(String id, String type, Double costPerHour, int quantity,
+    public Instance(String id, String type, Double costPerHour,
             String locality, Double memoryTotal, Double cpuHtz, String cpuType,
             StorageInstance storage, Integer numCores,
             String cpuArch, String provider) {
         this.id = id;
         this.type = type;
         this.costPerHour = costPerHour;
-        this.quantity = quantity;
         this.locality = locality;
         this.memoryTotal = memoryTotal;
         this.cpuHtz = cpuHtz;
@@ -106,14 +106,6 @@ public class Instance {
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
     }
 
     public String getLocality() {
@@ -161,14 +153,6 @@ public class Instance {
 
     public void setDescription() {
         this.setDescription(toString());
-    }
-
-    public int getQuantityCPU() {
-        return getNumCores();
-    }
-
-    public void setQuantityCPU(int numCores) {
-        this.setNumCores((Integer) numCores);
     }
 
     public String getId() {
@@ -269,5 +253,13 @@ public class Instance {
 
     public void setIsnow(String isnow) {
         this.isnow = isnow;
+    }
+      
+    public Long getIdUser() {
+        return idUser;
+    }
+
+    public void setIdUser(Long idUser) {
+        this.idUser = idUser;
     }
 }

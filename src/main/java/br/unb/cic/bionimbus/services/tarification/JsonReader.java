@@ -11,8 +11,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -81,7 +83,7 @@ public class JsonReader {
         
         try(final InputStream openedStream = new URL(urlString).openStream();) {
             jo = (JSONObject) new JSONTokener(openedStream).nextValue();
-        } catch (JSONException | ClassCastException ex) {
+        } catch (JSONException | ClassCastException | MalformedURLException |UnknownHostException ex) {
             String ent = IOUtils.toString(new URL(urlString).openStream());
             ArrayList<String> j = new ArrayList(Arrays.asList(ent.split("},")));
             ArrayList<String> j2 = new ArrayList();

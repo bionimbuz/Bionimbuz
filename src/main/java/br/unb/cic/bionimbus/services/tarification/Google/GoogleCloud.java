@@ -38,7 +38,7 @@ public class GoogleCloud {
     final String defaultConfigPathnameStorage = System.getProperty("user.home") + "/Bionimbuz/conf/googleCloudStorage.json";
     //TAKE CARE WITH HTTPS, on Google just http ...
     final String http = "http://";
-    final String server = "cloudpricingcalculator.appspot.com";
+    final String server = "www.cloudpricingcalculator.appspot.com";
     final String index = "/static/data/pricelist.json";
     private String allInstanceTypeName[] = {"F1.MICRO", "G1.SMALL", "N1.STANDARD-1",
         "N1.STANDARD-2", "N1.STANDARD-4", "N1.STANDARD-8", "N1.STANDARD-16",
@@ -276,9 +276,9 @@ public class GoogleCloud {
      */
     public ArrayList<Instance> getListInstanceGCE() {
         ArrayList<Instance> listInstancesGCE = new ArrayList();
-        Instance instanceAux;
-        String id, type, cpuType, locality, cpuArch, provider;
-        Double costPerHour = 0D, memoryTotal = 0D, cpuHtz = 0D, hd = 0D, priceHd = 0D, hdType = 0D, numCores = 0D, gceu = 0D;
+        
+        
+        Double costPerHour = 0D, memoryTotal = 0D, cpuHtz = 0D, gceu = 0D;
         int cores=0;
         String key;
         final Iterator<String> it = this.computeEngine.keys();
@@ -300,23 +300,29 @@ public class GoogleCloud {
                 cpuHtz = gceu / cores;
             else
                 cpuHtz=0.0D;
+            String type ="";
+            try{
+                type = key.substring(25).toLowerCase();
+            }catch(Exception e){
+                type = key;
+            }
             //Need to Improve 0.026 is the price offer from bucket for mounth, 
             //divide by 30 days and after for 24 hour(0,026÷30)/24=0,000036111
             StorageInstance storageI = new StorageInstance(1D, 0.000036111, "Bucket", US, GOOGLE);
             costPerHour = aux.getDouble(US);
-            Instance instanceUS = new Instance(key, key, costPerHour, 0, US, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE);
+            Instance instanceUS = new Instance(key, type, costPerHour, US, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE);
             listInstancesGCE.add(instanceUS);
             costPerHour = aux.getDouble(EUROPE);
-            Instance instanceEURO = new Instance(key, key, costPerHour, 0, EUROPE, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE);
+            Instance instanceEURO = new Instance(key, type, costPerHour, EUROPE, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE);
             listInstancesGCE.add(instanceEURO);
             costPerHour = aux.getDouble(ASIA);
-            Instance instanceASIA = new Instance(key, key, costPerHour, 0, ASIA, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE);
+            Instance instanceASIA = new Instance(key, type, costPerHour, ASIA, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE);
             listInstancesGCE.add(instanceASIA);
             costPerHour = aux.getDouble(ASIAEAST);
-            Instance instanceASIAE = new Instance(key,key, costPerHour, 0, ASIAEAST, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE);
+            Instance instanceASIAE = new Instance(key,type, costPerHour, ASIAEAST, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE);
             listInstancesGCE.add(instanceASIAE);
             costPerHour = aux.getDouble(ASIANORTHEAST);
-            Instance instanceASIAN = new Instance(key, key, costPerHour, 0, ASIANORTHEAST, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE);
+            Instance instanceASIAN = new Instance(key, type, costPerHour, ASIANORTHEAST, memoryTotal, cpuHtz, DEFAULT, storageI, cores, DEFAULT, GOOGLE);
             listInstancesGCE.add(instanceASIAN);
         }
         return listInstancesGCE;
