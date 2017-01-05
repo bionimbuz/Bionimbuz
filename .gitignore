@@ -15,7 +15,6 @@ biofoco.log
 /data-folder/**
 /uploaded-files/**
 /references/**
-/conf/node.yaml
 /references/**/
 /conf/GooglePrices.txt
 /conf/AmazonStorage.txt
