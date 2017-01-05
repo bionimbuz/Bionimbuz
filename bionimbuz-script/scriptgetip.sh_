@@ -1,0 +1,5 @@
+#!/bin/sh
+var=$(curl ifconfig.co)
+sed -e "s/IP/$var/g" /home/bionimbuz/Bionimbuz/conf/node.yaml.save > /home/bionimbuz/Bionimbuz/conf/node.yaml
+chmod 777 /home/bionimbuz/Bionimbuz/conf/node.yaml
+sh /home/bionimbuz/Bionimbuz/bionimbuz-script/core.sh

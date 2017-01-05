@@ -18,6 +18,7 @@
 */
 package br.unb.cic.bionimbus.services.sched;
 
+import br.unb.cic.bionimbuz.services.sched.SchedService;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,10 +29,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import br.unb.cic.bionimbus.model.Job;
-import br.unb.cic.bionimbus.plugin.PluginInfo;
-import br.unb.cic.bionimbus.plugin.PluginService;
-import br.unb.cic.bionimbus.services.sched.policy.SchedPolicy;
+import br.unb.cic.bionimbuz.model.Job;
+import br.unb.cic.bionimbuz.plugin.PluginInfo;
+import br.unb.cic.bionimbuz.plugin.PluginService;
+import br.unb.cic.bionimbuz.services.sched.policy.SchedPolicy;
 
 public class SchedTester {
 
