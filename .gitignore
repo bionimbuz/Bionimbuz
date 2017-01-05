@@ -1,5 +1,4 @@
 .project
-*.save
 *.log
 *.log.*
 *.out
