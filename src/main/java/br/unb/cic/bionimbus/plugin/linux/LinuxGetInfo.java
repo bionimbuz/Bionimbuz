@@ -37,10 +37,10 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
     private static final String SERVICE_DIR = "services";
     public static final String PATH = "files";
     public static final String CORES = "dstat -cf";
-    public static final String CPUMHz = "grep -m 1 MHz /proc/cpuinfo";
-    public static final String CPUGHz = "grep -m 1 GHz /proc/cpuinfo";
-    public static final String MemTotal = "grep -m 1 MemTotal /proc/meminfo";
-    public static final String MemFree = "grep -m 1 MemFree /proc/meminfo";
+    public static final String CPUMHZ = "grep -m 1 MHz /proc/cpuinfo";
+    public static final String CPUGHZ = "grep -m 1 GHz /proc/cpuinfo";
+    public static final String MEMTOTAL = "grep -m 1 MemTotal /proc/meminfo";
+    public static final String MEMFREE = "grep -m 1 MemFree /proc/meminfo";
     private final PluginInfo pluginInfo = new PluginInfo();
 
     public LinuxGetInfo() {
@@ -55,7 +55,7 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
             getServices();
             getUptime();
         }catch(Exception ex){
-            System.out.print(ex);
+           Logger.getLogger(LinuxGetInfo.class.getName()).log(Level.SEVERE,null,ex);
         }
         return pluginInfo;
     }
@@ -70,9 +70,9 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
         // TODO: correct numNodes
         pluginInfo.setNumNodes(1);
         pluginInfo.setNumOccupied(getCoresOccupied(nCpus));
-        String cpuInfo = execCommand(CPUMHz);
+        String cpuInfo = execCommand(CPUMHZ);
         pluginInfo.setCurrentFrequencyCore((new Double(cpuInfo.substring(cpuInfo.indexOf(":") + 1, cpuInfo.length()).trim())) / 100000);
-        cpuInfo = execCommand(CPUGHz);
+        cpuInfo = execCommand(CPUGHZ);
         Double freq = new Double(cpuInfo.substring(cpuInfo.indexOf("@") + 1, cpuInfo.length()-3).trim())*1000000000;
         pluginInfo.setFactoryFrequencyCore(freq);
     }
@@ -90,11 +90,9 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
             String[] columns,lines;
             String line;
             int count=0,i=0;
-
-            Process p = Runtime.getRuntime().exec("dstat -cf");
+            Process p = Runtime.getRuntime().exec(CORES);
             read = new InputStreamReader(p.getInputStream());
             buffer = new BufferedReader(read);
-            
             // magic number                                 numCpu+(4)
             while((line = buffer.readLine())!=null && count<(numCpu+4)){
                 if(count>=3){
@@ -105,7 +103,6 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
                             linesCPU.set(j,new Integer(lines[0])+linesCPU.get(j));
                         }else{
                             linesCPU.add(j,new Integer(lines[0]));
-
                         }
                     }
                 i++;
@@ -130,9 +127,9 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
      * Memória total e memória livre em GigaBytes(Retorno da eexcução em KB / 1024²).
      */
     private void getMemoryInfo() {
-        String mem = execCommand(MemTotal);
+        String mem = execCommand(MEMTOTAL);
         pluginInfo.setMemoryTotal((new Double(mem.substring(mem.indexOf(":") + 1, mem.length() - 2).trim()) / 1048576));
-        mem = execCommand(MemFree);
+        mem = execCommand(MEMFREE);
         pluginInfo.setMemoryFree((new Double(mem.substring(mem.indexOf(":") + 1, mem.length() - 2).trim()) / 1048576));
     }
 
@@ -154,7 +151,6 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
     private void getServices() throws Exception {
         final List<PluginService> list = new CopyOnWriteArrayList<>();
         File dir = new File(SERVICE_DIR);
-
         if (dir.isDirectory()) {
             for (File file : dir.listFiles()) {
                 if (file.isFile() && file.canRead() && file.getName().endsWith(".json")) {
@@ -164,7 +160,6 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
                 }
             }
         }
-
         pluginInfo.setServices(list);
     }
     

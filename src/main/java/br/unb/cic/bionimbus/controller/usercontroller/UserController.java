@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 public class UserController implements Controller, Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
-    private static final int SESSION_TIMEOUT = 2;
+//    private static final int SESSION_TIMEOUT = 10;
 
     // Controls Thread execution
     private final ScheduledExecutorService threadExecutor = Executors
@@ -80,19 +80,19 @@ public class UserController implements Controller, Runnable {
     public void run() {
         LOGGER.info("Checking logged users: " + lastAccessMap.size() + " users");
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-        for (Map.Entry<String, LocalDateTime> entry : lastAccessMap.entrySet()) {
-            String login = entry.getKey();
-            LocalDateTime loginTime = entry.getValue();
+//        for (Map.Entry<String, LocalDateTime> entry : lastAccessMap.entrySet()) {
+//            String login = entry.getKey();
+//            LocalDateTime loginTime = entry.getValue();
+//
+//            long diffInMinutes = Duration.between(entry.getValue(), LocalDateTime
+//                    .parse(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()), formatter)).toMinutes();
 
-            long diffInMinutes = Duration.between(entry.getValue(), LocalDateTime
-                    .parse(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()), formatter)).toMinutes();
-
-            if (diffInMinutes >= SESSION_TIMEOUT) {
-                logoutUser(login);
-            }
-        }
+//            if (diffInMinutes >= SESSION_TIMEOUT) {
+//                logoutUser(login);
+//            }
+//        }
     }
 
     /**

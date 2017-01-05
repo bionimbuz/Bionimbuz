@@ -31,7 +31,7 @@ public class Instance {
     public DateTime timetocreate;
     public String isnow; 
     private Long idUser;
-    
+    private String ip;
 
     /**
      * Constructor
@@ -98,6 +98,7 @@ public class Instance {
         this.delay = delay;
         this.timetocreate = timetocreate;
         this.isnow = isnow;
+        setDescription();
     }
 
     public String getType() {
@@ -261,5 +262,13 @@ public class Instance {
 
     public void setIdUser(Long idUser) {
         this.idUser = idUser;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 }

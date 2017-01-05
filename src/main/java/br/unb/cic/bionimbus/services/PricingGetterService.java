@@ -75,7 +75,7 @@ public class PricingGetterService extends AbstractBioService {
     public void run() {
         try {
             AmazonIndex amazonIndex = new AmazonIndex("pricing.us-east-1.amazonaws.com", "/offers/v1.0/aws/index.json");
-            GoogleCloud googleCloud = new GoogleCloud("cloudpricingcalculator.appspot.com","/static/data/pricelist.json");
+            GoogleCloud googleCloud = new GoogleCloud("www.cloudpricingcalculator.appspot.com","/static/data/pricelist.json");
         } catch (JSONException | IOException ex) {
             Logger.getLogger(PricingGetterService.class.getName()).log(Level.SEVERE, null, ex);
         }

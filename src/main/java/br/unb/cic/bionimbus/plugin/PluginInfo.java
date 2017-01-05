@@ -29,49 +29,30 @@ import br.unb.cic.bionimbus.p2p.Host;
 public class PluginInfo implements PluginOps {
 
     private String id;
-
     private String InstanceName;
-
     private int privateCloud;
-
     private Host host;
-
     private long uptime;
-
     private Double latency = 0d;
-
     private double costpergiga;
-
     private long timestamp;
-
     private Integer numCores;
-
     private Integer numNodes;
-
     private Integer numOccupied;
-
     private Double ranking = 0d;
-
     private Float fsSize;
-
     private double storagecost;
-
     private Float fsFreeSize;
-
     private Double memoryTotal;
-
     private Double memoryFree;
-
     private Double currentFrequencyCore;
-
     // frequency in Hz
     private Double factoryFrequencyCore;
-
     private List<PluginService> services;
-
     private double costPerHour = Double.MAX_VALUE;
-
     private Double bandwidth;
+    private String ip;
+    private String provider;
 
     public PluginInfo() {
     }
@@ -296,5 +277,21 @@ public class PluginInfo implements PluginOps {
             Logger.getLogger(PluginInfo.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
     }
 }

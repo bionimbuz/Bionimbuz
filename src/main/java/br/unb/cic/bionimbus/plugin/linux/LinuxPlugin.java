@@ -33,11 +33,13 @@ import br.unb.cic.bionimbus.plugin.PluginTask;
 import br.unb.cic.bionimbus.plugin.PluginTaskRunner;
 import br.unb.cic.bionimbus.services.messaging.CloudMessageService;
 import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LinuxPlugin extends AbstractPlugin{
 
     private final ExecutorService executorService = Executors.newCachedThreadPool(new BasicThreadFactory.Builder().namingPattern("LinuxPlugin-workers-%d").build());
-
+    private static Logger LOGGER = LoggerFactory.getLogger(LinuxPlugin.class);
     public LinuxPlugin(final BioNimbusConfig conf) throws IOException {
         super(conf);
     }
@@ -48,7 +50,6 @@ public class LinuxPlugin extends AbstractPlugin{
 
     @Override
     protected Future<PluginInfo> startGetInfo() {
-        
         return executorService.submit(new LinuxGetInfo());
     }
 
@@ -56,10 +57,9 @@ public class LinuxPlugin extends AbstractPlugin{
     public Future<PluginTask> startTask(PluginTask task, CloudMessageService zk, Workflow workflow) {
         PluginService service = getMyInfo().getService(task.getJobInfo().getServiceId());
         if (service == null) {
-            System.out.println("[LinuxPlugin] Task's service is not installed on this instance.");
+            LOGGER.info("[LinuxPlugin] Task's service is not installed on this instance.");
             return null;
         }
-
         return executorService.submit(new PluginTaskRunner(this, task, service, getConfig().getServerPath(), zk, workflow));
     }
 }

@@ -1,3 +1,21 @@
+/*
+    BioNimbuZ is a federated cloud platform.
+    Copyright (C) 2012-2017 Laboratory of Bioinformatics and Data (LaBiD), 
+    Department of Computer Science, University of Brasilia, Brazil
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 package br.unb.cic.bionimbus.rest.resource;
 
 import static br.unb.cic.bionimbus.config.BioNimbusConfigLoader.loadHostConfig;
@@ -17,6 +35,7 @@ import javax.ws.rs.core.Response;
 import br.unb.cic.bionimbus.avro.rpc.AvroClient;
 import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
 import br.unb.cic.bionimbus.model.FileInfo;
+import br.unb.cic.bionimbus.model.Instance;
 import br.unb.cic.bionimbus.model.Log;
 import br.unb.cic.bionimbus.model.LogSeverity;
 import br.unb.cic.bionimbus.model.Workflow;
@@ -31,6 +50,8 @@ import br.unb.cic.bionimbus.rest.request.StartWorkflowRequest;
 import br.unb.cic.bionimbus.rest.response.GetWorkflowHistoryResponse;
 import br.unb.cic.bionimbus.rest.response.GetWorkflowStatusResponse;
 import br.unb.cic.bionimbus.rest.response.ResponseInfo;
+import br.unb.cic.bionimbus.services.messaging.CuratorMessageService;
+import org.apache.zookeeper.CreateMode;
 
 /**
  * Class that handle sent workflow via REST request
@@ -72,9 +93,35 @@ public class WorkflowResource extends AbstractResource {
                 + ",jobs=" + request.getWorkflow().getJobs().size()
                 + ",userId=" + request.getWorkflow().getUserId()
                 + "}");
-        LOGGER.info(" INTANSCIAS"+request.getWorkflow().getIntancesWorkflow().toString());
+        LOGGER.info(" INSTANCES= "+request.getWorkflow().getIntancesWorkflow().toString());
+        LOGGER.info(" USER= "+request.getWorkflow().getUserWorkflow().getNome());
         // Logs
         loggerDao.log(new Log("Workflow chegou no servidor do BioNimbuZ", request.getWorkflow().getUserId(), request.getWorkflow().getId(), LogSeverity.INFO));
+         // Create /users
+        if (!cms.getZNodeExist(CuratorMessageService.Path.USERS.getFullPath(), null)) {
+            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.USERS.getFullPath(), "");
+        }
+        //Create structure to /bionimbuz/users/userid
+        if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_USERS.getFullPath(Long.toString(request.getWorkflow().getUserId())),null)){
+            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_USERS.getFullPath(Long.toString(request.getWorkflow().getUserId())), request.getWorkflow().getUserWorkflow().toString());
+        }
+        //Create structure to /bionimbuz/users/userid/workflows_user/
+        if(!cms.getZNodeExist(CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(Long.toString(request.getWorkflow().getUserId())),null)){
+            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(Long.toString(request.getWorkflow().getUserId())), null);
+        }
+        //Create structure to /bionimbuz/users/userid/workflows_user/workflow_id
+        if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_WORFLOW_USER.getFullPath(Long.toString(request.getWorkflow().getUserId()),request.getWorkflow().getId()),null)){
+            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(Long.toString(request.getWorkflow().getUserId()),request.getWorkflow().getId()), request.getWorkflow().toString());
+        }
+        //Create structure to /bionimbuz/users/userid/workflows_user/workflow_id/instances
+        if(!cms.getZNodeExist(CuratorMessageService.Path.INSTANCES_USER.getFullPath(Long.toString(request.getWorkflow().getUserId()),request.getWorkflow().getId()),null)){
+            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.INSTANCES_USER.getFullPath(Long.toString(request.getWorkflow().getUserId()),request.getWorkflow().getId()),null);
+        }
+        //Create structure to /bionimbuz/users/userid/workflows_user/workflow_id/instances/instances_id
+        for(Instance i : request.getWorkflow().getIntancesWorkflow()){
+            if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_INSTANCE_USER.getFullPath(Long.toString(request.getWorkflow().getUserId()),request.getWorkflow().getId(),i.getIp()),null))
+                cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_INSTANCE_USER.getFullPath(Long.toString(request.getWorkflow().getUserId()),request.getWorkflow().getId(),i.getIp()),i.toString());
+        }
 
         try {
             // Starts it

@@ -78,16 +78,22 @@ public class CuratorMessageService implements CloudMessageService {
      * Internal Enum that handles Paths for BioNimbuZ proccessing ZNodes
      */
     public enum Path {
+        BUCKETS("/buckets"),
+        BUCKET_FILES("/files"),
         COUNT("/count"),
         END("/end"),
         FILES("/files"),
         FINISHED_TASKS("/finished_tasks"),
+        INSTANCES_USER("/instances_user"),
         LATENCY("/latency"),
         LOGGED_USERS("/logged"),
         MODES("/modes"),
+        NODE_BUCKET("/"),
+        NODE_BUCKET_FILE("/"),
         NODE_COST("/"),
         NODE_FILE("/"),
         NODE_FINISHED_TASK("/"),
+        NODE_INSTANCE_USER("/"),
         NODE_LOGGED_USERS("/"),
         NODE_MODES("/"),
         NODE_PEER("/"),
@@ -96,6 +102,7 @@ public class CuratorMessageService implements CloudMessageService {
         NODE_SERVICE("/"),
         NODE_USERS("/"),
         NODE_TASK("/"),
+        NODE_WORFLOW_USER("/"),
         PEERS("/peers"),
         PENDING_SAVE("/pending_save"),
         PIPELINES("/pipelines"),
@@ -109,10 +116,8 @@ public class CuratorMessageService implements CloudMessageService {
         STATUSWAITING("/STATUSWAITING"),
         TASKS("/tasks"),
         USERS("/users"),
-        BUCKETS("/buckets"),
-        NODE_BUCKET("/"),
-        BUCKET_FILES("/files"),
-        NODE_BUCKET_FILE("/");
+        WORKFLOWS_USER("/workflows_user");
+        
 
         public static String NODE_BUCKET_FILE(String bionimbuzgus, String mclovinpng) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -156,6 +161,16 @@ public class CuratorMessageService implements CloudMessageService {
                     return "" + ROOT + FINISHED_TASKS + NODE_FINISHED_TASK + args[1];
                 case NODE_PEER:
                     return "" + ROOT + PEERS + NODE_PEER + args[0];
+                case NODE_USERS:
+                    return "" + ROOT + USERS + NODE_USERS + args[0];
+                case WORKFLOWS_USER:
+                    return "" + ROOT + USERS + NODE_USERS + args[0] + WORKFLOWS_USER;
+                case NODE_WORFLOW_USER :
+                     return "" + ROOT + USERS + NODE_USERS + args[0] + INSTANCES_USER + NODE_WORFLOW_USER +args[1];
+                case INSTANCES_USER:
+                    return "" + ROOT + USERS + NODE_USERS + args[0] + NODE_WORFLOW_USER + args[1] + INSTANCES_USER;
+                case NODE_INSTANCE_USER :
+                     return "" + ROOT + USERS + NODE_USERS + args[0] + NODE_WORFLOW_USER + args[1] + INSTANCES_USER + args[2];    
                 case STATUS:
                     return "" + ROOT + PEERS + NODE_PEER + args[0] + STATUS;
                 case STATUSWAITING:
