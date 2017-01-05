@@ -57,8 +57,8 @@ public class CloudMethodsAmazonGoogle extends CloudStorageMethods{
             }
             case GOOGLE: {
                 
-                String command = gcloudFolder + "gcloud auth activate-service-account --key-file=" + authFolder + "cred.json";
-                ExecCommand(command);
+//                String command = gcloudFolder + "gcloud auth activate-service-account --key-file=" + authFolder + "cred.json";
+//                ExecCommand(command);
 
                 break;
             }
@@ -136,7 +136,7 @@ public class CloudMethodsAmazonGoogle extends CloudStorageMethods{
             
             case AMAZON: {
                 
-                command = "/usr/bin/s3fs -o umask=022 " + bucket.getName() + " " + bucket.getMountPoint() + " -o passwd_file=" + authFolder + "accesskey.txt";
+                command = "/usr/local/bin/s3fs -o umask=022 " + bucket.getName() + " " + bucket.getMountPoint() + " -o passwd_file=" + authFolder + "accesskey.txt";
                 ExecCommand(command);
 
                 break;

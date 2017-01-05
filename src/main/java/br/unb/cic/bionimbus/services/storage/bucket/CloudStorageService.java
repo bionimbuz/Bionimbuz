@@ -171,41 +171,41 @@ public class CloudStorageService extends AbstractBioService{
             //cms.setData(Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
             cms.createZNode(CreateMode.PERSISTENT, Path.BUCKET_FILES.getFullPath(aux.getName()), null);
         }
-        //US
-        aux = new BioBucket(StorageProvider.AMAZON, "bionimbuz-a-us", (bucketsFolder + "bionimbuz-a-us"));
-        bucketList.add(aux);
-        if (!cms.getZNodeExist(Path.NODE_BUCKET.getFullPath(aux.getName()), null)) {
-            cms.createZNode(CreateMode.PERSISTENT, Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
-            //cms.setData(Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
-            cms.createZNode(CreateMode.PERSISTENT, Path.BUCKET_FILES.getFullPath(aux.getName()), null);
-        }
-        //EU
-        aux = new BioBucket(StorageProvider.AMAZON, "bionimbuz-a-eu", (bucketsFolder + "bionimbuz-a-eu"));
-        aux.setEndPoint("s3.eu-central-1.amazonaws.com");
-        bucketList.add(aux);
-        if (!cms.getZNodeExist(Path.NODE_BUCKET.getFullPath(aux.getName()), null)) {
-            cms.createZNode(CreateMode.PERSISTENT, Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
-            //cms.setData(Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
-            cms.createZNode(CreateMode.PERSISTENT, Path.BUCKET_FILES.getFullPath(aux.getName()), null);
-        }
+//        //US
+//        aux = new BioBucket(StorageProvider.AMAZON, "bionimbuz-a-us", (bucketsFolder + "bionimbuz-a-us"));
+//        bucketList.add(aux);
+//        if (!cms.getZNodeExist(Path.NODE_BUCKET.getFullPath(aux.getName()), null)) {
+//            cms.createZNode(CreateMode.PERSISTENT, Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
+//            //cms.setData(Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
+//            cms.createZNode(CreateMode.PERSISTENT, Path.BUCKET_FILES.getFullPath(aux.getName()), null);
+//        }
+//        //EU
+//        aux = new BioBucket(StorageProvider.AMAZON, "bionimbuz-a-eu", (bucketsFolder + "bionimbuz-a-eu"));
+//        aux.setEndPoint("s3.eu-central-1.amazonaws.com");
+//        bucketList.add(aux);
+//        if (!cms.getZNodeExist(Path.NODE_BUCKET.getFullPath(aux.getName()), null)) {
+//            cms.createZNode(CreateMode.PERSISTENT, Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
+//            //cms.setData(Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
+//            cms.createZNode(CreateMode.PERSISTENT, Path.BUCKET_FILES.getFullPath(aux.getName()), null);
+//        }
         
         //GOOGLE
         //US
-        aux = new BioBucket(StorageProvider.GOOGLE, "bionimbuz-g-us", (bucketsFolder + "bionimbuz-g-us"));
-        bucketList.add(aux);
-        if (!cms.getZNodeExist(Path.NODE_BUCKET.getFullPath(aux.getName()), null)) {
-            cms.createZNode(CreateMode.PERSISTENT, Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
-            //cms.setData(Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
-            cms.createZNode(CreateMode.PERSISTENT, Path.BUCKET_FILES.getFullPath(aux.getName()), null);
-        }
-        //EU
-        aux = new BioBucket(StorageProvider.GOOGLE, "bionimbuz-g-eu", (bucketsFolder + "bionimbuz-g-eu"));
-        bucketList.add(aux);
-        if (!cms.getZNodeExist(Path.NODE_BUCKET.getFullPath(aux.getName()), null)) {
-            cms.createZNode(CreateMode.PERSISTENT, Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
-            //cms.setData(Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
-            cms.createZNode(CreateMode.PERSISTENT, Path.BUCKET_FILES.getFullPath(aux.getName()), null);
-        }
+//        aux = new BioBucket(StorageProvider.GOOGLE, "bionimbuz-g-us", (bucketsFolder + "bionimbuz-g-us"));
+//        bucketList.add(aux);
+//        if (!cms.getZNodeExist(Path.NODE_BUCKET.getFullPath(aux.getName()), null)) {
+//            cms.createZNode(CreateMode.PERSISTENT, Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
+//            //cms.setData(Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
+//            cms.createZNode(CreateMode.PERSISTENT, Path.BUCKET_FILES.getFullPath(aux.getName()), null);
+//        }
+//        //EU
+//        aux = new BioBucket(StorageProvider.GOOGLE, "bionimbuz-g-eu", (bucketsFolder + "bionimbuz-g-eu"));
+//        bucketList.add(aux);
+//        if (!cms.getZNodeExist(Path.NODE_BUCKET.getFullPath(aux.getName()), null)) {
+//            cms.createZNode(CreateMode.PERSISTENT, Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
+//            //cms.setData(Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
+//            cms.createZNode(CreateMode.PERSISTENT, Path.BUCKET_FILES.getFullPath(aux.getName()), null);
+//        }
     }   
     
     public static BioBucket getBucket (String name) {

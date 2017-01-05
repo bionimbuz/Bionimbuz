@@ -10,7 +10,8 @@ import org.jboss.resteasy.core.ServerResponse;
 public class UploadResponse extends ServerResponse implements ResponseInfo {
 
     private boolean uploaded;
-
+    private String bucketName;
+    
     public UploadResponse() {
     }
 
@@ -26,4 +27,11 @@ public class UploadResponse extends ServerResponse implements ResponseInfo {
         this.uploaded = uploaded;
     }
 
+    public String getBucketName() {
+        return bucketName;
+    }
+
+    public void setBucketName(String bucketName) {
+        this.bucketName = bucketName;
+    }
 }
