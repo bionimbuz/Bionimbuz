@@ -8,6 +8,6 @@ package br.unb.cic.bionimbuz.avro.gen;
 @org.apache.avro.specific.AvroGenerated
 public enum NodeState { 
   STARTING, ACTIVE, CLOSING, IDLE, ERROR, DECOMMISSIONED  ;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"enum\",\"name\":\"NodeState\",\"namespace\":\"br.unb.cic.bionimbus.avro.gen\",\"symbols\":[\"STARTING\",\"ACTIVE\",\"CLOSING\",\"IDLE\",\"ERROR\",\"DECOMMISSIONED\"]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"enum\",\"name\":\"NodeState\",\"namespace\":\"br.unb.cic.bionimbuz.avro.gen\",\"symbols\":[\"STARTING\",\"ACTIVE\",\"CLOSING\",\"IDLE\",\"ERROR\",\"DECOMMISSIONED\"]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 }

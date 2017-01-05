@@ -7,7 +7,7 @@
     
     <context-param>
         <param-name>resteasy.providers</param-name>
-        <param-value>br.unb.cic.bionimbus.rest.security.SecurityInterceptor</param-value>
+        <param-value>br.unb.cic.bionimbuz.rest.security.SecurityInterceptor</param-value>
     </context-param>
 
     <!--    <context-param>
@@ -17,7 +17,7 @@
 
     <context-param>
         <param-name>javax.ws.rs.core.Application</param-name>
-        <param-value>br.unb.cic.bionimbus.rest.application.RestApplication</param-value>
+        <param-value>br.unb.cic.bionimbuz.rest.application.RestApplication</param-value>
     </context-param>
 
     <!-- set this if you map the Resteasy servlet to something other than /*
