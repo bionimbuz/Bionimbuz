@@ -84,8 +84,6 @@ Após instalar criar o banco de dados chamado bionimbuz_db
 Acesse o Banco de dados e execute o seguinte comando, para permitir acesso de forma remota:
 GRANT ALL PRIVILEGES ON bionimbuz_db.* TO 'user'@'%' IDENTIFIED BY 'password';
 
-----------------------------------------------------------------------------------------------------------------------
-
 Execute o commando nano /etc/mysql/my.cnf
 Comente bind-address = 127.0.0.1 using the # symbol
 
