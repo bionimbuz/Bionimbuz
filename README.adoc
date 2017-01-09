@@ -78,10 +78,27 @@ sudo apt-get install unzip
 Banco de Dados MySQL para persistir dados da aplicação web
 ----------------------------------------------------------------------------------------------------------------------
 apt-get install mysql-server-5.6
+
+Após instalar criar o banco de dados chamado bionimbuz_db
+
+Acesse o Banco de dados e execute o seguinte comando, para permitir acesso de forma remota:
+GRANT ALL PRIVILEGES ON bionimbuz_db.* TO 'user'@'%' IDENTIFIED BY 'password';
+
+----------------------------------------------------------------------------------------------------------------------
+
+Execute o commando nano /etc/mysql/my.cnf
+Comente bind-address = 127.0.0.1 using the # symbol
+
+Se não achar o bind-address no arquivo my.cnf file, olhe em /etc/mysql/mysql.conf.d/mysqld.cnf
+
+Reinicie a máquina ou execute o comando:
+sudo service mysql restart.
 ----------------------------------------------------------------------------------------------------------------------
 #### 12. Configurar o persistence.xml
 ----------------------------------------------------------------------------------------------------------------------
 Abra o arquivo persistence.xml e altere o usuário e senha, arquivo localizado em /src/main/resources/META-INF/persistence.xml
+
+<property name="javax.persistence.jdbc.url" value="jdbc:mysql://ipdamaquinacommysql:3306/bionimbuz_db" />
 ----------------------------------------------------------------------------------------------------------------------
 #### 13. Configurar o arquivo de credencial localizado em /home/bionimbuz/.bionimbuz/credentials.yaml
 ----------------------------------------------------------------------------------------------------------------------
