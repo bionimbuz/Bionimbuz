@@ -29,7 +29,8 @@ public abstract class CloudStorageMethods {
         GOOGLE
     }
 
-    protected static String authFolder;
+    protected static String keyGoogle;
+    protected static String keyAmazon;
     protected static String gcloudFolder;
     protected static AmazonS3 s3client;
     
@@ -60,8 +61,11 @@ public abstract class CloudStorageMethods {
         }
     }
 
-    public static void setAuthFolder(String authFolder) {
-        CloudStorageMethods.authFolder = authFolder;
+    public static void setKeyGoogle(String keyGoogle) {
+        CloudStorageMethods.keyGoogle = keyGoogle;
+    }
+    public static void setKeyAmazon(String keyAmazon) {
+        CloudStorageMethods.keyAmazon = keyAmazon;
     }
 
     public static void setGcloudFolder(String gcloudFolder) {

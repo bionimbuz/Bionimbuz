@@ -8,7 +8,7 @@
 #
 # In order to enable or disable this script just change the execution
 # bits.
-#
+# /etc/rc.local <---------------- This FILE
 # By default this script does nothing.
 ./etc/init.d/scriptgetip.sh
 exit 0

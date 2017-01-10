@@ -19,6 +19,7 @@ import br.unb.cic.bionimbuz.avro.rpc.RpcClient;
 import br.unb.cic.bionimbuz.config.BioNimbusConfig;
 import br.unb.cic.bionimbuz.controller.Controller;
 import br.unb.cic.bionimbuz.model.FileInfo;
+import br.unb.cic.bionimbuz.model.Instance;
 import br.unb.cic.bionimbuz.model.Job;
 import br.unb.cic.bionimbuz.model.Log;
 import br.unb.cic.bionimbuz.model.LogSeverity;
@@ -124,9 +125,38 @@ public class JobController implements Controller, Runnable {
     public void startWorkflow(Workflow workflow) throws Exception {
         // Logs
         loggerDao.log(new Log("Iniciando a execução do Workflow", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
+        LOGGER.info("Iniciando a execução do Workflow", workflow.getUserId(), workflow.getId());
         
         List<br.unb.cic.bionimbuz.avro.gen.Job> listjob = new ArrayList<>();
-
+        List<br.unb.cic.bionimbuz.avro.gen.Instance> listIntanceMachine = new ArrayList<>();
+        for (Instance i : workflow.getIntancesWorkflow()) {
+            br.unb.cic.bionimbuz.avro.gen.Instance ins = new br.unb.cic.bionimbuz.avro.gen.Instance();
+            ins.setId(i.getId());
+            ins.setType(i.getType());
+            ins.setCostPerHour(i.getCostPerHour());
+            ins.setLocality(i.getLocality());
+            ins.setMemoryTotal(i.getMemoryTotal());
+            ins.setCpuHtz(i.getCpuHtz());
+            ins.setCpuType(i.getCpuType());
+            ins.setNumCores(i.getNumCores());
+            ins.setDescription(i.getDescription());
+            ins.setProvider(i.getProvider());
+            ins.setIdProgramas(i.getidProgramas());
+            ins.setCreationTimer(i.getCreationTimer());
+            ins.setDelay(i.getDelay());
+            ins.setTimetocreate(i.getTimetocreate());
+            ins.setIdUser(i.getIdUser());
+            ins.setIp(i.getIp());
+            listIntanceMachine.add(ins);
+        }
+        br.unb.cic.bionimbuz.avro.gen.User userAvro= new br.unb.cic.bionimbuz.avro.gen.User();
+        userAvro.setId(workflow.getUserWorkflow().getId());
+        userAvro.setLogin(workflow.getUserWorkflow().getLogin());
+        userAvro.setNome(workflow.getUserWorkflow().getNome());
+        userAvro.setCpf(workflow.getUserWorkflow().getCpf());
+        userAvro.setEmail(workflow.getUserWorkflow().getEmail());
+        userAvro.setCelphone(workflow.getUserWorkflow().getCelphone());
+        userAvro.setInstances(listIntanceMachine);
         // Iterates over the list of jobs
         for (Job jobInfo : workflow.getJobs()) {
 
@@ -142,6 +172,7 @@ public class JobController implements Controller, Runnable {
             job.setOutputs(jobInfo.getOutputs());
             job.setDependencies(jobInfo.getDependencies());
             job.setReferenceFile(jobInfo.getReferenceFile());
+            job.setIpjob(jobInfo.getIpjob());
 
             // Avro File Info
             ArrayList<br.unb.cic.bionimbuz.avro.gen.FileInfo> avroFiles = new ArrayList<>();
@@ -172,6 +203,8 @@ public class JobController implements Controller, Runnable {
         avroWorkflow.setJobs(listjob);
         avroWorkflow.setCreationDatestamp(workflow.getCreationDatestamp());
         avroWorkflow.setDescription(workflow.getDescription());
+        avroWorkflow.setIntancesWorkflow(listIntanceMachine);
+        avroWorkflow.setUserWorkflow(userAvro);
 
         // Logs
         loggerDao.log(new Log("Enviando Workflow para o serviço de Escalonamento do BioNimbuZ", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));

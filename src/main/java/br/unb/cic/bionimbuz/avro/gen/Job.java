@@ -7,7 +7,7 @@ package br.unb.cic.bionimbuz.avro.gen;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class Job extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Job\",\"namespace\":\"br.unb.cic.bionimbuz.avro.gen\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"localId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"serviceId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"args\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"inputFiles\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"FileInfo\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"name\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"size\",\"type\":\"long\"},{\"name\":\"userId\",\"type\":\"long\"},{\"name\":\"uploadTimestamp\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"hash\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}},{\"name\":\"outputs\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"timestamp\",\"type\":\"long\"},{\"name\":\"dependencies\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"referenceFile\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Job\",\"namespace\":\"br.unb.cic.bionimbuz.avro.gen\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"localId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"serviceId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"args\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"inputFiles\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"FileInfo\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"name\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"size\",\"type\":\"long\"},{\"name\":\"userId\",\"type\":\"long\"},{\"name\":\"uploadTimestamp\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"hash\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}},{\"name\":\"outputs\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"timestamp\",\"type\":\"long\"},{\"name\":\"dependencies\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"referenceFile\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"ipjob\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public java.lang.String id;
   @Deprecated public java.lang.String localId;
@@ -18,6 +18,7 @@ public class Job extends org.apache.avro.specific.SpecificRecordBase implements 
   @Deprecated public long timestamp;
   @Deprecated public java.util.List<java.lang.String> dependencies;
   @Deprecated public java.lang.String referenceFile;
+  @Deprecated public java.util.List<java.lang.String> ipjob;
 
   /**
    * Default constructor.
@@ -27,7 +28,7 @@ public class Job extends org.apache.avro.specific.SpecificRecordBase implements 
   /**
    * All-args constructor.
    */
-  public Job(java.lang.String id, java.lang.String localId, java.lang.String serviceId, java.lang.String args, java.util.List<br.unb.cic.bionimbuz.avro.gen.FileInfo> inputFiles, java.util.List<java.lang.String> outputs, java.lang.Long timestamp, java.util.List<java.lang.String> dependencies, java.lang.String referenceFile) {
+  public Job(java.lang.String id, java.lang.String localId, java.lang.String serviceId, java.lang.String args, java.util.List<br.unb.cic.bionimbuz.avro.gen.FileInfo> inputFiles, java.util.List<java.lang.String> outputs, java.lang.Long timestamp, java.util.List<java.lang.String> dependencies, java.lang.String referenceFile, java.util.List<java.lang.String> ipjob) {
     this.id = id;
     this.localId = localId;
     this.serviceId = serviceId;
@@ -37,6 +38,7 @@ public class Job extends org.apache.avro.specific.SpecificRecordBase implements 
     this.timestamp = timestamp;
     this.dependencies = dependencies;
     this.referenceFile = referenceFile;
+    this.ipjob = ipjob;
   }
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
@@ -52,6 +54,7 @@ public class Job extends org.apache.avro.specific.SpecificRecordBase implements 
     case 6: return timestamp;
     case 7: return dependencies;
     case 8: return referenceFile;
+    case 9: return ipjob;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -68,6 +71,7 @@ public class Job extends org.apache.avro.specific.SpecificRecordBase implements 
     case 6: timestamp = (java.lang.Long)value$; break;
     case 7: dependencies = (java.util.List<java.lang.String>)value$; break;
     case 8: referenceFile = (java.lang.String)value$; break;
+    case 9: ipjob = (java.util.List<java.lang.String>)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -207,6 +211,21 @@ public class Job extends org.apache.avro.specific.SpecificRecordBase implements 
     this.referenceFile = value;
   }
 
+  /**
+   * Gets the value of the 'ipjob' field.
+   */
+  public java.util.List<java.lang.String> getIpjob() {
+    return ipjob;
+  }
+
+  /**
+   * Sets the value of the 'ipjob' field.
+   * @param value the value to set.
+   */
+  public void setIpjob(java.util.List<java.lang.String> value) {
+    this.ipjob = value;
+  }
+
   /** Creates a new Job RecordBuilder */
   public static br.unb.cic.bionimbuz.avro.gen.Job.Builder newBuilder() {
     return new br.unb.cic.bionimbuz.avro.gen.Job.Builder();
@@ -237,6 +256,7 @@ public class Job extends org.apache.avro.specific.SpecificRecordBase implements 
     private long timestamp;
     private java.util.List<java.lang.String> dependencies;
     private java.lang.String referenceFile;
+    private java.util.List<java.lang.String> ipjob;
 
     /** Creates a new Builder */
     private Builder() {
@@ -286,6 +306,10 @@ public class Job extends org.apache.avro.specific.SpecificRecordBase implements 
       if (isValidValue(fields()[8], other.referenceFile)) {
         this.referenceFile = data().deepCopy(fields()[8].schema(), other.referenceFile);
         fieldSetFlags()[8] = true;
+      }
+      if (isValidValue(fields()[9], other.ipjob)) {
+        this.ipjob = data().deepCopy(fields()[9].schema(), other.ipjob);
+        fieldSetFlags()[9] = true;
       }
     }
 
@@ -513,6 +537,31 @@ public class Job extends org.apache.avro.specific.SpecificRecordBase implements 
       return this;
     }
 
+    /** Gets the value of the 'ipjob' field */
+    public java.util.List<java.lang.String> getIpjob() {
+      return ipjob;
+    }
+    
+    /** Sets the value of the 'ipjob' field */
+    public br.unb.cic.bionimbuz.avro.gen.Job.Builder setIpjob(java.util.List<java.lang.String> value) {
+      validate(fields()[9], value);
+      this.ipjob = value;
+      fieldSetFlags()[9] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'ipjob' field has been set */
+    public boolean hasIpjob() {
+      return fieldSetFlags()[9];
+    }
+    
+    /** Clears the value of the 'ipjob' field */
+    public br.unb.cic.bionimbuz.avro.gen.Job.Builder clearIpjob() {
+      ipjob = null;
+      fieldSetFlags()[9] = false;
+      return this;
+    }
+
     @Override
     public Job build() {
       try {
@@ -526,6 +575,7 @@ public class Job extends org.apache.avro.specific.SpecificRecordBase implements 
         record.timestamp = fieldSetFlags()[6] ? this.timestamp : (java.lang.Long) defaultValue(fields()[6]);
         record.dependencies = fieldSetFlags()[7] ? this.dependencies : (java.util.List<java.lang.String>) defaultValue(fields()[7]);
         record.referenceFile = fieldSetFlags()[8] ? this.referenceFile : (java.lang.String) defaultValue(fields()[8]);
+        record.ipjob = fieldSetFlags()[9] ? this.ipjob : (java.util.List<java.lang.String>) defaultValue(fields()[9]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

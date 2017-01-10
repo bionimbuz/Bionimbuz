@@ -107,8 +107,11 @@ public class BioNimbusConfig {
     @JsonProperty("buckets-folder")
     private String bucketsFolder;
     
-    @JsonProperty("buckets-auth-folder")
-    private String bucketsAuthFolder;
+    @JsonProperty("key-google")
+    private String keyGoogle;
+    
+    @JsonProperty("key-amazon")
+    private String keyAmazon;
     
     @JsonProperty("gcloud-folder")
     private String gcloudFolder;
@@ -328,16 +331,8 @@ public class BioNimbusConfig {
         this.bucketsFolder = bucketsFolder;
     }
 
-    public String getBucketsAuthFolder() {
-        return getServerPath()+bucketsAuthFolder;
-    }
-
-    public void setBucketsAuthFolder(String bucketsAuthFolder) {
-        this.bucketsAuthFolder = bucketsAuthFolder;
-    }
-
     public String getGcloudFolder() {
-        return getServerPath()+gcloudFolder;
+        return gcloudFolder;
     }
 
     public void setGcloudFolder(String gcloudFolder) {
@@ -352,6 +347,21 @@ public class BioNimbusConfig {
         this.storageMode = storageMode;
     }
     
+    public String getKeyGoogle() {
+        return getServerPath()+keyGoogle;
+    }
+
+    public void setKeyGoogle(String keyGoogle) {
+        this.keyGoogle = keyGoogle;
+    }
+
+    public String getKeyAmazon() {
+        return getServerPath()+keyAmazon;
+    }
+
+    public void setKeyAmazon(String keyAmazon) {
+        this.keyAmazon = keyAmazon;
+    }
     @Override
     public String toString() {
         return Objects.toStringHelper(this)

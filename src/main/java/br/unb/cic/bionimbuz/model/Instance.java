@@ -4,11 +4,17 @@
  * and open the template in the editor.
  */
 package br.unb.cic.bionimbuz.model;
+
+import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
 
 /**
  * Class that defines the Instance
+ *
  * @author brenokx
  */
 public class Instance {
@@ -25,11 +31,11 @@ public class Instance {
     private String description;
     private String cpuArch;
     private String provider;
-    private List <String> idProgramas;
-    public DateTime creationTimer;
+    private List<String> idProgramas;
+    public Long creationTimer;
     public int delay;
-    public DateTime timetocreate;
-    public String isnow; 
+    public Long timetocreate;
+    public String isnow;
     private Long idUser;
     private String ip;
 
@@ -85,8 +91,8 @@ public class Instance {
         this.provider = provider;
         setDescription();
     }
-     
-     public Instance(String id, String type, Double costPerHour, Double memoria, int numCores, String provider, List<String> idProgramas, DateTime creationTimer, int delay, DateTime timetocreate, String isnow) {
+
+    public Instance(String id, String type, Double costPerHour, Double memoria, int numCores, String provider, List<String> idProgramas, Long creationTimer, int delay, Long timetocreate) {
         this.id = id;
         this.type = type;
         this.costPerHour = costPerHour;
@@ -97,8 +103,7 @@ public class Instance {
         this.creationTimer = creationTimer;
         this.delay = delay;
         this.timetocreate = timetocreate;
-        this.isnow = isnow;
-        setDescription();
+        this.setDescription();
     }
 
     public String getType() {
@@ -136,12 +141,12 @@ public class Instance {
     @Override
     public String toString() {
 
-        return "Type: " + this.getType() + ", "
-                + "CPU: " + this.getNumCores() + " " + this.getCpuHtz() + " Ghz, "
-                + "Ram:" + this.getMemoryTotal() + " GB, "
-                + "Custo por hora : $" + this.getCostPerHour() + ", "
-                + "Localidade: " + this.getLocality();
-
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (IOException ex) {
+            Logger.getLogger(Workflow.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 
     public String getDescription() {
@@ -153,7 +158,7 @@ public class Instance {
     }
 
     public void setDescription() {
-        this.setDescription(toString());
+        this.setDescription(this.toString());
     }
 
     public String getId() {
@@ -216,19 +221,19 @@ public class Instance {
         this.description = description;
     }
 
-    public List <String> getidProgramas() {
+    public List<String> getidProgramas() {
         return idProgramas;
     }
 
-    public void setidProgramas(List <String> idProgramas) {
+    public void setidProgramas(List<String> idProgramas) {
         this.idProgramas = idProgramas;
     }
-    
-     public DateTime getCreationTimer() {
+
+    public Long getCreationTimer() {
         return creationTimer;
     }
 
-    public void setCreationTimer(DateTime creationTimer) {
+    public void setCreationTimer(Long creationTimer) {
         this.creationTimer = creationTimer;
     }
 
@@ -240,11 +245,11 @@ public class Instance {
         this.delay = delay;
     }
 
-    public DateTime getTimetocreate() {
+    public Long getTimetocreate() {
         return timetocreate;
     }
 
-    public void setTimetocreate(DateTime timetocreate) {
+    public void setTimetocreate(Long timetocreate) {
         this.timetocreate = timetocreate;
     }
 
@@ -255,7 +260,7 @@ public class Instance {
     public void setIsnow(String isnow) {
         this.isnow = isnow;
     }
-      
+
     public Long getIdUser() {
         return idUser;
     }

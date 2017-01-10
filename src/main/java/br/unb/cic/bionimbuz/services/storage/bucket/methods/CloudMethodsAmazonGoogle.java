@@ -28,6 +28,8 @@ import com.google.inject.Singleton;
 
 import br.unb.cic.bionimbuz.services.storage.bucket.BioBucket;
 import br.unb.cic.bionimbuz.services.storage.bucket.CloudStorageMethods;
+import com.amazonaws.auth.PropertiesCredentials;
+import java.io.FileInputStream;
 /**
  *
  * @author Lucas
@@ -42,23 +44,25 @@ public class CloudMethodsAmazonGoogle extends CloudStorageMethods{
         switch (sp) {
             
             case AMAZON: {
-                
-                byte[] encoded = Files.readAllBytes(Paths.get(authFolder + "accesskey.txt"));
-                String fileContent = new String(encoded, Charset.defaultCharset());
-                //System.out.println("AuthString: " + fileContent);
-                String accessKeyID, accessKey;
-                int delimiter = fileContent.indexOf(':');
-                accessKeyID = fileContent.substring(0, delimiter);
-                accessKey = fileContent.substring(delimiter + 1);
-                AWSCredentials credentials = new BasicAWSCredentials(accessKeyID, accessKey);
+                InputStream is = null;
+                is = new FileInputStream(keyAmazon);
+                PropertiesCredentials credentials = new PropertiesCredentials(is);
+//                byte[] encoded = Files.readAllBytes(Paths.get(keyAmazon));
+//                String fileContent = new String(encoded, Charset.defaultCharset());
+//                System.out.println("AuthString: " + fileContent);
+//                String accessKeyID, accessKey;
+//                int delimiter = fileContent.indexOf(':');
+//                accessKeyID = fileContent.substring(0, delimiter);
+//                accessKey = fileContent.substring(delimiter + 1);
+//                AWSCredentials credentials = new BasicAWSCredentials(accessKeyID, accessKey);
                 s3client = new AmazonS3Client(credentials);
                 
                 break;
             }
             case GOOGLE: {
                 
-//                String command = gcloudFolder + "gcloud auth activate-service-account --key-file=" + authFolder + "cred.json";
-//                ExecCommand(command);
+                String command = gcloudFolder + "gcloud auth activate-service-account --key-file=" + keyGoogle;
+                ExecCommand(command);
 
                 break;
             }
@@ -135,16 +139,16 @@ public class CloudMethodsAmazonGoogle extends CloudStorageMethods{
         switch (bucket.getProvider()) {
             
             case AMAZON: {
-                
-                command = "/usr/local/bin/s3fs -o umask=022 " + bucket.getName() + " " + bucket.getMountPoint() + " -o passwd_file=" + authFolder + "accesskey.txt";
+                                
+                command = "/usr/local/bin/s3fs -o umask=022 " + bucket.getName() + " " + bucket.getMountPoint() + " -o passwd_file=" + keyAmazon;
                 ExecCommand(command);
 
                 break;
             }
             case GOOGLE: {
 
-                command = "/usr/bin/gcsfuse --key-file=" + authFolder + "cred.json " + bucket.getName() + " " + bucket.getMountPoint();
-                //command = "/usr/bin/gcsfuse " + bucket.getName() + " " + bucket.getMountPoint();
+                command = "/usr/bin/gcsfuse --key-file=" + keyGoogle + " "  + bucket.getName() + " " + bucket.getMountPoint();
+//                command = "/usr/bin/gcsfuse " + bucket.getName() + " " + bucket.getMountPoint();
                 ExecCommand(command);
 
                 break;

@@ -7,10 +7,12 @@ package br.unb.cic.bionimbuz.avro.gen;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class Workflow extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Workflow\",\"namespace\":\"br.unb.cic.bionimbuz.avro.gen\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"jobs\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Job\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"localId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"serviceId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"args\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"inputFiles\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"FileInfo\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"name\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"size\",\"type\":\"long\"},{\"name\":\"userId\",\"type\":\"long\"},{\"name\":\"uploadTimestamp\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"hash\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}},{\"name\":\"outputs\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"timestamp\",\"type\":\"long\"},{\"name\":\"dependencies\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"referenceFile\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}},{\"name\":\"creationDatestamp\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"userId\",\"type\":\"long\"},{\"name\":\"description\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"status\",\"type\":[{\"type\":\"enum\",\"name\":\"WorkflowStatus\",\"symbols\":[\"PENDING\",\"EXECUTING\",\"FINALIZED_WITH_SUCCESS\",\"FINALIZED_WITH_WARNINGS\",\"FINALIZED_WITH_ERRORS\",\"PAUSED\",\"STOPPED_WITH_ERROR\"]},\"null\"]}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Workflow\",\"namespace\":\"br.unb.cic.bionimbuz.avro.gen\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"jobs\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Job\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"localId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"serviceId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"args\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"inputFiles\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"FileInfo\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"name\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"size\",\"type\":\"long\"},{\"name\":\"userId\",\"type\":\"long\"},{\"name\":\"uploadTimestamp\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"hash\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}},{\"name\":\"outputs\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"timestamp\",\"type\":\"long\"},{\"name\":\"dependencies\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"referenceFile\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"ipjob\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}}]}}},{\"name\":\"intancesWorkflow\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Instance\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"type\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"costPerHour\",\"type\":\"double\"},{\"name\":\"locality\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"memoryTotal\",\"type\":\"double\"},{\"name\":\"cpuHtz\",\"type\":\"double\"},{\"name\":\"cpuType\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"numCores\",\"type\":\"int\"},{\"name\":\"description\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"provider\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"idProgramas\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"creationTimer\",\"type\":\"long\"},{\"name\":\"delay\",\"type\":\"int\"},{\"name\":\"timetocreate\",\"type\":\"long\"},{\"name\":\"idUser\",\"type\":\"long\"},{\"name\":\"ip\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}},{\"name\":\"userWorkflow\",\"type\":{\"type\":\"record\",\"name\":\"User\",\"fields\":[{\"name\":\"id\",\"type\":\"long\"},{\"name\":\"login\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"nome\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"cpf\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"email\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"celphone\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"instances\",\"type\":{\"type\":\"array\",\"items\":\"Instance\"}}]}},{\"name\":\"creationDatestamp\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"userId\",\"type\":\"long\"},{\"name\":\"description\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"status\",\"type\":[{\"type\":\"enum\",\"name\":\"WorkflowStatus\",\"symbols\":[\"PENDING\",\"EXECUTING\",\"FINALIZED_WITH_SUCCESS\",\"FINALIZED_WITH_WARNINGS\",\"FINALIZED_WITH_ERRORS\",\"PAUSED\",\"STOPPED_WITH_ERROR\"]},\"null\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public java.lang.String id;
   @Deprecated public java.util.List<br.unb.cic.bionimbuz.avro.gen.Job> jobs;
+  @Deprecated public java.util.List<br.unb.cic.bionimbuz.avro.gen.Instance> intancesWorkflow;
+  @Deprecated public br.unb.cic.bionimbuz.avro.gen.User userWorkflow;
   @Deprecated public java.lang.String creationDatestamp;
   @Deprecated public long userId;
   @Deprecated public java.lang.String description;
@@ -24,9 +26,11 @@ public class Workflow extends org.apache.avro.specific.SpecificRecordBase implem
   /**
    * All-args constructor.
    */
-  public Workflow(java.lang.String id, java.util.List<br.unb.cic.bionimbuz.avro.gen.Job> jobs, java.lang.String creationDatestamp, java.lang.Long userId, java.lang.String description, br.unb.cic.bionimbuz.avro.gen.WorkflowStatus status) {
+  public Workflow(java.lang.String id, java.util.List<br.unb.cic.bionimbuz.avro.gen.Job> jobs, java.util.List<br.unb.cic.bionimbuz.avro.gen.Instance> intancesWorkflow, br.unb.cic.bionimbuz.avro.gen.User userWorkflow, java.lang.String creationDatestamp, java.lang.Long userId, java.lang.String description, br.unb.cic.bionimbuz.avro.gen.WorkflowStatus status) {
     this.id = id;
     this.jobs = jobs;
+    this.intancesWorkflow = intancesWorkflow;
+    this.userWorkflow = userWorkflow;
     this.creationDatestamp = creationDatestamp;
     this.userId = userId;
     this.description = description;
@@ -39,10 +43,12 @@ public class Workflow extends org.apache.avro.specific.SpecificRecordBase implem
     switch (field$) {
     case 0: return id;
     case 1: return jobs;
-    case 2: return creationDatestamp;
-    case 3: return userId;
-    case 4: return description;
-    case 5: return status;
+    case 2: return intancesWorkflow;
+    case 3: return userWorkflow;
+    case 4: return creationDatestamp;
+    case 5: return userId;
+    case 6: return description;
+    case 7: return status;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -52,10 +58,12 @@ public class Workflow extends org.apache.avro.specific.SpecificRecordBase implem
     switch (field$) {
     case 0: id = (java.lang.String)value$; break;
     case 1: jobs = (java.util.List<br.unb.cic.bionimbuz.avro.gen.Job>)value$; break;
-    case 2: creationDatestamp = (java.lang.String)value$; break;
-    case 3: userId = (java.lang.Long)value$; break;
-    case 4: description = (java.lang.String)value$; break;
-    case 5: status = (br.unb.cic.bionimbuz.avro.gen.WorkflowStatus)value$; break;
+    case 2: intancesWorkflow = (java.util.List<br.unb.cic.bionimbuz.avro.gen.Instance>)value$; break;
+    case 3: userWorkflow = (br.unb.cic.bionimbuz.avro.gen.User)value$; break;
+    case 4: creationDatestamp = (java.lang.String)value$; break;
+    case 5: userId = (java.lang.Long)value$; break;
+    case 6: description = (java.lang.String)value$; break;
+    case 7: status = (br.unb.cic.bionimbuz.avro.gen.WorkflowStatus)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -88,6 +96,36 @@ public class Workflow extends org.apache.avro.specific.SpecificRecordBase implem
    */
   public void setJobs(java.util.List<br.unb.cic.bionimbuz.avro.gen.Job> value) {
     this.jobs = value;
+  }
+
+  /**
+   * Gets the value of the 'intancesWorkflow' field.
+   */
+  public java.util.List<br.unb.cic.bionimbuz.avro.gen.Instance> getIntancesWorkflow() {
+    return intancesWorkflow;
+  }
+
+  /**
+   * Sets the value of the 'intancesWorkflow' field.
+   * @param value the value to set.
+   */
+  public void setIntancesWorkflow(java.util.List<br.unb.cic.bionimbuz.avro.gen.Instance> value) {
+    this.intancesWorkflow = value;
+  }
+
+  /**
+   * Gets the value of the 'userWorkflow' field.
+   */
+  public br.unb.cic.bionimbuz.avro.gen.User getUserWorkflow() {
+    return userWorkflow;
+  }
+
+  /**
+   * Sets the value of the 'userWorkflow' field.
+   * @param value the value to set.
+   */
+  public void setUserWorkflow(br.unb.cic.bionimbuz.avro.gen.User value) {
+    this.userWorkflow = value;
   }
 
   /**
@@ -173,6 +211,8 @@ public class Workflow extends org.apache.avro.specific.SpecificRecordBase implem
 
     private java.lang.String id;
     private java.util.List<br.unb.cic.bionimbuz.avro.gen.Job> jobs;
+    private java.util.List<br.unb.cic.bionimbuz.avro.gen.Instance> intancesWorkflow;
+    private br.unb.cic.bionimbuz.avro.gen.User userWorkflow;
     private java.lang.String creationDatestamp;
     private long userId;
     private java.lang.String description;
@@ -199,21 +239,29 @@ public class Workflow extends org.apache.avro.specific.SpecificRecordBase implem
         this.jobs = data().deepCopy(fields()[1].schema(), other.jobs);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.creationDatestamp)) {
-        this.creationDatestamp = data().deepCopy(fields()[2].schema(), other.creationDatestamp);
+      if (isValidValue(fields()[2], other.intancesWorkflow)) {
+        this.intancesWorkflow = data().deepCopy(fields()[2].schema(), other.intancesWorkflow);
         fieldSetFlags()[2] = true;
       }
-      if (isValidValue(fields()[3], other.userId)) {
-        this.userId = data().deepCopy(fields()[3].schema(), other.userId);
+      if (isValidValue(fields()[3], other.userWorkflow)) {
+        this.userWorkflow = data().deepCopy(fields()[3].schema(), other.userWorkflow);
         fieldSetFlags()[3] = true;
       }
-      if (isValidValue(fields()[4], other.description)) {
-        this.description = data().deepCopy(fields()[4].schema(), other.description);
+      if (isValidValue(fields()[4], other.creationDatestamp)) {
+        this.creationDatestamp = data().deepCopy(fields()[4].schema(), other.creationDatestamp);
         fieldSetFlags()[4] = true;
       }
-      if (isValidValue(fields()[5], other.status)) {
-        this.status = data().deepCopy(fields()[5].schema(), other.status);
+      if (isValidValue(fields()[5], other.userId)) {
+        this.userId = data().deepCopy(fields()[5].schema(), other.userId);
         fieldSetFlags()[5] = true;
+      }
+      if (isValidValue(fields()[6], other.description)) {
+        this.description = data().deepCopy(fields()[6].schema(), other.description);
+        fieldSetFlags()[6] = true;
+      }
+      if (isValidValue(fields()[7], other.status)) {
+        this.status = data().deepCopy(fields()[7].schema(), other.status);
+        fieldSetFlags()[7] = true;
       }
     }
 
@@ -267,6 +315,56 @@ public class Workflow extends org.apache.avro.specific.SpecificRecordBase implem
       return this;
     }
 
+    /** Gets the value of the 'intancesWorkflow' field */
+    public java.util.List<br.unb.cic.bionimbuz.avro.gen.Instance> getIntancesWorkflow() {
+      return intancesWorkflow;
+    }
+    
+    /** Sets the value of the 'intancesWorkflow' field */
+    public br.unb.cic.bionimbuz.avro.gen.Workflow.Builder setIntancesWorkflow(java.util.List<br.unb.cic.bionimbuz.avro.gen.Instance> value) {
+      validate(fields()[2], value);
+      this.intancesWorkflow = value;
+      fieldSetFlags()[2] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'intancesWorkflow' field has been set */
+    public boolean hasIntancesWorkflow() {
+      return fieldSetFlags()[2];
+    }
+    
+    /** Clears the value of the 'intancesWorkflow' field */
+    public br.unb.cic.bionimbuz.avro.gen.Workflow.Builder clearIntancesWorkflow() {
+      intancesWorkflow = null;
+      fieldSetFlags()[2] = false;
+      return this;
+    }
+
+    /** Gets the value of the 'userWorkflow' field */
+    public br.unb.cic.bionimbuz.avro.gen.User getUserWorkflow() {
+      return userWorkflow;
+    }
+    
+    /** Sets the value of the 'userWorkflow' field */
+    public br.unb.cic.bionimbuz.avro.gen.Workflow.Builder setUserWorkflow(br.unb.cic.bionimbuz.avro.gen.User value) {
+      validate(fields()[3], value);
+      this.userWorkflow = value;
+      fieldSetFlags()[3] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'userWorkflow' field has been set */
+    public boolean hasUserWorkflow() {
+      return fieldSetFlags()[3];
+    }
+    
+    /** Clears the value of the 'userWorkflow' field */
+    public br.unb.cic.bionimbuz.avro.gen.Workflow.Builder clearUserWorkflow() {
+      userWorkflow = null;
+      fieldSetFlags()[3] = false;
+      return this;
+    }
+
     /** Gets the value of the 'creationDatestamp' field */
     public java.lang.String getCreationDatestamp() {
       return creationDatestamp;
@@ -274,21 +372,21 @@ public class Workflow extends org.apache.avro.specific.SpecificRecordBase implem
     
     /** Sets the value of the 'creationDatestamp' field */
     public br.unb.cic.bionimbuz.avro.gen.Workflow.Builder setCreationDatestamp(java.lang.String value) {
-      validate(fields()[2], value);
+      validate(fields()[4], value);
       this.creationDatestamp = value;
-      fieldSetFlags()[2] = true;
+      fieldSetFlags()[4] = true;
       return this; 
     }
     
     /** Checks whether the 'creationDatestamp' field has been set */
     public boolean hasCreationDatestamp() {
-      return fieldSetFlags()[2];
+      return fieldSetFlags()[4];
     }
     
     /** Clears the value of the 'creationDatestamp' field */
     public br.unb.cic.bionimbuz.avro.gen.Workflow.Builder clearCreationDatestamp() {
       creationDatestamp = null;
-      fieldSetFlags()[2] = false;
+      fieldSetFlags()[4] = false;
       return this;
     }
 
@@ -299,20 +397,20 @@ public class Workflow extends org.apache.avro.specific.SpecificRecordBase implem
     
     /** Sets the value of the 'userId' field */
     public br.unb.cic.bionimbuz.avro.gen.Workflow.Builder setUserId(long value) {
-      validate(fields()[3], value);
+      validate(fields()[5], value);
       this.userId = value;
-      fieldSetFlags()[3] = true;
+      fieldSetFlags()[5] = true;
       return this; 
     }
     
     /** Checks whether the 'userId' field has been set */
     public boolean hasUserId() {
-      return fieldSetFlags()[3];
+      return fieldSetFlags()[5];
     }
     
     /** Clears the value of the 'userId' field */
     public br.unb.cic.bionimbuz.avro.gen.Workflow.Builder clearUserId() {
-      fieldSetFlags()[3] = false;
+      fieldSetFlags()[5] = false;
       return this;
     }
 
@@ -323,21 +421,21 @@ public class Workflow extends org.apache.avro.specific.SpecificRecordBase implem
     
     /** Sets the value of the 'description' field */
     public br.unb.cic.bionimbuz.avro.gen.Workflow.Builder setDescription(java.lang.String value) {
-      validate(fields()[4], value);
+      validate(fields()[6], value);
       this.description = value;
-      fieldSetFlags()[4] = true;
+      fieldSetFlags()[6] = true;
       return this; 
     }
     
     /** Checks whether the 'description' field has been set */
     public boolean hasDescription() {
-      return fieldSetFlags()[4];
+      return fieldSetFlags()[6];
     }
     
     /** Clears the value of the 'description' field */
     public br.unb.cic.bionimbuz.avro.gen.Workflow.Builder clearDescription() {
       description = null;
-      fieldSetFlags()[4] = false;
+      fieldSetFlags()[6] = false;
       return this;
     }
 
@@ -348,21 +446,21 @@ public class Workflow extends org.apache.avro.specific.SpecificRecordBase implem
     
     /** Sets the value of the 'status' field */
     public br.unb.cic.bionimbuz.avro.gen.Workflow.Builder setStatus(br.unb.cic.bionimbuz.avro.gen.WorkflowStatus value) {
-      validate(fields()[5], value);
+      validate(fields()[7], value);
       this.status = value;
-      fieldSetFlags()[5] = true;
+      fieldSetFlags()[7] = true;
       return this; 
     }
     
     /** Checks whether the 'status' field has been set */
     public boolean hasStatus() {
-      return fieldSetFlags()[5];
+      return fieldSetFlags()[7];
     }
     
     /** Clears the value of the 'status' field */
     public br.unb.cic.bionimbuz.avro.gen.Workflow.Builder clearStatus() {
       status = null;
-      fieldSetFlags()[5] = false;
+      fieldSetFlags()[7] = false;
       return this;
     }
 
@@ -372,10 +470,12 @@ public class Workflow extends org.apache.avro.specific.SpecificRecordBase implem
         Workflow record = new Workflow();
         record.id = fieldSetFlags()[0] ? this.id : (java.lang.String) defaultValue(fields()[0]);
         record.jobs = fieldSetFlags()[1] ? this.jobs : (java.util.List<br.unb.cic.bionimbuz.avro.gen.Job>) defaultValue(fields()[1]);
-        record.creationDatestamp = fieldSetFlags()[2] ? this.creationDatestamp : (java.lang.String) defaultValue(fields()[2]);
-        record.userId = fieldSetFlags()[3] ? this.userId : (java.lang.Long) defaultValue(fields()[3]);
-        record.description = fieldSetFlags()[4] ? this.description : (java.lang.String) defaultValue(fields()[4]);
-        record.status = fieldSetFlags()[5] ? this.status : (br.unb.cic.bionimbuz.avro.gen.WorkflowStatus) defaultValue(fields()[5]);
+        record.intancesWorkflow = fieldSetFlags()[2] ? this.intancesWorkflow : (java.util.List<br.unb.cic.bionimbuz.avro.gen.Instance>) defaultValue(fields()[2]);
+        record.userWorkflow = fieldSetFlags()[3] ? this.userWorkflow : (br.unb.cic.bionimbuz.avro.gen.User) defaultValue(fields()[3]);
+        record.creationDatestamp = fieldSetFlags()[4] ? this.creationDatestamp : (java.lang.String) defaultValue(fields()[4]);
+        record.userId = fieldSetFlags()[5] ? this.userId : (java.lang.Long) defaultValue(fields()[5]);
+        record.description = fieldSetFlags()[6] ? this.description : (java.lang.String) defaultValue(fields()[6]);
+        record.status = fieldSetFlags()[7] ? this.status : (br.unb.cic.bionimbuz.avro.gen.WorkflowStatus) defaultValue(fields()[7]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

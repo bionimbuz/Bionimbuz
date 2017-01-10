@@ -103,7 +103,7 @@ public class Job implements Serializable {
         inputFiles = new ArrayList<>();
         outputs = new ArrayList<>();
         dependencies = new ArrayList<>();
-        ipjob=ipjob;
+        this.ipjob = ipjob;
     }
     
     public String getId() {

@@ -38,13 +38,16 @@ data-folder: data-folder/
 tmp-uploaded-files: tmp/
 
  # Path to the folder whre the Buckets will be mounted
-buckets-folder: tmp/
+buckets-folder: buckets/
 
  # Path containing the files used to authenticate the Storage Services (Bucket)
-buckets-auth-folder: tmp/
+key-google: src/main/resources/GoogleCredentials.json
+
+ # Path containing the files used to authenticate the Storage Services (Bucket)
+key-amazon: src/main/resources/AwsCredentials.properties
 
  # Path to de binary of gcloud/gsutil line-command
-gcloud-folder: tmp/
+gcloud-folder: /usr/bin/
 
 # Cost per giga?
 cost_per_giga: 0

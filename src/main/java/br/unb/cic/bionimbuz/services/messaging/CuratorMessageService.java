@@ -166,11 +166,11 @@ public class CuratorMessageService implements CloudMessageService {
                 case WORKFLOWS_USER:
                     return "" + ROOT + USERS + NODE_USERS + args[0] + WORKFLOWS_USER;
                 case NODE_WORFLOW_USER :
-                     return "" + ROOT + USERS + NODE_USERS + args[0] + INSTANCES_USER + NODE_WORFLOW_USER +args[1];
+                     return "" + ROOT + USERS + NODE_USERS + args[0] + WORKFLOWS_USER + NODE_WORFLOW_USER +args[1];
                 case INSTANCES_USER:
-                    return "" + ROOT + USERS + NODE_USERS + args[0] + NODE_WORFLOW_USER + args[1] + INSTANCES_USER;
+                    return "" + ROOT + USERS + NODE_USERS + args[0] + WORKFLOWS_USER + NODE_WORFLOW_USER + args[1] + INSTANCES_USER;
                 case NODE_INSTANCE_USER :
-                     return "" + ROOT + USERS + NODE_USERS + args[0] + NODE_WORFLOW_USER + args[1] + INSTANCES_USER + args[2];    
+                     return "" + ROOT + USERS + NODE_USERS + args[0] + WORKFLOWS_USER + NODE_WORFLOW_USER + args[1] + INSTANCES_USER + NODE_INSTANCE_USER + args[2];    
                 case STATUS:
                     return "" + ROOT + PEERS + NODE_PEER + args[0] + STATUS;
                 case STATUSWAITING:

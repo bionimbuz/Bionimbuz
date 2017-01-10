@@ -97,31 +97,6 @@ public class WorkflowResource extends AbstractResource {
         LOGGER.info(" USER= "+request.getWorkflow().getUserWorkflow().getNome());
         // Logs
         loggerDao.log(new Log("Workflow chegou no servidor do BioNimbuZ", request.getWorkflow().getUserId(), request.getWorkflow().getId(), LogSeverity.INFO));
-         // Create /users
-        if (!cms.getZNodeExist(CuratorMessageService.Path.USERS.getFullPath(), null)) {
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.USERS.getFullPath(), "");
-        }
-        //Create structure to /bionimbuz/users/userid
-        if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_USERS.getFullPath(Long.toString(request.getWorkflow().getUserId())),null)){
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_USERS.getFullPath(Long.toString(request.getWorkflow().getUserId())), request.getWorkflow().getUserWorkflow().toString());
-        }
-        //Create structure to /bionimbuz/users/userid/workflows_user/
-        if(!cms.getZNodeExist(CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(Long.toString(request.getWorkflow().getUserId())),null)){
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(Long.toString(request.getWorkflow().getUserId())), null);
-        }
-        //Create structure to /bionimbuz/users/userid/workflows_user/workflow_id
-        if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_WORFLOW_USER.getFullPath(Long.toString(request.getWorkflow().getUserId()),request.getWorkflow().getId()),null)){
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(Long.toString(request.getWorkflow().getUserId()),request.getWorkflow().getId()), request.getWorkflow().toString());
-        }
-        //Create structure to /bionimbuz/users/userid/workflows_user/workflow_id/instances
-        if(!cms.getZNodeExist(CuratorMessageService.Path.INSTANCES_USER.getFullPath(Long.toString(request.getWorkflow().getUserId()),request.getWorkflow().getId()),null)){
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.INSTANCES_USER.getFullPath(Long.toString(request.getWorkflow().getUserId()),request.getWorkflow().getId()),null);
-        }
-        //Create structure to /bionimbuz/users/userid/workflows_user/workflow_id/instances/instances_id
-        for(Instance i : request.getWorkflow().getIntancesWorkflow()){
-            if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_INSTANCE_USER.getFullPath(Long.toString(request.getWorkflow().getUserId()),request.getWorkflow().getId(),i.getIp()),null))
-                cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_INSTANCE_USER.getFullPath(Long.toString(request.getWorkflow().getUserId()),request.getWorkflow().getId(),i.getIp()),i.toString());
-        }
 
         try {
             // Starts it
