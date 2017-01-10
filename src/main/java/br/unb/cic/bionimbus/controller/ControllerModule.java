@@ -10,6 +10,7 @@ import br.unb.cic.bionimbus.avro.rpc.AvroServer;
 import br.unb.cic.bionimbus.avro.rpc.BioProtoImpl;
 import br.unb.cic.bionimbus.avro.rpc.RpcServer;
 import br.unb.cic.bionimbus.config.ConfigurationRepository;
+import br.unb.cic.bionimbus.controller.elasticitycontroller.ElasticityController;
 import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
 import br.unb.cic.bionimbus.controller.slacontroller.SlaController;
 import br.unb.cic.bionimbus.controller.usercontroller.UserController;
@@ -45,11 +46,13 @@ public class ControllerModule extends AbstractModule {
         controllerBinder.addBinding().to(JobController.class);
         controllerBinder.addBinding().to(UserController.class);
         controllerBinder.addBinding().to(SlaController.class);
+        controllerBinder.addBinding().to(ElasticityController.class);
 
         // Marks the controllers as EagerSingleton
         bind(JobController.class).asEagerSingleton();
         bind(UserController.class).asEagerSingleton();
         bind(SlaController.class).asEagerSingleton();
+        bind(ElasticityController.class).asEagerSingleton();
         
         // Binds Services classes
         Multibinder<Service> serviceBinder = Multibinder.newSetBinder(binder(), Service.class);

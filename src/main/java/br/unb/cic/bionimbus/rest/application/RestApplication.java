@@ -5,7 +5,9 @@
  */
 package br.unb.cic.bionimbus.rest.application;
 
+import br.unb.cic.bionimbus.rest.resource.StartElasticityResource;
 import br.unb.cic.bionimbus.BioNimbus;
+import br.unb.cic.bionimbus.controller.elasticitycontroller.ElasticityController;
 import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
 import br.unb.cic.bionimbus.controller.slacontroller.SlaController;
 import br.unb.cic.bionimbus.controller.usercontroller.UserController;
@@ -60,12 +62,14 @@ public class RestApplication extends Application {
         JobController jobController = BioNimbus.controllerInjector.getInstance(JobController.class);
         UserController userController = BioNimbus.controllerInjector.getInstance(UserController.class);
         SlaController slaController = BioNimbus.controllerInjector.getInstance(SlaController.class);
+        ElasticityController elasticityController = BioNimbus.controllerInjector.getInstance(ElasticityController.class);
         addResource(new UserResource(jobController, userController));
         addResource(new FileResource(jobController));
         addResource(new WorkflowResource(jobController));
         addResource(new ConfigurationsResource(jobController));
         addResource(new PingResource());
         addResource(new StartSlaResource(slaController));
+        addResource(new StartElasticityResource(elasticityController));
 
         LOGGER.info("RestApplication started with " + resourceCounter + " Resources");
 

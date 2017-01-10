@@ -584,5 +584,17 @@
             <artifactId>bcprov-jdk15on</artifactId>
             <version>1.54</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+            <version>1.22.0</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-compute</artifactId>
+            <version>v1-rev103-1.21.0</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 </project>

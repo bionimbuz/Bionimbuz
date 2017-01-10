@@ -5,6 +5,7 @@ import br.unb.cic.bionimbus.avro.rpc.RpcClient;
 import br.unb.cic.bionimbus.config.BioNimbusConfig;
 import static br.unb.cic.bionimbus.config.BioNimbusConfigLoader.loadHostConfig;
 import br.unb.cic.bionimbus.config.ConfigurationRepository;
+import br.unb.cic.bionimbus.controller.elasticitycontroller.ElasticityController;
 import br.unb.cic.bionimbus.controller.jobcontroller.JobController;
 import br.unb.cic.bionimbus.controller.slacontroller.SlaController;
 import br.unb.cic.bionimbus.controller.usercontroller.UserController;
@@ -30,6 +31,7 @@ public abstract class AbstractResource implements RestResource {
     protected JobController jobController;
     protected UserController userController;
     protected SlaController slaController;
+    protected ElasticityController elasticityController;
     
     static {
         final String configFile = System.getProperty("config.file", "conf/node.yaml");
