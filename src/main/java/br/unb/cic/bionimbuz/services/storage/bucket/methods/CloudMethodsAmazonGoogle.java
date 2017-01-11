@@ -44,17 +44,17 @@ public class CloudMethodsAmazonGoogle extends CloudStorageMethods{
         switch (sp) {
             
             case AMAZON: {
-                InputStream is = null;
-                is = new FileInputStream(keyAmazon);
-                PropertiesCredentials credentials = new PropertiesCredentials(is);
-//                byte[] encoded = Files.readAllBytes(Paths.get(keyAmazon));
-//                String fileContent = new String(encoded, Charset.defaultCharset());
-//                System.out.println("AuthString: " + fileContent);
-//                String accessKeyID, accessKey;
-//                int delimiter = fileContent.indexOf(':');
-//                accessKeyID = fileContent.substring(0, delimiter);
-//                accessKey = fileContent.substring(delimiter + 1);
-//                AWSCredentials credentials = new BasicAWSCredentials(accessKeyID, accessKey);
+//                InputStream is = null;
+//                is = new FileInputStream(keyAmazon);
+//                PropertiesCredentials credentials = new PropertiesCredentials(is);
+                byte[] encoded = Files.readAllBytes(Paths.get(keyAmazon));
+                String fileContent = new String(encoded, Charset.defaultCharset());
+                System.out.println("AuthString: " + fileContent);
+                String accessKeyID, accessKey;
+                int delimiter = fileContent.indexOf(':');
+                accessKeyID = fileContent.substring(0, delimiter);
+                accessKey = fileContent.substring(delimiter + 1);
+                AWSCredentials credentials = new BasicAWSCredentials(accessKeyID, accessKey);
                 s3client = new AmazonS3Client(credentials);
                 
                 break;

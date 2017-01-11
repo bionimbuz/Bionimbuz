@@ -45,6 +45,7 @@ public class ElasticityResource extends AbstractResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public CreateElasticityResponse createElasticity(CreateElasticityRequest request){
+        
         String ip = null;
         boolean flag =false;
         String provider=request.getProvider();
@@ -71,7 +72,8 @@ public class ElasticityResource extends AbstractResource {
                 
                 LOGGER.info("New VM to be deleted received with type: " + request.getType() + "and provider: " + request.getProvider()+ "and name" + request.getInstanceName());
                 break;
-            }}
+            }
+        }
         CreateElasticityResponse response =new CreateElasticityResponse (ip, flag);
         return response;
     }

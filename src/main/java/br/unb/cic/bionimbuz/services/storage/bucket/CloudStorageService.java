@@ -164,14 +164,16 @@ public class CloudStorageService extends AbstractBioService{
         
         //AMAZON
         //Brazil
-//        aux = new BioBucket(StorageProvider.AMAZON, "bionimbuz-a-br", (bucketsFolder + "bionimbuz-a-br"));
-//        aux.setEndPoint("s3-sa-east-1.amazonaws.com");
-//        bucketList.add(aux);
-//        if (!cms.getZNodeExist(Path.NODE_BUCKET.getFullPath(aux.getName()), null)) {
-//            cms.createZNode(CreateMode.PERSISTENT, Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
-//            //cms.setData(Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
-//            cms.createZNode(CreateMode.PERSISTENT, Path.BUCKET_FILES.getFullPath(aux.getName()), null);
-//        }
+        aux = new BioBucket(StorageProvider.AMAZON, "bionimbuz-a-br2", (bucketsFolder + "bionimbuz-a-br2"));
+        // Para buckets da AMAZON criados em regiões que não sejam US (Estados Unidos), deve ser setado um endpoint
+        // para o Bucket referente a região utilizada
+        aux.setEndPoint("s3-sa-east-1.amazonaws.com");
+        bucketList.add(aux);
+        if (!cms.getZNodeExist(Path.NODE_BUCKET.getFullPath(aux.getName()), null)) {
+            cms.createZNode(CreateMode.PERSISTENT, Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
+            //cms.setData(Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());
+            cms.createZNode(CreateMode.PERSISTENT, Path.BUCKET_FILES.getFullPath(aux.getName()), null);
+        }
 //        //US
 //        aux = new BioBucket(StorageProvider.AMAZON, "bionimbuz-a-us", (bucketsFolder + "bionimbuz-a-us"));
 //        bucketList.add(aux);
@@ -192,7 +194,7 @@ public class CloudStorageService extends AbstractBioService{
         
         //GOOGLE
 //        US
-        aux = new BioBucket(StorageProvider.GOOGLE, "bionimbuz-g-us", (bucketsFolder + "bionimbuz-g-us"));
+        aux = new BioBucket(StorageProvider.GOOGLE, "bustling-cosmos-151913.appspot.com", (bucketsFolder + "bustling-cosmos-151913.appspot.com"));
         bucketList.add(aux);
         if (!cms.getZNodeExist(Path.NODE_BUCKET.getFullPath(aux.getName()), null)) {
             cms.createZNode(CreateMode.PERSISTENT, Path.NODE_BUCKET.getFullPath(aux.getName()), aux.toString());

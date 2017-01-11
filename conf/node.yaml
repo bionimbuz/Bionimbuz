@@ -44,7 +44,7 @@ buckets-folder: buckets/
 key-google: src/main/resources/GoogleCredentials.json
 
  # Path containing the files used to authenticate the Storage Services (Bucket)
-key-amazon: src/main/resources/AwsCredentials.properties
+key-amazon: src/main/resources/AwsCredentials.txt
 
  # Path to de binary of gcloud/gsutil line-command
 gcloud-folder: /usr/bin/

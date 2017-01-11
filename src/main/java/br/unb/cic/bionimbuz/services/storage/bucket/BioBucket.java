@@ -27,7 +27,13 @@ public class BioBucket {
     private float dlBandwith; // em B/s
     private float latency;
 
-    public BioBucket (StorageProvider provider, String name, String mountPoint) {
+    /**
+     * Constructor for bucket, name of bucket(Intervalo) createad on amazon s3 or google storage
+     * @param provider
+     * @param name 
+     * @param mountPoint 
+     */
+    public BioBucket(StorageProvider provider, String name, String mountPoint) {
         this.provider = provider;
         this.name = name;
         this.mountPoint = mountPoint;
