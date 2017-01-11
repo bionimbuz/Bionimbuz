@@ -3,7 +3,7 @@ package br.unb.cic.bionimbuz.services.storage.compress;
 import org.junit.Assert;
 import org.junit.Test;
 
-import br.unb.cic.bionimbus.services.storage.compress.compactors.CompressionUtils;
+import br.unb.cic.bionimbuz.services.storage.compress.compactors.CompressionUtils;
 
 public class CompressionUtilsTest {
 	

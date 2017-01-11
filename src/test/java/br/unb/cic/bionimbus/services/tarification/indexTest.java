@@ -2,8 +2,8 @@ package br.unb.cic.bionimbus.services.tarification;
 
 import java.util.ArrayList;
 
-import br.unb.cic.bionimbus.model.Instance;
-import br.unb.cic.bionimbus.services.tarification.Amazon.AmazonIndex;
+import br.unb.cic.bionimbuz.model.Instance;
+import br.unb.cic.bionimbuz.services.tarification.Amazon.AmazonIndex;
 import org.junit.Test;
 
 /**
