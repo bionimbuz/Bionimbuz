@@ -182,7 +182,7 @@ sudo /etc/init.d/ssh restart
 ##### Configurações para executar o novo serviço de armazenamento (buckets)
 
 ###### 1. Dependências
-
+https://github.com/s3fs-fuse/s3fs-fuse
 Instale o s3fs-fuse:
 -------------------------------------------------------------------------------------------------------------
 sudo apt-get install build-essential git libfuse-dev libcurl4-openssl-dev libxml2-dev mime-support automake libtool
@@ -218,7 +218,7 @@ accessKeyId:secretAccessKey
 -------------------------------------------------------------------------------------------------------------
 Altere as permissões para esse arquivo:
 -------------------------------------------------------------------------------------------------------------
-chmod 640 /*/*/Auth/accesskey.txt
+chmod 600 /*/*/Auth/accesskey.txt
 -------------------------------------------------------------------------------------------------------------
 
 ###### 2.2. Google
