@@ -44,7 +44,7 @@ buckets-folder: buckets/
 key-google: src/main/resources/GoogleCredentials.json
 
  # Path containing the files used to authenticate the Storage Services (Bucket)
-key-amazon: src/main/resources/AwsCredentials.txt
+key-amazon: src/main/resources/AwsCredentials.properties
 
  # Path to de binary of gcloud/gsutil line-command
 gcloud-folder: /usr/bin/
@@ -61,9 +61,8 @@ storage-mode: 1
 # Reference files (keep it ORDERED)
 references:
     - referencia_hg19
-    - human.hg19.genome
     - ref
-    - human.hg19
+    - human.hg19.genome
  
 # Supported formats to be concateanted with each file name (keep it ORDERED)
 supported-formats:

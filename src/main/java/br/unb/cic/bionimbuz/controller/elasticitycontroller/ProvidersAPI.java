@@ -18,7 +18,8 @@ public interface ProvidersAPI {
      */
     
     public void setup();
-    public void createinstance(String type) throws IOException;
+    public void createinstance(String type, String nameinstance) throws IOException;
+    public void terminate(String instanceid) ;
    
    
   
