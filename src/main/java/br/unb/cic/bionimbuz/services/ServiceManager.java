@@ -108,6 +108,9 @@ public class ServiceManager {
         if (!cms.getZNodeExist(Path.USERS.getFullPath() + Path.LOGGED_USERS, null)) {
             cms.createZNode(CreateMode.PERSISTENT, Path.USERS.getFullPath() + Path.LOGGED_USERS, "");
         }
+        if (!cms.getZNodeExist(Path.USERS_INFO.getFullPath(), null)) {
+            cms.createZNode(CreateMode.PERSISTENT, Path.USERS_INFO.getFullPath(), "");
+        }
     }
 
     /**

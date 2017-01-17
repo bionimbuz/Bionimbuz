@@ -19,6 +19,7 @@
 package br.unb.cic.bionimbuz.services.monitor;
 
 import br.unb.cic.bionimbuz.config.BioNimbusConfig;
+import br.unb.cic.bionimbuz.model.User;
 import br.unb.cic.bionimbuz.plugin.PluginInfo;
 import br.unb.cic.bionimbuz.plugin.PluginTask;
 import br.unb.cic.bionimbuz.plugin.PluginTaskState;
@@ -35,6 +36,7 @@ import com.google.inject.Singleton;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -52,11 +54,11 @@ import org.apache.zookeeper.WatchedEvent;
 public class MonitoringService extends AbstractBioService implements Runnable {
 
     private final ScheduledExecutorService schedExecService = Executors.newScheduledThreadPool(1, new BasicThreadFactory.Builder().namingPattern("MonitorService-%d").build());
-    private final Map<String, PluginTask> waitingTask = new ConcurrentHashMap<String, PluginTask>();
-    private final List<String> waitingJobs = new ArrayList<String>();
-    private final List<String> waitingFiles = new ArrayList<String>();
-
-    private final Collection<String> plugins = new ArrayList<String>();
+    private final Map<String, PluginTask> waitingTask = new ConcurrentHashMap<>();
+    private final List<String> waitingJobs = new ArrayList<>();
+    private final List<String> waitingFiles = new ArrayList<>();
+    private final List<User> users = Collections.synchronizedList(new ArrayList());
+    private final Collection<String> plugins = new ArrayList<>();
 
     @Inject
     public MonitoringService(final CloudMessageService cms) {
@@ -68,6 +70,7 @@ public class MonitoringService extends AbstractBioService implements Runnable {
         checkPeersStatus();
         checkPipelines();
         checkPendingSave();
+        checkUserInstances();
     }
 
     @Override
@@ -260,7 +263,7 @@ public class MonitoringService extends AbstractBioService implements Runnable {
         }
 
     }
-
+   
     /**
      * Incia o processo de recuperação dos peers caso ainda não tenho sido
      * iniciado e adiciona um watcher nos peer on-lines.
@@ -288,7 +291,10 @@ public class MonitoringService extends AbstractBioService implements Runnable {
         }
 
     }
-
+    
+    private void checkUserInstances(){
+        users.addAll(rs.getUsers());
+    }
     private void deletePeer(String peerPath) throws InterruptedException, KeeperException {
         if (!cms.getZNodeExist(peerPath + STATUS, null) && cms.getZNodeExist(peerPath + STATUSWAITING, null)) {
             cms.delete(peerPath);

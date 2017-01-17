@@ -6,9 +6,13 @@
 package br.unb.cic.bionimbuz.model;
 
 import br.unb.cic.bionimbuz.plugin.PluginService;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.Id;
+import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *
@@ -19,8 +23,8 @@ public class SLA {
     @Id
     private String id;
     private User user;
-    private User provider;
-    private int objective;
+    private String provider;
+    private Integer objective;
     private Long period;
     private List<PluginService> services;
     private List<Instance> instances;
@@ -42,6 +46,22 @@ public class SLA {
 
     }
 
+    public SLA(String id, User user, String provider, Integer objective, Long period, List<PluginService> services, List<Instance> instances, Double value, Date time, Integer limitationType, Double limitationValueExecutionTime, Double limitationValueExecutionCost) {
+        this.id = id;
+        this.user = user;
+        this.provider = provider;
+        this.objective = objective;
+        this.period = period;
+        this.services = services;
+        this.instances = instances;
+        this.value = value;
+        this.time = time;
+        this.limitationType = limitationType;
+        this.limitationValueExecutionTime = limitationValueExecutionTime;
+        this.limitationValueExecutionCost = limitationValueExecutionCost;
+    }
+    
+    
     public SLA(SLA sla) {
 
         this.user = sla.getUser();
@@ -54,7 +74,7 @@ public class SLA {
 
     }
 
-    public SLA(User user, User provider, List<PluginService> service, Date time, Double value) {
+    public SLA(User user, String provider, List<PluginService> service, Date time, Double value) {
         this.user = user;
         this.provider = provider;
         this.services = service;
@@ -79,28 +99,28 @@ public class SLA {
     /**
      * @return the provider
      */
-    public User getProvider() {
+    public String getProvider() {
         return provider;
     }
 
     /**
      * @param provider the provider to set
      */
-    public void setProvider(User provider) {
+    public void setProvider(String provider) {
         this.provider = provider;
     }
 
     /**
      * @return the objective
      */
-    public int getObjective() {
+    public Integer getObjective() {
         return objective;
     }
 
     /**
      * @param objective the objective to set
      */
-    public void setObjective(int objective) {
+    public void setObjective(Integer objective) {
         this.objective = objective;
     }
 
@@ -229,5 +249,15 @@ public class SLA {
     public void setLimitationValueExecutionCost(Double limitationValueExecutionCost) {
         this.limitationValueExecutionCost = limitationValueExecutionCost;
     }
-
+    
+    @Override
+    public String toString() {
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (IOException ex) {
+            Logger.getLogger(Workflow.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
 }

@@ -125,7 +125,7 @@ public class JobController implements Controller, Runnable {
     public void startWorkflow(Workflow workflow) throws Exception {
         // Logs
         loggerDao.log(new Log("Iniciando a execução do Workflow", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
-        LOGGER.info("Iniciando a execução do Workflow", workflow.getUserId(), workflow.getId());
+        LOGGER.info("Iniciando a execução do Workflow Userid: "+ workflow.getUserId()+" workflowId: "+ workflow.getId());
         
         List<br.unb.cic.bionimbuz.avro.gen.Job> listjob = new ArrayList<>();
         List<br.unb.cic.bionimbuz.avro.gen.Instance> listIntanceMachine = new ArrayList<>();

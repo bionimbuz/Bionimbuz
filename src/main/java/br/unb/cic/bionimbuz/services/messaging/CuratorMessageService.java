@@ -116,6 +116,7 @@ public class CuratorMessageService implements CloudMessageService {
         STATUSWAITING("/STATUSWAITING"),
         TASKS("/tasks"),
         USERS("/users"),
+        USERS_INFO("/users_info"),
         WORKFLOWS_USER("/workflows_user");
         
 
@@ -155,6 +156,8 @@ public class CuratorMessageService implements CloudMessageService {
                     return "" + ROOT + SERVICES;
                 case USERS:
                     return "" + ROOT + USERS;
+                case USERS_INFO:
+                    return "" + ROOT + USERS + USERS_INFO;
                 case FINISHED_TASKS:
                     return "" + ROOT + FINISHED_TASKS;
                 case NODE_FINISHED_TASK:
@@ -162,15 +165,15 @@ public class CuratorMessageService implements CloudMessageService {
                 case NODE_PEER:
                     return "" + ROOT + PEERS + NODE_PEER + args[0];
                 case NODE_USERS:
-                    return "" + ROOT + USERS + NODE_USERS + args[0];
+                    return "" + ROOT + USERS + USERS_INFO + NODE_USERS + args[0];
                 case WORKFLOWS_USER:
-                    return "" + ROOT + USERS + NODE_USERS + args[0] + WORKFLOWS_USER;
+                    return "" + ROOT + USERS + USERS_INFO + NODE_USERS + args[0] + WORKFLOWS_USER;
                 case NODE_WORFLOW_USER :
-                     return "" + ROOT + USERS + NODE_USERS + args[0] + WORKFLOWS_USER + NODE_WORFLOW_USER +args[1];
+                     return "" + ROOT + USERS + USERS_INFO + NODE_USERS + args[0] + WORKFLOWS_USER + NODE_WORFLOW_USER +args[1];
                 case INSTANCES_USER:
-                    return "" + ROOT + USERS + NODE_USERS + args[0] + WORKFLOWS_USER + NODE_WORFLOW_USER + args[1] + INSTANCES_USER;
+                    return "" + ROOT + USERS + USERS_INFO + NODE_USERS + args[0] + WORKFLOWS_USER + NODE_WORFLOW_USER + args[1] + INSTANCES_USER;
                 case NODE_INSTANCE_USER :
-                     return "" + ROOT + USERS + NODE_USERS + args[0] + WORKFLOWS_USER + NODE_WORFLOW_USER + args[1] + INSTANCES_USER + NODE_INSTANCE_USER + args[2];    
+                     return "" + ROOT + USERS + USERS_INFO + NODE_USERS + args[0] + WORKFLOWS_USER + NODE_WORFLOW_USER + args[1] + INSTANCES_USER + NODE_INSTANCE_USER + args[2];    
                 case STATUS:
                     return "" + ROOT + PEERS + NODE_PEER + args[0] + STATUS;
                 case STATUSWAITING:
@@ -260,7 +263,9 @@ public class CuratorMessageService implements CloudMessageService {
         // Need to know how to use watchers in this method (Zookeeper Watcher or Curator Watcher?)
         Stat s = null;
         try {
-            s = client.checkExists().usingWatcher(watcher).forPath(path);
+            
+//            s = client.checkExists().usingWatcher(watcher).forPath(path);
+            s = client.checkExists().watched().forPath(path);
         } catch (Exception ex) {
             LOGGER.error("[Exception] " + ex.getMessage());
             ex.printStackTrace();
@@ -279,7 +284,8 @@ public class CuratorMessageService implements CloudMessageService {
     @Override
     public List<String> getChildren(String path, Watcher watcher) {
         try {
-            return client.getChildren().usingWatcher(watcher).forPath(path);
+//            return client.getChildren().usingWatcher(watcher).forPath(path);
+            return client.getChildren().watched().forPath(path);
         } catch (Exception ex) {
             LOGGER.error("[Exception] " + ex.getMessage());
         }
@@ -299,7 +305,8 @@ public class CuratorMessageService implements CloudMessageService {
         int cont = 0;
 
         try {
-            cont = client.getChildren().usingWatcher(watcher).forPath(path).size();
+//            cont = client.getChildren().usingWatcher(watcher).forPath(path).size();
+            cont = client.getChildren().watched().forPath(path).size();
         } catch (Exception ex) {
             LOGGER.error("[Exception] " + ex.getMessage());
         }
@@ -321,7 +328,8 @@ public class CuratorMessageService implements CloudMessageService {
         String ret = null;
 
         try {
-            data = client.getData().usingWatcher(watcher).forPath(path);
+//            data = client.getData().usingWatcher(watcher).forPath(path);
+            data = client.getData().watched().forPath(path);
             ret = new String(data);
         } catch (Exception ex) {
             LOGGER.error("[Exception] " + ex.getMessage());

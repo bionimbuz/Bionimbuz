@@ -22,6 +22,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import br.unb.cic.bionimbuz.config.BioNimbusConfig;
+import br.unb.cic.bionimbuz.model.Instance;
+import br.unb.cic.bionimbuz.model.User;
+import br.unb.cic.bionimbuz.model.Workflow;
 import br.unb.cic.bionimbuz.plugin.PluginInfo;
 import br.unb.cic.bionimbuz.plugin.PluginService;
 import br.unb.cic.bionimbuz.plugin.PluginTask;
@@ -30,6 +33,7 @@ import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbuz.services.sched.model.Resource;
 import br.unb.cic.bionimbuz.services.sched.model.ResourceList;
 import br.unb.cic.bionimbuz.toSort.Listeners;
+import java.util.logging.Level;
 
 /**
  *
@@ -182,7 +186,42 @@ public final class RepositoryService extends AbstractBioService {
 
         return resources;
     }
-
+    /**
+     * Returns the list of BionimbuZ Users, with worflows and instances
+     * @return 
+     */
+    public List<User> getUsers(){
+         List <String> userIds = new ArrayList<>();
+         List <String> workflowsUsersIds = new ArrayList<>();
+         List <String> instancesIPs = new ArrayList<>();
+         List <User> users = new ArrayList<>();
+         List <Workflow> workflowsUser = new ArrayList<>();
+         List <Instance> instances = new ArrayList<>();
+          try{
+              userIds = cms.getChildren(Path.USERS_INFO.getFullPath(), null);
+               for (String userId : userIds) {
+                   User user = new ObjectMapper().readValue(cms.getData(Path.NODE_USERS.getFullPath(userId),null), User.class);
+                   workflowsUsersIds= cms.getChildren(Path.WORKFLOWS_USER.getFullPath(userId), null);
+                   for(String workflowUserId : workflowsUsersIds){
+                       Workflow worflowUser = new ObjectMapper().readValue(cms.getData(Path.NODE_WORFLOW_USER.getFullPath(userId,workflowUserId),null), Workflow.class);
+                       workflowsUser.add(worflowUser);
+                       instancesIPs = cms.getChildren(Path.INSTANCES_USER.getFullPath(userId,workflowUserId), null);
+                       for(String InstanceIpUser : instancesIPs){
+                          Instance instanceUser=  new ObjectMapper().readValue(cms.getData(Path.NODE_INSTANCE_USER.getFullPath(userId,workflowUserId,InstanceIpUser),null), Instance.class);
+                          instances.add(instanceUser);
+                       }
+                   }
+                   user.setInstances(instances);
+                   user.setWorkflows(workflowsUser);
+                   users.add(user);
+               }
+         } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(RepositoryService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+         
+        
+        return users;
+    }
     /**
      * @param resource Resource to be added
      */

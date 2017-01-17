@@ -41,8 +41,8 @@ public class GoogleAPI implements ProvidersAPI {
      * Set PROJECT_ID to your Project ID from the Overview pane in the
      * Developers console.
      */
-    private static final String PROJECT_ID = "bionimbuz-150212";
-            //"bustling-cosmos-151913";
+    private static final String PROJECT_ID = "bustling-cosmos-151913";
+            //"bionimbuz-150212";
 
     /**
      * Set Compute Engine zone
@@ -85,7 +85,7 @@ public class GoogleAPI implements ProvidersAPI {
      */
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
-    private static final String authpath = System.getProperty("user.home") + "/BionimbuzClient/target/BionimbuzClient-0.0.1-SNAPSHOT/resources/apiCredentials/GoogleCredentials.json";
+    private static final String authpath = System.getProperty("user.home") + "/Bionimbuz/src/main/resources/GoogleCredentials.json";
     private String ipInstance;
 
     @Override

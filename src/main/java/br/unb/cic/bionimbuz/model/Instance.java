@@ -140,7 +140,6 @@ public class Instance {
 
     @Override
     public String toString() {
-
         try {
             return new ObjectMapper().writeValueAsString(this);
         } catch (IOException ex) {
@@ -154,7 +153,8 @@ public class Instance {
                 + "CPU: " + this.getNumCores() + " - " + this.getCpuHtz() + " Ghz, "
                 + "Ram:" + this.getMemoryTotal() + " GB, "
                 + "Custo por hora : $" + this.getCostPerHour() + ", "
-                + "Localidade: " + this.getLocality();
+                + "Localidade: " + this.getLocality() + ", "
+                + "Provedor: " + this.getProvider();
     }
 
     public void setDescription() {

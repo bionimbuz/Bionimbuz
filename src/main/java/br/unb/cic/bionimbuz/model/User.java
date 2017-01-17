@@ -1,7 +1,10 @@
 package br.unb.cic.bionimbuz.model;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * Models an User entity
@@ -152,5 +156,16 @@ public class User implements Serializable {
 
     public void setInstances(List<Instance> instances) {
         this.instances = instances;
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (IOException ex) {
+            Logger.getLogger(Workflow.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return null;
     }
 }

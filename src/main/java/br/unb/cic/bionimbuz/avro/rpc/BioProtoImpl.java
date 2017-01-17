@@ -409,6 +409,9 @@ public class BioProtoImpl implements BioProto {
         if (!cms.getZNodeExist(CuratorMessageService.Path.USERS.getFullPath(), null)) {
             cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.USERS.getFullPath(), "");
         }
+        if (!cms.getZNodeExist(CuratorMessageService.Path.USERS_INFO.getFullPath(), null)) {
+            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.USERS_INFO.getFullPath(), "");
+        }
         List<br.unb.cic.bionimbuz.model.Instance> listI = new ArrayList<>();
         for(br.unb.cic.bionimbuz.avro.gen.Instance i : workflow.getIntancesWorkflow()){
             //create instance object
@@ -431,7 +434,7 @@ public class BioProtoImpl implements BioProto {
             listI.add(in);
         }
         //Create structure to /bionimbuz/users/userid
-        if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_USERS.getFullPath(Long.toString(workflow.getUserId())),null)){
+        if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_USERS.getFullPath(workflow.getUserWorkflow().getNome()),null)){
             User user = new User();
             user.setId(workflow.getUserWorkflow().getId());
             user.setLogin(workflow.getUserWorkflow().getLogin());
@@ -440,26 +443,25 @@ public class BioProtoImpl implements BioProto {
             user.setEmail(workflow.getUserWorkflow().getEmail());
             user.setCelphone(workflow.getUserWorkflow().getCelphone());
             user.setInstances(listI);
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_USERS.getFullPath(Long.toString(workflow.getUserId())), user.toString());
+            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_USERS.getFullPath(workflow.getUserWorkflow().getNome()), user.toString());
         }
         //Create structure to /bionimbuz/users/userid/workflows_user/
-        if(!cms.getZNodeExist(CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(Long.toString(workflow.getUserId())),null)){
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(Long.toString(workflow.getUserId())), null);
+        if(!cms.getZNodeExist(CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(workflow.getUserWorkflow().getNome()),null)){
+            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(workflow.getUserWorkflow().getNome()), null);
         }
         //Create structure to /bionimbuz/users/userid/workflows_user/workflow_id
-        if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_WORFLOW_USER.getFullPath(Long.toString(workflow.getUserId()),workflow.getId()),null)){
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_WORFLOW_USER.getFullPath(Long.toString(workflow.getUserId()),workflow.getId()),workflow.toString());
-            System.out.println("Criou: "+cms.getZNodeExist(CuratorMessageService.Path.NODE_WORFLOW_USER.getFullPath(Long.toString(workflow.getUserId()),workflow.getId()),null));
+        if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_WORFLOW_USER.getFullPath(workflow.getUserWorkflow().getNome(),workflow.getId()),null)){
+            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_WORFLOW_USER.getFullPath(workflow.getUserWorkflow().getNome(),workflow.getId()),workflow.toString());
         }
         //Create structure to /bionimbuz/users/userid/workflows_user/workflow_id/instances_user
-        if(!cms.getZNodeExist(CuratorMessageService.Path.INSTANCES_USER.getFullPath(Long.toString(workflow.getUserId()),workflow.getId()),null)){
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.INSTANCES_USER.getFullPath(Long.toString(workflow.getUserId()),workflow.getId()),null);
+        if(!cms.getZNodeExist(CuratorMessageService.Path.INSTANCES_USER.getFullPath(workflow.getUserWorkflow().getNome(),workflow.getId()),null)){
+            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.INSTANCES_USER.getFullPath(workflow.getUserWorkflow().getNome(),workflow.getId()),null);
         }
         //Create structure to /bionimbuz/users/userid/workflows_user/workflow_id/instances_user/instances_id
         for(br.unb.cic.bionimbuz.model.Instance i : listI){
             //create instance object
-            if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_INSTANCE_USER.getFullPath(Long.toString(workflow.getUserId()),workflow.getId(),i.getIp()),null))
-                cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_INSTANCE_USER.getFullPath(Long.toString(workflow.getUserId()),workflow.getId(),i.getIp()),i.toString());
+            if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_INSTANCE_USER.getFullPath(workflow.getUserWorkflow().getNome(),workflow.getId(),i.getIp()),null))
+                cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_INSTANCE_USER.getFullPath(workflow.getUserWorkflow().getNome(),workflow.getId(),i.getIp()),i.toString());
         }
  
         // generate pipeline register

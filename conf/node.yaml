@@ -61,6 +61,7 @@ storage-mode: 1
 # Reference files (keep it ORDERED)
 references:
     - referencia_hg19
+    - human.hg19.genome
     - ref
  
 # Supported formats to be concateanted with each file name (keep it ORDERED)
