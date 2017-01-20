@@ -1,25 +1,22 @@
 package br.unb.cic.bionimbuz.controller.elasticitycontroller;
 
+import br.unb.cic.bionimbuz.model.Log;
+import br.unb.cic.bionimbuz.model.LogSeverity;
+import br.unb.cic.bionimbuz.persistence.dao.WorkflowLoggerDao;
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.KeyPair;
 import com.amazonaws.services.ec2.model.RunInstancesRequest;
 import com.amazonaws.services.ec2.model.RunInstancesResult;
 import com.amazonaws.auth.PropertiesCredentials;
-import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
-import com.amazonaws.services.cloudwatch.model.Datapoint;
-import com.amazonaws.services.cloudwatch.model.Dimension;
-import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
-import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsResult;
 import com.amazonaws.services.ec2.model.CreateTagsRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
 import com.amazonaws.services.ec2.model.Reservation;
 import com.amazonaws.services.ec2.model.Tag;
 import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
+
 
 import java.io.*;
 import java.util.*;
@@ -32,7 +29,7 @@ public class AmazonAPI implements ProvidersAPI {
     public static KeyPair keyPair;
     public static int count = 1;
     private String ipInstance;
-    private String IDInstance;
+    private final WorkflowLoggerDao workflowLogger = null;
 
     @Override
     public void setup() {
@@ -50,6 +47,7 @@ public class AmazonAPI implements ProvidersAPI {
         }//, IllegalArgumentException
     }
     
+    @Override
     public void createinstance(String type, String nameinstance) throws IOException {
         // Acho que tem que mudar isso aqui em    
 
@@ -64,24 +62,11 @@ public class AmazonAPI implements ProvidersAPI {
                     .withMinCount(1)
                     .withMaxCount(1)
                     .withSecurityGroupIds("default");
+                    
             
             runInstancesRequest.setMonitoring(Boolean.TRUE);
             
-            //.withKeyName("xebia-france")
-            //.withUserData(Base64.encodeBase64String(myUserData.getBytes()))
-
-//            System.out.println("Criando nova maquina BioninbuZ");
-//            //String imageId = "ami-6e3bb102";
-//            String imageId = "ami-912db2fd";
-//
-//            int minInstanceCount = 1; // 
-//            int maxInstanceCount = 1;
-//            RunInstancesRequest rir = new RunInstancesRequest(imageId, minInstanceCount, maxInstanceCount);
-//            rir.setInstanceType(type);
-//            rir.withSecurityGroups("default");
-//            //rir.setMonitoring(Boolean.TRUE);
-            //RunInstancesResult result = AmazonAPI.EC2.runInstances(rir);
-            RunInstancesResult result = AmazonAPI.EC2.runInstances(runInstancesRequest);
+            RunInstancesResult result = EC2.runInstances(runInstancesRequest);
 
             System.out.println("waiting");
             try {
@@ -100,7 +85,10 @@ public class AmazonAPI implements ProvidersAPI {
             for (com.amazonaws.services.ec2.model.Instance ins : resultInstance) {
 
                 createdInstanceId = ins.getInstanceId();
-                System.out.println("New instance has been created: " + createdInstanceId);//print the instance ID
+                
+                workflowLogger.log(new Log("New instance has been created:" + createdInstanceId, 0, "test", LogSeverity.INFO));
+                
+                //System.out.println("New instance has been created: " + createdInstanceId);//print the instance ID
                 CreateTagsRequest createTagsRequest = new CreateTagsRequest();
                 createTagsRequest.withResources(createdInstanceId) //
                 .withTags(new Tag("Name", nameinstance));
@@ -117,7 +105,6 @@ public class AmazonAPI implements ProvidersAPI {
 
                         System.out.println("Instance Public IP :" + instance.getPublicIpAddress());
                         setIpInstance(instance.getPublicIpAddress());
-                        setIDInstance(instance.getInstanceId());
                     }
                 }
             }
@@ -157,36 +144,14 @@ public class AmazonAPI implements ProvidersAPI {
     public void setIpInstance(String ipInstance) {
         this.ipInstance = ipInstance;
     }
-    
-    public String getIDInstance() {
-        return IDInstance;
-    }
-
-    public void setIDInstance(String IDInstance) {
-        this.IDInstance = IDInstance;
-    }
-    
-    
-    public void terminate(String ip) throws IOException {
-        this.setup();
-        
-        
-        for (com.amazonaws.services.ec2.model.Instance i : listinstances())
-
-            if (ip.equals(i.getPublicIpAddress())){
-                TerminateInstancesRequest tir = new TerminateInstancesRequest()
-                    .withInstanceIds(i.getInstanceId());
-                EC2.terminateInstances(tir);
-                //System.out.println("Terminating the instance : " + id);
-            }
-
-    }
 
     @Override
-    public void createinstance(String type) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void terminate(String instanceid)  {
+        this.setup();
+        TerminateInstancesRequest tir = new TerminateInstancesRequest()
+                .withInstanceIds(instanceid);
+        EC2.terminateInstances(tir);
+        System.out.println("Terminating the instance : " + instanceid);
+     
     }
-
-
-
 } //main end

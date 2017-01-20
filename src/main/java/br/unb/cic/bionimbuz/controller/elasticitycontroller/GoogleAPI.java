@@ -93,7 +93,7 @@ public class GoogleAPI implements ProvidersAPI {
 
     }
 
-    //@Override
+    @Override
     public void createinstance(String type, String instanceName) throws IOException {
         System.out.println("================== Setup ==================");
         try {
@@ -212,7 +212,10 @@ public class GoogleAPI implements ProvidersAPI {
     }
 
     @Override
-    public void createinstance(String type) throws IOException {
+    public void terminate(String instanceid) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+
+
 }
