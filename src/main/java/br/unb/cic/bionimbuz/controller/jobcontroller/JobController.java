@@ -23,11 +23,13 @@ import br.unb.cic.bionimbuz.model.Instance;
 import br.unb.cic.bionimbuz.model.Job;
 import br.unb.cic.bionimbuz.model.Log;
 import br.unb.cic.bionimbuz.model.LogSeverity;
+import br.unb.cic.bionimbuz.model.SLA;
 import br.unb.cic.bionimbuz.model.Workflow;
 import br.unb.cic.bionimbuz.persistence.dao.WorkflowLoggerDao;
 import br.unb.cic.bionimbuz.plugin.PluginInfo;
 import br.unb.cic.bionimbuz.services.RepositoryService;
 import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
+import java.util.Arrays;
 
 /**
  * Class that links the User Interface (Web) with the BioNimbuZ Application
@@ -120,15 +122,20 @@ public class JobController implements Controller, Runnable {
      * implementation by AVRO implementation
      *
      * @param workflow
+     * @param sla
      * @throws java.lang.Exception
      */
-    public void startWorkflow(Workflow workflow) throws Exception {
+    public void startWorkflow(Workflow workflow, SLA sla) throws Exception {
         // Logs
         loggerDao.log(new Log("Iniciando a execução do Workflow", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
-        LOGGER.info("Iniciando a execução do Workflow Userid: "+ workflow.getUserId()+" workflowId: "+ workflow.getId());
-        
+        LOGGER.info("Iniciando a execução do Workflow Userid: " + workflow.getUserId() + " workflowId: " + workflow.getId());
+
         List<br.unb.cic.bionimbuz.avro.gen.Job> listjob = new ArrayList<>();
         List<br.unb.cic.bionimbuz.avro.gen.Instance> listIntanceMachine = new ArrayList<>();
+        List<br.unb.cic.bionimbuz.avro.gen.Prediction> predict = new ArrayList<>();
+        br.unb.cic.bionimbuz.avro.gen.Sla slaworkflow = new br.unb.cic.bionimbuz.avro.gen.Sla();
+
+        //Iterates over WorkflowInstances, and add on list Avro Instance        
         for (Instance i : workflow.getIntancesWorkflow()) {
             br.unb.cic.bionimbuz.avro.gen.Instance ins = new br.unb.cic.bionimbuz.avro.gen.Instance();
             ins.setId(i.getId());
@@ -149,20 +156,22 @@ public class JobController implements Controller, Runnable {
             ins.setIp(i.getIp());
             listIntanceMachine.add(ins);
         }
-        br.unb.cic.bionimbuz.avro.gen.User userAvro= new br.unb.cic.bionimbuz.avro.gen.User();
+
+        //Set Avro User
+        br.unb.cic.bionimbuz.avro.gen.User userAvro = new br.unb.cic.bionimbuz.avro.gen.User();
         userAvro.setId(workflow.getUserWorkflow().getId());
         userAvro.setLogin(workflow.getUserWorkflow().getLogin());
         userAvro.setNome(workflow.getUserWorkflow().getNome());
         userAvro.setCpf(workflow.getUserWorkflow().getCpf());
         userAvro.setEmail(workflow.getUserWorkflow().getEmail());
         userAvro.setCelphone(workflow.getUserWorkflow().getCelphone());
+        //set avro instance list to user
         userAvro.setInstances(listIntanceMachine);
+
         // Iterates over the list of jobs
         for (Job jobInfo : workflow.getJobs()) {
-
             // Create a new Avro Job
             br.unb.cic.bionimbuz.avro.gen.Job job = new br.unb.cic.bionimbuz.avro.gen.Job();
-
             // Sets its fields
             job.setArgs(jobInfo.getArgs());
             job.setId(jobInfo.getId());
@@ -196,6 +205,89 @@ public class JobController implements Controller, Runnable {
             // Adds this avro job
             listjob.add(job);
         }
+        if (sla.getPrediction()) {
+            for (br.unb.cic.bionimbuz.model.Prediction p : sla.getSolutions()) {
+                br.unb.cic.bionimbuz.avro.gen.Prediction pAvro = new br.unb.cic.bionimbuz.avro.gen.Prediction();
+                pAvro.setCustoService(p.getCustoService());
+                pAvro.setId(p.getId());
+                pAvro.setIdService(p.getIdService());
+                br.unb.cic.bionimbuz.avro.gen.Instance ins = new br.unb.cic.bionimbuz.avro.gen.Instance();
+                ins.setId(p.getInstance().getId());
+                ins.setType(p.getInstance().getType());
+                ins.setCostPerHour(p.getInstance().getCostPerHour());
+                ins.setLocality(p.getInstance().getLocality());
+                ins.setMemoryTotal(p.getInstance().getMemoryTotal());
+                ins.setCpuHtz(p.getInstance().getCpuHtz());
+                ins.setCpuType(p.getInstance().getCpuType());
+                ins.setNumCores(p.getInstance().getNumCores());
+                ins.setDescription(p.getInstance().getDescription());
+                ins.setProvider(p.getInstance().getProvider());
+                ins.setIdProgramas(p.getInstance().getidProgramas());
+                ins.setCreationTimer(p.getInstance().getCreationTimer());
+                ins.setDelay(p.getInstance().getDelay());
+                ins.setTimetocreate(p.getInstance().getTimetocreate());
+                ins.setIdUser(p.getInstance().getIdUser());
+                ins.setIp(p.getInstance().getIp());
+                pAvro.setInstance(ins);
+                pAvro.setTimeService(p.getTimeService());
+                predict.add(pAvro);
+            }
+        } else {
+            br.unb.cic.bionimbuz.avro.gen.Prediction pAvro = new br.unb.cic.bionimbuz.avro.gen.Prediction();
+            pAvro.setCustoService(0d);
+            pAvro.setId("");
+            pAvro.setIdService("");
+            br.unb.cic.bionimbuz.avro.gen.Instance ins = new br.unb.cic.bionimbuz.avro.gen.Instance();
+            ins.setId("");
+            ins.setType("");
+            ins.setCostPerHour(0d);
+            ins.setLocality("");
+            ins.setMemoryTotal(0d);
+            ins.setCpuHtz(0d);
+            ins.setCpuType("");
+            ins.setNumCores(0);
+            ins.setDescription("");
+            ins.setProvider("");
+            ins.setIdProgramas(new ArrayList<>(Arrays.asList("")));
+            ins.setCreationTimer(0l);
+            ins.setDelay(0);
+            ins.setTimetocreate(0l);
+            ins.setIdUser(0l);
+            ins.setIp("");
+            pAvro.setInstance(ins);
+            pAvro.setTimeService(0l);
+            predict.add(pAvro);
+        }
+
+        //Create Avro Sla 
+        slaworkflow.setId(sla.getId());
+        slaworkflow.setWorkflowid(workflow.getId());
+        slaworkflow.setUser(userAvro);
+        slaworkflow.setProvider(sla.getProvider());
+        slaworkflow.setPrediction(sla.getPrediction());
+        slaworkflow.setSolutions(predict);
+  
+        //prevents null
+        slaworkflow.setObjective(-1);
+        slaworkflow.setLimitationValueExecutionCost(-1.0);
+        slaworkflow.setLimitationValueExecutionTime(-1l);
+        slaworkflow.setLimitationType(-1);
+        
+        if (sla.getObjective() != null) 
+            slaworkflow.setObjective(sla.getObjective());
+        if (sla.getLimitationExecution()) {
+            slaworkflow.setLimitationType(sla.getLimitationType());
+            //0 = time | 1 = cust
+            if (sla.getLimitationType() == 0) {
+                slaworkflow.setLimitationValueExecutionTime(sla.getLimitationValueExecutionTime());
+            } else if (sla.getLimitationType() == 1) {
+                slaworkflow.setLimitationValueExecutionCost(sla.getLimitationValueExecutionCost());
+            }
+        }
+        slaworkflow.setPeriod(sla.getPeriod());
+        slaworkflow.setValue(sla.getValue());
+        slaworkflow.setTime(sla.getTime());
+        slaworkflow.setLimitationExecution(sla.getLimitationExecution());
 
         // Creates Avro Workflow
         br.unb.cic.bionimbuz.avro.gen.Workflow avroWorkflow = new br.unb.cic.bionimbuz.avro.gen.Workflow();
@@ -208,8 +300,8 @@ public class JobController implements Controller, Runnable {
 
         // Logs
         loggerDao.log(new Log("Enviando Workflow para o serviço de Escalonamento do BioNimbuZ", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
-        
-        rpcClient.getProxy().startWorkflow(avroWorkflow);
+
+        rpcClient.getProxy().startWorkflow(avroWorkflow, slaworkflow);
 
     }
 

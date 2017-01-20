@@ -34,6 +34,7 @@ import javax.ws.rs.core.Response;
 
 import br.unb.cic.bionimbuz.avro.rpc.AvroClient;
 import br.unb.cic.bionimbuz.controller.jobcontroller.JobController;
+import br.unb.cic.bionimbuz.controller.slacontroller.SlaController;
 import br.unb.cic.bionimbuz.model.FileInfo;
 import br.unb.cic.bionimbuz.model.Instance;
 import br.unb.cic.bionimbuz.model.Log;
@@ -64,7 +65,7 @@ public class WorkflowResource extends AbstractResource {
     private final WorkflowDao workflowDao;
     private final WorkflowLoggerDao loggerDao;
 
-    public WorkflowResource(JobController jobController) {
+    public WorkflowResource(JobController jobController, SlaController slaController) {
         // Creates a RPC Client
         try {
             rpcClient = new AvroClient("http", loadHostConfig(System.getProperty("config.file", "conf/node.yaml")).getAddress(), 8080);
@@ -76,6 +77,7 @@ public class WorkflowResource extends AbstractResource {
         this.jobController = jobController;
         this.workflowDao = new WorkflowDao();
         this.loggerDao = new WorkflowLoggerDao();
+        this.slaController= slaController;
     }
 
     /**
@@ -97,11 +99,13 @@ public class WorkflowResource extends AbstractResource {
         LOGGER.info(" USER= "+request.getWorkflow().getUserWorkflow().getNome());
         // Logs
         loggerDao.log(new Log("Workflow chegou no servidor do BioNimbuZ", request.getWorkflow().getUserId(), request.getWorkflow().getId(), LogSeverity.INFO));
-
+        request.getSla().setIdWorkflow(request.getWorkflow().getId());
+        request.getSla().setUser(request.getWorkflow().getUserWorkflow());
+        
         try {
             // Starts it
-            jobController.startWorkflow(request.getWorkflow());
-
+            jobController.startWorkflow(request.getWorkflow(),request.getSla());
+//            slaController.startSla(request.getSla(),request.getWorkflow());
             // Sets its status as EXECUTING
             request.getWorkflow().setStatus(WorkflowStatus.EXECUTING);
 

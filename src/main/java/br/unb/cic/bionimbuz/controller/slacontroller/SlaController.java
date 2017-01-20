@@ -44,6 +44,8 @@ public class SlaController  implements Controller, Runnable {
     protected BioNimbusConfig config;
     private final RepositoryService repositoryService;
     private List<User> users = Collections.synchronizedList(new ArrayList());
+    private static final int LIMITATIONEXECUTIONTIME = 0;
+    private static final int LIMITATIONEXECUTIONCUST = 1;
     /**
      * Starts SlaController execution
      *
@@ -116,10 +118,30 @@ public class SlaController  implements Controller, Runnable {
 //        }
     }
 
-    public void startSla() {
+    public void startSla(SLA sla, Workflow workflow) {
+        
+        System.out.println("SLAA: "+sla.toString());
+        System.out.println("WORKFLOWWW: "+workflow.toString());
+        if(sla.getPrediction()){
+            System.out.println("Verificar os tempos, atribuidos aos serviços");
+        }
+        else{
+            if(sla.getLimitationExecution()){
+                //0 = time
+                if(sla.getLimitationType()==LIMITATIONEXECUTIONTIME){
+                    System.out.println("Parar quando chegar nesse tempo");
+                   
+                }else {
+                    //1= cust
+                    if(sla.getLimitationType()==LIMITATIONEXECUTIONCUST){
+                        System.out.println("Parar quando atingir esse valor");
+                    }
+                }
+            }
+        }
 
     }
-
+   
     public void createSlaTemplate(SLA sla, Workflow workflow) {
         System.out.println("Sla: "+sla.toString());
         System.out.println("Workflow: "+ workflow.toString());

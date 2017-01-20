@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import br.unb.cic.bionimbuz.avro.rpc.AvroClient;
 import br.unb.cic.bionimbuz.avro.rpc.RpcClient;
 import br.unb.cic.bionimbuz.config.ConfigurationRepository;
+import br.unb.cic.bionimbuz.controller.elasticitycontroller.AmazonAPI;
 import br.unb.cic.bionimbuz.model.FileInfo;
 import br.unb.cic.bionimbuz.model.Log;
 import br.unb.cic.bionimbuz.model.LogSeverity;
@@ -202,8 +203,18 @@ public class PluginTaskRunner implements Callable<PluginTask> {
                 // Log it
                 this.workflowLogger
                         .log(new Log("Tempo de execução do Job <b>" + this.task.getJobInfo().getId() + "</b>: " + formattedTime, this.workflow.getUserId(), this.workflow.getId(), LogSeverity.INFO));
+                
+                AmazonAPI api = new AmazonAPI();
+                api.terminate(this.task.getJobInfo().getIpjob().get(0));
+                Thread.sleep(5000);
+                
+                this.workflowLogger
+                        .log(new Log("<span style=\"color:#873eb6;\">Deletando Máquina Virtual " + this.task.getJobInfo().getIpjob().get(0) + "</span>", this.workflow.getUserId(), this.workflow.getId(), LogSeverity.INFO));
+                
                 this.workflowLogger
                         .log(new Log("<span style=\"color:#984eb7;\">Fim Job" + this.task.getJobInfo().getId() + "</span>", this.workflow.getUserId(), this.workflow.getId(), LogSeverity.INFO));
+                
+                
                 
                 // Changes its state
                 this.task.setState(PluginTaskState.DONE);

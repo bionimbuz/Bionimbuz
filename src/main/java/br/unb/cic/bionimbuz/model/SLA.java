@@ -5,13 +5,12 @@
  */
 package br.unb.cic.bionimbuz.model;
 
-import br.unb.cic.bionimbuz.plugin.PluginService;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 import org.codehaus.jackson.map.ObjectMapper;
 
 /**
@@ -23,63 +22,52 @@ public class SLA {
     @Id
     private String id;
     private User user;
+    private String idWorkflow;
     private String provider;
     private Integer objective;
     private Long period;
-    private List<PluginService> services;
-    private List<Instance> instances;
     private Double value;
-    private Date time;
+    private Long time;
     private Integer limitationType;
-    private Double limitationValueExecutionTime;
+    private Long limitationValueExecutionTime;
     private Double limitationValueExecutionCost;
-    
+    private Boolean prediction;
+    private List<Prediction> solutions;
+    private Boolean limitationExecution;
+
     public SLA() {
-        this.user = null;
-        this.provider = null;
-        this.objective = 0;
-        this.period = 0l;
-        this.instances = null;
-        this.services = null;
-        this.time = null;
-        this.time = new Date();
 
     }
 
-    public SLA(String id, User user, String provider, Integer objective, Long period, List<PluginService> services, List<Instance> instances, Double value, Date time, Integer limitationType, Double limitationValueExecutionTime, Double limitationValueExecutionCost) {
+    public SLA(String id, User user, String idWorkflow, String provider, Integer objective, Long period, Double value, Long time, Integer limitationType, Long limitationValueExecutionTime, Double limitationValueExecutionCost, Boolean prediction, List<Prediction> solutions, Boolean limitationExecution) {
         this.id = id;
         this.user = user;
+        this.idWorkflow = idWorkflow;
         this.provider = provider;
         this.objective = objective;
         this.period = period;
-        this.services = services;
-        this.instances = instances;
         this.value = value;
         this.time = time;
         this.limitationType = limitationType;
         this.limitationValueExecutionTime = limitationValueExecutionTime;
         this.limitationValueExecutionCost = limitationValueExecutionCost;
-    }
-    
-    
-    public SLA(SLA sla) {
-
-        this.user = sla.getUser();
-        this.provider = sla.getProvider();
-        this.objective = sla.getObjective();
-        this.period = sla.getPeriod();
-        this.instances = sla.getInstances();
-        this.services = sla.getServices();
-        this.time = sla.getTime();
-
+        this.prediction = prediction;
+        this.solutions = solutions;
+        this.limitationExecution = limitationExecution;
     }
 
-    public SLA(User user, String provider, List<PluginService> service, Date time, Double value) {
-        this.user = user;
+    public SLA(String provider, Integer objective, Long period, Double value, Long time, Integer limitationType, Long limitationValueExecutionTime, Double limitationValueExecutionCost, Boolean prediction, List<Prediction> solutions, Boolean limitationExecution) {
         this.provider = provider;
-        this.services = service;
-        this.time = time;
+        this.objective = objective;
+        this.period = period;
         this.value = value;
+        this.time = time;
+        this.limitationType = limitationType;
+        this.limitationValueExecutionTime = limitationValueExecutionTime;
+        this.limitationValueExecutionCost = limitationValueExecutionCost;
+        this.prediction = prediction;
+        this.solutions = solutions;
+        this.limitationExecution = limitationExecution;
     }
 
     /**
@@ -139,34 +127,6 @@ public class SLA {
     }
 
     /**
-     * @return the services
-     */
-    public List<PluginService> getServices() {
-        return services;
-    }
-
-    /**
-     * @param services the services to set
-     */
-    public void setServices(List<PluginService> services) {
-        this.services = services;
-    }
-
-    /**
-     * @return the instances
-     */
-    public List<Instance> getInstances() {
-        return instances;
-    }
-
-    /**
-     * @param instances the instances to set
-     */
-    public void setInstances(List<Instance> instances) {
-        this.instances = instances;
-    }
-
-    /**
      * @return the value
      */
     public Double getValue() {
@@ -183,14 +143,14 @@ public class SLA {
     /**
      * @return the time
      */
-    public Date getTime() {
+    public Long getTime() {
         return time;
     }
 
     /**
      * @param time the time to set
      */
-    public void setTime(Date time) {
+    public void setTime(Long time) {
         this.time = time;
     }
 
@@ -225,14 +185,15 @@ public class SLA {
     /**
      * @return the limitationValueExecutionTime
      */
-    public Double getLimitationValueExecutionTime() {
+    public Long getLimitationValueExecutionTime() {
         return limitationValueExecutionTime;
     }
 
     /**
-     * @param limitationValueExecutionTime the limitationValueExecutionTime to set
+     * @param limitationValueExecutionTime the limitationValueExecutionTime to
+     * set
      */
-    public void setLimitationValueExecutionTime(Double limitationValueExecutionTime) {
+    public void setLimitationValueExecutionTime(Long limitationValueExecutionTime) {
         this.limitationValueExecutionTime = limitationValueExecutionTime;
     }
 
@@ -244,20 +205,53 @@ public class SLA {
     }
 
     /**
-     * @param limitationValueExecutionCost the limitationValueExecutionCost to set
+     * @param limitationValueExecutionCost the limitationValueExecutionCost to
+     * set
      */
     public void setLimitationValueExecutionCost(Double limitationValueExecutionCost) {
         this.limitationValueExecutionCost = limitationValueExecutionCost;
     }
-    
+
+    public Boolean getPrediction() {
+        return prediction;
+    }
+
+    public void setPrediction(Boolean prediction) {
+        this.prediction = prediction;
+    }
+
+    public List<Prediction> getSolutions() {
+        return solutions;
+    }
+
+    public void setSolutions(List<Prediction> solutions) {
+        this.solutions = solutions;
+    }
+
+    public Boolean getLimitationExecution() {
+        return limitationExecution;
+    }
+
+    public void setLimitationExecution(Boolean limitationExecution) {
+        this.limitationExecution = limitationExecution;
+    }
+
+    public String getIdWorkflow() {
+        return idWorkflow;
+    }
+
+    public void setIdWorkflow(String idWorkflow) {
+        this.idWorkflow = idWorkflow;
+    }
+
     @Override
     public String toString() {
         try {
             return new ObjectMapper().writeValueAsString(this);
         } catch (IOException ex) {
-            Logger.getLogger(Workflow.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SLA.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
-    
+
 }

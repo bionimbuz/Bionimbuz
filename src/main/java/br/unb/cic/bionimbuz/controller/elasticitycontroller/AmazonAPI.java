@@ -19,6 +19,7 @@ import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
 import com.amazonaws.services.ec2.model.Reservation;
 import com.amazonaws.services.ec2.model.Tag;
+import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 
 import java.io.*;
 import java.util.*;
@@ -31,6 +32,7 @@ public class AmazonAPI implements ProvidersAPI {
     public static KeyPair keyPair;
     public static int count = 1;
     private String ipInstance;
+    private String IDInstance;
 
     @Override
     public void setup() {
@@ -115,6 +117,7 @@ public class AmazonAPI implements ProvidersAPI {
 
                         System.out.println("Instance Public IP :" + instance.getPublicIpAddress());
                         setIpInstance(instance.getPublicIpAddress());
+                        setIDInstance(instance.getInstanceId());
                     }
                 }
             }
@@ -154,10 +157,36 @@ public class AmazonAPI implements ProvidersAPI {
     public void setIpInstance(String ipInstance) {
         this.ipInstance = ipInstance;
     }
+    
+    public String getIDInstance() {
+        return IDInstance;
+    }
+
+    public void setIDInstance(String IDInstance) {
+        this.IDInstance = IDInstance;
+    }
+    
+    
+    public void terminate(String ip) throws IOException {
+        this.setup();
+        
+        
+        for (com.amazonaws.services.ec2.model.Instance i : listinstances())
+
+            if (ip.equals(i.getPublicIpAddress())){
+                TerminateInstancesRequest tir = new TerminateInstancesRequest()
+                    .withInstanceIds(i.getInstanceId());
+                EC2.terminateInstances(tir);
+                //System.out.println("Terminating the instance : " + id);
+            }
+
+    }
 
     @Override
     public void createinstance(String type) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+
 
 } //main end

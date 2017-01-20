@@ -56,6 +56,14 @@ protocol BioProto {
         string ip;
     }
     
+    record Prediction{
+        string id;
+        string idService;
+        long timeService;
+        Instance instance;
+        double custoService;
+    }
+
     record User{
         long id;
         string login;
@@ -70,6 +78,23 @@ protocol BioProto {
         string first;
         long second;
     }  
+
+    record Sla{
+        string id;
+        string workflowid;
+        User user;
+        string provider;
+        int objective;
+        long period;
+        double value;
+        long time;
+        int limitationType;
+        long limitationValueExecutionTime;
+        double limitationValueExecutionCost;
+        boolean prediction;
+        array <Prediction> solutions;
+        boolean limitationExecution;
+    }
 
     record Job {
         string id;
@@ -137,7 +162,7 @@ protocol BioProto {
 
     string startJobName(string jobID, string ip);
 
-    string startWorkflow(Workflow workflow);
+    string startWorkflow(Workflow workflow, Sla sla);
 
     string schedPolicy(int numPolicy);
 

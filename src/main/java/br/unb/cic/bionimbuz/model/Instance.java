@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.joda.time.DateTime;
 
 /**
  * Class that defines the Instance

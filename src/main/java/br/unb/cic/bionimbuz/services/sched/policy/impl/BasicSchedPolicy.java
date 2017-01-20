@@ -28,12 +28,14 @@ import br.unb.cic.bionimbuz.plugin.PluginInfo;
 import br.unb.cic.bionimbuz.plugin.PluginTask;
 import br.unb.cic.bionimbuz.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbuz.utils.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BasicSchedPolicy extends SchedPolicy {
 
     private final int CORES_WEIGHT = 3;
     private final int NODES_WEIGHT = 2;
-
+    protected static final Logger LOGGER = LoggerFactory.getLogger(BasicSchedPolicy.class);
     private List<PluginInfo> filterByService(String serviceId) {
         ArrayList<PluginInfo> plugins = new ArrayList<>();
         getCloudMap().values().stream().filter((pluginInfo) -> (pluginInfo.getService(serviceId) != null)).forEach((pluginInfo) -> {
@@ -47,8 +49,10 @@ public class BasicSchedPolicy extends SchedPolicy {
         PluginInfo best = plugins.get(0);
         for (PluginInfo plugin : plugins) {
             for (String ip : job.getIpjob())
-                if(plugin.getHost().getAddress().equalsIgnoreCase(ip))
+                if(plugin.getHost().getAddress().equalsIgnoreCase(ip)){
+//                 LOGGER.info("ESTA PORRA AQUI");
                     return plugin;
+                }
         }
         for (PluginInfo plugin : plugins) {
             if (calculateWeightSum(plugin) > calculateWeightSum(best)) best = plugin;

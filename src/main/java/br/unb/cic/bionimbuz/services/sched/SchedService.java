@@ -76,6 +76,8 @@ import br.unb.cic.bionimbuz.services.storage.bucket.methods.CloudMethodsAmazonGo
 import br.unb.cic.bionimbuz.toSort.Listeners;
 import br.unb.cic.bionimbuz.utils.Get;
 import br.unb.cic.bionimbuz.utils.Pair;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 @Singleton
 public class SchedService extends AbstractBioService implements Runnable {
@@ -230,7 +232,7 @@ public class SchedService extends AbstractBioService implements Runnable {
         if (!pendingJobs.isEmpty()) {
             // Log if workflow not null
             if (workflow != null) {
-                workflowLogger.log(new Log("Job recebido pelo Serviço de Ecalonamento", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
+                workflowLogger.log(new Log("Job recebido pelo Serviço de Escalonamento", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
             }
 
             cloudMap.clear();
@@ -260,6 +262,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                     pendingJobs.remove(jobInfo);
 
                     //adiciona a lista de jobs que aguardam execução
+                    task.setState(PluginTaskState.WAITING);
                     waitingTask.put(task.getId(), new Pair<>(pluginInfo, task));
 
                     // Log it
@@ -709,6 +712,14 @@ public class SchedService extends AbstractBioService implements Runnable {
                     if (pair.first.getHost().getAddress().equals(myLinuxPlugin.getMyInfo().getHost().getAddress())) {
                         if (pair.second.getState() == PluginTaskState.WAITING) {
                             executeTasks(pair.second);
+//                           Consumer<Job> style =(Job p) -> System.out.println("id:"+p.getIpjob().);
+                           List<String> ip =new ArrayList<>();
+                           ip.addAll(pair.second.getJobInfo().getIpjob());
+                           for(String j : ip){
+                               if(!j.equals(myLinuxPlugin.getMyInfo().getHost().getAddress())){
+                                   pair.second.getJobInfo().getIpjob().remove(j);
+                               }
+                           }
                         }
                     }
                     if (pair.second.getState() == PluginTaskState.DONE) {

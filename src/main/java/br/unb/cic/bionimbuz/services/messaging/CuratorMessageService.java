@@ -103,6 +103,7 @@ public class CuratorMessageService implements CloudMessageService {
         NODE_USERS("/"),
         NODE_TASK("/"),
         NODE_WORFLOW_USER("/"),
+        NODE_SLA_USER("/"),
         PEERS("/peers"),
         PENDING_SAVE("/pending_save"),
         PIPELINES("/pipelines"),
@@ -117,6 +118,7 @@ public class CuratorMessageService implements CloudMessageService {
         TASKS("/tasks"),
         USERS("/users"),
         USERS_INFO("/users_info"),
+        SLAS_USER("/slas_user"),
         WORKFLOWS_USER("/workflows_user");
         
 
@@ -168,6 +170,10 @@ public class CuratorMessageService implements CloudMessageService {
                     return "" + ROOT + USERS + USERS_INFO + NODE_USERS + args[0];
                 case WORKFLOWS_USER:
                     return "" + ROOT + USERS + USERS_INFO + NODE_USERS + args[0] + WORKFLOWS_USER;
+                case SLAS_USER:
+                    return "" + ROOT + USERS + USERS_INFO + NODE_USERS + args[0] + SLAS_USER;
+                case NODE_SLA_USER:
+                    return "" + ROOT + USERS + USERS_INFO + NODE_USERS + args[0] + SLAS_USER + NODE_SLA_USER +args[1];
                 case NODE_WORFLOW_USER :
                      return "" + ROOT + USERS + USERS_INFO + NODE_USERS + args[0] + WORKFLOWS_USER + NODE_WORFLOW_USER +args[1];
                 case INSTANCES_USER:

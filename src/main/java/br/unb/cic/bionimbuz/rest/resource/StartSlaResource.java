@@ -61,10 +61,6 @@ public class StartSlaResource extends AbstractResource{
                 + ",limitationValueExecutionTime: "+sla.getLimitationValueExecutionTime()
                 + ",objective: "+sla.getObjective()
                 + "}");
-                LOGGER.info("Instances: ");
-                sla.getInstances().stream().forEach((Instance f) -> {
-                    LOGGER.info(f.toString()+"\n");
-                });
                 
                 slaController.createSlaTemplate(sla, workflow);
         

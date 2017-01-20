@@ -171,8 +171,10 @@ public class SchedullerTester {
         workflow.setJobs(listjob);
         workflow.setCreationDatestamp("00/00/00");
         workflow.setDescription("descricao");
-
-        rpcClient.getProxy().startWorkflow(workflow);
+        br.unb.cic.bionimbuz.avro.gen.Sla sla = new br.unb.cic.bionimbuz.avro.gen.Sla();
+        sla.setId("SLA-"+pipeline.getId());
+        sla.setWorkflowid(pipeline.getId());
+        rpcClient.getProxy().startWorkflow(workflow,sla);
     }
 
     public static class ShowSchedResults implements Watcher {
