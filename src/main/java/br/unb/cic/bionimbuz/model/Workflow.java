@@ -57,6 +57,9 @@ public class Workflow implements Serializable {
     @Transient
     private User userWorkflow;
     
+    @Transient
+    private SLA sla;
+
     private String creationDatestamp;
     private long userId;
     private String description;
@@ -84,6 +87,18 @@ public class Workflow implements Serializable {
         this.jobs = new ArrayList<>();
         this.description = description;
         this.status = WorkflowStatus.PENDING;
+    }
+
+    public Workflow(String id, List<Job> jobs, List<Instance> intancesWorkflow, User userWorkflow, SLA sla, String creationDatestamp, long userId, String description, WorkflowStatus status) {
+        this.id = id;
+        this.jobs = jobs;
+        this.intancesWorkflow = intancesWorkflow;
+        this.userWorkflow = userWorkflow;
+        this.sla = sla;
+        this.creationDatestamp = creationDatestamp;
+        this.userId = userId;
+        this.description = description;
+        this.status = status;
     }
 
     /**
@@ -152,17 +167,6 @@ public class Workflow implements Serializable {
         this.userId = userId;
     }
 
-    @Override
-    public String toString() {
-        try {
-            return new ObjectMapper().writeValueAsString(this);
-        } catch (IOException ex) {
-            Logger.getLogger(Workflow.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        return null;
-    }
-
     public List<Instance> getIntancesWorkflow() {
         return intancesWorkflow;
     }
@@ -177,5 +181,23 @@ public class Workflow implements Serializable {
 
     public void setUserWorkflow(User userWorkflow) {
         this.userWorkflow = userWorkflow;
+    }
+    
+    public SLA getSla() {
+        return sla;
+    }
+
+    public void setSla(SLA sla) {
+        this.sla = sla;
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (IOException ex) {
+            Logger.getLogger(Workflow.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 }

@@ -23,6 +23,8 @@ import br.unb.cic.bionimbuz.rest.response.ResponseInfo;
 /**
  *
  * @author biolabid2
+ * 
+ * CLASSE nao utilizada
  */
 @Path("/rest")
 public class StartSlaResource extends AbstractResource{
@@ -50,10 +52,9 @@ public class StartSlaResource extends AbstractResource{
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public SLA startWorkflow(StartSlaRequest request) {
-        SLA sla = request.getSla();
+        SLA sla = request.getWorkflow().getSla();
         Workflow workflow = request.getWorkflow();
         LOGGER.info("New SLA received {id= " + sla.getId()
-                + ",userId= " + sla.getUser().getId()
                 + ",workflowId= " + workflow.getId()
                 + ",workflowdescription= " + workflow.getDescription()
                 + ",limitationType: " + sla.getLimitationType()

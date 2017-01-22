@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.Id;
-import javax.persistence.Transient;
 import org.codehaus.jackson.map.ObjectMapper;
 
 /**
@@ -21,7 +20,6 @@ public class SLA {
 
     @Id
     private String id;
-    private User user;
     private String idWorkflow;
     private String provider;
     private Integer objective;
@@ -38,10 +36,24 @@ public class SLA {
     public SLA() {
 
     }
+    
+    public SLA(String provider,String idWorkflow, Integer objective, Long period, Double value, Long time, Integer limitationType, Long limitationValueExecutionTime, Double limitationValueExecutionCost, Boolean prediction, List<Prediction> solutions, Boolean limitationExecution) {
+        this.provider = provider;
+        this.idWorkflow = idWorkflow;
+        this.objective = objective;
+        this.period = period;
+        this.value = value;
+        this.time = time;
+        this.limitationType = limitationType;
+        this.limitationValueExecutionTime = limitationValueExecutionTime;
+        this.limitationValueExecutionCost = limitationValueExecutionCost;
+        this.prediction = prediction;
+        this.solutions = solutions;
+        this.limitationExecution = limitationExecution;
+    }
 
-    public SLA(String id, User user, String idWorkflow, String provider, Integer objective, Long period, Double value, Long time, Integer limitationType, Long limitationValueExecutionTime, Double limitationValueExecutionCost, Boolean prediction, List<Prediction> solutions, Boolean limitationExecution) {
+    public SLA(String id, String idWorkflow, String provider, Integer objective, Long period, Double value, Long time, Integer limitationType, Long limitationValueExecutionTime, Double limitationValueExecutionCost, Boolean prediction, List<Prediction> solutions, Boolean limitationExecution) {
         this.id = id;
-        this.user = user;
         this.idWorkflow = idWorkflow;
         this.provider = provider;
         this.objective = objective;
@@ -54,34 +66,6 @@ public class SLA {
         this.prediction = prediction;
         this.solutions = solutions;
         this.limitationExecution = limitationExecution;
-    }
-
-    public SLA(String provider, Integer objective, Long period, Double value, Long time, Integer limitationType, Long limitationValueExecutionTime, Double limitationValueExecutionCost, Boolean prediction, List<Prediction> solutions, Boolean limitationExecution) {
-        this.provider = provider;
-        this.objective = objective;
-        this.period = period;
-        this.value = value;
-        this.time = time;
-        this.limitationType = limitationType;
-        this.limitationValueExecutionTime = limitationValueExecutionTime;
-        this.limitationValueExecutionCost = limitationValueExecutionCost;
-        this.prediction = prediction;
-        this.solutions = solutions;
-        this.limitationExecution = limitationExecution;
-    }
-
-    /**
-     * @return the user
-     */
-    public User getUser() {
-        return user;
-    }
-
-    /**
-     * @param user the user to set
-     */
-    public void setUser(User user) {
-        this.user = user;
     }
 
     /**

@@ -42,6 +42,7 @@ import br.unb.cic.bionimbuz.avro.gen.FileInfo;
 import br.unb.cic.bionimbuz.avro.gen.NodeInfo;
 import br.unb.cic.bionimbuz.avro.gen.Workflow;
 import br.unb.cic.bionimbuz.config.ConfigurationRepository;
+import br.unb.cic.bionimbuz.controller.usercontroller.UserController;
 import br.unb.cic.bionimbuz.model.User;
 import br.unb.cic.bionimbuz.plugin.PluginFile;
 import br.unb.cic.bionimbuz.plugin.PluginInfo;
@@ -49,10 +50,12 @@ import br.unb.cic.bionimbuz.plugin.PluginService;
 import br.unb.cic.bionimbuz.plugin.PluginTask;
 import br.unb.cic.bionimbuz.security.AESEncryptor;
 import br.unb.cic.bionimbuz.security.HashUtil;
+import br.unb.cic.bionimbuz.services.UpdatePeerData;
 import br.unb.cic.bionimbuz.services.discovery.DiscoveryService;
 import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService;
 import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path;
+import br.unb.cic.bionimbuz.services.monitor.MonitoringService;
 import br.unb.cic.bionimbuz.services.sched.SchedService;
 import br.unb.cic.bionimbuz.services.storage.StorageService;
 
@@ -71,15 +74,21 @@ public class BioProtoImpl implements BioProto {
     
     private final DiscoveryService discoveryService;
     private final StorageService storageService;
+    private final MonitoringService monitoringService;
     private final CloudMessageService cms;
+    private final UserController userController;
+    private final SchedService schedService;
     
     private final Map<String, NodeInfo> nodes = new HashMap<>();
     
     @Inject
-    public BioProtoImpl(DiscoveryService discoveryService, StorageService storageService, SchedService schedService, CloudMessageService cms) {
+    public BioProtoImpl(DiscoveryService discoveryService, StorageService storageService, SchedService schedService,MonitoringService monitoringService, UserController userController ,CloudMessageService cms) {
         this.discoveryService = discoveryService;
         this.storageService = storageService;
+        this.monitoringService = monitoringService;
+        this.schedService =schedService;
         this.cms = cms;
+        this.userController = userController;
     }
     
     @Override
@@ -403,80 +412,18 @@ public class BioProtoImpl implements BioProto {
         throw new UnsupportedOperationException("Function commented. Also, if needed, this must be updated to new pipeline model");
     }
     
+    /**
+     * Create the workflow and users infos on zookeeper
+     * @param workflow
+     * @return
+     * @throws AvroRemoteException 
+     */
     @Override
-    public String startWorkflow(br.unb.cic.bionimbuz.avro.gen.Workflow workflow, br.unb.cic.bionimbuz.avro.gen.Sla sla) throws AvroRemoteException {
-        this.cms.getPath();
-         // Create /users
-        if (!cms.getZNodeExist(CuratorMessageService.Path.USERS.getFullPath(), null)) {
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.USERS.getFullPath(), "");
-        }
-        if (!cms.getZNodeExist(CuratorMessageService.Path.USERS_INFO.getFullPath(), null)) {
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.USERS_INFO.getFullPath(), "");
-        }
-        
-        List<br.unb.cic.bionimbuz.model.Instance> listI = new ArrayList<>();
-        for(br.unb.cic.bionimbuz.avro.gen.Instance i : workflow.getIntancesWorkflow()){
-            //create instance object
-            br.unb.cic.bionimbuz.model.Instance in = new br.unb.cic.bionimbuz.model.Instance();
-            in.setId(i.getId()); 
-            in.setType(i.getType());
-            in.setCostPerHour(i.getCostPerHour());
-            in.setMemoryTotal(i.getMemoryTotal());
-            in.setNumCores(i.getNumCores());
-            in.setProvider(i.getProvider());
-            in.setidProgramas(i.getIdProgramas());
-            in.setCreationTimer(i.getCreationTimer());
-            in.setDelay(i.getDelay());
-            in.setTimetocreate(i.getTimetocreate());
-            in.setIp(i.getIp());
-            in.setLocality(i.getLocality());
-            in.setCpuHtz(i.getCpuHtz());
-            in.setCpuType(i.getCpuType());
-            in.setIdUser(i.getIdUser());
-            listI.add(in);
-        }
-        //Create structure to /bionimbuz/users/userid
-        if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_USERS.getFullPath(workflow.getUserWorkflow().getLogin()),null)){
-            User user = new User();
-            user.setId(workflow.getUserWorkflow().getId());
-            user.setLogin(workflow.getUserWorkflow().getLogin());
-            user.setNome(workflow.getUserWorkflow().getNome());
-            user.setCpf(workflow.getUserWorkflow().getCpf());
-            user.setEmail(workflow.getUserWorkflow().getEmail());
-            user.setCelphone(workflow.getUserWorkflow().getCelphone());
-            user.setInstances(listI);
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_USERS.getFullPath(workflow.getUserWorkflow().getLogin()), user.toString());
-        }
-        //Create structure to /bionimbuz/users/userid/slas_user/
-        if(!cms.getZNodeExist(CuratorMessageService.Path.SLAS_USER.getFullPath(workflow.getUserWorkflow().getLogin()),null)){
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.SLAS_USER.getFullPath(workflow.getUserWorkflow().getLogin()), null);
-        }
-        //Create structure to /bionimbuz/users/userid/slas_user/sla_id
-        if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_SLA_USER.getFullPath(workflow.getUserWorkflow().getLogin(),sla.getId()),null)){
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_SLA_USER.getFullPath(workflow.getUserWorkflow().getLogin(),sla.getId()),sla.toString());
-        }
-        //Create structure to /bionimbuz/users/userid/workflows_user/
-        if(!cms.getZNodeExist(CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(workflow.getUserWorkflow().getLogin()),null)){
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(workflow.getUserWorkflow().getLogin()), null);
-        }
-        //Create structure to /bionimbuz/users/userid/workflows_user/workflow_id
-        if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_WORFLOW_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId()),null)){
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_WORFLOW_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId()),workflow.toString());
-        }
-        //Create structure to /bionimbuz/users/userid/workflows_user/workflow_id/instances_user
-        if(!cms.getZNodeExist(CuratorMessageService.Path.INSTANCES_USER.getFullPath(workflow.getUserWorkflow().getNome(),workflow.getId()),null)){
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.INSTANCES_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId()),null);
-        }
-        //Create structure to /bionimbuz/users/userid/workflows_user/workflow_id/instances_user/instances_id
-        for(br.unb.cic.bionimbuz.model.Instance i : listI){
-            //create instance object
-            if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_INSTANCE_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId(),i.getIp()),null))
-                cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_INSTANCE_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId(),i.getIp()),i.toString());
-        }
- 
+    public String startWorkflow(Workflow workflow) throws AvroRemoteException {
         // generate pipeline register
-        this.cms.createZNode(CreateMode.PERSISTENT, Path.NODE_PIPELINE.getFullPath(workflow.getId()), workflow.toString());
-        
+        this.schedService.registerPipeline(workflow);
+        // Create /users
+        this.userController.registerUserWorkflow(workflow); 
         return "Pipeline enviado para o escalonamento. Aguarde...";
     }
     

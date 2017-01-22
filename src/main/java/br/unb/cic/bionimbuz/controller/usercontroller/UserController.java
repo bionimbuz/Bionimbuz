@@ -1,8 +1,12 @@
 package br.unb.cic.bionimbuz.controller.usercontroller;
 
+import br.unb.cic.bionimbuz.avro.gen.Workflow;
 import br.unb.cic.bionimbuz.config.BioNimbusConfig;
 import br.unb.cic.bionimbuz.controller.Controller;
+import br.unb.cic.bionimbuz.model.User;
+import br.unb.cic.bionimbuz.services.UpdatePeerData;
 import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService;
 import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
@@ -11,8 +15,10 @@ import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -48,11 +54,11 @@ public class UserController implements Controller, Runnable {
     public UserController(CloudMessageService cms) {
         Preconditions.checkNotNull(cms);
         this.cms = cms;
-        LOGGER.info("UserController started");
     }
 
     @Override
     public void start(BioNimbusConfig config) {
+        LOGGER.info("[UserController] UserController started ...");
         threadExecutor.scheduleAtFixedRate(this, 0, 1, TimeUnit.MINUTES);
     }
 
@@ -78,7 +84,7 @@ public class UserController implements Controller, Runnable {
 
     @Override
     public void run() {
-        LOGGER.info("Checking logged users: " + lastAccessMap.size() + " users");
+        LOGGER.info("[UserController] Checking logged users: " + lastAccessMap.size() + " users");
 
 //        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -151,5 +157,70 @@ public class UserController implements Controller, Runnable {
      */
     public int getLoggedUsersCount() {
         return cms.getChildrenCount(Path.USERS.getFullPath() + Path.LOGGED_USERS, null);
+    }
+    
+    public void registerUserWorkflow(Workflow workflow){
+        if (!cms.getZNodeExist(CuratorMessageService.Path.USERS.getFullPath(),new UpdatePeerData(cms,null,this))) {
+            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.USERS.getFullPath(), "");
+        }
+        if (!cms.getZNodeExist(CuratorMessageService.Path.USERS_INFO.getFullPath(), new UpdatePeerData(cms,null,this))) {
+            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.USERS_INFO.getFullPath(), "");
+        }
+        
+        List<br.unb.cic.bionimbuz.model.Instance> listI = new ArrayList<>();
+        for(br.unb.cic.bionimbuz.avro.gen.Instance i : workflow.getIntancesWorkflow()){
+            //create instance object
+            br.unb.cic.bionimbuz.model.Instance in = new br.unb.cic.bionimbuz.model.Instance();
+            in.setId(i.getId()); 
+            in.setType(i.getType());
+            in.setCostPerHour(i.getCostPerHour());
+            in.setMemoryTotal(i.getMemoryTotal());
+            in.setNumCores(i.getNumCores());
+            in.setProvider(i.getProvider());
+            in.setidProgramas(i.getIdProgramas());
+            in.setCreationTimer(i.getCreationTimer());
+            in.setDelay(i.getDelay());
+            in.setTimetocreate(i.getTimetocreate());
+            in.setIp(i.getIp());
+            in.setLocality(i.getLocality());
+            in.setCpuHtz(i.getCpuHtz());
+            in.setCpuType(i.getCpuType());
+            in.setIdUser(i.getIdUser());
+            listI.add(in);
+        }
+        //Create structure to /bionimbuz/users/userid
+        if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_USERS.getFullPath(workflow.getUserWorkflow().getLogin()),new UpdatePeerData(cms,null,this))){
+            User user = new User();
+            user.setId(workflow.getUserWorkflow().getId());
+            user.setLogin(workflow.getUserWorkflow().getLogin());
+            user.setNome(workflow.getUserWorkflow().getNome());
+            user.setCpf(workflow.getUserWorkflow().getCpf());
+            user.setEmail(workflow.getUserWorkflow().getEmail());
+            user.setCelphone(workflow.getUserWorkflow().getCelphone());
+            user.setInstances(listI);
+            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_USERS.getFullPath(workflow.getUserWorkflow().getLogin()), user.toString());
+        }
+        //Create structure to /bionimbuz/users/userid/workflows_user/
+        if(!cms.getZNodeExist(CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(workflow.getUserWorkflow().getLogin()),new UpdatePeerData(cms,null,this))){
+            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(workflow.getUserWorkflow().getLogin()), null);
+        }
+        //Create structure to /bionimbuz/users/userid/workflows_user/workflow_id
+        if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_WORFLOW_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId()),new UpdatePeerData(cms,null,this))){
+            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_WORFLOW_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId()),workflow.toString());
+        }
+        //Create structure to with sla Info on sla node /bionimbuz/users/userid/workflows_user/workflow_id/slas_user/
+        if(!cms.getZNodeExist(CuratorMessageService.Path.SLA_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId()),new UpdatePeerData(cms,null,this))){
+            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.SLA_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId()),workflow.getSla().toString());
+        }
+        //Create structure to /bionimbuz/users/userid/workflows_user/workflow_id/instances_user
+        if(!cms.getZNodeExist(CuratorMessageService.Path.INSTANCES_USER.getFullPath(workflow.getUserWorkflow().getNome(),workflow.getId()),new UpdatePeerData(cms,null,this))){
+            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.INSTANCES_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId()),null);
+        }
+        //Create structure to /bionimbuz/users/userid/workflows_user/workflow_id/instances_user/instances_id
+        for(br.unb.cic.bionimbuz.model.Instance i : listI){
+            //create instance object
+            if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_INSTANCE_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId(),i.getIp()),new UpdatePeerData(cms,null,this)))
+                cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_INSTANCE_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId(),i.getIp()),i.toString());
+        }
     }
 }

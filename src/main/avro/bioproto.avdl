@@ -82,7 +82,6 @@ protocol BioProto {
     record Sla{
         string id;
         string workflowid;
-        User user;
         string provider;
         int objective;
         long period;
@@ -113,6 +112,7 @@ protocol BioProto {
         string id;
         array<Job> jobs;
         array<Instance> intancesWorkflow;
+        Sla sla;
         User userWorkflow;
         string creationDatestamp;
         long userId;
@@ -162,7 +162,7 @@ protocol BioProto {
 
     string startJobName(string jobID, string ip);
 
-    string startWorkflow(Workflow workflow, Sla sla);
+    string startWorkflow(Workflow workflow);
 
     string schedPolicy(int numPolicy);
 

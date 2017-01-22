@@ -125,8 +125,8 @@ public class StorageService extends AbstractBioService {
         }
         
         // watcher para verificar se um pending_save foi lançado
-        this.cms.getChildren(Path.PENDING_SAVE.getFullPath(), new UpdatePeerData(this.cms, this));
-        this.cms.getChildren(Path.PEERS.getFullPath(), new UpdatePeerData(this.cms, this));
+        this.cms.getChildren(Path.PENDING_SAVE.getFullPath(), new UpdatePeerData(this.cms, this,null));
+        this.cms.getChildren(Path.PEERS.getFullPath(), new UpdatePeerData(this.cms, this,null));
         
         // NECESSARIO atualizar a lista de arquivo local , a lista do zookeeper com os arquivos locais.
         // checkFiles();
@@ -159,7 +159,7 @@ public class StorageService extends AbstractBioService {
     public void checkPeers() {
         for (final PluginInfo plugin : this.getPeers().values()) {
             if (this.cms.getZNodeExist(Path.STATUS.getFullPath(plugin.getId()), null)) {
-                this.cms.getData(Path.STATUS.getFullPath(plugin.getId()), new UpdatePeerData(this.cms, this));
+                this.cms.getData(Path.STATUS.getFullPath(plugin.getId()), new UpdatePeerData(this.cms, this,null));
             }
         }
     }
@@ -174,7 +174,7 @@ public class StorageService extends AbstractBioService {
                 // System.out.println(" (CheckFiles) dataFolder " + dataFolder + " doesn't exists, creating...");
                 this.dataFolder.mkdirs();
             }
-            this.cms.getChildren(Path.FILES.getFullPath(this.config.getId()), new UpdatePeerData(this.cms, this));
+            this.cms.getChildren(Path.FILES.getFullPath(this.config.getId()), new UpdatePeerData(this.cms, this,null));
             for (final File file : this.dataFolder.listFiles()) {
                 if (!this.savedFiles.containsKey(file.getName())) {
                     final PluginFile pluginFile = new PluginFile();
@@ -190,7 +190,7 @@ public class StorageService extends AbstractBioService {
                     // pluginFile.setHash(Hash.calculateSha3(file.getPath()));
                     // cria um novo znode para o arquivo e adiciona o watcher
                     this.cms.createZNode(CreateMode.PERSISTENT, Path.NODE_FILE.getFullPath(this.config.getId(), pluginFile.getId()), pluginFile.toString());
-                    this.cms.getData(Path.NODE_FILE.getFullPath(this.config.getId(), pluginFile.getId()), new UpdatePeerData(this.cms, this));
+                    this.cms.getData(Path.NODE_FILE.getFullPath(this.config.getId(), pluginFile.getId()), new UpdatePeerData(this.cms, this,null));
                     
                     this.savedFiles.put(pluginFile.getName(), pluginFile);
                 }
@@ -263,7 +263,7 @@ public class StorageService extends AbstractBioService {
         
         for (final PluginInfo plugin : this.getPeers().values()) {
             listFiles = new ArrayList<>();
-            for (final String file : this.cms.getChildren(Path.FILES.getFullPath(plugin.getId()), new UpdatePeerData(this.cms, this))) {
+            for (final String file : this.cms.getChildren(Path.FILES.getFullPath(plugin.getId()), new UpdatePeerData(this.cms, this,null))) {
                 listFiles.add(file);
             }
             mapFiles.put(plugin.getHost().getAddress(), listFiles);
@@ -368,7 +368,7 @@ public class StorageService extends AbstractBioService {
         
         if (localFile.exists()) {
             this.cms.createZNode(CreateMode.PERSISTENT, Path.NODE_FILE.getFullPath(this.config.getId(), file.getId()), file.toString());
-            this.cms.getData(Path.NODE_FILE.getFullPath(this.config.getId(), file.getId()), new UpdatePeerData(this.cms, this));
+            this.cms.getData(Path.NODE_FILE.getFullPath(this.config.getId(), file.getId()), new UpdatePeerData(this.cms, this,null));
             return true;
         }
         
@@ -633,7 +633,7 @@ public class StorageService extends AbstractBioService {
                                 } else {
                                     this.cms.createZNode(CreateMode.PERSISTENT, Path.NODE_FILE.getFullPath(idPlugin, filename), pluginFile.toString());
                                 }
-                                this.cms.getData(Path.NODE_FILE.getFullPath(idPlugin, filename), new UpdatePeerData(this.cms, this));
+                                this.cms.getData(Path.NODE_FILE.getFullPath(idPlugin, filename), new UpdatePeerData(this.cms, this,null));
                             }
                         } else {
                             LOGGER.info("Error replicating the file to the peer (peer=" + node.getAddress() + ")");
@@ -725,7 +725,7 @@ public class StorageService extends AbstractBioService {
         temp.removeAll(this.cloudMap.values());
         for (final PluginInfo plugin : temp) {
             if (this.cms.getZNodeExist(Path.STATUS.getFullPath(plugin.getId(), null, null), null)) {
-                this.cms.getData(Path.STATUS.getFullPath(plugin.getId()), new UpdatePeerData(this.cms, this));
+                this.cms.getData(Path.STATUS.getFullPath(plugin.getId()), new UpdatePeerData(this.cms, this,null));
             }
         }
     }
@@ -828,7 +828,7 @@ public class StorageService extends AbstractBioService {
         
         for (final PluginInfo plugin : this.getPeers().values()) {
             listFiles = new ArrayList<>();
-            for (final String file : this.cms.getChildren(Path.FILES.getFullPath(plugin.getId()), new UpdatePeerData(this.cms, this))) {
+            for (final String file : this.cms.getChildren(Path.FILES.getFullPath(plugin.getId()), new UpdatePeerData(this.cms, this,null))) {
                 listFiles.add(file);
             }
             

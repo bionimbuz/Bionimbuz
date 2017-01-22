@@ -59,6 +59,7 @@ public class ControllerManager {
         for (Controller controller : controllers) {
             controller.start(config);
         }
+        LOGGER.info("All Controller are online");
     }
 
     /**

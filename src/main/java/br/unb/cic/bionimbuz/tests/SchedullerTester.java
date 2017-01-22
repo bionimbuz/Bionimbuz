@@ -174,7 +174,8 @@ public class SchedullerTester {
         br.unb.cic.bionimbuz.avro.gen.Sla sla = new br.unb.cic.bionimbuz.avro.gen.Sla();
         sla.setId("SLA-"+pipeline.getId());
         sla.setWorkflowid(pipeline.getId());
-        rpcClient.getProxy().startWorkflow(workflow,sla);
+        workflow.setSla(sla);
+        rpcClient.getProxy().startWorkflow(workflow);
     }
 
     public static class ShowSchedResults implements Watcher {

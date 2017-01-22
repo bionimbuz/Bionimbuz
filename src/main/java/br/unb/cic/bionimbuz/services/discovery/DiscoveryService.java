@@ -23,6 +23,7 @@ import br.unb.cic.bionimbuz.plugin.PluginInfo;
 import br.unb.cic.bionimbuz.plugin.linux.LinuxGetInfo;
 import br.unb.cic.bionimbuz.plugin.linux.LinuxPlugin;
 import br.unb.cic.bionimbuz.services.AbstractBioService;
+import br.unb.cic.bionimbuz.services.UpdatePeerData;
 import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbuz.toSort.Listeners;
@@ -39,19 +40,22 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.zookeeper.WatchedEvent;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class DiscoveryService extends AbstractBioService {
 
-    private static final int PERIOD_SECS = 10;
+    private static final int PERIOD_SECS = 60;
     private final ScheduledExecutorService schedExecService;
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DiscoveryService.class);
 
     @Inject
     public DiscoveryService(final CloudMessageService cms) {
 
         Preconditions.checkNotNull(cms);
         this.cms = cms;
-
+        //Duvida porque de duas execução?
+        LOGGER.info("[DiscoveryService] Called by constructor ...");
         schedExecService = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder()
                 .setDaemon(true)
                 .setNameFormat("DiscoveryService-%d")
@@ -60,11 +64,11 @@ public class DiscoveryService extends AbstractBioService {
 
     @Override
     public void run() {
+        LOGGER.info("[DiscoveryService] Updating plugin info ...");
         setDatasPluginInfo(false);
         /**
          * TODO: substituir por Guava Cache com expiração
          */
-
     }
 
     public void setDatasPluginInfo(boolean start) {
@@ -91,9 +95,9 @@ public class DiscoveryService extends AbstractBioService {
                 linuxPlugin.setMyInfo(infopc);
                 listeners.add(linuxPlugin);
             }else{
-                String data = cms.getData(Path.NODE_PEER.getFullPath(infopc.getId()), null);
+                String data = cms.getData(Path.NODE_PEER.getFullPath(infopc.getId()), new UpdatePeerData(cms, this,null));
                 if (data == null || data.trim().isEmpty()){
-                    System.out.println("znode vazio para path " + Path.NODE_PEER.getFullPath(infopc.getId()));
+                    LOGGER.info("znode vazio para path " + Path.NODE_PEER.getFullPath(infopc.getId()));
                     return;
                 }
                     
@@ -122,7 +126,8 @@ public class DiscoveryService extends AbstractBioService {
             setDatasPluginInfo(true);
 
             listeners.add(this);
-
+            //Duvida porque de duas execução?
+            LOGGER.info("[DiscoveryService] Called by Start ...");
             schedExecService.scheduleAtFixedRate(this, 0, PERIOD_SECS, TimeUnit.SECONDS);
         } catch (Exception ex) {
             Logger.getLogger(DiscoveryService.class.getName()).log(Level.SEVERE, null, ex);

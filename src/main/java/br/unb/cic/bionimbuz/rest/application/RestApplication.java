@@ -67,7 +67,7 @@ public class RestApplication extends Application {
         ElasticityController elasticityController = BioNimbuZ.controllerInjector.getInstance(ElasticityController.class);
         addResource(new UserResource(jobController, userController));
         addResource(new FileResource(jobController));
-        addResource(new WorkflowResource(jobController,slaController));
+        addResource(new WorkflowResource(jobController));
         addResource(new ConfigurationsResource(jobController));
         addResource(new PingResource());
         addResource(new StartSlaResource(slaController));

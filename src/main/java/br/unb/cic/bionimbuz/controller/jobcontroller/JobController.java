@@ -122,10 +122,9 @@ public class JobController implements Controller, Runnable {
      * implementation by AVRO implementation
      *
      * @param workflow
-     * @param sla
      * @throws java.lang.Exception
      */
-    public void startWorkflow(Workflow workflow, SLA sla) throws Exception {
+    public void startWorkflow(Workflow workflow) throws Exception {
         // Logs
         loggerDao.log(new Log("Iniciando a execução do Workflow", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
         LOGGER.info("Iniciando a execução do Workflow Userid: " + workflow.getUserId() + " workflowId: " + workflow.getId());
@@ -205,8 +204,8 @@ public class JobController implements Controller, Runnable {
             // Adds this avro job
             listjob.add(job);
         }
-        if (sla.getPrediction()) {
-            for (br.unb.cic.bionimbuz.model.Prediction p : sla.getSolutions()) {
+        if (workflow.getSla().getPrediction()) {
+            for (br.unb.cic.bionimbuz.model.Prediction p : workflow.getSla().getSolutions()) {
                 br.unb.cic.bionimbuz.avro.gen.Prediction pAvro = new br.unb.cic.bionimbuz.avro.gen.Prediction();
                 pAvro.setCustoService(p.getCustoService());
                 pAvro.setId(p.getId());
@@ -260,11 +259,10 @@ public class JobController implements Controller, Runnable {
         }
 
         //Create Avro Sla 
-        slaworkflow.setId(sla.getId());
+        slaworkflow.setId(workflow.getSla().getId());
         slaworkflow.setWorkflowid(workflow.getId());
-        slaworkflow.setUser(userAvro);
-        slaworkflow.setProvider(sla.getProvider());
-        slaworkflow.setPrediction(sla.getPrediction());
+        slaworkflow.setProvider(workflow.getSla().getProvider());
+        slaworkflow.setPrediction(workflow.getSla().getPrediction());
         slaworkflow.setSolutions(predict);
   
         //prevents null
@@ -273,21 +271,21 @@ public class JobController implements Controller, Runnable {
         slaworkflow.setLimitationValueExecutionTime(-1l);
         slaworkflow.setLimitationType(-1);
         
-        if (sla.getObjective() != null) 
-            slaworkflow.setObjective(sla.getObjective());
-        if (sla.getLimitationExecution()) {
-            slaworkflow.setLimitationType(sla.getLimitationType());
+        if (workflow.getSla().getObjective() != null) 
+            slaworkflow.setObjective(workflow.getSla().getObjective());
+        if (workflow.getSla().getLimitationExecution()) {
+            slaworkflow.setLimitationType(workflow.getSla().getLimitationType());
             //0 = time | 1 = cust
-            if (sla.getLimitationType() == 0) {
-                slaworkflow.setLimitationValueExecutionTime(sla.getLimitationValueExecutionTime());
-            } else if (sla.getLimitationType() == 1) {
-                slaworkflow.setLimitationValueExecutionCost(sla.getLimitationValueExecutionCost());
+            if (workflow.getSla().getLimitationType() == 0) {
+                slaworkflow.setLimitationValueExecutionTime(workflow.getSla().getLimitationValueExecutionTime());
+            } else if (workflow.getSla().getLimitationType() == 1) {
+                slaworkflow.setLimitationValueExecutionCost(workflow.getSla().getLimitationValueExecutionCost());
             }
         }
-        slaworkflow.setPeriod(sla.getPeriod());
-        slaworkflow.setValue(sla.getValue());
-        slaworkflow.setTime(sla.getTime());
-        slaworkflow.setLimitationExecution(sla.getLimitationExecution());
+        slaworkflow.setPeriod(workflow.getSla().getPeriod());
+        slaworkflow.setValue(workflow.getSla().getValue());
+        slaworkflow.setTime(workflow.getSla().getTime());
+        slaworkflow.setLimitationExecution(workflow.getSla().getLimitationExecution());
 
         // Creates Avro Workflow
         br.unb.cic.bionimbuz.avro.gen.Workflow avroWorkflow = new br.unb.cic.bionimbuz.avro.gen.Workflow();
@@ -297,11 +295,12 @@ public class JobController implements Controller, Runnable {
         avroWorkflow.setDescription(workflow.getDescription());
         avroWorkflow.setIntancesWorkflow(listIntanceMachine);
         avroWorkflow.setUserWorkflow(userAvro);
+        avroWorkflow.setSla(slaworkflow);
 
         // Logs
         loggerDao.log(new Log("Enviando Workflow para o serviço de Escalonamento do BioNimbuZ", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
 
-        rpcClient.getProxy().startWorkflow(avroWorkflow, slaworkflow);
+        rpcClient.getProxy().startWorkflow(avroWorkflow);
 
     }
 

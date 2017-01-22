@@ -7,11 +7,10 @@ package br.unb.cic.bionimbuz.avro.gen;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class Sla extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Sla\",\"namespace\":\"br.unb.cic.bionimbuz.avro.gen\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"workflowid\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"user\",\"type\":{\"type\":\"record\",\"name\":\"User\",\"fields\":[{\"name\":\"id\",\"type\":\"long\"},{\"name\":\"login\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"nome\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"cpf\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"email\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"celphone\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"instances\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Instance\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"type\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"costPerHour\",\"type\":\"double\"},{\"name\":\"locality\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"memoryTotal\",\"type\":\"double\"},{\"name\":\"cpuHtz\",\"type\":\"double\"},{\"name\":\"cpuType\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"numCores\",\"type\":\"int\"},{\"name\":\"description\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"provider\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"idProgramas\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"creationTimer\",\"type\":\"long\"},{\"name\":\"delay\",\"type\":\"int\"},{\"name\":\"timetocreate\",\"type\":\"long\"},{\"name\":\"idUser\",\"type\":\"long\"},{\"name\":\"ip\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}}]}},{\"name\":\"provider\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"objective\",\"type\":\"int\"},{\"name\":\"period\",\"type\":\"long\"},{\"name\":\"value\",\"type\":\"double\"},{\"name\":\"time\",\"type\":\"long\"},{\"name\":\"limitationType\",\"type\":\"int\"},{\"name\":\"limitationValueExecutionTime\",\"type\":\"long\"},{\"name\":\"limitationValueExecutionCost\",\"type\":\"double\"},{\"name\":\"prediction\",\"type\":\"boolean\"},{\"name\":\"solutions\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Prediction\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"idService\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"timeService\",\"type\":\"long\"},{\"name\":\"instance\",\"type\":\"Instance\"},{\"name\":\"custoService\",\"type\":\"double\"}]}}},{\"name\":\"limitationExecution\",\"type\":\"boolean\"}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Sla\",\"namespace\":\"br.unb.cic.bionimbuz.avro.gen\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"workflowid\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"provider\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"objective\",\"type\":\"int\"},{\"name\":\"period\",\"type\":\"long\"},{\"name\":\"value\",\"type\":\"double\"},{\"name\":\"time\",\"type\":\"long\"},{\"name\":\"limitationType\",\"type\":\"int\"},{\"name\":\"limitationValueExecutionTime\",\"type\":\"long\"},{\"name\":\"limitationValueExecutionCost\",\"type\":\"double\"},{\"name\":\"prediction\",\"type\":\"boolean\"},{\"name\":\"solutions\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Prediction\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"idService\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"timeService\",\"type\":\"long\"},{\"name\":\"instance\",\"type\":{\"type\":\"record\",\"name\":\"Instance\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"type\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"costPerHour\",\"type\":\"double\"},{\"name\":\"locality\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"memoryTotal\",\"type\":\"double\"},{\"name\":\"cpuHtz\",\"type\":\"double\"},{\"name\":\"cpuType\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"numCores\",\"type\":\"int\"},{\"name\":\"description\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"provider\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"idProgramas\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"creationTimer\",\"type\":\"long\"},{\"name\":\"delay\",\"type\":\"int\"},{\"name\":\"timetocreate\",\"type\":\"long\"},{\"name\":\"idUser\",\"type\":\"long\"},{\"name\":\"ip\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}},{\"name\":\"custoService\",\"type\":\"double\"}]}}},{\"name\":\"limitationExecution\",\"type\":\"boolean\"}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public java.lang.String id;
   @Deprecated public java.lang.String workflowid;
-  @Deprecated public br.unb.cic.bionimbuz.avro.gen.User user;
   @Deprecated public java.lang.String provider;
   @Deprecated public int objective;
   @Deprecated public long period;
@@ -32,10 +31,9 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
   /**
    * All-args constructor.
    */
-  public Sla(java.lang.String id, java.lang.String workflowid, br.unb.cic.bionimbuz.avro.gen.User user, java.lang.String provider, java.lang.Integer objective, java.lang.Long period, java.lang.Double value, java.lang.Long time, java.lang.Integer limitationType, java.lang.Long limitationValueExecutionTime, java.lang.Double limitationValueExecutionCost, java.lang.Boolean prediction, java.util.List<br.unb.cic.bionimbuz.avro.gen.Prediction> solutions, java.lang.Boolean limitationExecution) {
+  public Sla(java.lang.String id, java.lang.String workflowid, java.lang.String provider, java.lang.Integer objective, java.lang.Long period, java.lang.Double value, java.lang.Long time, java.lang.Integer limitationType, java.lang.Long limitationValueExecutionTime, java.lang.Double limitationValueExecutionCost, java.lang.Boolean prediction, java.util.List<br.unb.cic.bionimbuz.avro.gen.Prediction> solutions, java.lang.Boolean limitationExecution) {
     this.id = id;
     this.workflowid = workflowid;
-    this.user = user;
     this.provider = provider;
     this.objective = objective;
     this.period = period;
@@ -55,18 +53,17 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
     switch (field$) {
     case 0: return id;
     case 1: return workflowid;
-    case 2: return user;
-    case 3: return provider;
-    case 4: return objective;
-    case 5: return period;
-    case 6: return value;
-    case 7: return time;
-    case 8: return limitationType;
-    case 9: return limitationValueExecutionTime;
-    case 10: return limitationValueExecutionCost;
-    case 11: return prediction;
-    case 12: return solutions;
-    case 13: return limitationExecution;
+    case 2: return provider;
+    case 3: return objective;
+    case 4: return period;
+    case 5: return value;
+    case 6: return time;
+    case 7: return limitationType;
+    case 8: return limitationValueExecutionTime;
+    case 9: return limitationValueExecutionCost;
+    case 10: return prediction;
+    case 11: return solutions;
+    case 12: return limitationExecution;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -76,18 +73,17 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
     switch (field$) {
     case 0: id = (java.lang.String)value$; break;
     case 1: workflowid = (java.lang.String)value$; break;
-    case 2: user = (br.unb.cic.bionimbuz.avro.gen.User)value$; break;
-    case 3: provider = (java.lang.String)value$; break;
-    case 4: objective = (java.lang.Integer)value$; break;
-    case 5: period = (java.lang.Long)value$; break;
-    case 6: value = (java.lang.Double)value$; break;
-    case 7: time = (java.lang.Long)value$; break;
-    case 8: limitationType = (java.lang.Integer)value$; break;
-    case 9: limitationValueExecutionTime = (java.lang.Long)value$; break;
-    case 10: limitationValueExecutionCost = (java.lang.Double)value$; break;
-    case 11: prediction = (java.lang.Boolean)value$; break;
-    case 12: solutions = (java.util.List<br.unb.cic.bionimbuz.avro.gen.Prediction>)value$; break;
-    case 13: limitationExecution = (java.lang.Boolean)value$; break;
+    case 2: provider = (java.lang.String)value$; break;
+    case 3: objective = (java.lang.Integer)value$; break;
+    case 4: period = (java.lang.Long)value$; break;
+    case 5: value = (java.lang.Double)value$; break;
+    case 6: time = (java.lang.Long)value$; break;
+    case 7: limitationType = (java.lang.Integer)value$; break;
+    case 8: limitationValueExecutionTime = (java.lang.Long)value$; break;
+    case 9: limitationValueExecutionCost = (java.lang.Double)value$; break;
+    case 10: prediction = (java.lang.Boolean)value$; break;
+    case 11: solutions = (java.util.List<br.unb.cic.bionimbuz.avro.gen.Prediction>)value$; break;
+    case 12: limitationExecution = (java.lang.Boolean)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -120,21 +116,6 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
    */
   public void setWorkflowid(java.lang.String value) {
     this.workflowid = value;
-  }
-
-  /**
-   * Gets the value of the 'user' field.
-   */
-  public br.unb.cic.bionimbuz.avro.gen.User getUser() {
-    return user;
-  }
-
-  /**
-   * Sets the value of the 'user' field.
-   * @param value the value to set.
-   */
-  public void setUser(br.unb.cic.bionimbuz.avro.gen.User value) {
-    this.user = value;
   }
 
   /**
@@ -325,7 +306,6 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
 
     private java.lang.String id;
     private java.lang.String workflowid;
-    private br.unb.cic.bionimbuz.avro.gen.User user;
     private java.lang.String provider;
     private int objective;
     private long period;
@@ -359,53 +339,49 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
         this.workflowid = data().deepCopy(fields()[1].schema(), other.workflowid);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.user)) {
-        this.user = data().deepCopy(fields()[2].schema(), other.user);
+      if (isValidValue(fields()[2], other.provider)) {
+        this.provider = data().deepCopy(fields()[2].schema(), other.provider);
         fieldSetFlags()[2] = true;
       }
-      if (isValidValue(fields()[3], other.provider)) {
-        this.provider = data().deepCopy(fields()[3].schema(), other.provider);
+      if (isValidValue(fields()[3], other.objective)) {
+        this.objective = data().deepCopy(fields()[3].schema(), other.objective);
         fieldSetFlags()[3] = true;
       }
-      if (isValidValue(fields()[4], other.objective)) {
-        this.objective = data().deepCopy(fields()[4].schema(), other.objective);
+      if (isValidValue(fields()[4], other.period)) {
+        this.period = data().deepCopy(fields()[4].schema(), other.period);
         fieldSetFlags()[4] = true;
       }
-      if (isValidValue(fields()[5], other.period)) {
-        this.period = data().deepCopy(fields()[5].schema(), other.period);
+      if (isValidValue(fields()[5], other.value)) {
+        this.value = data().deepCopy(fields()[5].schema(), other.value);
         fieldSetFlags()[5] = true;
       }
-      if (isValidValue(fields()[6], other.value)) {
-        this.value = data().deepCopy(fields()[6].schema(), other.value);
+      if (isValidValue(fields()[6], other.time)) {
+        this.time = data().deepCopy(fields()[6].schema(), other.time);
         fieldSetFlags()[6] = true;
       }
-      if (isValidValue(fields()[7], other.time)) {
-        this.time = data().deepCopy(fields()[7].schema(), other.time);
+      if (isValidValue(fields()[7], other.limitationType)) {
+        this.limitationType = data().deepCopy(fields()[7].schema(), other.limitationType);
         fieldSetFlags()[7] = true;
       }
-      if (isValidValue(fields()[8], other.limitationType)) {
-        this.limitationType = data().deepCopy(fields()[8].schema(), other.limitationType);
+      if (isValidValue(fields()[8], other.limitationValueExecutionTime)) {
+        this.limitationValueExecutionTime = data().deepCopy(fields()[8].schema(), other.limitationValueExecutionTime);
         fieldSetFlags()[8] = true;
       }
-      if (isValidValue(fields()[9], other.limitationValueExecutionTime)) {
-        this.limitationValueExecutionTime = data().deepCopy(fields()[9].schema(), other.limitationValueExecutionTime);
+      if (isValidValue(fields()[9], other.limitationValueExecutionCost)) {
+        this.limitationValueExecutionCost = data().deepCopy(fields()[9].schema(), other.limitationValueExecutionCost);
         fieldSetFlags()[9] = true;
       }
-      if (isValidValue(fields()[10], other.limitationValueExecutionCost)) {
-        this.limitationValueExecutionCost = data().deepCopy(fields()[10].schema(), other.limitationValueExecutionCost);
+      if (isValidValue(fields()[10], other.prediction)) {
+        this.prediction = data().deepCopy(fields()[10].schema(), other.prediction);
         fieldSetFlags()[10] = true;
       }
-      if (isValidValue(fields()[11], other.prediction)) {
-        this.prediction = data().deepCopy(fields()[11].schema(), other.prediction);
+      if (isValidValue(fields()[11], other.solutions)) {
+        this.solutions = data().deepCopy(fields()[11].schema(), other.solutions);
         fieldSetFlags()[11] = true;
       }
-      if (isValidValue(fields()[12], other.solutions)) {
-        this.solutions = data().deepCopy(fields()[12].schema(), other.solutions);
+      if (isValidValue(fields()[12], other.limitationExecution)) {
+        this.limitationExecution = data().deepCopy(fields()[12].schema(), other.limitationExecution);
         fieldSetFlags()[12] = true;
-      }
-      if (isValidValue(fields()[13], other.limitationExecution)) {
-        this.limitationExecution = data().deepCopy(fields()[13].schema(), other.limitationExecution);
-        fieldSetFlags()[13] = true;
       }
     }
 
@@ -459,31 +435,6 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
       return this;
     }
 
-    /** Gets the value of the 'user' field */
-    public br.unb.cic.bionimbuz.avro.gen.User getUser() {
-      return user;
-    }
-    
-    /** Sets the value of the 'user' field */
-    public br.unb.cic.bionimbuz.avro.gen.Sla.Builder setUser(br.unb.cic.bionimbuz.avro.gen.User value) {
-      validate(fields()[2], value);
-      this.user = value;
-      fieldSetFlags()[2] = true;
-      return this; 
-    }
-    
-    /** Checks whether the 'user' field has been set */
-    public boolean hasUser() {
-      return fieldSetFlags()[2];
-    }
-    
-    /** Clears the value of the 'user' field */
-    public br.unb.cic.bionimbuz.avro.gen.Sla.Builder clearUser() {
-      user = null;
-      fieldSetFlags()[2] = false;
-      return this;
-    }
-
     /** Gets the value of the 'provider' field */
     public java.lang.String getProvider() {
       return provider;
@@ -491,21 +442,21 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
     
     /** Sets the value of the 'provider' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder setProvider(java.lang.String value) {
-      validate(fields()[3], value);
+      validate(fields()[2], value);
       this.provider = value;
-      fieldSetFlags()[3] = true;
+      fieldSetFlags()[2] = true;
       return this; 
     }
     
     /** Checks whether the 'provider' field has been set */
     public boolean hasProvider() {
-      return fieldSetFlags()[3];
+      return fieldSetFlags()[2];
     }
     
     /** Clears the value of the 'provider' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder clearProvider() {
       provider = null;
-      fieldSetFlags()[3] = false;
+      fieldSetFlags()[2] = false;
       return this;
     }
 
@@ -516,20 +467,20 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
     
     /** Sets the value of the 'objective' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder setObjective(int value) {
-      validate(fields()[4], value);
+      validate(fields()[3], value);
       this.objective = value;
-      fieldSetFlags()[4] = true;
+      fieldSetFlags()[3] = true;
       return this; 
     }
     
     /** Checks whether the 'objective' field has been set */
     public boolean hasObjective() {
-      return fieldSetFlags()[4];
+      return fieldSetFlags()[3];
     }
     
     /** Clears the value of the 'objective' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder clearObjective() {
-      fieldSetFlags()[4] = false;
+      fieldSetFlags()[3] = false;
       return this;
     }
 
@@ -540,20 +491,20 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
     
     /** Sets the value of the 'period' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder setPeriod(long value) {
-      validate(fields()[5], value);
+      validate(fields()[4], value);
       this.period = value;
-      fieldSetFlags()[5] = true;
+      fieldSetFlags()[4] = true;
       return this; 
     }
     
     /** Checks whether the 'period' field has been set */
     public boolean hasPeriod() {
-      return fieldSetFlags()[5];
+      return fieldSetFlags()[4];
     }
     
     /** Clears the value of the 'period' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder clearPeriod() {
-      fieldSetFlags()[5] = false;
+      fieldSetFlags()[4] = false;
       return this;
     }
 
@@ -564,20 +515,20 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
     
     /** Sets the value of the 'value' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder setValue(double value) {
-      validate(fields()[6], value);
+      validate(fields()[5], value);
       this.value = value;
-      fieldSetFlags()[6] = true;
+      fieldSetFlags()[5] = true;
       return this; 
     }
     
     /** Checks whether the 'value' field has been set */
     public boolean hasValue() {
-      return fieldSetFlags()[6];
+      return fieldSetFlags()[5];
     }
     
     /** Clears the value of the 'value' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder clearValue() {
-      fieldSetFlags()[6] = false;
+      fieldSetFlags()[5] = false;
       return this;
     }
 
@@ -588,20 +539,20 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
     
     /** Sets the value of the 'time' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder setTime(long value) {
-      validate(fields()[7], value);
+      validate(fields()[6], value);
       this.time = value;
-      fieldSetFlags()[7] = true;
+      fieldSetFlags()[6] = true;
       return this; 
     }
     
     /** Checks whether the 'time' field has been set */
     public boolean hasTime() {
-      return fieldSetFlags()[7];
+      return fieldSetFlags()[6];
     }
     
     /** Clears the value of the 'time' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder clearTime() {
-      fieldSetFlags()[7] = false;
+      fieldSetFlags()[6] = false;
       return this;
     }
 
@@ -612,20 +563,20 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
     
     /** Sets the value of the 'limitationType' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder setLimitationType(int value) {
-      validate(fields()[8], value);
+      validate(fields()[7], value);
       this.limitationType = value;
-      fieldSetFlags()[8] = true;
+      fieldSetFlags()[7] = true;
       return this; 
     }
     
     /** Checks whether the 'limitationType' field has been set */
     public boolean hasLimitationType() {
-      return fieldSetFlags()[8];
+      return fieldSetFlags()[7];
     }
     
     /** Clears the value of the 'limitationType' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder clearLimitationType() {
-      fieldSetFlags()[8] = false;
+      fieldSetFlags()[7] = false;
       return this;
     }
 
@@ -636,20 +587,20 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
     
     /** Sets the value of the 'limitationValueExecutionTime' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder setLimitationValueExecutionTime(long value) {
-      validate(fields()[9], value);
+      validate(fields()[8], value);
       this.limitationValueExecutionTime = value;
-      fieldSetFlags()[9] = true;
+      fieldSetFlags()[8] = true;
       return this; 
     }
     
     /** Checks whether the 'limitationValueExecutionTime' field has been set */
     public boolean hasLimitationValueExecutionTime() {
-      return fieldSetFlags()[9];
+      return fieldSetFlags()[8];
     }
     
     /** Clears the value of the 'limitationValueExecutionTime' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder clearLimitationValueExecutionTime() {
-      fieldSetFlags()[9] = false;
+      fieldSetFlags()[8] = false;
       return this;
     }
 
@@ -660,20 +611,20 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
     
     /** Sets the value of the 'limitationValueExecutionCost' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder setLimitationValueExecutionCost(double value) {
-      validate(fields()[10], value);
+      validate(fields()[9], value);
       this.limitationValueExecutionCost = value;
-      fieldSetFlags()[10] = true;
+      fieldSetFlags()[9] = true;
       return this; 
     }
     
     /** Checks whether the 'limitationValueExecutionCost' field has been set */
     public boolean hasLimitationValueExecutionCost() {
-      return fieldSetFlags()[10];
+      return fieldSetFlags()[9];
     }
     
     /** Clears the value of the 'limitationValueExecutionCost' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder clearLimitationValueExecutionCost() {
-      fieldSetFlags()[10] = false;
+      fieldSetFlags()[9] = false;
       return this;
     }
 
@@ -684,20 +635,20 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
     
     /** Sets the value of the 'prediction' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder setPrediction(boolean value) {
-      validate(fields()[11], value);
+      validate(fields()[10], value);
       this.prediction = value;
-      fieldSetFlags()[11] = true;
+      fieldSetFlags()[10] = true;
       return this; 
     }
     
     /** Checks whether the 'prediction' field has been set */
     public boolean hasPrediction() {
-      return fieldSetFlags()[11];
+      return fieldSetFlags()[10];
     }
     
     /** Clears the value of the 'prediction' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder clearPrediction() {
-      fieldSetFlags()[11] = false;
+      fieldSetFlags()[10] = false;
       return this;
     }
 
@@ -708,21 +659,21 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
     
     /** Sets the value of the 'solutions' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder setSolutions(java.util.List<br.unb.cic.bionimbuz.avro.gen.Prediction> value) {
-      validate(fields()[12], value);
+      validate(fields()[11], value);
       this.solutions = value;
-      fieldSetFlags()[12] = true;
+      fieldSetFlags()[11] = true;
       return this; 
     }
     
     /** Checks whether the 'solutions' field has been set */
     public boolean hasSolutions() {
-      return fieldSetFlags()[12];
+      return fieldSetFlags()[11];
     }
     
     /** Clears the value of the 'solutions' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder clearSolutions() {
       solutions = null;
-      fieldSetFlags()[12] = false;
+      fieldSetFlags()[11] = false;
       return this;
     }
 
@@ -733,20 +684,20 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
     
     /** Sets the value of the 'limitationExecution' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder setLimitationExecution(boolean value) {
-      validate(fields()[13], value);
+      validate(fields()[12], value);
       this.limitationExecution = value;
-      fieldSetFlags()[13] = true;
+      fieldSetFlags()[12] = true;
       return this; 
     }
     
     /** Checks whether the 'limitationExecution' field has been set */
     public boolean hasLimitationExecution() {
-      return fieldSetFlags()[13];
+      return fieldSetFlags()[12];
     }
     
     /** Clears the value of the 'limitationExecution' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder clearLimitationExecution() {
-      fieldSetFlags()[13] = false;
+      fieldSetFlags()[12] = false;
       return this;
     }
 
@@ -756,18 +707,17 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
         Sla record = new Sla();
         record.id = fieldSetFlags()[0] ? this.id : (java.lang.String) defaultValue(fields()[0]);
         record.workflowid = fieldSetFlags()[1] ? this.workflowid : (java.lang.String) defaultValue(fields()[1]);
-        record.user = fieldSetFlags()[2] ? this.user : (br.unb.cic.bionimbuz.avro.gen.User) defaultValue(fields()[2]);
-        record.provider = fieldSetFlags()[3] ? this.provider : (java.lang.String) defaultValue(fields()[3]);
-        record.objective = fieldSetFlags()[4] ? this.objective : (java.lang.Integer) defaultValue(fields()[4]);
-        record.period = fieldSetFlags()[5] ? this.period : (java.lang.Long) defaultValue(fields()[5]);
-        record.value = fieldSetFlags()[6] ? this.value : (java.lang.Double) defaultValue(fields()[6]);
-        record.time = fieldSetFlags()[7] ? this.time : (java.lang.Long) defaultValue(fields()[7]);
-        record.limitationType = fieldSetFlags()[8] ? this.limitationType : (java.lang.Integer) defaultValue(fields()[8]);
-        record.limitationValueExecutionTime = fieldSetFlags()[9] ? this.limitationValueExecutionTime : (java.lang.Long) defaultValue(fields()[9]);
-        record.limitationValueExecutionCost = fieldSetFlags()[10] ? this.limitationValueExecutionCost : (java.lang.Double) defaultValue(fields()[10]);
-        record.prediction = fieldSetFlags()[11] ? this.prediction : (java.lang.Boolean) defaultValue(fields()[11]);
-        record.solutions = fieldSetFlags()[12] ? this.solutions : (java.util.List<br.unb.cic.bionimbuz.avro.gen.Prediction>) defaultValue(fields()[12]);
-        record.limitationExecution = fieldSetFlags()[13] ? this.limitationExecution : (java.lang.Boolean) defaultValue(fields()[13]);
+        record.provider = fieldSetFlags()[2] ? this.provider : (java.lang.String) defaultValue(fields()[2]);
+        record.objective = fieldSetFlags()[3] ? this.objective : (java.lang.Integer) defaultValue(fields()[3]);
+        record.period = fieldSetFlags()[4] ? this.period : (java.lang.Long) defaultValue(fields()[4]);
+        record.value = fieldSetFlags()[5] ? this.value : (java.lang.Double) defaultValue(fields()[5]);
+        record.time = fieldSetFlags()[6] ? this.time : (java.lang.Long) defaultValue(fields()[6]);
+        record.limitationType = fieldSetFlags()[7] ? this.limitationType : (java.lang.Integer) defaultValue(fields()[7]);
+        record.limitationValueExecutionTime = fieldSetFlags()[8] ? this.limitationValueExecutionTime : (java.lang.Long) defaultValue(fields()[8]);
+        record.limitationValueExecutionCost = fieldSetFlags()[9] ? this.limitationValueExecutionCost : (java.lang.Double) defaultValue(fields()[9]);
+        record.prediction = fieldSetFlags()[10] ? this.prediction : (java.lang.Boolean) defaultValue(fields()[10]);
+        record.solutions = fieldSetFlags()[11] ? this.solutions : (java.util.List<br.unb.cic.bionimbuz.avro.gen.Prediction>) defaultValue(fields()[11]);
+        record.limitationExecution = fieldSetFlags()[12] ? this.limitationExecution : (java.lang.Boolean) defaultValue(fields()[12]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

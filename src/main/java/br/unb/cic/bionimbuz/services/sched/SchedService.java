@@ -176,7 +176,7 @@ public class SchedService extends AbstractBioService implements Runnable {
 
     @Override
     public void start(BioNimbusConfig config, List<Listeners> listeners) {
-
+        LOGGER.info("[SchedService] Starting ...");
         this.isClient = config.isClient();
         this.config = config;
         this.listeners = listeners;
@@ -200,9 +200,9 @@ public class SchedService extends AbstractBioService implements Runnable {
         cloudMap.putAll(getPeers());
         try {
             //adicona watchers para receber um alerta quando um novo job for criado para ser escalonado, e uma nova requisição de latência existir
-            cms.getChildren(Path.PIPELINES.getFullPath(), new UpdatePeerData(cms, this));
-            cms.getData(Path.PIPELINES.getFullPath(), new UpdatePeerData(cms, this));
-            cms.getChildren(Path.PEERS.getFullPath(), new UpdatePeerData(cms, this));
+            cms.getChildren(Path.PIPELINES.getFullPath(), new UpdatePeerData(cms, this,null));
+            cms.getData(Path.PIPELINES.getFullPath(), new UpdatePeerData(cms, this,null));
+            cms.getChildren(Path.PEERS.getFullPath(), new UpdatePeerData(cms, this,null));
 
             checkMyPlugin();
             checkWaitingTasks();
@@ -353,16 +353,16 @@ public class SchedService extends AbstractBioService implements Runnable {
      * @param listFiles lista de arquivos que devem conter no plugin
      */
     private void requestFile(List<FileInfo> listFiles) {
-        
+
         for (FileInfo info : listFiles) {
 
             if (!mapFilesPlugin.containsKey(info.getName())) {
 
                 LOGGER.debug("[SchedService] Requesting file: " + info.getName());
                 LOGGER.debug("[SchedService] Trying on the CloudStorage Buckets");
-                
+
                 if (config.getStorageMode().equalsIgnoreCase("1")) {
-                
+
                     CloudStorageService cloud_service = new CloudStorageService(cms);
                     BioBucket bucket = cloud_service.findFile(info);
 
@@ -398,7 +398,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                         }
 
                     }
-                    
+
                 } else { // Try old storage method
                     LOGGER.debug("[SchedService] Trying on the instances");
                     String ipContainsFile = getFilesIP(info.getName());
@@ -462,11 +462,11 @@ public class SchedService extends AbstractBioService implements Runnable {
         try {
             StringBuilder dataStatus = new StringBuilder();
 
-            if (!cms.getZNodeExist(peerPath + Path.STATUSWAITING, null)) {
+            if (!cms.getZNodeExist(peerPath + Path.STATUSWAITING, new UpdatePeerData(cms, this,null))) {
                 cms.createZNode(CreateMode.PERSISTENT, peerPath + Path.STATUSWAITING, "");
             }
 
-            dataStatus.append(cms.getData(peerPath + Path.STATUSWAITING, null));
+            dataStatus.append(cms.getData(peerPath + Path.STATUSWAITING, new UpdatePeerData(cms, this,null)));
 
             //verifica se recurso já foi recuperado ou está sendo recuperado por outro recurso
             if (dataStatus.toString().contains("E") || dataStatus.toString().contains("B")) {
@@ -476,7 +476,7 @@ public class SchedService extends AbstractBioService implements Runnable {
             //bloqueio para recuperar tarefas sem que outros recursos realizem a mesma operação
             cms.setData(peerPath + Path.STATUSWAITING, dataStatus.append("B").toString());
 
-            List<String> tasksChildren = cms.getChildren(peerPath + Path.SCHED + Path.TASKS, null);
+            List<String> tasksChildren = cms.getChildren(peerPath + Path.SCHED + Path.TASKS, new UpdatePeerData(cms, this,null));
 
             for (String taskChild : tasksChildren) {
                 ObjectMapper mapper = new ObjectMapper();
@@ -519,15 +519,15 @@ public class SchedService extends AbstractBioService implements Runnable {
      */
     private void checkPeers() {
 //        try {
-        List<String> listPeers = cms.getChildren(Path.PEERS.getFullPath(), null);
+        List<String> listPeers = cms.getChildren(Path.PEERS.getFullPath(), new UpdatePeerData(cms, this,null));
         for (String peerId : listPeers) {
 
-            if (!cms.getZNodeExist(Path.STATUS.getFullPath(peerId), null)
-                    && !cms.getZNodeExist(Path.STATUSWAITING.getFullPath(peerId), null)) {
+            if (!cms.getZNodeExist(Path.STATUS.getFullPath(peerId), new UpdatePeerData(cms, this,null))
+                    && !cms.getZNodeExist(Path.STATUSWAITING.getFullPath(peerId), new UpdatePeerData(cms, this,null))) {
                 cms.createZNode(CreateMode.PERSISTENT, Path.STATUSWAITING.getFullPath(peerId), "");
             }
-            if (cms.getZNodeExist(Path.STATUSWAITING.getFullPath(peerId), null)) {
-                if (!cms.getData(Path.STATUSWAITING.getFullPath(peerId), null).contains("E")) {
+            if (cms.getZNodeExist(Path.STATUSWAITING.getFullPath(peerId), new UpdatePeerData(cms, this,null))) {
+                if (!cms.getData(Path.STATUSWAITING.getFullPath(peerId), new UpdatePeerData(cms, this,null)).contains("E")) {
                     repairTask(Path.NODE_PEER.getFullPath(peerId));
                 }
             }
@@ -562,7 +562,7 @@ public class SchedService extends AbstractBioService implements Runnable {
             //cria watch para ser adicionado no znode que contém as tarefas escanoladas desse plugin
             if (myLinuxPlugin.getMyInfo().getId().equals(plugin.getId())) {
                 LOGGER.info("[SchedService] checkWaitingTasks : watcher adicionado no plugin " + plugin.getId());
-                watcher = new UpdatePeerData(cms, this);
+                watcher = new UpdatePeerData(cms, this,null);
             } else {
                 watcher = null;
             }
@@ -580,7 +580,7 @@ public class SchedService extends AbstractBioService implements Runnable {
             }
 
             //adiconando watch para cada peer, realizará recuperação de task escalonadas caso o plugin fique off-line
-            cms.getData(Path.STATUS.getFullPath(plugin.getId()), new UpdatePeerData(cms, this));
+            cms.getData(Path.STATUS.getFullPath(plugin.getId()), new UpdatePeerData(cms, this,null));
         }
 
     }
@@ -599,16 +599,16 @@ public class SchedService extends AbstractBioService implements Runnable {
     private PluginTask getNewTask(String taskPath) throws KeeperException, InterruptedException, IOException {
         ObjectMapper mapper = new ObjectMapper();
         PluginTask pluginTask = null;
-        List<String> tasksChildren = cms.getChildren(taskPath, null);
+        List<String> tasksChildren = cms.getChildren(taskPath, new UpdatePeerData(cms, this,null));
 
         for (String taskChild : tasksChildren) {
-            String datasTask = cms.getData(taskPath + "/" + taskChild, null);
+            String datasTask = cms.getData(taskPath + "/" + taskChild, new UpdatePeerData(cms, this,null));
 
             PluginTask task = mapper.readValue(datasTask, PluginTask.class);
             //verifica se a tarefa já estava na lista para não adicionar mais de um watcher
             if (!waitingTask.containsKey(task.getId())) {
                 //adiciona um watcher na task que foi escanolada
-                cms.getData(taskPath + "/" + taskChild, new UpdatePeerData(cms, this));
+                cms.getData(taskPath + "/" + taskChild, new UpdatePeerData(cms, this,null));
                 if (task.getState() == PluginTaskState.PENDING) {
                     waitingTask.put(task.getId(), new Pair<>(cloudMap.get(task.getPluginExec()), task));
                     pluginTask = task;
@@ -643,19 +643,19 @@ public class SchedService extends AbstractBioService implements Runnable {
             rpcClient = new AvroClient(config.getRpcProtocol(), myLinuxPlugin.getMyInfo().getHost().getAddress(), myLinuxPlugin.getMyInfo().getHost().getPort());
             rpcClient.getProxy().listFilesName();
             rpcClient.close();
-            if (cms.getZNodeExist(Path.FILES.getFullPath(myLinuxPlugin.getMyInfo().getId()), null)) {
+            if (cms.getZNodeExist(Path.FILES.getFullPath(myLinuxPlugin.getMyInfo().getId()), new UpdatePeerData(cms, this,null))) {
                 List<String> filesChildren;
                 //verifica se é a primeira vez que é executado e então cria o watcher e inicia a lista
                 if (mapFilesPlugin == null) {
                     mapFilesPlugin = new HashMap<>();
-                    filesChildren = cms.getChildren(Path.FILES.getFullPath(myLinuxPlugin.getMyInfo().getId()), new UpdatePeerData(cms, this));
+                    filesChildren = cms.getChildren(Path.FILES.getFullPath(myLinuxPlugin.getMyInfo().getId()), new UpdatePeerData(cms, this,null));
                 } else {
-                    filesChildren = cms.getChildren(Path.FILES.getFullPath(myLinuxPlugin.getMyInfo().getId()), null);
+                    filesChildren = cms.getChildren(Path.FILES.getFullPath(myLinuxPlugin.getMyInfo().getId()), new UpdatePeerData(cms, this,null));
                 }
                 ObjectMapper mapper = new ObjectMapper();
 
                 for (String fileChild : filesChildren) {
-                    String datasFile = cms.getData(Path.NODE_FILE.getFullPath(myLinuxPlugin.getMyInfo().getId(), fileChild), null);
+                    String datasFile = cms.getData(Path.NODE_FILE.getFullPath(myLinuxPlugin.getMyInfo().getId(), fileChild), new UpdatePeerData(cms, this,null));
                     PluginFile file = mapper.readValue(datasFile, PluginFile.class);
                     //Verificar o que é esse LONG TO DO
                     Pair<String, Long> pair = new Pair<>(file.getName(), file.getSize());
@@ -702,7 +702,7 @@ public class SchedService extends AbstractBioService implements Runnable {
     private void checkTasks() {
         try {
 
-            LOGGER.info("Checking Tasks...");
+            LOGGER.info("[SchedService] Checking Tasks...");
 
             // Check if there are any pipelines left to add
             updatePipelines();
@@ -713,13 +713,14 @@ public class SchedService extends AbstractBioService implements Runnable {
                         if (pair.second.getState() == PluginTaskState.WAITING) {
                             executeTasks(pair.second);
 //                           Consumer<Job> style =(Job p) -> System.out.println("id:"+p.getIpjob().);
-                           List<String> ip =new ArrayList<>();
-                           ip.addAll(pair.second.getJobInfo().getIpjob());
-                           for(String j : ip){
-                               if(!j.equals(myLinuxPlugin.getMyInfo().getHost().getAddress())){
-                                   pair.second.getJobInfo().getIpjob().remove(j);
-                               }
-                           }
+                            List<String> ip = new ArrayList<>();
+                            ip.addAll(pair.second.getJobInfo().getIpjob());
+                            //remove the others ips attributed to the task, leaving just the ip wich is executing the task
+                            for (String j : ip) {
+                                if (!j.equals(myLinuxPlugin.getMyInfo().getHost().getAddress())) {
+                                    pair.second.getJobInfo().getIpjob().remove(j);
+                                }
+                            }
                         }
                     }
                     if (pair.second.getState() == PluginTaskState.DONE) {
@@ -814,7 +815,7 @@ public class SchedService extends AbstractBioService implements Runnable {
     private boolean existFiles(List<FileInfo> listInputFiles) {
 
         int toFind = listInputFiles.size();
-        
+
         if (listInputFiles.isEmpty()) {
             return true;
         }
@@ -824,16 +825,17 @@ public class SchedService extends AbstractBioService implements Runnable {
                 toFind--;
             }
         }
-        
-        if (toFind == 0)
+
+        if (toFind == 0) {
             return true;
-        
+        }
+
         return false;
     }
 
-    /**MEtodo aparentemente não utilizado
-     * Verifica a existência dos arquivos de entrada na federação, caso não
-     * exista retorna false.
+    /**
+     * MEtodo aparentemente não utilizado Verifica a existência dos arquivos de
+     * entrada na federação, caso não exista retorna false.
      *
      * @param listInputFiles
      * @return false se não existir algum arquivo no zoonimbus
@@ -881,29 +883,28 @@ public class SchedService extends AbstractBioService implements Runnable {
     }
 
     /**
-     * Metodo para pegar o Ip de cada peer na federação e verificar se um
-     * arquivo está com este peer, se o arquivo for encontrado retorna o Ip do
-     * peer, caso contrário retorna null.
+     * Metodo para pegar o Ip do peer na federação que esta com o arquivo
+     * se o arquivo for encontrado retorna o Ip do peer, caso contrário 
+     * retorna null.
      *
-     * @param file
+     * @param fileId
      * @return
      */
-    public String getFilesIP(String file) {
+    public String getFilesIP(String fileId) {
         List<String> listFiles;
         // Map<String,List<String>> mapFiles = new HashMap<String, List<String>>();
 //        try {
-        for (Iterator<PluginInfo> it = getPeers().values().iterator(); it.hasNext();) {
-            PluginInfo plugin = it.next();
+        for (PluginInfo plugin : getPeers().values()) {
             listFiles = cms.getChildren(Path.FILES.getFullPath(plugin.getId()), null);
             for (String checkfile : listFiles) {
                 //atualizar
 
 //                String idfile = checkfile.substring(5, checkfile.length());
-                if (file.equals(checkfile)) {
+                if (fileId.equals(checkfile)) {
                     return plugin.getHost().getAddress();
                 }
             }
-        }//        } catch (KeeperException ex) {
+        } //        } catch (KeeperException ex) {
 //            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
 //        } catch (InterruptedException ex) {
 //            java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
@@ -1003,6 +1004,9 @@ public class SchedService extends AbstractBioService implements Runnable {
             java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    public void registerPipeline(br.unb.cic.bionimbuz.avro.gen.Workflow workflow){
+        cms.createZNode(CreateMode.PERSISTENT, Path.NODE_PIPELINE.getFullPath(workflow.getId()), workflow.toString());
+    }
 
     private void updatePipelines() throws IOException, InterruptedException, KeeperException {
         // get all pipelines
@@ -1014,7 +1018,7 @@ public class SchedService extends AbstractBioService implements Runnable {
             // get pipelines and add them to pendingPipelines
             for (String pipelineReady : pipelinesId) {
                 ObjectMapper mapper = new ObjectMapper();
-                datas = cms.getData(Path.NODE_PIPELINE.getFullPath(pipelineReady), null);
+                datas = cms.getData(Path.NODE_PIPELINE.getFullPath(pipelineReady), new UpdatePeerData(cms, this,null));
 
                 // Sets it workflow
                 workflow = mapper.readValue(datas, Workflow.class);
@@ -1056,7 +1060,7 @@ public class SchedService extends AbstractBioService implements Runnable {
         for (PluginInfo plugin : temp) {
 //            try {
             if (cms.getZNodeExist(Path.STATUS.getFullPath(plugin.getId()), null)) {
-                cms.getData(Path.STATUS.getFullPath(plugin.getId()), new UpdatePeerData(cms, this));
+                cms.getData(Path.STATUS.getFullPath(plugin.getId()), new UpdatePeerData(cms, this,null));
             }
 //            } catch (KeeperException ex) {
 //                java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);

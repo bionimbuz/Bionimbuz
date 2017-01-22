@@ -22,22 +22,25 @@
  */
 package br.unb.cic.bionimbuz.services;
 
+import br.unb.cic.bionimbuz.controller.Controller;
 import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 
 /**
- *
+ * Classe to update watcher on node
  * @author gabriel
  */
 public class UpdatePeerData implements Watcher {
 
     private final CloudMessageService cms;
     private final Service service;
+    private final Controller controler;
 
-    public UpdatePeerData(CloudMessageService cms, Service service) {
+    public UpdatePeerData(CloudMessageService cms, Service service, Controller controller) {
         this.cms = cms;
         this.service = service;
+        this.controler=controller;
     }
 
     /**
@@ -50,10 +53,8 @@ public class UpdatePeerData implements Watcher {
         //chamada para alertar servico que adicionou o watcher, tratar evento na service
 //        System.out.println("[UpdatePeerData] event: " + event.toString());
         service.event(event);
-
         //Realiza a solicitação para um novo observer
         switch (event.getType()) {
-
             case NodeChildrenChanged:
                 if (cms.getZNodeExist(event.getPath(), null)) {
                     cms.getChildren(event.getPath(), this);
@@ -64,7 +65,6 @@ public class UpdatePeerData implements Watcher {
                     cms.getData(event.getPath(), this);
                 }
                 break;
-
         }
     }
 

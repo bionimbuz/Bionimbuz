@@ -43,12 +43,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.util.logging.Level;
 
 @Singleton
 public class MonitoringService extends AbstractBioService implements Runnable {
@@ -59,7 +60,8 @@ public class MonitoringService extends AbstractBioService implements Runnable {
     private final List<String> waitingFiles = new ArrayList<>();
     private final List<User> users = Collections.synchronizedList(new ArrayList());
     private final Collection<String> plugins = new ArrayList<>();
-
+    private static Logger LOGGER = LoggerFactory.getLogger(MonitoringService.class);
+    
     @Inject
     public MonitoringService(final CloudMessageService cms) {
         this.cms = cms;
@@ -67,10 +69,11 @@ public class MonitoringService extends AbstractBioService implements Runnable {
 
     @Override
     public void run() {
+        LOGGER.error("[MonitoringService] Executing Monitoring");
         checkPeersStatus();
         checkPipelines();
         checkPendingSave();
-        checkUserInstances();
+        checkUsers();
     }
 
     @Override
@@ -79,7 +82,7 @@ public class MonitoringService extends AbstractBioService implements Runnable {
             checkPeers();
 //            checkPendingSave();
         } catch (Exception e) {
-            e.printStackTrace();
+           LOGGER.error("[MonitoringService] Exception checkPeers"+ e.getMessage()); 
         }
         this.config = config;
         this.listeners = listeners;
@@ -105,32 +108,27 @@ public class MonitoringService extends AbstractBioService implements Runnable {
         String path = eventType.getPath();
         try {
             switch (eventType.getType()) {
-
                 case NodeCreated:
-
-                    System.out.print(path + "= NodeCreated");
+                    LOGGER.info(path + "= NodeCreated");
                     break;
                 case NodeChildrenChanged:
                     if(eventType.getPath().equals(Path.PEERS.toString()))
-                        if(plugins.size()<getPeers().size()){
+                        if(plugins.size()<getPeers().size())
                             verifyPlugins();
-                        }
-                    
-                    System.out.print(path + "= NodeChildrenChanged");
+                    LOGGER.info(path + "= NodeChildrenChanged");
                     break;
                 case NodeDeleted:
                     String peerPath = path.subSequence(0, path.indexOf("STATUS") - 1).toString();
-                    if (path.contains(Path.STATUSWAITING.toString())) {
+                    if (path.contains(Path.STATUSWAITING.toString()))
                         deletePeer(peerPath);
-                    }
                     break;
             }
         } catch (KeeperException ex) {
-            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
-            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
-            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -140,7 +138,7 @@ public class MonitoringService extends AbstractBioService implements Runnable {
         temp.removeAll(plugins);
         for(PluginInfo plugin : temp){
             if(cms.getZNodeExist(Path.STATUS.getFullPath(plugin.getId()), null))
-                cms.getData(Path.STATUS.getFullPath(plugin.getId()), new UpdatePeerData(cms, this));
+                cms.getData(Path.STATUS.getFullPath(plugin.getId()), new UpdatePeerData(cms, this,null));
         }
     }
 
@@ -190,7 +188,7 @@ public class MonitoringService extends AbstractBioService implements Runnable {
                 }
             }
         } catch (IOException ex) {
-            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
@@ -203,7 +201,7 @@ public class MonitoringService extends AbstractBioService implements Runnable {
      */
     private void checkPeersStatus() {
         try {
-            List<String> listPeers = cms.getChildren(Path.PEERS.getFullPath(), new UpdatePeerData(cms, this));
+            List<String> listPeers = cms.getChildren(Path.PEERS.getFullPath(), new UpdatePeerData(cms, this,null));
             for (String peerId : listPeers) {
 //                if(!plugins.contains(peerPath)){
 //                    plugins.add(peerPath);
@@ -219,10 +217,8 @@ public class MonitoringService extends AbstractBioService implements Runnable {
                 }
 //                }
             }
-        } catch (KeeperException ex) {
-            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (KeeperException | InterruptedException ex) {
+            java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -235,12 +231,9 @@ public class MonitoringService extends AbstractBioService implements Runnable {
         try {
             List<String> listPendingSaves= cms.getChildren(Path.PENDING_SAVE.getFullPath(), null);
             if(listPendingSaves!=null && !listPendingSaves.isEmpty()){
-                
                 for (String filePending : listPendingSaves) {
                     String datas =  cms.getData(Path.NODE_PENDING_FILE.getFullPath(filePending), null);
-                    
                     if(datas!=null && datas.isEmpty()){
-                        
                         //verifica se o arquivo já estava na lista, recupera e lança novamente os dados para disparar watchers
                         if (waitingFiles.contains(filePending)) {
                             PluginInfo pluginInfo = new ObjectMapper().readValue(datas, PluginInfo.class);
@@ -254,14 +247,11 @@ public class MonitoringService extends AbstractBioService implements Runnable {
                             waitingFiles.add(filePending);
                         }
                     }
-
                 }
-
             }
         } catch (IOException ex) {
-            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
    
     /**
@@ -275,30 +265,28 @@ public class MonitoringService extends AbstractBioService implements Runnable {
             for (String peerId : listPeers) {
                 if (cms.getZNodeExist(Path.STATUS.getFullPath(peerId), null)) {
                     //adicionando wacth
-                    cms.getData(Path.STATUS.getFullPath(peerId), new UpdatePeerData(cms, this));
-                    
+                    cms.getData(Path.STATUS.getFullPath(peerId), new UpdatePeerData(cms, this,null));
                 }
                 //verifica se algum plugin havia ficado off e não foi realizado sua recuperação
                 if (!cms.getZNodeExist(Path.STATUS.getFullPath(peerId), null)
                         && !cms.getZNodeExist(Path.STATUSWAITING.getFullPath(peerId), null)) {
                     cms.createZNode(CreateMode.PERSISTENT, Path.STATUSWAITING.getFullPath(peerId), "");
-                    cms.getData(Path.STATUSWAITING.getFullPath(peerId), new UpdatePeerData(cms, this));
+                    cms.getData(Path.STATUSWAITING.getFullPath(peerId), new UpdatePeerData(cms, this,null));
                 }
                 plugins.add(peerId);
             }
         } catch (Exception ex) {
-            Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
     
-    private void checkUserInstances(){
+    private void checkUsers(){
         users.addAll(rs.getUsers());
     }
+    
     private void deletePeer(String peerPath) throws InterruptedException, KeeperException {
         if (!cms.getZNodeExist(peerPath + STATUS, null) && cms.getZNodeExist(peerPath + STATUSWAITING, null)) {
             cms.delete(peerPath);
         }
     }
-
 }
