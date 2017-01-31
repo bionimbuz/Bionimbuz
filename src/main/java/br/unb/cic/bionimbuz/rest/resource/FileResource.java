@@ -43,7 +43,7 @@ import org.json.JSONObject;
 @Path("/rest/file/")
 public class FileResource extends AbstractResource {
     
-    private static final String UPLOADED_FILES_DIRECTORY = ConfigurationRepository.getTemporaryUplodadedFiles();
+    private static final String UPLOADED_FILES_DIRECTORY = ConfigurationRepository.getDataFolder();
     private final FileDao fileDao;
     
     public FileResource(final JobController jobController) {
@@ -90,10 +90,13 @@ public class FileResource extends AbstractResource {
             } else {
                 final CloudStorageMethods methodsInstance = new CloudMethodsAmazonGoogle();
                 final BioBucket dest = CloudStorageService.getBestBucket(CloudStorageService.getBucketList());
+                
+//                methodsInstance.StorageDownloadFile(dest, "/data-folder/", UPLOADED_FILES_DIRECTORY, form.getFileInfo().getName());
 //                methodsInstance.StorageUploadFile(dest, "/data-folder/", UPLOADED_FILES_DIRECTORY, form.getFileInfo().getName());
 ////                final File temp = new File(filepath);
 //                Response.accepted(dest.getName());
                 //System.out.println("nome:"+dest.getName());
+                this.fileDao.persist(form.getFileInfo());
                 return Response.ok(dest.getName(), MediaType.TEXT_PLAIN).build();
 //                temp.delete();
             }

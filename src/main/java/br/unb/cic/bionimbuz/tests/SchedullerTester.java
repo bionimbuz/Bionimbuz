@@ -173,7 +173,7 @@ public class SchedullerTester {
         workflow.setDescription("descricao");
         br.unb.cic.bionimbuz.avro.gen.Sla sla = new br.unb.cic.bionimbuz.avro.gen.Sla();
         sla.setId("SLA-"+pipeline.getId());
-        sla.setWorkflowid(pipeline.getId());
+        sla.setIdWorkflow(pipeline.getId());
         workflow.setSla(sla);
         rpcClient.getProxy().startWorkflow(workflow);
     }

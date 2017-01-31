@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 import org.codehaus.jackson.map.ObjectMapper;
 
 /**
@@ -20,49 +21,42 @@ public class SLA {
 
     @Id
     private String id;
+    @Transient
     private String idWorkflow;
     private String provider;
     private Integer objective;
     private Long period;
     private Double value;
-    private Long time;
     private Integer limitationType;
     private Long limitationValueExecutionTime;
     private Double limitationValueExecutionCost;
     private Boolean prediction;
     private List<Prediction> solutions;
     private Boolean limitationExecution;
+    private Double execeedValueExecutionCost;
 
     public SLA() {
 
     }
     
-    public SLA(String provider,String idWorkflow, Integer objective, Long period, Double value, Long time, Integer limitationType, Long limitationValueExecutionTime, Double limitationValueExecutionCost, Boolean prediction, List<Prediction> solutions, Boolean limitationExecution) {
-        this.provider = provider;
-        this.idWorkflow = idWorkflow;
-        this.objective = objective;
-        this.period = period;
-        this.value = value;
-        this.time = time;
-        this.limitationType = limitationType;
-        this.limitationValueExecutionTime = limitationValueExecutionTime;
-        this.limitationValueExecutionCost = limitationValueExecutionCost;
-        this.prediction = prediction;
-        this.solutions = solutions;
-        this.limitationExecution = limitationExecution;
+    public SLA(String provider) {
+        this.provider=provider;
     }
 
-    public SLA(String id, String idWorkflow, String provider, Integer objective, Long period, Double value, Long time, Integer limitationType, Long limitationValueExecutionTime, Double limitationValueExecutionCost, Boolean prediction, List<Prediction> solutions, Boolean limitationExecution) {
-        this.id = id;
-        this.idWorkflow = idWorkflow;
+    public SLA(String provider, String idWorkflow, Integer objective, Long period, 
+            Double value, Integer limitationType, Long limitationValueExecutionTime, 
+            Double limitationValueExecutionCost, Boolean prediction, 
+            List<Prediction> solutions, Boolean limitationExecution, 
+            Double execeedValueExecutionCost) {
         this.provider = provider;
+        this.idWorkflow = idWorkflow;
         this.objective = objective;
         this.period = period;
         this.value = value;
-        this.time = time;
         this.limitationType = limitationType;
         this.limitationValueExecutionTime = limitationValueExecutionTime;
         this.limitationValueExecutionCost = limitationValueExecutionCost;
+        this.execeedValueExecutionCost=execeedValueExecutionCost;
         this.prediction = prediction;
         this.solutions = solutions;
         this.limitationExecution = limitationExecution;
@@ -124,18 +118,12 @@ public class SLA {
         this.value = value;
     }
 
-    /**
-     * @return the time
-     */
-    public Long getTime() {
-        return time;
+    public Double getExeceedValueExecutionCost() {
+        return execeedValueExecutionCost;
     }
 
-    /**
-     * @param time the time to set
-     */
-    public void setTime(Long time) {
-        this.time = time;
+    public void setExeceedValueExecutionCost(Double execeedValueExecutionCost) {
+        this.execeedValueExecutionCost = execeedValueExecutionCost;
     }
 
     /**
@@ -143,13 +131,6 @@ public class SLA {
      */
     public String getId() {
         return id;
-    }
-
-    /**
-     * @param id the id to set
-     */
-    public void setId(String id) {
-        this.id = id;
     }
 
     /**
@@ -237,5 +218,4 @@ public class SLA {
         }
         return null;
     }
-
 }

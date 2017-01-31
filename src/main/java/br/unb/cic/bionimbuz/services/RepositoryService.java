@@ -53,6 +53,9 @@ public final class RepositoryService extends AbstractBioService {
     private static final int PERIOD_HOURS = 12;
     private Set<User> users = Collections.synchronizedSet(new LinkedHashSet());
     private Set<SLA> slas = Collections.synchronizedSet(new LinkedHashSet());
+    
+    private static RepositoryService INSTANCE;
+    
     public enum InstanceType {
 
         AMAZON_LARGE,
@@ -65,8 +68,13 @@ public final class RepositoryService extends AbstractBioService {
         this.cms = cms;
 
         LOGGER.info("Starting Repository Service...");
+        INSTANCE = this;
     }
-
+    
+    public static synchronized RepositoryService getInstance() {
+        return INSTANCE;
+    }
+    
     // TODO: deve haver uma classe basica contendo as informações de instancias
     // pergunta: qual é a nomeclatura para uma instancia de infra que não foi ativada e 
     //    qual é a nomeclatura para uma instancia ativa (executando algo)
@@ -113,7 +121,23 @@ public final class RepositoryService extends AbstractBioService {
 
     @Override
     public void event(WatchedEvent eventType) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+         switch (eventType.getType()) {
+
+            case NodeChildrenChanged:
+                if (eventType.getPath().equals(Path.USERS_INFO.getFullPath())) {
+                    LOGGER.info("Imprimir");
+
+                    for (User u : this.getUsers()) {
+                        LOGGER.info("User: " + u.toString());
+                        for (Workflow work : u.getWorkflows()) {
+                            LOGGER.info("Workflow: " + work.toString());
+                        }
+                    }
+                }
+                break;
+            case NodeDeleted:
+                break;
+        }
     }
 
     private Double average(List<String> ls) {
@@ -232,7 +256,7 @@ public final class RepositoryService extends AbstractBioService {
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(RepositoryService.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return (List<User>) users;
+        return new ArrayList<>(users);
     }
 
     /**

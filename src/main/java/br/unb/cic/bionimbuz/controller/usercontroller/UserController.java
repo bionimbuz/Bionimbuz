@@ -3,6 +3,7 @@ package br.unb.cic.bionimbuz.controller.usercontroller;
 import br.unb.cic.bionimbuz.avro.gen.Workflow;
 import br.unb.cic.bionimbuz.config.BioNimbusConfig;
 import br.unb.cic.bionimbuz.controller.Controller;
+import br.unb.cic.bionimbuz.controller.slacontroller.SlaController;
 import br.unb.cic.bionimbuz.model.User;
 import br.unb.cic.bionimbuz.services.UpdatePeerData;
 import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
@@ -46,14 +47,16 @@ public class UserController implements Controller, Runnable {
             .newScheduledThreadPool(1, new BasicThreadFactory.Builder()
                     .namingPattern("UserController-%d").build());
     private final CloudMessageService cms;
+    private final SlaController slaController;
 
     // String  = User Login , LocalDateTime = User Last Access Time
     private final HashMap<String, LocalDateTime> lastAccessMap = new HashMap<>();
 
     @Inject
-    public UserController(CloudMessageService cms) {
+    public UserController(CloudMessageService cms, SlaController slaController) {
         Preconditions.checkNotNull(cms);
         this.cms = cms;
+        this.slaController =slaController;
     }
 
     @Override
@@ -160,10 +163,13 @@ public class UserController implements Controller, Runnable {
     }
     
     public void registerUserWorkflow(Workflow workflow){
+        
         if (!cms.getZNodeExist(CuratorMessageService.Path.USERS.getFullPath(),new UpdatePeerData(cms,null,this))) {
+            cms.getZNodeExist(CuratorMessageService.Path.USERS.getFullPath(),new UpdatePeerData(cms,null,slaController));
             cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.USERS.getFullPath(), "");
         }
         if (!cms.getZNodeExist(CuratorMessageService.Path.USERS_INFO.getFullPath(), new UpdatePeerData(cms,null,this))) {
+            cms.getZNodeExist(CuratorMessageService.Path.USERS_INFO.getFullPath(), new UpdatePeerData(cms,null,slaController));
             cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.USERS_INFO.getFullPath(), "");
         }
         
@@ -190,6 +196,7 @@ public class UserController implements Controller, Runnable {
         }
         //Create structure to /bionimbuz/users/userid
         if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_USERS.getFullPath(workflow.getUserWorkflow().getLogin()),new UpdatePeerData(cms,null,this))){
+            cms.getZNodeExist(CuratorMessageService.Path.NODE_USERS.getFullPath(workflow.getUserWorkflow().getLogin()),new UpdatePeerData(cms,null,slaController));
             User user = new User();
             user.setId(workflow.getUserWorkflow().getId());
             user.setLogin(workflow.getUserWorkflow().getLogin());
@@ -202,25 +209,31 @@ public class UserController implements Controller, Runnable {
         }
         //Create structure to /bionimbuz/users/userid/workflows_user/
         if(!cms.getZNodeExist(CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(workflow.getUserWorkflow().getLogin()),new UpdatePeerData(cms,null,this))){
+            cms.getZNodeExist(CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(workflow.getUserWorkflow().getLogin()),new UpdatePeerData(cms,null,slaController));
             cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(workflow.getUserWorkflow().getLogin()), null);
         }
         //Create structure to /bionimbuz/users/userid/workflows_user/workflow_id
         if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_WORFLOW_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId()),new UpdatePeerData(cms,null,this))){
+            cms.getZNodeExist(CuratorMessageService.Path.NODE_WORFLOW_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId()),new UpdatePeerData(cms,null,slaController));
             cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_WORFLOW_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId()),workflow.toString());
         }
         //Create structure to with sla Info on sla node /bionimbuz/users/userid/workflows_user/workflow_id/slas_user/
         if(!cms.getZNodeExist(CuratorMessageService.Path.SLA_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId()),new UpdatePeerData(cms,null,this))){
+            cms.getZNodeExist(CuratorMessageService.Path.SLA_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId()),new UpdatePeerData(cms,null,slaController));
             cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.SLA_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId()),workflow.getSla().toString());
         }
         //Create structure to /bionimbuz/users/userid/workflows_user/workflow_id/instances_user
         if(!cms.getZNodeExist(CuratorMessageService.Path.INSTANCES_USER.getFullPath(workflow.getUserWorkflow().getNome(),workflow.getId()),new UpdatePeerData(cms,null,this))){
+            cms.getZNodeExist(CuratorMessageService.Path.INSTANCES_USER.getFullPath(workflow.getUserWorkflow().getNome(),workflow.getId()),new UpdatePeerData(cms,null,slaController));
             cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.INSTANCES_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId()),null);
         }
         //Create structure to /bionimbuz/users/userid/workflows_user/workflow_id/instances_user/instances_id
         for(br.unb.cic.bionimbuz.model.Instance i : listI){
             //create instance object
-            if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_INSTANCE_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId(),i.getIp()),new UpdatePeerData(cms,null,this)))
+            if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_INSTANCE_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId(),i.getIp()),new UpdatePeerData(cms,null,this))){
+                cms.getZNodeExist(CuratorMessageService.Path.NODE_INSTANCE_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId(),i.getIp()),new UpdatePeerData(cms,null,slaController));
                 cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_INSTANCE_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId(),i.getIp()),i.toString());
+            }    
         }
     }
 }

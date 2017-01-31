@@ -7,18 +7,18 @@ package br.unb.cic.bionimbuz.avro.gen;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class Sla extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Sla\",\"namespace\":\"br.unb.cic.bionimbuz.avro.gen\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"workflowid\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"provider\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"objective\",\"type\":\"int\"},{\"name\":\"period\",\"type\":\"long\"},{\"name\":\"value\",\"type\":\"double\"},{\"name\":\"time\",\"type\":\"long\"},{\"name\":\"limitationType\",\"type\":\"int\"},{\"name\":\"limitationValueExecutionTime\",\"type\":\"long\"},{\"name\":\"limitationValueExecutionCost\",\"type\":\"double\"},{\"name\":\"prediction\",\"type\":\"boolean\"},{\"name\":\"solutions\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Prediction\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"idService\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"timeService\",\"type\":\"long\"},{\"name\":\"instance\",\"type\":{\"type\":\"record\",\"name\":\"Instance\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"type\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"costPerHour\",\"type\":\"double\"},{\"name\":\"locality\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"memoryTotal\",\"type\":\"double\"},{\"name\":\"cpuHtz\",\"type\":\"double\"},{\"name\":\"cpuType\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"numCores\",\"type\":\"int\"},{\"name\":\"description\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"provider\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"idProgramas\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"creationTimer\",\"type\":\"long\"},{\"name\":\"delay\",\"type\":\"int\"},{\"name\":\"timetocreate\",\"type\":\"long\"},{\"name\":\"idUser\",\"type\":\"long\"},{\"name\":\"ip\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}},{\"name\":\"custoService\",\"type\":\"double\"}]}}},{\"name\":\"limitationExecution\",\"type\":\"boolean\"}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Sla\",\"namespace\":\"br.unb.cic.bionimbuz.avro.gen\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"idWorkflow\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"provider\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"objective\",\"type\":\"int\"},{\"name\":\"period\",\"type\":\"long\"},{\"name\":\"value\",\"type\":\"double\"},{\"name\":\"limitationType\",\"type\":\"int\"},{\"name\":\"limitationValueExecutionTime\",\"type\":\"long\"},{\"name\":\"limitationValueExecutionCost\",\"type\":\"double\"},{\"name\":\"execeedValueExecutionCost\",\"type\":\"double\"},{\"name\":\"prediction\",\"type\":\"boolean\"},{\"name\":\"solutions\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Prediction\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"idService\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"timeService\",\"type\":\"long\"},{\"name\":\"instance\",\"type\":{\"type\":\"record\",\"name\":\"Instance\",\"fields\":[{\"name\":\"id\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"type\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"costPerHour\",\"type\":\"double\"},{\"name\":\"locality\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"memoryTotal\",\"type\":\"double\"},{\"name\":\"cpuHtz\",\"type\":\"double\"},{\"name\":\"cpuType\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"numCores\",\"type\":\"int\"},{\"name\":\"description\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"provider\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"idProgramas\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"creationTimer\",\"type\":\"long\"},{\"name\":\"delay\",\"type\":\"int\"},{\"name\":\"timetocreate\",\"type\":\"long\"},{\"name\":\"idUser\",\"type\":\"long\"},{\"name\":\"ip\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}},{\"name\":\"custoService\",\"type\":\"double\"}]}}},{\"name\":\"limitationExecution\",\"type\":\"boolean\"}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public java.lang.String id;
-  @Deprecated public java.lang.String workflowid;
+  @Deprecated public java.lang.String idWorkflow;
   @Deprecated public java.lang.String provider;
   @Deprecated public int objective;
   @Deprecated public long period;
   @Deprecated public double value;
-  @Deprecated public long time;
   @Deprecated public int limitationType;
   @Deprecated public long limitationValueExecutionTime;
   @Deprecated public double limitationValueExecutionCost;
+  @Deprecated public double execeedValueExecutionCost;
   @Deprecated public boolean prediction;
   @Deprecated public java.util.List<br.unb.cic.bionimbuz.avro.gen.Prediction> solutions;
   @Deprecated public boolean limitationExecution;
@@ -31,17 +31,17 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
   /**
    * All-args constructor.
    */
-  public Sla(java.lang.String id, java.lang.String workflowid, java.lang.String provider, java.lang.Integer objective, java.lang.Long period, java.lang.Double value, java.lang.Long time, java.lang.Integer limitationType, java.lang.Long limitationValueExecutionTime, java.lang.Double limitationValueExecutionCost, java.lang.Boolean prediction, java.util.List<br.unb.cic.bionimbuz.avro.gen.Prediction> solutions, java.lang.Boolean limitationExecution) {
+  public Sla(java.lang.String id, java.lang.String idWorkflow, java.lang.String provider, java.lang.Integer objective, java.lang.Long period, java.lang.Double value, java.lang.Integer limitationType, java.lang.Long limitationValueExecutionTime, java.lang.Double limitationValueExecutionCost, java.lang.Double execeedValueExecutionCost, java.lang.Boolean prediction, java.util.List<br.unb.cic.bionimbuz.avro.gen.Prediction> solutions, java.lang.Boolean limitationExecution) {
     this.id = id;
-    this.workflowid = workflowid;
+    this.idWorkflow = idWorkflow;
     this.provider = provider;
     this.objective = objective;
     this.period = period;
     this.value = value;
-    this.time = time;
     this.limitationType = limitationType;
     this.limitationValueExecutionTime = limitationValueExecutionTime;
     this.limitationValueExecutionCost = limitationValueExecutionCost;
+    this.execeedValueExecutionCost = execeedValueExecutionCost;
     this.prediction = prediction;
     this.solutions = solutions;
     this.limitationExecution = limitationExecution;
@@ -52,15 +52,15 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
   public java.lang.Object get(int field$) {
     switch (field$) {
     case 0: return id;
-    case 1: return workflowid;
+    case 1: return idWorkflow;
     case 2: return provider;
     case 3: return objective;
     case 4: return period;
     case 5: return value;
-    case 6: return time;
-    case 7: return limitationType;
-    case 8: return limitationValueExecutionTime;
-    case 9: return limitationValueExecutionCost;
+    case 6: return limitationType;
+    case 7: return limitationValueExecutionTime;
+    case 8: return limitationValueExecutionCost;
+    case 9: return execeedValueExecutionCost;
     case 10: return prediction;
     case 11: return solutions;
     case 12: return limitationExecution;
@@ -72,15 +72,15 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
     case 0: id = (java.lang.String)value$; break;
-    case 1: workflowid = (java.lang.String)value$; break;
+    case 1: idWorkflow = (java.lang.String)value$; break;
     case 2: provider = (java.lang.String)value$; break;
     case 3: objective = (java.lang.Integer)value$; break;
     case 4: period = (java.lang.Long)value$; break;
     case 5: value = (java.lang.Double)value$; break;
-    case 6: time = (java.lang.Long)value$; break;
-    case 7: limitationType = (java.lang.Integer)value$; break;
-    case 8: limitationValueExecutionTime = (java.lang.Long)value$; break;
-    case 9: limitationValueExecutionCost = (java.lang.Double)value$; break;
+    case 6: limitationType = (java.lang.Integer)value$; break;
+    case 7: limitationValueExecutionTime = (java.lang.Long)value$; break;
+    case 8: limitationValueExecutionCost = (java.lang.Double)value$; break;
+    case 9: execeedValueExecutionCost = (java.lang.Double)value$; break;
     case 10: prediction = (java.lang.Boolean)value$; break;
     case 11: solutions = (java.util.List<br.unb.cic.bionimbuz.avro.gen.Prediction>)value$; break;
     case 12: limitationExecution = (java.lang.Boolean)value$; break;
@@ -104,18 +104,18 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
   }
 
   /**
-   * Gets the value of the 'workflowid' field.
+   * Gets the value of the 'idWorkflow' field.
    */
-  public java.lang.String getWorkflowid() {
-    return workflowid;
+  public java.lang.String getIdWorkflow() {
+    return idWorkflow;
   }
 
   /**
-   * Sets the value of the 'workflowid' field.
+   * Sets the value of the 'idWorkflow' field.
    * @param value the value to set.
    */
-  public void setWorkflowid(java.lang.String value) {
-    this.workflowid = value;
+  public void setIdWorkflow(java.lang.String value) {
+    this.idWorkflow = value;
   }
 
   /**
@@ -179,21 +179,6 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
   }
 
   /**
-   * Gets the value of the 'time' field.
-   */
-  public java.lang.Long getTime() {
-    return time;
-  }
-
-  /**
-   * Sets the value of the 'time' field.
-   * @param value the value to set.
-   */
-  public void setTime(java.lang.Long value) {
-    this.time = value;
-  }
-
-  /**
    * Gets the value of the 'limitationType' field.
    */
   public java.lang.Integer getLimitationType() {
@@ -236,6 +221,21 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
    */
   public void setLimitationValueExecutionCost(java.lang.Double value) {
     this.limitationValueExecutionCost = value;
+  }
+
+  /**
+   * Gets the value of the 'execeedValueExecutionCost' field.
+   */
+  public java.lang.Double getExeceedValueExecutionCost() {
+    return execeedValueExecutionCost;
+  }
+
+  /**
+   * Sets the value of the 'execeedValueExecutionCost' field.
+   * @param value the value to set.
+   */
+  public void setExeceedValueExecutionCost(java.lang.Double value) {
+    this.execeedValueExecutionCost = value;
   }
 
   /**
@@ -305,15 +305,15 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
     implements org.apache.avro.data.RecordBuilder<Sla> {
 
     private java.lang.String id;
-    private java.lang.String workflowid;
+    private java.lang.String idWorkflow;
     private java.lang.String provider;
     private int objective;
     private long period;
     private double value;
-    private long time;
     private int limitationType;
     private long limitationValueExecutionTime;
     private double limitationValueExecutionCost;
+    private double execeedValueExecutionCost;
     private boolean prediction;
     private java.util.List<br.unb.cic.bionimbuz.avro.gen.Prediction> solutions;
     private boolean limitationExecution;
@@ -335,8 +335,8 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
         this.id = data().deepCopy(fields()[0].schema(), other.id);
         fieldSetFlags()[0] = true;
       }
-      if (isValidValue(fields()[1], other.workflowid)) {
-        this.workflowid = data().deepCopy(fields()[1].schema(), other.workflowid);
+      if (isValidValue(fields()[1], other.idWorkflow)) {
+        this.idWorkflow = data().deepCopy(fields()[1].schema(), other.idWorkflow);
         fieldSetFlags()[1] = true;
       }
       if (isValidValue(fields()[2], other.provider)) {
@@ -355,20 +355,20 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
         this.value = data().deepCopy(fields()[5].schema(), other.value);
         fieldSetFlags()[5] = true;
       }
-      if (isValidValue(fields()[6], other.time)) {
-        this.time = data().deepCopy(fields()[6].schema(), other.time);
+      if (isValidValue(fields()[6], other.limitationType)) {
+        this.limitationType = data().deepCopy(fields()[6].schema(), other.limitationType);
         fieldSetFlags()[6] = true;
       }
-      if (isValidValue(fields()[7], other.limitationType)) {
-        this.limitationType = data().deepCopy(fields()[7].schema(), other.limitationType);
+      if (isValidValue(fields()[7], other.limitationValueExecutionTime)) {
+        this.limitationValueExecutionTime = data().deepCopy(fields()[7].schema(), other.limitationValueExecutionTime);
         fieldSetFlags()[7] = true;
       }
-      if (isValidValue(fields()[8], other.limitationValueExecutionTime)) {
-        this.limitationValueExecutionTime = data().deepCopy(fields()[8].schema(), other.limitationValueExecutionTime);
+      if (isValidValue(fields()[8], other.limitationValueExecutionCost)) {
+        this.limitationValueExecutionCost = data().deepCopy(fields()[8].schema(), other.limitationValueExecutionCost);
         fieldSetFlags()[8] = true;
       }
-      if (isValidValue(fields()[9], other.limitationValueExecutionCost)) {
-        this.limitationValueExecutionCost = data().deepCopy(fields()[9].schema(), other.limitationValueExecutionCost);
+      if (isValidValue(fields()[9], other.execeedValueExecutionCost)) {
+        this.execeedValueExecutionCost = data().deepCopy(fields()[9].schema(), other.execeedValueExecutionCost);
         fieldSetFlags()[9] = true;
       }
       if (isValidValue(fields()[10], other.prediction)) {
@@ -410,27 +410,27 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
       return this;
     }
 
-    /** Gets the value of the 'workflowid' field */
-    public java.lang.String getWorkflowid() {
-      return workflowid;
+    /** Gets the value of the 'idWorkflow' field */
+    public java.lang.String getIdWorkflow() {
+      return idWorkflow;
     }
     
-    /** Sets the value of the 'workflowid' field */
-    public br.unb.cic.bionimbuz.avro.gen.Sla.Builder setWorkflowid(java.lang.String value) {
+    /** Sets the value of the 'idWorkflow' field */
+    public br.unb.cic.bionimbuz.avro.gen.Sla.Builder setIdWorkflow(java.lang.String value) {
       validate(fields()[1], value);
-      this.workflowid = value;
+      this.idWorkflow = value;
       fieldSetFlags()[1] = true;
       return this; 
     }
     
-    /** Checks whether the 'workflowid' field has been set */
-    public boolean hasWorkflowid() {
+    /** Checks whether the 'idWorkflow' field has been set */
+    public boolean hasIdWorkflow() {
       return fieldSetFlags()[1];
     }
     
-    /** Clears the value of the 'workflowid' field */
-    public br.unb.cic.bionimbuz.avro.gen.Sla.Builder clearWorkflowid() {
-      workflowid = null;
+    /** Clears the value of the 'idWorkflow' field */
+    public br.unb.cic.bionimbuz.avro.gen.Sla.Builder clearIdWorkflow() {
+      idWorkflow = null;
       fieldSetFlags()[1] = false;
       return this;
     }
@@ -532,30 +532,6 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
       return this;
     }
 
-    /** Gets the value of the 'time' field */
-    public java.lang.Long getTime() {
-      return time;
-    }
-    
-    /** Sets the value of the 'time' field */
-    public br.unb.cic.bionimbuz.avro.gen.Sla.Builder setTime(long value) {
-      validate(fields()[6], value);
-      this.time = value;
-      fieldSetFlags()[6] = true;
-      return this; 
-    }
-    
-    /** Checks whether the 'time' field has been set */
-    public boolean hasTime() {
-      return fieldSetFlags()[6];
-    }
-    
-    /** Clears the value of the 'time' field */
-    public br.unb.cic.bionimbuz.avro.gen.Sla.Builder clearTime() {
-      fieldSetFlags()[6] = false;
-      return this;
-    }
-
     /** Gets the value of the 'limitationType' field */
     public java.lang.Integer getLimitationType() {
       return limitationType;
@@ -563,20 +539,20 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
     
     /** Sets the value of the 'limitationType' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder setLimitationType(int value) {
-      validate(fields()[7], value);
+      validate(fields()[6], value);
       this.limitationType = value;
-      fieldSetFlags()[7] = true;
+      fieldSetFlags()[6] = true;
       return this; 
     }
     
     /** Checks whether the 'limitationType' field has been set */
     public boolean hasLimitationType() {
-      return fieldSetFlags()[7];
+      return fieldSetFlags()[6];
     }
     
     /** Clears the value of the 'limitationType' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder clearLimitationType() {
-      fieldSetFlags()[7] = false;
+      fieldSetFlags()[6] = false;
       return this;
     }
 
@@ -587,20 +563,20 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
     
     /** Sets the value of the 'limitationValueExecutionTime' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder setLimitationValueExecutionTime(long value) {
-      validate(fields()[8], value);
+      validate(fields()[7], value);
       this.limitationValueExecutionTime = value;
-      fieldSetFlags()[8] = true;
+      fieldSetFlags()[7] = true;
       return this; 
     }
     
     /** Checks whether the 'limitationValueExecutionTime' field has been set */
     public boolean hasLimitationValueExecutionTime() {
-      return fieldSetFlags()[8];
+      return fieldSetFlags()[7];
     }
     
     /** Clears the value of the 'limitationValueExecutionTime' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder clearLimitationValueExecutionTime() {
-      fieldSetFlags()[8] = false;
+      fieldSetFlags()[7] = false;
       return this;
     }
 
@@ -611,19 +587,43 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
     
     /** Sets the value of the 'limitationValueExecutionCost' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder setLimitationValueExecutionCost(double value) {
-      validate(fields()[9], value);
+      validate(fields()[8], value);
       this.limitationValueExecutionCost = value;
-      fieldSetFlags()[9] = true;
+      fieldSetFlags()[8] = true;
       return this; 
     }
     
     /** Checks whether the 'limitationValueExecutionCost' field has been set */
     public boolean hasLimitationValueExecutionCost() {
-      return fieldSetFlags()[9];
+      return fieldSetFlags()[8];
     }
     
     /** Clears the value of the 'limitationValueExecutionCost' field */
     public br.unb.cic.bionimbuz.avro.gen.Sla.Builder clearLimitationValueExecutionCost() {
+      fieldSetFlags()[8] = false;
+      return this;
+    }
+
+    /** Gets the value of the 'execeedValueExecutionCost' field */
+    public java.lang.Double getExeceedValueExecutionCost() {
+      return execeedValueExecutionCost;
+    }
+    
+    /** Sets the value of the 'execeedValueExecutionCost' field */
+    public br.unb.cic.bionimbuz.avro.gen.Sla.Builder setExeceedValueExecutionCost(double value) {
+      validate(fields()[9], value);
+      this.execeedValueExecutionCost = value;
+      fieldSetFlags()[9] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'execeedValueExecutionCost' field has been set */
+    public boolean hasExeceedValueExecutionCost() {
+      return fieldSetFlags()[9];
+    }
+    
+    /** Clears the value of the 'execeedValueExecutionCost' field */
+    public br.unb.cic.bionimbuz.avro.gen.Sla.Builder clearExeceedValueExecutionCost() {
       fieldSetFlags()[9] = false;
       return this;
     }
@@ -706,15 +706,15 @@ public class Sla extends org.apache.avro.specific.SpecificRecordBase implements 
       try {
         Sla record = new Sla();
         record.id = fieldSetFlags()[0] ? this.id : (java.lang.String) defaultValue(fields()[0]);
-        record.workflowid = fieldSetFlags()[1] ? this.workflowid : (java.lang.String) defaultValue(fields()[1]);
+        record.idWorkflow = fieldSetFlags()[1] ? this.idWorkflow : (java.lang.String) defaultValue(fields()[1]);
         record.provider = fieldSetFlags()[2] ? this.provider : (java.lang.String) defaultValue(fields()[2]);
         record.objective = fieldSetFlags()[3] ? this.objective : (java.lang.Integer) defaultValue(fields()[3]);
         record.period = fieldSetFlags()[4] ? this.period : (java.lang.Long) defaultValue(fields()[4]);
         record.value = fieldSetFlags()[5] ? this.value : (java.lang.Double) defaultValue(fields()[5]);
-        record.time = fieldSetFlags()[6] ? this.time : (java.lang.Long) defaultValue(fields()[6]);
-        record.limitationType = fieldSetFlags()[7] ? this.limitationType : (java.lang.Integer) defaultValue(fields()[7]);
-        record.limitationValueExecutionTime = fieldSetFlags()[8] ? this.limitationValueExecutionTime : (java.lang.Long) defaultValue(fields()[8]);
-        record.limitationValueExecutionCost = fieldSetFlags()[9] ? this.limitationValueExecutionCost : (java.lang.Double) defaultValue(fields()[9]);
+        record.limitationType = fieldSetFlags()[6] ? this.limitationType : (java.lang.Integer) defaultValue(fields()[6]);
+        record.limitationValueExecutionTime = fieldSetFlags()[7] ? this.limitationValueExecutionTime : (java.lang.Long) defaultValue(fields()[7]);
+        record.limitationValueExecutionCost = fieldSetFlags()[8] ? this.limitationValueExecutionCost : (java.lang.Double) defaultValue(fields()[8]);
+        record.execeedValueExecutionCost = fieldSetFlags()[9] ? this.execeedValueExecutionCost : (java.lang.Double) defaultValue(fields()[9]);
         record.prediction = fieldSetFlags()[10] ? this.prediction : (java.lang.Boolean) defaultValue(fields()[10]);
         record.solutions = fieldSetFlags()[11] ? this.solutions : (java.util.List<br.unb.cic.bionimbuz.avro.gen.Prediction>) defaultValue(fields()[11]);
         record.limitationExecution = fieldSetFlags()[12] ? this.limitationExecution : (java.lang.Boolean) defaultValue(fields()[12]);

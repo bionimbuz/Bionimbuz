@@ -336,7 +336,9 @@ public class CloudStorageService extends AbstractBioService{
                     BioBucket dest = getBestBucket(bucketList);
                     
                     LOGGER.info("[CloudStorageService] New file! Uploading " + file.getPath() + " to Bucket " + dest.getName());
+                   //TODO: Metodo que deve ser revisto pois faz o upload e para ter o arquivo na pasta data-folder, faz o download dela para a pasta
                     methodsInstance.StorageUploadFile(dest, "/data-folder/", config.getDataFolder() , file.getName());
+                    methodsInstance.StorageDownloadFile(dest, "/data-folder/", config.getDataFolder(), file.getName());
                     cms.createZNode(CreateMode.PERSISTENT, Path.NODE_BUCKET_FILE.getFullPath(dest.getName(), pluginFile.getName()), pluginFile.toString());
                 }
             }

@@ -457,24 +457,22 @@ public class SchedService extends AbstractBioService implements Runnable {
      *
      * @param peerPath
      */
-    private void repairTask(String peerPath) {
+    private synchronized void repairTask(String peerPath) {
         Collection<PluginTask> repairTasks = new LinkedList<>();
         try {
-            StringBuilder dataStatus = new StringBuilder();
 
             if (!cms.getZNodeExist(peerPath + Path.STATUSWAITING, new UpdatePeerData(cms, this,null))) {
                 cms.createZNode(CreateMode.PERSISTENT, peerPath + Path.STATUSWAITING, "");
             }
-
-            dataStatus.append(cms.getData(peerPath + Path.STATUSWAITING, new UpdatePeerData(cms, this,null)));
+            String dataStatus = cms.getData(peerPath + Path.STATUSWAITING, new UpdatePeerData(cms, this,null));
 
             //verifica se recurso já foi recuperado ou está sendo recuperado por outro recurso
-            if (dataStatus.toString().contains("E") || dataStatus.toString().contains("B")) {
+            if (dataStatus.contains("B")) {
                 return;
             }
-
+            dataStatus = dataStatus.concat("status:B");
             //bloqueio para recuperar tarefas sem que outros recursos realizem a mesma operação
-            cms.setData(peerPath + Path.STATUSWAITING, dataStatus.append("B").toString());
+            cms.setData(peerPath + Path.STATUSWAITING, dataStatus);
 
             List<String> tasksChildren = cms.getChildren(peerPath + Path.SCHED + Path.TASKS, new UpdatePeerData(cms, this,null));
 
@@ -488,8 +486,7 @@ public class SchedService extends AbstractBioService implements Runnable {
             relocateTasks(repairTasks);
 
             //retira bloqueio de uso e sinaliza que as tarefas do plugin foram recuperadas
-            dataStatus.deleteCharAt(dataStatus.indexOf("B")).toString();
-            cms.setData(peerPath + Path.STATUSWAITING, dataStatus.append("E").toString());
+            cms.delete(peerPath + Path.STATUSWAITING);
 
         } catch (KeeperException ex) {
             java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
@@ -527,7 +524,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                 cms.createZNode(CreateMode.PERSISTENT, Path.STATUSWAITING.getFullPath(peerId), "");
             }
             if (cms.getZNodeExist(Path.STATUSWAITING.getFullPath(peerId), new UpdatePeerData(cms, this,null))) {
-                if (!cms.getData(Path.STATUSWAITING.getFullPath(peerId), new UpdatePeerData(cms, this,null)).contains("E")) {
+                if (!cms.getData(Path.STATUSWAITING.getFullPath(peerId), new UpdatePeerData(cms, this,null)).contains("")) {
                     repairTask(Path.NODE_PEER.getFullPath(peerId));
                 }
             }

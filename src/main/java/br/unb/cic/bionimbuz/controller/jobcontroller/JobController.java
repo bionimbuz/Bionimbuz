@@ -260,7 +260,7 @@ public class JobController implements Controller, Runnable {
 
         //Create Avro Sla 
         slaworkflow.setId(workflow.getSla().getId());
-        slaworkflow.setWorkflowid(workflow.getId());
+        slaworkflow.setIdWorkflow(workflow.getId());
         slaworkflow.setProvider(workflow.getSla().getProvider());
         slaworkflow.setPrediction(workflow.getSla().getPrediction());
         slaworkflow.setSolutions(predict);
@@ -284,7 +284,7 @@ public class JobController implements Controller, Runnable {
         }
         slaworkflow.setPeriod(workflow.getSla().getPeriod());
         slaworkflow.setValue(workflow.getSla().getValue());
-        slaworkflow.setTime(workflow.getSla().getTime());
+        slaworkflow.setExeceedValueExecutionCost(workflow.getSla().getExeceedValueExecutionCost());
         slaworkflow.setLimitationExecution(workflow.getSla().getLimitationExecution());
 
         // Creates Avro Workflow

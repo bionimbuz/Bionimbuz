@@ -15,8 +15,8 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-/*
+ */
+ /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
@@ -29,6 +29,7 @@ import org.apache.zookeeper.Watcher;
 
 /**
  * Classe to update watcher on node
+ *
  * @author gabriel
  */
 public class UpdatePeerData implements Watcher {
@@ -40,7 +41,7 @@ public class UpdatePeerData implements Watcher {
     public UpdatePeerData(CloudMessageService cms, Service service, Controller controller) {
         this.cms = cms;
         this.service = service;
-        this.controler=controller;
+        this.controler = controller;
     }
 
     /**
@@ -52,18 +53,19 @@ public class UpdatePeerData implements Watcher {
     public void process(WatchedEvent event) {
         //chamada para alertar servico que adicionou o watcher, tratar evento na service
 //        System.out.println("[UpdatePeerData] event: " + event.toString());
-        service.event(event);
+        if (service != null)
+            service.event(event);
+        if (controler != null)
+            controler.event(event);
         //Realiza a solicitação para um novo observer
         switch (event.getType()) {
             case NodeChildrenChanged:
-                if (cms.getZNodeExist(event.getPath(), null)) {
+                if (cms.getZNodeExist(event.getPath(), null)) 
                     cms.getChildren(event.getPath(), this);
-                }
                 break;
             case NodeDataChanged:
-                if (cms.getZNodeExist(event.getPath(), null)) {
+                if (cms.getZNodeExist(event.getPath(), null))
                     cms.getData(event.getPath(), this);
-                }
                 break;
         }
     }

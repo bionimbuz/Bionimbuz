@@ -98,7 +98,7 @@ public class WorkflowResource extends AbstractResource {
         LOGGER.info(" USER= "+request.getWorkflow().getUserWorkflow().getNome());
         // Logs
         loggerDao.log(new Log("Workflow chegou no servidor do BioNimbuZ", request.getWorkflow().getUserId(), request.getWorkflow().getId(), LogSeverity.INFO));
-        request.getWorkflow().getSla().setIdWorkflow(request.getWorkflow().getId());
+//        request.getWorkflow().getSla().setIdWorkflow(request.getWorkflow().getId());
         
         try {
             // Starts it

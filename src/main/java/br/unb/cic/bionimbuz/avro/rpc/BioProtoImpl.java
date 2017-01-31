@@ -323,13 +323,11 @@ public class BioProtoImpl implements BioProto {
     public List<String> listServices() throws AvroRemoteException {
         final Collection<PluginInfo> list = this.discoveryService.getPeers().values();
         final List<String> listNameIdService = new ArrayList<>();
-        
         for (final PluginInfo plugin : list) {
             for (final PluginService pluginService : plugin.getServices()) {
                 if (!listNameIdService.contains(pluginService.toString())) {
                     listNameIdService.add(pluginService.toString());
                 }
-                
             }
         }
         
