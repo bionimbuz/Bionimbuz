@@ -52,6 +52,10 @@ import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbuz.services.storage.bucket.BioBucket;
 import br.unb.cic.bionimbuz.services.storage.bucket.CloudStorageService;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class PluginTaskRunner implements Callable<PluginTask> {
     
@@ -167,7 +171,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
                     continue;
                 }
                 this.workflowLogger.log(new Log("Job ID <b>" + this.task.getJobInfo().getId() + "</b>: " + line, this.workflow.getUserId(), this.workflow.getId(), LogSeverity.INFO));
-                LOGGER.info("<span style=\"color:#16a085;\">Job " + this.task.getJobInfo().getId() + ": " + line + "</span>");
+                LOGGER.info("<span style=\"color:#16a08(\"<5;\">Job " + this.task.getJobInfo().getId() + ": " + line + "</span>");
                 j++;
                 
             }
@@ -204,13 +208,16 @@ public class PluginTaskRunner implements Callable<PluginTask> {
                 this.workflowLogger
                         .log(new Log("Tempo de execução do Job <b>" + this.task.getJobInfo().getId() + "</b>: " + formattedTime, this.workflow.getUserId(), this.workflow.getId(), LogSeverity.INFO));
                 
-                AmazonAPI api = new AmazonAPI();
-                api.terminate(this.task.getJobInfo().getIpjob().get(0));
-                Thread.sleep(5000);
+//                AmazonAPI api = new AmazonAPI();
+//                api.terminate(this.task.getJobInfo().getIpjob().get(0));
+//                Thread.sleep(5000);
                 
-                this.workflowLogger
-                        .log(new Log("<span style=\"color:#873eb6;\">Deletando Máquina Virtual " + this.task.getJobInfo().getIpjob().get(0) + "</span>", this.workflow.getUserId(), this.workflow.getId(), LogSeverity.INFO));
+//                this.workflowLogger
+//                        .log(new Log("<span style=\"color:#873eb6;\">Deletando Máquina Virtual " + this.task.getJobInfo().getIpjob().get(0) + "</span>", this.workflow.getUserId(), this.workflow.getId(), LogSeverity.INFO));
                 
+                  this.workflowLogger
+                        .log(new Log("<span style=\"color:#873eb6;\">Deletando Máquina Virtual ", this.workflow.getUserId(), this.workflow.getId(), LogSeverity.INFO));
+
                 this.workflowLogger
                         .log(new Log("<span style=\"color:#984eb7;\">Fim Job" + this.task.getJobInfo().getId() + "</span>", this.workflow.getUserId(), this.workflow.getId(), LogSeverity.INFO));
                 
@@ -233,7 +240,9 @@ public class PluginTaskRunner implements Callable<PluginTask> {
                     final FileInfo outputFileInfo = new FileInfo();
                     
                     final File temp = new File(outputPath);
-                    
+                    java.nio.file.Path pathOut = FileSystems.getDefault().getPath(outputPath);
+                    Files.copy(temp.toPath(), pathOut, ATOMIC_MOVE);
+
                     // Sets its fields
                     outputFileInfo.setName(output);
                     outputFileInfo.setHash(hashFile);
@@ -254,6 +263,8 @@ public class PluginTaskRunner implements Callable<PluginTask> {
                 // Log it
                 this.workflowLogger
                         .log(new Log("<span style=\"color:#984eb7;\">Fim do Job" + this.task.getJobInfo().getId() + "</span>", this.workflow.getUserId(), this.workflow.getId(), LogSeverity.INFO));
+                
+                
                 new WorkflowDao().updateStatus(this.workflow.getId(), WorkflowStatus.FINALIZED_WITH_ERRORS);
             }
             
@@ -261,8 +272,8 @@ public class PluginTaskRunner implements Callable<PluginTask> {
                 this.cms.setData(Path.NODE_TASK.getFullPath(this.task.getPluginExec(), this.task.getJobInfo().getId()), this.task.toString());
             }
             
-        } catch (final Exception e) {
-            e.printStackTrace();
+        } catch (final IOException | InterruptedException e) {
+            LOGGER.info(e.getMessage());
         }
         
         return this.task;

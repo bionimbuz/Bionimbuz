@@ -8,6 +8,11 @@ package br.unb.cic.bionimbuz.controller.elasticitycontroller;
 import br.unb.cic.bionimbuz.config.BioNimbusConfig;
 import br.unb.cic.bionimbuz.controller.Controller;
 import br.unb.cic.bionimbuz.controller.usercontroller.UserController;
+import br.unb.cic.bionimbuz.model.Log;
+import br.unb.cic.bionimbuz.model.LogSeverity;
+import br.unb.cic.bionimbuz.model.User;
+import br.unb.cic.bionimbuz.model.Workflow;
+import br.unb.cic.bionimbuz.persistence.dao.WorkflowLoggerDao;
 import br.unb.cic.bionimbuz.services.RepositoryService;
 import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
 import com.google.common.base.Preconditions;
@@ -35,6 +40,7 @@ public class ElasticityController implements Controller, Runnable {
                     .namingPattern("ElasticityController-%d").build());
     protected CloudMessageService cms;
     protected BioNimbusConfig config;
+    private final WorkflowLoggerDao loggerDao;
     private final RepositoryService repositoryService;
 
     /**
@@ -49,6 +55,7 @@ public class ElasticityController implements Controller, Runnable {
         this.repositoryService = rs;
         this.cms = cms;
         LOGGER.info("ElasticityController started");
+        loggerDao = new WorkflowLoggerDao();
     }
 
     @Override
@@ -82,6 +89,7 @@ public class ElasticityController implements Controller, Runnable {
 
     }
 
+    
     public String createInstance(String provider, String type, String nameInstance) throws InterruptedException {
         AmazonAPI amazonapi = new AmazonAPI();
         GoogleAPI googleapi = new GoogleAPI();
@@ -115,6 +123,14 @@ public class ElasticityController implements Controller, Runnable {
                 break;
             }
         }
+        
+        for (User u : repositoryService.getUsers()) {
+                for (Workflow work : u.getWorkflows()) {
+                    loggerDao.log(new Log("Máquina criada com IP " + IP, 
+                                                    work.getUserId(), work.getId(), LogSeverity.WARN));
+                }
+            }
+        
         return IP;
     }
 }

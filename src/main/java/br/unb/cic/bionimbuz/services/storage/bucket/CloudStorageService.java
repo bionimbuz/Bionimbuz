@@ -32,6 +32,7 @@ import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbuz.services.storage.bucket.CloudStorageMethods.StorageProvider;
 import br.unb.cic.bionimbuz.services.storage.bucket.methods.CloudMethodsAmazonGoogle;
 import br.unb.cic.bionimbuz.toSort.Listeners;
+import java.io.IOException;
 
 /**
  *
@@ -318,11 +319,8 @@ public class CloudStorageService extends AbstractBioService{
         File dataFolder = new File (config.getDataFolder());
         
         try {
-            
-        
             for (File file : dataFolder.listFiles()) {
-                if (!fileExistsBuckets(file.getName()))
-                {
+                if (!fileExistsBuckets(file.getName())) {
                     int pos = file.getName().lastIndexOf('.');
                     String toIgnore = ".gstmp";
                     if (pos != -1 && toIgnore.equals(file.getName().substring(pos)))
@@ -343,9 +341,8 @@ public class CloudStorageService extends AbstractBioService{
                 }
             }
             
-        } catch (Throwable t) {
+        } catch (Exception t) {
             LOGGER.error("[CloudStorageService] Exception: " + t.getMessage());
-            t.printStackTrace();
         }
     }
     
@@ -382,7 +379,7 @@ public class CloudStorageService extends AbstractBioService{
                 
             }
             
-        } catch (Throwable t) {
+        } catch (IOException t) {
             LOGGER.error("[CloudStorageService] Exception: " + t.getMessage());
         }
     }
@@ -404,20 +401,15 @@ public class CloudStorageService extends AbstractBioService{
         try {
             
             for (BioBucket bucket : bucketList) {
-                
                 List<String> bucketFiles = cms.getChildren(Path.BUCKET_FILES.getFullPath(bucket.getName()), null);
-                
                 for (String stringFile : bucketFiles) {
-                    
                     ObjectMapper mapper = new ObjectMapper();
                     PluginFile auxFile = mapper.readValue(cms.getData(Path.NODE_BUCKET_FILE.getFullPath(bucket.getName(), stringFile), null), PluginFile.class);
-
                     if (filename.equals(auxFile.getName()))
                         return true;
                 }
             }
-            
-        } catch (Throwable t) {
+        } catch (IOException t) {
             LOGGER.error("[CloudStorageService] Exception: " + t.getMessage());
         }
       
@@ -427,17 +419,13 @@ public class CloudStorageService extends AbstractBioService{
     public static boolean fileExistsBuckets (String filename) {
       
         try {
-            
             for (BioBucket bucket : bucketList) {
-                
                 File dataFolder = new File (bucket.getMountPoint() + "/data-folder/");
-                
                 for (File file : dataFolder.listFiles()) {
                     if (filename.equals(file.getName()))
                         return true;
                 }
             }
-            
         } catch (Throwable t) {
             LOGGER.error("[CloudStorageService] Exception: " + t.getMessage());
         }
@@ -453,10 +441,8 @@ public class CloudStorageService extends AbstractBioService{
         BioBucket best = null;
         
         for (BioBucket aux : buckets) {
-            
             if (best == null || (aux.getAvgBandwith() > best.getAvgBandwith())) 
                 best = aux;
-            
         }
         
         return best;

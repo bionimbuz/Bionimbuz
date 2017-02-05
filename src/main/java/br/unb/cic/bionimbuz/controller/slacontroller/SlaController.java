@@ -123,10 +123,9 @@ public class SlaController implements Controller, Runnable {
         try {
             if (repositoryService != null) {
                 for (User u : repositoryService.getUsers()) {
-                    LOGGER.info("[SlaController] repositoryService not null");
                     for (Workflow work : u.getWorkflows()) {
+                    LOGGER.info("[SlaController] Checking SLA user: "+ u.getNome() + " Workflow: "+work.getId());
                         //verifica se as instancias criadas pelos servidores são as mesmas das especificações
-                        compareHardware(work.getIntancesWorkflow(), work.getUserId(), work.getId());
                         Double valueWorkflow = 0D;
                         Long period = 0L;
                         
@@ -147,7 +146,7 @@ public class SlaController implements Controller, Runnable {
                         }    
                         //Se aceitou a predição na montagem do workflow
                         if (work.getSla().getPrediction()) {
-                            System.out.println("Verificar os tempos, atribuidos aos serviços");
+//                            System.out.println("Verificar os tempos, atribuidos aos serviços");
                             for (Prediction pred : work.getSla().getSolutions()) {
                                 for (Instance i : u.getInstances()) {
                                     //Verifica se o ip da instancia é o mesmo da solucao dada pela predicao
@@ -247,9 +246,14 @@ public class SlaController implements Controller, Runnable {
             }
         }
     }
-
+    
     public void compareHardware(List<Instance> instancesUser, Long userId, String worflowId) {
+       
+        
         for (Instance iUser : instancesUser) {
+             loggerDao.log(new Log("Máquina virtual criada...Ip: " + iUser.getIp() 
+                                + " Provedor: "+iUser.getProvider(),
+                                userId, worflowId, LogSeverity.INFO));
             for (PluginInfo peer : repositoryService.getPeers().values()) {
                 if (iUser.getIp().equals(peer.getHost().getAddress())) {
                     if (!peer.getNumCores().equals(iUser.getNumCores())) {
@@ -280,9 +284,8 @@ public class SlaController implements Controller, Runnable {
                 }
             }
         }
-
     }
-
+    
     public void startSla(SLA sla, Workflow workflow) {
 
     }

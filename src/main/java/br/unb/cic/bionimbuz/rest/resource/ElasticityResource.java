@@ -53,7 +53,7 @@ public class ElasticityResource extends AbstractResource {
         String instanceName=request.getInstanceName();
         String operation=request.getOperation();
         String idInstance=request.getInstanceName();
-        LOGGER.info("1New VM to be created received with type: " + type + "and provider: " + request.getProvider()+ "and name" + request.getInstanceName());
+        LOGGER.info("New VM to be created received with type: " + type + "and provider: " + request.getProvider()+ "and name" + request.getInstanceName());
         switch (operation) {
             case "create": {
         

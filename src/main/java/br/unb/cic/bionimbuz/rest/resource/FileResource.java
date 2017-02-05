@@ -88,8 +88,8 @@ public class FileResource extends AbstractResource {
                 }
                 
             } else {
-                final CloudStorageMethods methodsInstance = new CloudMethodsAmazonGoogle();
-                final BioBucket dest = CloudStorageService.getBestBucket(CloudStorageService.getBucketList());
+//                final CloudStorageMethods methodsInstance = new CloudMethodsAmazonGoogle();
+//                final BioBucket dest = CloudStorageService.getBestBucket(CloudStorageService.getBucketList());
                 
 //                methodsInstance.StorageDownloadFile(dest, "/data-folder/", UPLOADED_FILES_DIRECTORY, form.getFileInfo().getName());
 //                methodsInstance.StorageUploadFile(dest, "/data-folder/", UPLOADED_FILES_DIRECTORY, form.getFileInfo().getName());
@@ -97,7 +97,7 @@ public class FileResource extends AbstractResource {
 //                Response.accepted(dest.getName());
                 //System.out.println("nome:"+dest.getName());
                 this.fileDao.persist(form.getFileInfo());
-                return Response.ok(dest.getName(), MediaType.TEXT_PLAIN).build();
+                return Response.ok(form.getBucketName(), MediaType.TEXT_PLAIN).build();
 //                temp.delete();
             }
             // Creates an UserFile using UploadadeFileInfo from request and persists on Database

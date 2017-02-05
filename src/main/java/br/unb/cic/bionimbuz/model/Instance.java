@@ -104,7 +104,27 @@ public class Instance {
         this.timetocreate = timetocreate;
         this.setDescription();
     }
-
+    
+    public Instance (br.unb.cic.bionimbuz.avro.gen.Instance instance){
+        //return new ObjectMapper().convertValue(instance, this);
+         this.id = instance.getId();
+         this.type = instance.getType();
+         this.costPerHour = instance.getCostPerHour();
+         this.locality = instance.getLocality();
+         this.memoryTotal = instance.getMemoryTotal();
+         this.cpuHtz = instance.getCpuHtz();
+         this.cpuType = instance.getCpuType();
+         this.numCores = instance.getNumCores();
+         this.description = instance.getDescription();
+         this.provider = instance.getProvider();
+         this.idProgramas = instance.getIdProgramas();
+         this.creationTimer = instance.getCreationTimer();
+         this.delay = instance.getDelay();
+         this.timetocreate = instance.getTimetocreate();
+         this.idUser = instance.getIdUser();
+         this.ip = instance.getIp();
+    }
+    
     public String getType() {
         return type;
     }
@@ -142,7 +162,7 @@ public class Instance {
         try {
             return new ObjectMapper().writeValueAsString(this);
         } catch (IOException ex) {
-            Logger.getLogger(Workflow.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Instance.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }

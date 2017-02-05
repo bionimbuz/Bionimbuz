@@ -42,6 +42,7 @@ import br.unb.cic.bionimbuz.avro.gen.FileInfo;
 import br.unb.cic.bionimbuz.avro.gen.NodeInfo;
 import br.unb.cic.bionimbuz.avro.gen.Workflow;
 import br.unb.cic.bionimbuz.config.ConfigurationRepository;
+import br.unb.cic.bionimbuz.controller.slacontroller.SlaController;
 import br.unb.cic.bionimbuz.controller.usercontroller.UserController;
 import br.unb.cic.bionimbuz.model.User;
 import br.unb.cic.bionimbuz.plugin.PluginFile;
@@ -78,17 +79,18 @@ public class BioProtoImpl implements BioProto {
     private final CloudMessageService cms;
     private final UserController userController;
     private final SchedService schedService;
-    
+    private final SlaController slaController;
     private final Map<String, NodeInfo> nodes = new HashMap<>();
     
     @Inject
-    public BioProtoImpl(DiscoveryService discoveryService, StorageService storageService, SchedService schedService,MonitoringService monitoringService, UserController userController ,CloudMessageService cms) {
+    public BioProtoImpl(DiscoveryService discoveryService, StorageService storageService, SchedService schedService,MonitoringService monitoringService, UserController userController ,CloudMessageService cms, SlaController slaController) {
         this.discoveryService = discoveryService;
         this.storageService = storageService;
         this.monitoringService = monitoringService;
         this.schedService =schedService;
         this.cms = cms;
         this.userController = userController;
+        this.slaController = slaController;
     }
     
     @Override
@@ -422,6 +424,14 @@ public class BioProtoImpl implements BioProto {
         this.schedService.registerPipeline(workflow);
         // Create /users
         this.userController.registerUserWorkflow(workflow); 
+        ArrayList<br.unb.cic.bionimbuz.model.Instance> instList = new ArrayList<>();
+           
+        for(br.unb.cic.bionimbuz.avro.gen.Instance iAvro : workflow.getIntancesWorkflow()){
+            br.unb.cic.bionimbuz.model.Instance i = new br.unb.cic.bionimbuz.model.Instance(iAvro);
+            instList.add(i);
+        }
+        
+        this.slaController.compareHardware(instList, workflow.getUserId(), workflow.getId());
         return "Pipeline enviado para o escalonamento. Aguarde...";
     }
     

@@ -284,6 +284,8 @@ public class JobController implements Controller, Runnable {
         }
         slaworkflow.setPeriod(workflow.getSla().getPeriod());
         slaworkflow.setValue(workflow.getSla().getValue());
+        if(workflow.getSla().getExeceedValueExecutionCost()==null)
+            workflow.getSla().setExeceedValueExecutionCost(0D);
         slaworkflow.setExeceedValueExecutionCost(workflow.getSla().getExeceedValueExecutionCost());
         slaworkflow.setLimitationExecution(workflow.getSla().getLimitationExecution());
 
