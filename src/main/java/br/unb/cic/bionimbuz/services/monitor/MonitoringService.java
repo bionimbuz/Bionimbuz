@@ -18,49 +18,61 @@
 */
 package br.unb.cic.bionimbuz.services.monitor;
 
-import br.unb.cic.bionimbuz.config.BioNimbusConfig;
-import br.unb.cic.bionimbuz.model.User;
-import br.unb.cic.bionimbuz.plugin.PluginInfo;
-import br.unb.cic.bionimbuz.plugin.PluginTask;
-import br.unb.cic.bionimbuz.plugin.PluginTaskState;
-import br.unb.cic.bionimbuz.services.AbstractBioService;
-import br.unb.cic.bionimbuz.services.UpdatePeerData;
-import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
-import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path;
 import static br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path.STATUS;
 import static br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path.STATUSWAITING;
-import br.unb.cic.bionimbuz.toSort.Listeners;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.logging.Level;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
+import br.unb.cic.bionimbuz.config.BioNimbusConfig;
+import br.unb.cic.bionimbuz.model.Instance;
+import br.unb.cic.bionimbuz.model.SLA;
+import br.unb.cic.bionimbuz.model.User;
+import br.unb.cic.bionimbuz.model.Workflow;
+import br.unb.cic.bionimbuz.plugin.PluginInfo;
+import br.unb.cic.bionimbuz.plugin.PluginTask;
+import br.unb.cic.bionimbuz.plugin.PluginTaskState;
+import br.unb.cic.bionimbuz.services.AbstractBioService;
+import br.unb.cic.bionimbuz.services.RepositoryService;
+import br.unb.cic.bionimbuz.services.UpdatePeerData;
+import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path;
+import br.unb.cic.bionimbuz.toSort.Listeners;
 
 @Singleton
-public class MonitoringService extends AbstractBioService implements Runnable {
+public class MonitoringService extends AbstractBioService {
 
+    private static Logger LOGGER = LoggerFactory.getLogger(MonitoringService.class);
     private final ScheduledExecutorService schedExecService = Executors.newScheduledThreadPool(1, new BasicThreadFactory.Builder().namingPattern("MonitorService-%d").build());
     private final Map<String, PluginTask> waitingTask = new ConcurrentHashMap<>();
     private final List<String> waitingJobs = new ArrayList<>();
     private final List<String> waitingFiles = new ArrayList<>();
-    private final List<User> users = Collections.synchronizedList(new ArrayList());
     private final Collection<String> plugins = new ArrayList<>();
-    private static Logger LOGGER = LoggerFactory.getLogger(MonitoringService.class);
+    private static final List<User> users = Collections.synchronizedList(new LinkedList<User>());
+    private static final int TIME_TO_RUN = 3;
     
     @Inject
     public MonitoringService(final CloudMessageService cms) {
@@ -89,7 +101,7 @@ public class MonitoringService extends AbstractBioService implements Runnable {
         if (listeners != null) {
             listeners.add(this);
         }
-        schedExecService.scheduleAtFixedRate(this, 0, 1, TimeUnit.MINUTES);
+        schedExecService.scheduleAtFixedRate(this, 0, TIME_TO_RUN, TimeUnit.MINUTES);
     }
 
     @Override
@@ -98,10 +110,6 @@ public class MonitoringService extends AbstractBioService implements Runnable {
         schedExecService.shutdownNow();
     }
 
-    @Override
-    public void getStatus() {
-        // TODO Auto-generated method stub
-    }
 
     @Override
     public void event(WatchedEvent eventType) {
@@ -142,6 +150,14 @@ public class MonitoringService extends AbstractBioService implements Runnable {
         }
     }
 
+    @Override
+    public void getStatus() {
+         // TODO
+    }
+    
+    public static List<User> getZkUsers() {
+        return users;
+    }
     /**
      * Verifica se os pipelines que estava aguardando escalonamento e as tarefas
      * que já foram escalonadas ainda estão com o mesmo status da última
@@ -280,9 +296,50 @@ public class MonitoringService extends AbstractBioService implements Runnable {
         }
     }
     
-    private void checkUsers(){
-        users.addAll(rs.getUsers());
+    /**
+     * Returns the list of BionimbuZ Users, with workflows, slas and instances
+     *
+     * @return
+     */
+    private void checkUsers() {
+        List<String> usersLogins = new ArrayList<>();
+        List<String> workflowsUsersIds = new ArrayList<>();
+        List<String> instancesIPs = new ArrayList<>();
+        final List<Workflow> workflowsUser = new ArrayList<>();
+        final List<Instance> instances = new ArrayList<>();
+        try {
+            usersLogins = this.cms.getChildren(Path.USERS_INFO.getFullPath(), new UpdatePeerData(this.cms, this, null));
+            // this.removeUnusedUsers(usersLogins);
+            for (final String userId : usersLogins) {
+                final User user = new ObjectMapper().readValue(this.cms.getData(Path.NODE_USERS.getFullPath(userId), null), User.class);
+                workflowsUsersIds = this.cms.getChildren(Path.WORKFLOWS_USER.getFullPath(userId), null);
+                for (final String workflowUserId : workflowsUsersIds) {
+                    final Workflow workflowUser = new ObjectMapper().readValue(this.cms.getData(Path.NODE_WORFLOW_USER.getFullPath(userId, workflowUserId), null), Workflow.class);
+                    final SLA sla = new ObjectMapper().readValue(this.cms.getData(Path.SLA_USER.getFullPath(userId, workflowUserId), null), SLA.class);
+                    workflowUser.setSla(sla);
+                    workflowsUser.add(workflowUser);
+                    instancesIPs = this.cms.getChildren(Path.INSTANCES_USER.getFullPath(userId, workflowUserId), null);
+                    for (final String InstanceIpUser : instancesIPs) {
+                        final Instance instanceUser = new ObjectMapper().readValue(this.cms.getData(Path.NODE_INSTANCE_USER.getFullPath(userId, workflowUserId, InstanceIpUser), null), Instance.class);
+                        instances.add(instanceUser);
+                    }
+                }
+                user.setInstances(instances);
+                user.setWorkflows(workflowsUser);
+                this.users.add(user);
+            }
+        } catch (final IOException ex) {
+            java.util.logging.Logger.getLogger(RepositoryService.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
+
+//    private void removeUnusedUsers(List<String> usersLogins) {
+//        for (User user : this.users) {
+//            if (!usersLogins.contains(user.getLogin())) {
+//                this.users.remove(user);
+//            }
+//        }
+//    }
     
     private void deletePeer(String peerPath) throws InterruptedException, KeeperException {
         if (!cms.getZNodeExist(peerPath + STATUS, null) && cms.getZNodeExist(peerPath + STATUSWAITING, null)) {

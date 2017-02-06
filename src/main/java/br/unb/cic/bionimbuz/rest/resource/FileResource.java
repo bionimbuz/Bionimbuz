@@ -38,7 +38,6 @@ import br.unb.cic.bionimbuz.services.storage.bucket.BioBucket;
 import br.unb.cic.bionimbuz.services.storage.bucket.CloudStorageMethods;
 import br.unb.cic.bionimbuz.services.storage.bucket.CloudStorageService;
 import br.unb.cic.bionimbuz.services.storage.bucket.methods.CloudMethodsAmazonGoogle;
-import org.json.JSONObject;
 
 @Path("/rest/file/")
 public class FileResource extends AbstractResource {
@@ -76,7 +75,7 @@ public class FileResource extends AbstractResource {
         
         try {
             // Writes file on disk
-  
+            
             if (this.config.getStorageMode().equalsIgnoreCase("0")) {
                 final String filepath = this.writeFile(form.getData(), form.getFileInfo().getName(), form.getFileInfo().getUserId());
                 // Verify integrity
@@ -88,24 +87,24 @@ public class FileResource extends AbstractResource {
                 }
                 
             } else {
-//                final CloudStorageMethods methodsInstance = new CloudMethodsAmazonGoogle();
-//                final BioBucket dest = CloudStorageService.getBestBucket(CloudStorageService.getBucketList());
+                // final CloudStorageMethods methodsInstance = new CloudMethodsAmazonGoogle();
+                final BioBucket dest = CloudStorageService.getBestBucket(CloudStorageService.getBucketList());
                 
-//                methodsInstance.StorageDownloadFile(dest, "/data-folder/", UPLOADED_FILES_DIRECTORY, form.getFileInfo().getName());
-//                methodsInstance.StorageUploadFile(dest, "/data-folder/", UPLOADED_FILES_DIRECTORY, form.getFileInfo().getName());
-////                final File temp = new File(filepath);
-//                Response.accepted(dest.getName());
-                //System.out.println("nome:"+dest.getName());
+                // methodsInstance.StorageDownloadFile(dest, "/data-folder/", UPLOADED_FILES_DIRECTORY, form.getFileInfo().getName());
+                // methodsInstance.StorageUploadFile(dest, "/data-folder/", UPLOADED_FILES_DIRECTORY, form.getFileInfo().getName());
+                //// final File temp = new File(filepath);
+                Response.accepted(dest.getName());
+                // System.out.println("nome:"+dest.getName());
                 this.fileDao.persist(form.getFileInfo());
                 return Response.ok(form.getBucketName(), MediaType.TEXT_PLAIN).build();
-//                temp.delete();
+                // temp.delete();
             }
             // Creates an UserFile using UploadadeFileInfo from request and persists on Database
             this.fileDao.persist(form.getFileInfo());
             return Response.status(HttpStatus.SC_OK).entity(true).build();
-//            JSONObject n = new JSONObject().put("name", "testandoBucket");
-//            return Response.ok(n, MediaType.APPLICATION_JSON).build();
-            //return Response.ok("testandoBucket", MediaType.TEXT_PLAIN).build();
+            // JSONObject n = new JSONObject().put("name", "testandoBucket");
+            // return Response.ok(n, MediaType.APPLICATION_JSON).build();
+            // return Response.ok("testandoBucket", MediaType.TEXT_PLAIN).build();
         } catch (final Throwable t) {
             LOGGER.error("[Exception] ", t.getMessage());
             return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).entity(false).build();

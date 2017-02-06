@@ -22,7 +22,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import br.unb.cic.bionimbuz.config.BioNimbusConfig;
-import br.unb.cic.bionimbuz.model.Instance;
 import br.unb.cic.bionimbuz.model.SLA;
 import br.unb.cic.bionimbuz.model.User;
 import br.unb.cic.bionimbuz.model.Workflow;
@@ -31,42 +30,37 @@ import br.unb.cic.bionimbuz.plugin.PluginService;
 import br.unb.cic.bionimbuz.plugin.PluginTask;
 import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path;
+import br.unb.cic.bionimbuz.services.monitor.MonitoringService;
 import br.unb.cic.bionimbuz.services.sched.model.Resource;
 import br.unb.cic.bionimbuz.services.sched.model.ResourceList;
 import br.unb.cic.bionimbuz.toSort.Listeners;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.logging.Level;
 
 /**
  *
  * @author will O nome da classe é temporario, assim como sua localização Dados
- * disponiveis atraves de metodos get
+ *         disponiveis atraves de metodos get
  */
 @Singleton
 public final class RepositoryService extends AbstractBioService {
-
+    
     private static Logger LOGGER = LoggerFactory.getLogger(RepositoryService.class);
     private static final String SERVICES_DIR = "services";
     private final List<PluginService> supportedServices = new ArrayList<>();
     private static final int PERIOD_HOURS = 12;
-    private Set<User> users = Collections.synchronizedSet(new LinkedHashSet());
-    private Set<SLA> slas = Collections.synchronizedSet(new LinkedHashSet());
     
     private static RepositoryService INSTANCE;
     
     public enum InstanceType {
-
+        
         AMAZON_LARGE,
         PERSONAL,
         LABID_I7
     }
-
+    
     @Inject
     public RepositoryService(final CloudMessageService cms, BioNimbusConfig config) {
         this.cms = cms;
-
+        
         LOGGER.info("Starting Repository Service...");
         INSTANCE = this;
     }
@@ -76,60 +70,60 @@ public final class RepositoryService extends AbstractBioService {
     }
     
     // TODO: deve haver uma classe basica contendo as informações de instancias
-    // pergunta: qual é a nomeclatura para uma instancia de infra que não foi ativada e 
-    //    qual é a nomeclatura para uma instancia ativa (executando algo)
-    //A classe Instance é a instancia não ativada, a classe Pluginfo é a instancia ativada; 
-    //Uma ta localizada no zookeeper no seguinte endereço 
-    ///bionimbuz/users/user_info/userid/workflows_user/workflowUserId/instances_user/instances_userId/
-    //A outra ta em /bionimbuz/peers/
-    //    public List<Instances> getInstancesList() {
-    //        // garante que a lista retornada pode ser a referencia atual, não precisando ser uma copia
-    //        return Collections.unmodifiableList(null);
-    //    }
+    // pergunta: qual é a nomeclatura para uma instancia de infra que não foi ativada e
+    // qual é a nomeclatura para uma instancia ativa (executando algo)
+    // A classe Instance é a instancia não ativada, a classe Pluginfo é a instancia ativada;
+    // Uma ta localizada no zookeeper no seguinte endereço
+    /// bionimbuz/users/user_info/userid/workflows_user/workflowUserId/instances_user/instances_userId/
+    // A outra ta em /bionimbuz/peers/
+    // public List<Instances> getInstancesList() {
+    // // garante que a lista retornada pode ser a referencia atual, não precisando ser uma copia
+    // return Collections.unmodifiableList(null);
+    // }
     @Override
     public void run() {
         // this will be executed periodicaly
-      LOGGER.info("[RepositoryService] "+Arrays.toString(Thread.currentThread().getStackTrace()));
+        LOGGER.info("[RepositoryService] " + Arrays.toString(Thread.currentThread().getStackTrace()));
     }
-
+    
     @Override
     public void start(BioNimbusConfig config, List<Listeners> listeners) {
         Preconditions.checkNotNull(listeners);
         this.config = config;
         this.listeners = listeners;
-
+        
         // Add current instance as a peer HERE THE PEER IS ADD IN ZOOKEEPER
-        addPeerToZookeeper(new PluginInfo(config.getId()));
-
+        this.addPeerToZookeeper(new PluginInfo(config.getId()));
+        
         listeners.add(this);
     }
-
+    
     @Override
     public void shutdown() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose Tools | Templates.
     }
-
+    
     @Override
     public void getStatus() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose Tools | Templates.
     }
-
+    
     @Override
     public void verifyPlugins() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose Tools | Templates.
     }
-
+    
     @Override
     public void event(WatchedEvent eventType) {
-         switch (eventType.getType()) {
-
+        switch (eventType.getType()) {
+            
             case NodeChildrenChanged:
                 if (eventType.getPath().equals(Path.USERS_INFO.getFullPath())) {
                     LOGGER.info("Imprimir");
-
-                    for (User u : this.getUsers()) {
+                    
+                    for (final User u : MonitoringService.getZkUsers()) {
                         LOGGER.info("User: " + u.toString());
-                        for (Workflow work : u.getWorkflows()) {
+                        for (final Workflow work : u.getWorkflows()) {
                             LOGGER.info("Workflow: " + work.toString());
                         }
                     }
@@ -139,23 +133,24 @@ public final class RepositoryService extends AbstractBioService {
                 break;
         }
     }
-
+    
     private Double average(List<String> ls) {
         double sum = 0;
         Integer count = 1;
-        for (String s : ls) {
-            sum += Double.parseDouble(cms.getData(Path.NODE_MODES.getFullPath(count.toString(), s), null));
+        for (final String s : ls) {
+            sum += Double.parseDouble(this.cms.getData(Path.NODE_MODES.getFullPath(count.toString(), s), null));
             count++;
         }
         return sum / ls.size();
     }
-
+    
     /**
      * Get instance cost from zookeeper cost
      *
      * MOCKED
      *
-     * @param type type of instance (e.g. AMAZON_LARGE)
+     * @param type
+     *            type of instance (e.g. AMAZON_LARGE)
      * @return cost of the input type instance
      */
     public double getInstanceCost(InstanceType type) {
@@ -168,31 +163,32 @@ public final class RepositoryService extends AbstractBioService {
                 return -1d;
         }
     }
-
+    
     /**
      * Returns from zookeeper the list of modes of cycles necessary to execute a
      * given service List is updated lazily
      *
      * MOCKED
      *
-     * @param serviceId id of requested service
+     * @param serviceId
+     *            id of requested service
      * @return
      */
     public Double getWorstExecution(String serviceId) {
         // check if service is supported
-        if (!cms.getZNodeExist(Path.NODE_SERVICE.getFullPath(serviceId), null)) {
-
+        if (!this.cms.getZNodeExist(Path.NODE_SERVICE.getFullPath(serviceId), null)) {
+            
             // Problem: task not supported
             LOGGER.error("Service " + serviceId + " is not supported");
-
+            
             return null;
         }
-
+        
         // return modes average
-        List<String> data = cms.getChildren(Path.MODES.getFullPath(serviceId), null);
-        return average(data);
+        final List<String> data = this.cms.getChildren(Path.MODES.getFullPath(serviceId), null);
+        return this.average(data);
     }
-
+    
     /**
      * Get all peers/instances from zookeeper and return them in the
      * ResourceList format Peers/instances will be fetched by the
@@ -201,77 +197,40 @@ public final class RepositoryService extends AbstractBioService {
      * @return
      */
     public ResourceList getCurrentResourceList() {
-        ResourceList resources = new ResourceList();
-
-        for (Map.Entry<String, PluginInfo> peer : getPeers().entrySet()) {
-            Resource r = new Resource(peer.getValue().getId(),
-                    peer.getValue().getFactoryFrequencyCore(),
-                    peer.getValue().getCostPerHour());
-            for (String taskId : cms.getChildren(Path.TASKS.getFullPath(peer.getValue().getId()), null)) {
+        final ResourceList resources = new ResourceList();
+        
+        for (final Map.Entry<String, PluginInfo> peer : this.getPeers().entrySet()) {
+            final Resource r = new Resource(peer.getValue().getId(), peer.getValue().getFactoryFrequencyCore(), peer.getValue().getCostPerHour());
+            for (final String taskId : this.cms.getChildren(Path.TASKS.getFullPath(peer.getValue().getId()), null)) {
                 try {
-                    PluginTask job = new ObjectMapper().readValue(cms.getData(Path.NODE_TASK.getFullPath(peer.getValue().getId(), taskId), null), PluginTask.class);
+                    final PluginTask job = new ObjectMapper().readValue(this.cms.getData(Path.NODE_TASK.getFullPath(peer.getValue().getId(), taskId), null), PluginTask.class);
                     r.addTask(job.getJobInfo());
-                } catch (IOException ex) {
+                } catch (final IOException ex) {
                     LOGGER.error("[IOException] " + ex.getMessage());
                 }
             }
             resources.resources.add(r);
         }
-
+        
         return resources;
     }
-
-    /**
-     * Returns the list of BionimbuZ Users, with workflows, slas and instances
-     *
-     * @return
-     */
-    public List<User> getUsers() {
-        List<String> userIds = new ArrayList<>();
-        List<String> workflowsUsersIds = new ArrayList<>();
-        List<String> instancesIPs = new ArrayList<>();
-        List<Workflow> workflowsUser = new ArrayList<>();
-        List<Instance> instances = new ArrayList<>();
-        try {
-            userIds = cms.getChildren(Path.USERS_INFO.getFullPath(), new UpdatePeerData(cms, this,null));
-            for (String userId : userIds) {
-                User user = new ObjectMapper().readValue(cms.getData(Path.NODE_USERS.getFullPath(userId), null), User.class);
-                workflowsUsersIds = cms.getChildren(Path.WORKFLOWS_USER.getFullPath(userId), null);
-                for (String workflowUserId : workflowsUsersIds) {
-                    Workflow workflowUser = new ObjectMapper().readValue(cms.getData(Path.NODE_WORFLOW_USER.getFullPath(userId, workflowUserId), null), Workflow.class);
-                    SLA sla = new ObjectMapper().readValue(cms.getData(Path.SLA_USER.getFullPath(userId, workflowUserId), null), SLA.class);
-                    slas.add(sla);
-                    workflowUser.setSla(sla);
-                    workflowsUser.add(workflowUser);
-                    instancesIPs = cms.getChildren(Path.INSTANCES_USER.getFullPath(userId, workflowUserId), null);
-                    for (String InstanceIpUser : instancesIPs) {
-                        Instance instanceUser = new ObjectMapper().readValue(cms.getData(Path.NODE_INSTANCE_USER.getFullPath(userId, workflowUserId, InstanceIpUser), null), Instance.class);
-                        instances.add(instanceUser);
-                    }
-                }
-                user.setInstances(instances);
-                user.setWorkflows(workflowsUser);
-                users.add(user);
-            }
-        } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(RepositoryService.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return new ArrayList<>(users);
-    }
-
+    
     /**
      * Returns the list of BionimbuZ Slas Users
      *
      * @param userId
      * @return SlaList
      */
-    public List<SLA> getSlasUserByUserId(Long userId) {
-        List<SLA> slasUser = new ArrayList<>();
-        for (User u : getUsers()) {
-            if (u.getId() == userId) {
-                for (Workflow work : u.getWorkflows()) {
-                    slasUser.add(work.getSla());
-                }
+    public List<SLA> getSlasUserByUserLogin(String login) {
+        
+        User user = new User(login);
+        final List<User> zkUsers = MonitoringService.getZkUsers();
+        final List<SLA> slasUser = new ArrayList<>();
+        if (zkUsers.contains(user)) {
+            final int indexOf = zkUsers.indexOf(user);
+            user = zkUsers.get(indexOf);
+            for (final Workflow work : user.getWorkflows()) {
+                slasUser.add(work.getSla());
             }
         }
         return slasUser;
@@ -283,36 +242,28 @@ public final class RepositoryService extends AbstractBioService {
      * @return SlaList
      */
     public SLA getSlaUserByWorkflowId(String workflowId) {
-        for (User u : getUsers()) {
-            for (Workflow work : u.getWorkflows()) {
-                if(work.getId().equals(workflowId)){
+        for (final User u : MonitoringService.getZkUsers()) {
+            for (final Workflow work : u.getWorkflows()) {
+                if (work.getId().equals(workflowId)) {
                     
-                   return work.getSla();
+                    return work.getSla();
                 }
             }
         }
         return null;
     }
+    
     /**
-     * Returns the list of BionimbuZ Slas Users
-     *
-     * @return SlaList
-     */
-    public List<SLA> getSlaUsers() {
-        getUsers();
-        return (List<SLA>) this.slas;
-    }
-
-    /**
-     * @param resource Resource to be added
+     * @param resource
+     *            Resource to be added
      */
     public void addPeerToZookeeper(PluginInfo resource) {
-        cms.createZNode(CreateMode.PERSISTENT, Path.NODE_PEER.getFullPath(resource.getId()), resource.toString());
-        cms.createZNode(CreateMode.EPHEMERAL, Path.STATUS.getFullPath(resource.getId()), null);
-        cms.createZNode(CreateMode.PERSISTENT, Path.SCHED.getFullPath(resource.getId()), null);
-        cms.createZNode(CreateMode.PERSISTENT, Path.TASKS.getFullPath(resource.getId()), null);
+        this.cms.createZNode(CreateMode.PERSISTENT, Path.NODE_PEER.getFullPath(resource.getId()), resource.toString());
+        this.cms.createZNode(CreateMode.EPHEMERAL, Path.STATUS.getFullPath(resource.getId()), null);
+        this.cms.createZNode(CreateMode.PERSISTENT, Path.SCHED.getFullPath(resource.getId()), null);
+        this.cms.createZNode(CreateMode.PERSISTENT, Path.TASKS.getFullPath(resource.getId()), null);
     }
-
+    
     /**
      * Returns the list of BioNimbuZ supported services
      *
