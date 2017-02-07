@@ -123,75 +123,74 @@ public class SlaController implements Controller, Runnable {
     @Override
     public void run() {
         LOGGER.info("[SlaController] Checking SLA users: " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date(System.currentTimeMillis())));
+        checkSla();
+        // if(!repositoryService.getUsers().isEmpty()){
+        // users=repositoryService.getUsers();
+        // }
+    }
+    
+    /**
+     * Check all the SLA from all users
+     */
+    private void checkSla(){
         try {
+            //
             for (final User u : MonitoringService.getZkUsers()) {
+                boolean deleteZkWorkflow = false;
                 for (final Workflow work : u.getWorkflows()) {
-                    LOGGER.info("[SlaController] Checking SLA user: " + u.getNome() + " Workflow: " + work.getId());
-                    // verifica se as instancias criadas pelos servidores são as mesmas das especificações
-                    
-                    // Se aceitou a predição na montagem do workflow
-                    if (work.getSla().getPrediction()) {
-                        // System.out.println("Verificar os tempos, atribuidos aos serviços");
-                        for (final Prediction pred : work.getSla().getSolutions()) {
-                            for (final Instance i : work.getIntancesWorkflow()) {
-                                // Verifica se o ip da instancia é o mesmo da solucao dada pela predicao
-                                if (pred.getInstance().getIp().equals(i.getId())) {
-                                    // Se for verifica se o tempo previsto foi extrapolado
-                                    if (System.currentTimeMillis() - i.getCreationTimer() > pred.getTimeService()) {
-                                        // se tiver estrapolado tem que mandar um alerta ainda nao definido
-                                        LOGGER.info("[SlaController] Execution time service has been hitted");
-                                        this.loggerDao.log(new Log(
-                                                "Tempo limite da instância: " + i.getIp() + " previsto passou, tempo previsto: "
-                                                        + new SimpleDateFormat("HH:mm:ss").format(new Date(pred.getTimeService())) + " tempo atual: "
-                                                        + new SimpleDateFormat("HH:mm:ss").format(new Date(System.currentTimeMillis() - i.getCreationTimer())),
-                                                work.getUserId(), work.getId(), LogSeverity.WARN));
-                                        // deleteInstances(i.getProvider(), i.getIp());
-                                    }
-                                    if ((System.currentTimeMillis() - i.getCreationTimer()) * i.getCostPerHour() > pred.getCustoService()) {
-                                        // se tiver estrapolado tem que mandar um alerta ainda nao definido
-                                        LOGGER.info("[SlaController] Execution cust service has been hitted");
-                                        this.loggerDao.log(new Log("Custo limite da instância: " + i.getIp() + " previsto passou, custo previsto:$ " + pred.getCustoService() + " Custo: "
-                                                + (System.currentTimeMillis() - i.getCreationTimer()) * i.getCostPerHour(), work.getUserId(), work.getId(), LogSeverity.WARN));
-                                        // deleteInstances(i.getProvider(), i.getIp());
+                    final Double toleranceCost = work.getSla().getExeceedValueExecutionCost();
+                    final Double limitCost = work.getSla().getLimitationValueExecutionCost();
+                    final Long limitTime = work.getSla().getLimitationValueExecutionTime();
+                    double workflowCostPerHour = 0d;
+                    double currentCost = 0D;
+                    long period = System.currentTimeMillis();
+                    final int VARIANCE = 60 * 1000 * TIME_TO_RUN;
+                    // calcula o gasto atual
+                    if (limitCost != null || limitTime != null) {
+                        for (final Instance i : work.getIntancesWorkflow()) {
+                            workflowCostPerHour += i.getCostPerHour();
+                            currentCost += (System.currentTimeMillis() + VARIANCE - i.getCreationTimer()) * i.getCostPerHour();
+                            if (i.getCreationTimer() < period) {
+                                period = i.getCreationTimer();
+                            }
+                        }
+                        LOGGER.info("[SlaController] Checking SLA user: " + u.getNome() + " Workflow: " + work.getId());
+                        // Se aceitou a predição na montagem do workflow
+                        if (work.getSla().getPrediction()) {
+                            // System.out.println("Verificar os tempos, atribuidos aos serviços");
+                            for (final Prediction pred : work.getSla().getSolutions()) {
+                                for (final Instance i : work.getIntancesWorkflow()) {
+                                    // Verifica se o ip da instancia é o mesmo da solucao dada pela predicao
+                                    if (pred.getInstance().getIp().equals(i.getId())) {
+                                        // Se for verifica se o tempo previsto foi extrapolado
+                                        if (System.currentTimeMillis() - i.getCreationTimer() > pred.getTimeService()) {
+                                            // se tiver estrapolado tem que mandar um alerta ainda nao definido
+                                            LOGGER.info("[SlaController] Execution time service has been hitted");
+                                            this.loggerDao.log(new Log(
+                                                    "Tempo limite da instância: " + i.getIp() + " previsto passou, tempo previsto: "
+                                                            + new SimpleDateFormat("HH:mm:ss").format(new Date(pred.getTimeService())) + " tempo atual: "
+                                                            + new SimpleDateFormat("HH:mm:ss").format(new Date(System.currentTimeMillis() - i.getCreationTimer())),
+                                                    work.getUserId(), work.getId(), LogSeverity.WARN));
+                                            // deleteInstances(i.getProvider(), i.getIp());
+                                        }
+                                        if ((System.currentTimeMillis() - i.getCreationTimer()) * i.getCostPerHour() > pred.getCustoService()) {
+                                            // se tiver estrapolado tem que mandar um alerta ainda nao definido
+                                            LOGGER.info("[SlaController] Execution cust service has been hitted");
+                                            this.loggerDao.log(new Log("Custo limite da instância: " + i.getIp() + " previsto passou, custo previsto:$ " + pred.getCustoService() + " Custo: "
+                                                    + (System.currentTimeMillis() - i.getCreationTimer()) * i.getCostPerHour(), work.getUserId(), work.getId(), LogSeverity.WARN));
+                                            // deleteInstances(i.getProvider(), i.getIp());
+                                        }
                                     }
                                 }
                             }
-                        }
-                    } else {
-                        if (work.getSla().getLimitationExecution()) {
-                            double currentCost = 0D;
-                            long period = System.currentTimeMillis();
-                            final int VARIANCE = 60 * 1000 * TIME_TO_RUN;
-                            
-                            // calcula o gasto atual
-                            final Double toleranceCost = work.getSla().getExeceedValueExecutionCost();
-                            final Double limitCost = work.getSla().getLimitationValueExecutionCost();
-                            final Long limitTime = work.getSla().getLimitationValueExecutionTime();
-                            double workflowCostPerHour = 0d;
-                            if (limitCost != null || limitTime != null) {
-                                for (final Instance i : work.getIntancesWorkflow()) {
-                                    workflowCostPerHour += i.getCostPerHour();
-                                    currentCost += (System.currentTimeMillis() + VARIANCE - i.getCreationTimer()) * i.getCostPerHour();
-                                    if (i.getCreationTimer() < period) {
-                                        period = i.getCreationTimer();
-                                    }
-                                }
-                                
+                        } else {
+                            if (work.getSla().getLimitationExecution()) {
                                 // se passou o limite e o usuario esta disposto a pagar um pouco mais para finalizar o workflow
-                                if (limitCost != null && currentCost > toleranceCost + limitCost) {
-                                    
-                                    // terminate instances by elasticity controller
-                                    this.deleteInstances(work.getIntancesWorkflow());
-                                    final String message = String.format("O custo limite de execução (U$ %s) do Workflow Id: %s foi excedido em %s. Workflow interrompido.", limitCost + toleranceCost,
-                                            work.getId(), currentCost - (limitCost + toleranceCost));
-                                    this.loggerDao.log(new Log(message, work.getUserId(), work.getId(), LogSeverity.WARN));
-                                    LOGGER.debug("[SlaController] Limitating execution cost has been hitted, Removing workflow: " + work.getId() + " from User: " + u.getNome());
-                                    
-                                } else if (limitTime != null && System.currentTimeMillis() - period > limitTime - VARIANCE) {
-                                    
+                                if (limitTime != null && System.currentTimeMillis() - period > limitTime - VARIANCE) {
                                     final long toleranceTime = (long) (toleranceCost / workflowCostPerHour * ONE_HOUR_MILLES);
                                     if (System.currentTimeMillis() - period > toleranceTime + limitTime - VARIANCE) {
                                         this.deleteInstances(work.getIntancesWorkflow());
+                                        deleteZkWorkflow=true;
                                         final String message = String.format("O tempo limite de execução (%s horas) do Workflow Id: %s foi excedido em %s.", limitTime, work.getId(),
                                                 System.currentTimeMillis() - (toleranceTime + limitTime));
                                         this.loggerDao.log(new Log(message, work.getUserId(), work.getId(), LogSeverity.WARN));
@@ -200,24 +199,49 @@ public class SlaController implements Controller, Runnable {
                                 }
                             }
                         }
+                        //TODO tem que modificar para verificar se o workflow 
+                        //terminou pegando dos peers;
+                        if (limitCost != null && currentCost > toleranceCost + limitCost) {
+                            // terminate instances by elasticity controller
+                            this.deleteInstances(work.getIntancesWorkflow());
+                            deleteZkWorkflow=true;
+                            final String message = String.format("O custo limite de execução (U$ %s) do Workflow Id: %s foi excedido em %s. Workflow interrompido.", limitCost + toleranceCost,
+                                    work.getId(), currentCost - (limitCost + toleranceCost));
+                            this.loggerDao.log(new Log(message, work.getUserId(), work.getId(), LogSeverity.WARN));
+                            LOGGER.debug("[SlaController] Limitating execution cost has been hitted, Removing workflow: " + work.getId() + " from User: " + u.getNome());
+                        } 
+                    }
+                    //deleta do zookeeper o workflow que teve suas maquinas excluidas
+                    if(deleteZkWorkflow){
+                        cms.delete(Path.NODE_WORFLOW_USER.getFullPath(u.getLogin(), work.getId()));
+                        u.getWorkflows().remove(work);
+                        deleteZkWorkflow=false;
                     }
                 }
             }
         }
-        
         catch (final Exception ex) {
             LOGGER.debug(ex.getMessage());
         }
-        // if(!repositoryService.getUsers().isEmpty()){
-        // users=repositoryService.getUsers();
-        // }
     }
     
+    /**
+     * Sobrecarga para deletar todas as instancias do workflow e os peers 
+     * correspondentes do zookeeper
+     * @param list 
+     */
     private void deleteInstances(List<Instance> list) {
         for (final Instance element : list) {
-            this.deleteInstances(element.getProvider(), element.getIp());
+            this.deleteInstances(element.getProvider(), element.getIp());   
         }
     }
+    
+    /**
+     * Chama o metodo das api da amazon ou da google para deletar a instancia 
+     * com o ip
+     * @param provider
+     * @param ip 
+     */
     private void deleteInstances(String provider, String ip) {
         switch (provider) {
             case "Amazon": {
@@ -236,6 +260,12 @@ public class SlaController implements Controller, Runnable {
         }
     }
     
+    /**
+     *  verifica se as instancias criadas pelos servidores são as mesmas das especificações
+     * @param instancesUser
+     * @param userId
+     * @param worflowId 
+     */
     public void compareHardware(List<Instance> instancesUser, Long userId, String worflowId) {
         
         for (final Instance iUser : instancesUser) {
@@ -243,11 +273,10 @@ public class SlaController implements Controller, Runnable {
             for (final PluginInfo peer : this.rs.getPeers().values()) {
                 if (iUser.getIp().equals(peer.getHost().getAddress())) {
                     if (!peer.getNumCores().equals(iUser.getNumCores())) {
-                        
                         this.loggerDao.log(new Log("Instância: " + iUser.getIp() + " não corresponde as especificações de numeros de cores esperados: " + iUser.getNumCores()
                                 + " número de cores da instância: " + peer.getNumCores(), userId, worflowId, LogSeverity.WARN));
                     }
-                    if (!peer.getFactoryFrequencyCore().equals(iUser.getCpuHtz())) {
+                    if (((peer.getFactoryFrequencyCore())/1000000000.0D)!=iUser.getCpuHtz()) {
                         this.loggerDao.log(new Log("Instância: " + iUser.getIp() + " não corresponde as especificações da frequência de clock esperada: " + iUser.getCpuHtz()
                                 + "GHZ frequência de clock da instância: " + peer.getFactoryFrequencyCore() + "GHZ", userId, worflowId, LogSeverity.WARN));
                     }

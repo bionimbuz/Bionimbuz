@@ -120,13 +120,6 @@ public final class RepositoryService extends AbstractBioService {
             case NodeChildrenChanged:
                 if (eventType.getPath().equals(Path.USERS_INFO.getFullPath())) {
                     LOGGER.info("Imprimir");
-                    
-                    for (final User u : MonitoringService.getZkUsers()) {
-                        LOGGER.info("User: " + u.toString());
-                        for (final Workflow work : u.getWorkflows()) {
-                            LOGGER.info("Workflow: " + work.toString());
-                        }
-                    }
                 }
                 break;
             case NodeDeleted:
@@ -218,7 +211,7 @@ public final class RepositoryService extends AbstractBioService {
     /**
      * Returns the list of BionimbuZ Slas Users
      *
-     * @param userId
+     * @param login
      * @return SlaList
      */
     public List<SLA> getSlasUserByUserLogin(String login) {

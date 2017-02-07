@@ -143,9 +143,10 @@ public class MonitoringService extends AbstractBioService {
     @Override
     public void verifyPlugins() {
         Collection<PluginInfo> temp = getPeers().values();
+        //TA FAZENDO A FUNÇÃO DO DELETEPEERS <---- VERIFICAR
         temp.removeAll(plugins);
         for(PluginInfo plugin : temp){
-            if(cms.getZNodeExist(Path.STATUS.getFullPath(plugin.getId()), null))
+            if(cms.getZNodeExist(Path.STATUS.getFullPath(plugin.getId()), new UpdatePeerData(cms, this,null)))
                 cms.getData(Path.STATUS.getFullPath(plugin.getId()), new UpdatePeerData(cms, this,null));
         }
     }
@@ -184,14 +185,13 @@ public class MonitoringService extends AbstractBioService {
             for (PluginInfo peer : getPeers().values()) {
                 for (String task : cms.getChildren(Path.TASKS.getFullPath(peer.getId()), null)) {
                     String datas =  cms.getData(Path.NODE_TASK.getFullPath(peer.getId(), task), null);
-                    
                     if(datas!=null && datas.isEmpty()){
                         PluginTask pluginTask = new ObjectMapper().readValue(datas, PluginTask.class);
                         //verifica se o job já estava na lista, recupera e lança novamente os dados para disparar watchers                    if(count ==1){
                         if (pluginTask.getState() == PluginTaskState.PENDING) {
                             if (waitingTask.containsKey(task)) {
                                 //condição para verificar se a tarefa está sendo utilizada
-                                if(cms.getZNodeExist(Path.NODE_TASK.getFullPath(peer.getId(), task), null)){
+                                if(cms.getZNodeExist(Path.NODE_TASK.getFullPath(peer.getId(), task), new UpdatePeerData(cms, this, null))){
                                     cms.delete(Path.NODE_TASK.getFullPath(peer.getId(), task));
                                     cms.createZNode(CreateMode.PERSISTENT, Path.NODE_TASK.getFullPath(peer.getId(), task), pluginTask.toString());
                                 }
@@ -219,19 +219,12 @@ public class MonitoringService extends AbstractBioService {
         try {
             List<String> listPeers = cms.getChildren(Path.PEERS.getFullPath(), new UpdatePeerData(cms, this,null));
             for (String peerId : listPeers) {
-//                if(!plugins.contains(peerPath)){
-//                    plugins.add(peerPath);
-//                    RpcClient rpcClient = new AvroClient("http", plugin.getHost().getAddress(), PORT);
-//                    rpcClient.getProxy().setWatcher(plugin.getId());
-//                    rpcClient.close();
-                
                 if (cms.getZNodeExist(Path.STATUSWAITING.getFullPath(peerId), null)) {
                     //TO DO descomentar linha abaixo caso o storage estiver fazendo a recuperação do peer
                     if (cms.getData(Path.STATUSWAITING.getFullPath(peerId), null).contains("S") && cms.getData(Path.STATUSWAITING.getFullPath(peerId), null).contains("E")) {
                         deletePeer(Path.NODE_PEER.getFullPath(peerId));
                     }
                 }
-//                }
             }
         } catch (KeeperException | InterruptedException ex) {
             java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
@@ -279,17 +272,14 @@ public class MonitoringService extends AbstractBioService {
             //executa a verificação inicial para ver se os peers estão on-line, adiciona um watcher para avisar quando o peer ficar off-line
             List<String> listPeers = cms.getChildren(Path.PEERS.getFullPath(), null);
             for (String peerId : listPeers) {
-                if (cms.getZNodeExist(Path.STATUS.getFullPath(peerId), null)) {
-                    //adicionando wacth
-                    cms.getData(Path.STATUS.getFullPath(peerId), new UpdatePeerData(cms, this,null));
-                }
                 //verifica se algum plugin havia ficado off e não foi realizado sua recuperação
-                if (!cms.getZNodeExist(Path.STATUS.getFullPath(peerId), null)
-                        && !cms.getZNodeExist(Path.STATUSWAITING.getFullPath(peerId), null)) {
+                if (!cms.getZNodeExist(Path.STATUS.getFullPath(peerId),new UpdatePeerData(cms, this,null))
+                        && !cms.getZNodeExist(Path.STATUSWAITING.getFullPath(peerId), new UpdatePeerData(cms, this,null))) {
                     cms.createZNode(CreateMode.PERSISTENT, Path.STATUSWAITING.getFullPath(peerId), "");
                     cms.getData(Path.STATUSWAITING.getFullPath(peerId), new UpdatePeerData(cms, this,null));
+                    //SE TIVER CAIDO, ADICIONADO PARA REMOVER -- VERIFICAR
+                    plugins.add(peerId);
                 }
-                plugins.add(peerId);
             }
         } catch (Exception ex) {
             java.util.logging.Logger.getLogger(MonitoringService.class.getName()).log(Level.SEVERE, null, ex);
@@ -332,7 +322,7 @@ public class MonitoringService extends AbstractBioService {
             java.util.logging.Logger.getLogger(RepositoryService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+   
 //    private void removeUnusedUsers(List<String> usersLogins) {
 //        for (User user : this.users) {
 //            if (!usersLogins.contains(user.getLogin())) {

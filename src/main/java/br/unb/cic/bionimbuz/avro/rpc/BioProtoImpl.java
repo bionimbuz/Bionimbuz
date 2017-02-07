@@ -430,7 +430,7 @@ public class BioProtoImpl implements BioProto {
             br.unb.cic.bionimbuz.model.Instance i = new br.unb.cic.bionimbuz.model.Instance(iAvro);
             instList.add(i);
         }
-        
+        //Compara as instancias para cada workflow
         this.slaController.compareHardware(instList, workflow.getUserId(), workflow.getId());
         return "Pipeline enviado para o escalonamento. Aguarde...";
     }

@@ -94,6 +94,7 @@ public class FileResource extends AbstractResource {
                 // methodsInstance.StorageUploadFile(dest, "/data-folder/", UPLOADED_FILES_DIRECTORY, form.getFileInfo().getName());
                 //// final File temp = new File(filepath);
                 Response.accepted(dest.getName());
+                form.setBucketName(dest.getName());
                 // System.out.println("nome:"+dest.getName());
                 this.fileDao.persist(form.getFileInfo());
                 return Response.ok(form.getBucketName(), MediaType.TEXT_PLAIN).build();
