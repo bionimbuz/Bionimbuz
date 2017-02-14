@@ -5,10 +5,13 @@
  */
 package br.unb.cic.bionimbuz.services.sched.policy.impl;
 
+import br.unb.cic.bionimbuz.model.Instance;
 import br.unb.cic.bionimbuz.model.Job;
+import br.unb.cic.bionimbuz.model.User;
 import br.unb.cic.bionimbuz.model.Workflow;
 import br.unb.cic.bionimbuz.plugin.PluginInfo;
 import br.unb.cic.bionimbuz.plugin.PluginTask;
+import br.unb.cic.bionimbuz.services.monitor.MonitoringService;
 import br.unb.cic.bionimbuz.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbuz.tests.FromLogFileTestGenerator;
 import br.unb.cic.bionimbuz.services.sched.model.Pareto;
@@ -888,16 +891,32 @@ public class C99Supercolider extends SchedPolicy {
      * *******************************************************
      */
     /**
-     *
+     * 
      * @param jobs
      * @return
      */
     @Override
     public HashMap<Job, PluginInfo> schedule(List<Job> jobs) {
-        schedule(rs.getCurrentResourceList(), jobs);
+        final ResourceList resources = new ResourceList();
+        final Map<String, PluginInfo> peers = new HashMap<>();
+        //Alterei para poder pegar somente a lista de ips fornecidos do usuario nos jobs
+        for(PluginInfo plugin: getCloudMap().values()){
+            for(Job job : jobs){
+                if(job.getIpjob().contains(plugin.getHost().getAddress())){
+                    String ip =job.getIpjob().get(job.getIpjob().indexOf(plugin.getHost().getAddress()));
+                    plugin.setCostPerHour(custoInstancia(ip));
+                    final Resource r = new Resource(plugin.getId(), plugin.getFactoryFrequencyCore(), plugin.getCostPerHour());
+                    r.addTask(job);
+                    peers.put(plugin.getId(), plugin);
+                    resources.resources.add(r);
+                }
+            }
+        }
+//        schedule(rs.getCurrentResourceList(), jobs);
+        schedule(resources, jobs);
 
         HashMap<Job, PluginInfo> sched = new HashMap<>();
-        Map<String, PluginInfo> peers = rs.getPeers();
+//        Map<String, PluginInfo> peers = rs.getPeers();
 
         for (Resource r : best.resources) {
             for (Job j : r.getAllocatedTasks()) {
@@ -906,6 +925,24 @@ public class C99Supercolider extends SchedPolicy {
         }
 
         return sched;
+    }
+    /**
+     * procura o custo da instancia no ip passado no node do usuario
+     * @param ip
+     * @return 
+     */
+    private double custoInstancia(String ip){
+        for (final User u : MonitoringService.getZkUsers()) {
+            for (final Workflow work : u.getWorkflows()) {
+               for (final Instance i : work.getIntancesWorkflow()) {
+                   if(i.getIp().equals(ip)){
+                       return i.getCostPerHour();
+                   }
+               }
+            }
+        }
+                        
+        return 0d;
     }
 
     @Override

@@ -105,6 +105,8 @@ public class ElasticityController implements Controller, Runnable {
                 while ((IP = amazonapi.getIpInstance()) == null) {
                     Thread.sleep(1000);
                 }
+               //TODO: alterar pra receber o id do usuario e o id do workflow, pois assim fica sem referencia
+                //loggerDao.log(new Log("New instance has been created:" + IP, 0, "test", LogSeverity.INFO));
                 break;
             }
             case "Google": {
@@ -118,6 +120,8 @@ public class ElasticityController implements Controller, Runnable {
                 while ((IP = googleapi.getIpInstance()) == null) {
                     Thread.sleep(1000);
                 }
+                //TODO: alterar pra receber o id do usuario e o id do workflow, pois assim fica sem referencia
+               // loggerDao.log(new Log("New instance has been created:" + IP, 0, "test", LogSeverity.INFO));
                 break;
             }
             default:

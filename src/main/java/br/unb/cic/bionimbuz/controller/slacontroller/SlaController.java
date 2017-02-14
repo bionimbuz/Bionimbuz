@@ -26,6 +26,7 @@ import br.unb.cic.bionimbuz.controller.elasticitycontroller.AmazonAPI;
 import br.unb.cic.bionimbuz.controller.elasticitycontroller.GoogleAPI;
 import br.unb.cic.bionimbuz.controller.usercontroller.UserController;
 import br.unb.cic.bionimbuz.model.Instance;
+import br.unb.cic.bionimbuz.model.Job;
 import br.unb.cic.bionimbuz.model.Log;
 import br.unb.cic.bionimbuz.model.LogSeverity;
 import br.unb.cic.bionimbuz.model.Prediction;
@@ -34,10 +35,14 @@ import br.unb.cic.bionimbuz.model.User;
 import br.unb.cic.bionimbuz.model.Workflow;
 import br.unb.cic.bionimbuz.persistence.dao.WorkflowLoggerDao;
 import br.unb.cic.bionimbuz.plugin.PluginInfo;
+import br.unb.cic.bionimbuz.plugin.PluginTask;
 import br.unb.cic.bionimbuz.services.RepositoryService;
 import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbuz.services.monitor.MonitoringService;
+import java.io.IOException;
+import java.util.logging.Level;
+import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *
@@ -259,6 +264,29 @@ public class SlaController implements Controller, Runnable {
                 break;
         }
     }
+    /**
+     * TODO fazer a verificação do jobs nos peers
+     * @param wokflow 
+     */
+//    public void verificaJobs(Workflow wokflow){
+//        for(final PluginInfo peer : this.rs.getPeers().values()){
+//            for (final String taskId : this.cms.getChildren(Path.TASKS.getFullPath(peer.getId()), null)) {
+//                Job jobp = new Job();
+//                try {
+//                    final PluginTask plugintask = new ObjectMapper().readValue(this.cms.getData(Path.NODE_TASK.getFullPath(peer.getId(), taskId), null), PluginTask.class);
+//                    jobp= plugintask.getJobInfo();
+//                } catch (IOException ex) {
+//                    java.util.logging.Logger.getLogger(SlaController.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//                for(Job job : wokflow.getJobs()){
+//                    if (job.getId().equals(jobp.getId())){
+//                        if(jobp.getTimestamp()){
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
     
     /**
      *  verifica se as instancias criadas pelos servidores são as mesmas das especificações

@@ -63,14 +63,26 @@ public class BasicSchedPolicy extends SchedPolicy {
     private int calculateWeightSum(PluginInfo plugin) {
         return (plugin.getNumCores() * CORES_WEIGHT) + (plugin.getNumNodes() * NODES_WEIGHT);
     }
-
+    /**
+     * Atribui os valores 
+     * @param jobs
+     * @return 
+     */
     @Override
     public HashMap<Job, PluginInfo> schedule(List<Job> jobs) {
         HashMap<Job, PluginInfo> schedMap = new HashMap<>();
-        jobs.stream().forEach((jobInfo) -> {
-            PluginInfo resource = this.scheduleJob(jobInfo);
-            schedMap.put(jobInfo, resource);
-        });
+        for(PluginInfo plugin: getCloudMap().values()){
+            for(Job job : jobs){
+                if(job.getIpjob().contains(plugin.getHost().getAddress())){
+                    job.getIpjob().indexOf(plugin.getHost().getAddress());
+                    schedMap.put(job,plugin);
+                }
+            }
+        }
+//        jobs.stream().forEach((jobInfo) -> {
+//            PluginInfo resource = this.scheduleJob(jobInfo);
+//            schedMap.put(jobInfo, resource);
+//        });
         return schedMap;
     }
 

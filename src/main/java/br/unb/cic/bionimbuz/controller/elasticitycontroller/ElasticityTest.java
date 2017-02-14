@@ -13,6 +13,8 @@
 package br.unb.cic.bionimbuz.controller.elasticitycontroller;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Scanner;
 
 
@@ -27,7 +29,17 @@ public class ElasticityTest {
         System.out.println("Input: ");
         String name = test.nextLine();
         if (name.equals("create")) {
-            api.createinstance("t2.micro", "nome");
+            long timeIp = System.currentTimeMillis();
+            api.createinstance("t2.micro", "bionimbuz");
+            String ip = api.getIpInstance();
+            if(ip== null){
+                System.out.println("erradoo" + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date(timeIp-System.currentTimeMillis())));
+                
+            }else{
+                System.out.println("certo ip:"+ip+" - " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date(timeIp-System.currentTimeMillis())));
+            }
+            
+            
         } else if (name.equals("terminate")) {
             api.terminate("i-037d33975539331ad");
         } else {

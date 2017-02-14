@@ -46,7 +46,13 @@ public class AmazonAPI implements ProvidersAPI {
             throw new RuntimeException(ioe);
         }//, IllegalArgumentException
     }
-    
+    /**
+     * Method to create instance at amazon 
+     * TODO: alterar o jeito de adicionar a imagem para criar a maquina
+     * @param type
+     * @param nameinstance
+     * @throws IOException 
+     */
     @Override
     public void createinstance(String type, String nameinstance) throws IOException {
         // Acho que tem que mudar isso aqui em    
@@ -55,10 +61,10 @@ public class AmazonAPI implements ProvidersAPI {
 
         try {
 
-            // CREATE EC2 INSTANCES 
+            // CREATE EC2 INSTANCES ami-912db2fd
             RunInstancesRequest runInstancesRequest = new RunInstancesRequest()
                     .withInstanceType(type)
-                    .withImageId("ami-912db2fd")
+                    .withImageId("ami-ef741383")
                     .withMinCount(1)
                     .withMaxCount(1)
                     .withSecurityGroupIds("default");
@@ -86,9 +92,9 @@ public class AmazonAPI implements ProvidersAPI {
 
                 createdInstanceId = ins.getInstanceId();
                 
-                workflowLogger.log(new Log("New instance has been created:" + createdInstanceId, 0, "test", LogSeverity.INFO));
+//                workflowLogger.log(new Log("New instance has been created:" + createdInstanceId, 0, "test", LogSeverity.INFO));
                 
-                //System.out.println("New instance has been created: " + createdInstanceId);//print the instance ID
+                System.out.println("New instance has been created: " + createdInstanceId);//print the instance ID
                 CreateTagsRequest createTagsRequest = new CreateTagsRequest();
                 createTagsRequest.withResources(createdInstanceId) //
                 .withTags(new Tag("Name", nameinstance));
