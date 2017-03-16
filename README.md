@@ -1,12 +1,5 @@
 Bionimbuz
 =========
-
- 
-image:https://travis-ci.org/bionimbuz/Bionimbuz.svg?branch=master["Build Status", link="https://travis-ci.org/bionimbuz/Bionimbuz"]
-image:http://img.shields.io/coveralls/bionimbuz/Bionimbuz/master.svg["Coverage Status", link="https://coveralls.io/r/bionimbuz/Bionimbuz?branch=master"]
-
-image:https://raw.githubusercontent.com/vramos91/BionimbuzClient/master/WebContent/resources/img/logo_bionimbuz.jpg["BioNimbuz",link="https://raw.githubusercontent.com/vramos91/BionimbuzClient/master/WebContent/resources/img/logo_bionimbuz.jpg"]
-
 #### Universidade de Brasília
 #### Departamento de Ciência da Computação
 #### Introdução
