@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-@namespace("br.unb.cic.bionimbus.avro.gen")
+@namespace("br.unb.cic.bionimbuz.avro.gen")
 protocol BioProto {
 
     enum NodeState { STARTING, ACTIVE, CLOSING, IDLE, ERROR, DECOMMISSIONED }
@@ -29,47 +29,104 @@ protocol BioProto {
     }
 
     record FileInfo{
-      string id;
-      string name;
-      long size;
-      long userId;
-      string uploadTimestamp;
-      string hash;
+        string id;
+        string name;
+        long size;
+        long userId;
+        string uploadTimestamp;
+        string hash;
+    }
+
+    record Instance{
+        string id;
+        string type;
+        double costPerHour;
+        string locality;
+        double memoryTotal;
+        double cpuHtz;
+        string cpuType;
+        int numCores;
+        string description;
+        string provider;
+        array<string> idProgramas;
+        long creationTimer;
+        int delay;
+        long timetocreate;
+        long idUser;
+        string ip;
+    }
+    
+    record Prediction{
+        string id;
+        string idService;
+        long timeService;
+        Instance instance;
+        double custoService;
+    }
+
+    record User{
+        long id;
+        string login;
+        string nome;
+        string cpf;
+        string email;
+        string celphone;
+        array<Instance> instances;
     }
 
     record Pair{
-      string first;
-      long second;
+        string first;
+        long second;
     }  
 
+    record Sla{
+        string id;
+        string idWorkflow;
+        string provider;
+        int objective;
+        long period;
+        double value;
+        int limitationType;
+        long limitationValueExecutionTime;
+        double limitationValueExecutionCost;
+        double execeedValueExecutionCost;
+        boolean prediction;
+        array <Prediction> solutions;
+        boolean limitationExecution;
+    }
+
     record Job {
-      string id;
-      string localId;
-      string serviceId;
-      string args ;
-      array<FileInfo> inputFiles;
-      array<string> outputs;
-      long timestamp;
-      array<string> dependencies;
-      string referenceFile;
+        string id;
+        string localId;
+        string serviceId;
+        string args ;
+        array<FileInfo> inputFiles;
+        array<string> outputs;
+        long timestamp;
+        array<string> dependencies;
+        string referenceFile;
+        array<string> ipjob;
     }
 
     record Workflow {
-      string id;
-      array<Job> jobs;
-      string creationDatestamp;
-      long userId;
-      string description;
-      union {WorkflowStatus, null} status;
+        string id;
+        array<Job> jobs;
+        array<Instance> intancesWorkflow;
+        Sla sla;
+        User userWorkflow;
+        string creationDatestamp;
+        long userId;
+        string description;
+        union {WorkflowStatus, null} status;
     }
 
     record PluginFile {
-      string id;
-      string path;
-      string name;
-      string hash;    
-      long size;
-      array<string> pluginId;
+        string id;
+        string path;
+        string name;
+        string hash;    
+        long size;
+        array<string> pluginId;
     }
 
 

@@ -8,7 +8,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import br.unb.cic.bionimbus.services.storage.compress.compactors.GZipCompactor;
+import br.unb.cic.bionimbuz.services.storage.compress.compactors.GZipCompactor;
 
 import com.google.common.io.Files;
 

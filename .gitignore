@@ -1,5 +1,4 @@
 .project
-*.save
 *.log
 *.log.*
 *.out
@@ -15,7 +14,6 @@ biofoco.log
 /data-folder/**
 /uploaded-files/**
 /references/**
-/conf/node.yaml
 /references/**/
 /conf/GooglePrices.txt
 /conf/AmazonStorage.txt
@@ -29,3 +27,18 @@ biofoco.log
 nb-configuration.xml
 .bionimbuz
 /tmp/
+/hsS.json
+/jsS.json
+/AmazonEC2.json
+/bionimbuz.iml
+/amazonEC2.json
+/GoogleCloud.json
+/index.json
+/BionimbuzClient.iml
+/.idea/
+/conf/.amazonEC2.json.swp
+/conf/BioNimbuZ-c134edaa2a6e.json
+/conf/googleCloudInstance.json
+/conf/amazonEC2.json
+/conf/googleCloudStorage.json
+/conf/index.json

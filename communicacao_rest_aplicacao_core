@@ -1,0 +1,42 @@
+Para a comunicação entre a aplicação web e o core são necessarios a criação de algumas classes e metodos, as quais são:
+
+na parte do aplicação: 
+
+a classe que ira executar a ação e que extende a classe Abstract Action, e não necessita de construtor, implementando os metodos:
+package br.unb.cic.bionimbuz.rest.action;
+ public abstract void setup(Client client, RequestInfo reqInfo);
+ public abstract void prepareTarget();
+ public abstract ResponseInfo execute();
+
+
+a classe da requisição, possuindo os atributos que irão ser passados, construtor com esses parametros e seus atributos encapsulados e um construtor vazio, essa classe implementa a interface RequestInfo
+package br.unb.cic.bionimbuz.rest.request
+
+a classe de respostas, possuindo os atributos que deseja obter do core, construtor com esses parametros e seus atributos encapsulados e um construtor vazio, essa classe implementa a interface
+package br.unb.cic.bionimbuz.rest.response
+
+
+na classe RestService, deve se criar um metodo com os parametros que deseja passar para o nucleo, instanciar o objeto da classe request com o construtor passando os parametros, e a instanciar a resposta com a classe response, como o exemplo a seguir:
+
+final RequestInfo elasticityRequest = new CreateElasticityRequest(provider, type, instanceName, operation, idInstance);
+final CreateElasticityResponse response = (CreateElasticityResponse) this.restCommunicator.sendRequest(new CreateElasticity(), elasticityRequest);
+
+por fim na bean que for chamar o metodo que vai fazer a comunicação com o core, temos que ter o objeto do tipo RestService instanciado para chamar o serviço 
+
+
+Na parte do Core:
+
+a classe que ira receber a action é uma resource, e deve ser adicionada na classe 
+package br.unb.cic.bionimbuz.rest.application.RestApplication;
+exemplo: addResource(new PingResource());
+
+a classe Resource tem que extender AbstractResource e implemente o metodo da action
+ @POST
+ @Path("/elasticity/create") Caminho da action passada na action da aplicação web
+ @Consumes(MediaType.APPLICATION_JSON) o que consome 
+ @Produces(MediaType.APPLICATION_JSON) o que produz
+
+retornando o objeto da classe resposta da ação;
+
+as classes da requisição e da resposta, possuindo os atributos que irão ser passados ou retornados, construtor com esses parametros e seus atributos encapsulados e um construtor vazio, essas classes implementam as interfaces RequestInfo e ResponseInfo Respectivamente
+

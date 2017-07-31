@@ -12,9 +12,11 @@
 
             <!-- JDBC Driver definition -->
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
+            <!--<property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver" />-->
 
-            <!-- Database URL -->
+            <!-- Database URL-->
             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/bionimbuz_db" />
+            <!--<property name="javax.persistence.jdbc.url" value="jdbc:mysql://ip/bionimbuz_db" />-->
 
             <!-- Database user MUST CHANGE-->
             <property name="javax.persistence.jdbc.user" value="root" />
