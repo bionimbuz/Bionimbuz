@@ -2,6 +2,8 @@ package br.unb.cic.bionimbuz.persistence.dao;
 
 import java.util.List;
 
+import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 import javax.persistence.TypedQuery;
 
 import br.unb.cic.bionimbuz.model.User;
@@ -105,31 +107,19 @@ public class UserDao extends AbstractDao<User> {
      * @return
      * @throws java.lang.Exception
      */
-    public User findByLogin(String login) throws Exception {
-        // Creates entity manager
-        manager = EntityManagerProducer.getEntityManager();
+    public User findByLogin(String login) {
 
+        manager = EntityManagerProducer.getEntityManager();
         TypedQuery<User> query = manager.createQuery("SELECT u FROM User u WHERE u.login = :login", User.class);
         query.setParameter("login", login);
-
-        User userFromDB = query.getSingleResult();
-
-        // If it is not null, sets File list and Workflow list
-        if (userFromDB != null) {
-            userFromDB.setFiles(new FileDao().listByUserId(userFromDB.getId()));
-            userFromDB.setWorkflows(new WorkflowDao().listByUserId(userFromDB.getId()));
-
-            // Close connection
-            manager.close();
-
-            return userFromDB;
-        } else {
-
-            // Close connection
-            manager.close();
-
-            return null;
+        User userFromDB = null;
+        try {
+            userFromDB = query.getSingleResult();
+        } catch (NoResultException | NonUniqueResultException e) {
+            // Noting to do
         }
+        manager.close();
+        return userFromDB;
     }
 
     /**
@@ -139,13 +129,7 @@ public class UserDao extends AbstractDao<User> {
      * @return
      */
     public boolean exists(String login) {
-        for (User u : list()) {
-            if (u.getLogin().equals(login)) {
-                return true;
-            }
-        }
-
-        return false;
+        return this.findByLogin(login) != null;
     }
 
 }

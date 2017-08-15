@@ -20,6 +20,7 @@ import br.unb.cic.bionimbuz.model.FileInfo;
 import br.unb.cic.bionimbuz.model.User;
 import br.unb.cic.bionimbuz.persistence.dao.FileDao;
 import br.unb.cic.bionimbuz.persistence.dao.UserDao;
+import br.unb.cic.bionimbuz.persistence.dao.WorkflowDao;
 import br.unb.cic.bionimbuz.rest.request.LoginRequest;
 import br.unb.cic.bionimbuz.rest.request.LogoutRequest;
 import br.unb.cic.bionimbuz.rest.request.RequestInfo;
@@ -51,10 +52,13 @@ public class UserResource extends AbstractResource {
         LOGGER.info("Login request received: [login: " + requestUser.getLogin() + "]");
 
         // Verifies if the request user exists on database
-        User responseUser = null;
-
+        User user = null;
         try {
-            responseUser = userDao.findByLogin(requestUser.getLogin());
+            user = userDao.findByLogin(requestUser.getLogin());
+            if (user != null) {
+                user.setFiles(new FileDao().listByUserId(user.getId()));
+                user.setWorkflows(new WorkflowDao().listByUserId(user.getId()));
+            }
         } catch (NoResultException e) {
             LOGGER.info("User " + requestUser.getLogin() + " not found");
 
@@ -65,23 +69,23 @@ public class UserResource extends AbstractResource {
         }
 
         // Verifies if the user from database is null and the password is right
-        if (responseUser != null) {
-            List<FileInfo> userFiles = fileInfoDao.listByUserId(responseUser.getId());
-            responseUser.setFiles(userFiles);
+        if (user != null) {
+            List<FileInfo> userFiles = fileInfoDao.listByUserId(user.getId());
+            user.setFiles(userFiles);
 
             // Encrypts secretKey with bCrypt encoder
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             String secretKey = encoder.encode(requestUser.getLogin() + Calendar.getInstance());
 
-            responseUser.setSecurityToken(secretKey);
+            user.setSecurityToken(secretKey);
 
             // Logs user in ZooKeeper structure
-            userController.logUser(responseUser.getLogin());
+            userController.logUser(user.getLogin());
 
             LOGGER.info("Children count: " + userController.getLoggedUsersCount());
 
             // Sets response populated user
-            return Response.status(200).entity(responseUser).build();
+            return Response.status(200).entity(user).build();
         } else {
 
             // Else, returns the same user
@@ -139,6 +143,6 @@ public class UserResource extends AbstractResource {
 
     @Override
     public ResponseInfo handleIncoming(RequestInfo request) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose Tools | Templates.
     }
 }
