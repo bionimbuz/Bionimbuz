@@ -13,17 +13,17 @@ import org.slf4j.LoggerFactory;
  * @author jgomes | 27 de set de 2016 - 16:01:51
  */
 public class RuntimeUtil {
-    
+
     private static final String SPACE_STRING = " ";
     private static final String LINE_BREAK = "\n";
-    
-    // --------------------------------------------------------------
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Constructors.
-    // --------------------------------------------------------------
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     private RuntimeUtil() {
         super();
     }
-    
+
     synchronized public static String runCommand(final String... command) throws IOException, InterruptedException {
         final List<String> lstCommands = new ArrayList<>();
         for (final String arg : command) {
@@ -35,6 +35,7 @@ public class RuntimeUtil {
         final Process process = new ProcessBuilder(lstCommands).start();
         return getProcessReturn(process);
     }
+
     synchronized private static String getProcessReturn(final Process process) throws InterruptedException {
         final StreamGobblerThread errorGobbler = new RuntimeUtil().new StreamGobblerThread(process.getErrorStream());
         final StreamGobblerThread outputGobbler = new RuntimeUtil().new StreamGobblerThread(process.getInputStream());
@@ -52,16 +53,16 @@ public class RuntimeUtil {
         builder.trimToSize();
         return builder.toString();
     }
-    
+
     /**
      * @author jgomes | 27 de set de 2016 - 16:22:15
      */
     private class StreamGobblerThread extends Thread {
-        
+
         private static final String RUNTIME_EXECUTION_ERROR = "Runtime execution error!";
         private final InputStream stream;
         private String outputstream;
-        
+
         // --------------------------------------------------------------
         // Constructors.
         // --------------------------------------------------------------
@@ -70,6 +71,7 @@ public class RuntimeUtil {
             this.stream = stream;
             super.start();
         }
+
         // --------------------------------------------------------------
         // * @see java.lang.Thread#run()
         // --------------------------------------------------------------
@@ -89,6 +91,7 @@ public class RuntimeUtil {
                 LoggerFactory.getLogger(StreamGobblerThread.class).error(RUNTIME_EXECUTION_ERROR, e);
             }
         }
+
         // --------------------------------------------------------------
         // Get/Set.
         // --------------------------------------------------------------

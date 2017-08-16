@@ -275,7 +275,7 @@ public class GoogleCloud {
      * @return ArrayList<Instance>
      */
     public ArrayList<Instance> getListInstanceGCE() {
-        ArrayList<Instance> listInstancesGCE = new ArrayList();
+        ArrayList<Instance> listInstancesGCE = new ArrayList<>();
         
         
         Double costPerHour = 0D, memoryTotal = 0D, cpuHtz = 0D, gceu = 0D;
