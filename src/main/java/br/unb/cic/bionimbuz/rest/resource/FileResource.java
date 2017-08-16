@@ -41,20 +41,20 @@ import br.unb.cic.bionimbuz.services.storage.bucket.methods.CloudMethodsAmazonGo
 
 @Path("/rest/file/")
 public class FileResource extends AbstractResource {
-    
+
     private static final String UPLOADED_FILES_DIRECTORY = ConfigurationRepository.getDataFolder();
     private final FileDao fileDao;
-    
+
     public FileResource(final JobController jobController) {
         this.fileDao = new FileDao();
         this.jobController = jobController;
     }
-    
+
     @Override
     public ResponseInfo handleIncoming(final RequestInfo request) {
         throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose Tools | Templates.
     }
-    
+
     /**
      * Handles uploaded file from client
      *
@@ -70,12 +70,12 @@ public class FileResource extends AbstractResource {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     public Response handleUploadedFile(@MultipartForm UploadRequest form) throws InterruptedException, JSchException, SftpException, NoSuchAlgorithmException {
-        
+
         LOGGER.info("Upload request received [filename=" + form.getFileInfo().getName() + "]");
-        
+
         try {
             // Writes file on disk
-            
+
             if (this.config.getStorageMode().equalsIgnoreCase("0")) {
                 final String filepath = this.writeFile(form.getData(), form.getFileInfo().getName(), form.getFileInfo().getUserId());
                 // Verify integrity
@@ -85,11 +85,11 @@ public class FileResource extends AbstractResource {
                     // Copy to data-folder
                     this.copyFileToDataFolder(filepath, form.getFileInfo().getName());
                 }
-                
+
             } else {
                 // final CloudStorageMethods methodsInstance = new CloudMethodsAmazonGoogle();
                 final BioBucket dest = CloudStorageService.getBestBucket(CloudStorageService.getBucketList());
-                
+
                 // methodsInstance.StorageDownloadFile(dest, "/data-folder/", UPLOADED_FILES_DIRECTORY, form.getFileInfo().getName());
                 // methodsInstance.StorageUploadFile(dest, "/data-folder/", UPLOADED_FILES_DIRECTORY, form.getFileInfo().getName());
                 //// final File temp = new File(filepath);
@@ -111,7 +111,7 @@ public class FileResource extends AbstractResource {
             return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).entity(false).build();
         }
     }
-    
+
     /**
      * Delete a file
      *
@@ -121,31 +121,31 @@ public class FileResource extends AbstractResource {
     @Path("/{fileID}")
     public void deleteFile(@PathParam("fileID") final String id) {
         LOGGER.info("Delete File Request received. Id=" + id);
-        
+
         try {
             final FileInfo file = this.fileDao.findByStringId(id);
-            
+
             if (this.config.getStorageMode().equalsIgnoreCase("1")) {
                 final BioBucket bucket = CloudStorageService.getBucket(file.getBucket());
-                
+
                 LOGGER.info("File " + file.getName() + " found on Bucket " + file.getBucket());
-                
+
                 final CloudStorageMethods methods_instance = new CloudMethodsAmazonGoogle();
-                
+
                 methods_instance.DeleteFile(bucket, file.getName());
-                
+
                 // TODO also delete from data-folder
             }
-            
+
             this.fileDao.delete(file);
-            
+
         } catch (final Throwable t) {
             LOGGER.error("Exception caught: " + t.getMessage());
             t.printStackTrace();
         }
-        
+
     }
-    
+
     /**
      * Used to download a file to the user
      *
@@ -158,23 +158,23 @@ public class FileResource extends AbstractResource {
     @Produces(MediaType.TEXT_PLAIN)
     public Response getFile(@PathParam("workflow-id") final String workflowId, @PathParam("filename") final String filename) {
         LOGGER.info("Requested donwload of file: " + workflowId + "/" + filename);
-        
+
         try {
             final File file = new File(ConfigurationRepository.getWorkflowOutputFolder(workflowId) + filename);
-            
+
             final ResponseBuilder response = Response.ok(file);
             response.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-            
+
             return response.build();
         } catch (final Exception e) {
             e.printStackTrace();
         }
-        
+
         // Return Internal Error (500)
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        
+
     }
-    
+
     /**
      * Save file in disk
      *
@@ -187,7 +187,7 @@ public class FileResource extends AbstractResource {
             file.getParentFile().mkdirs();
         }
         file.createNewFile();
-        
+
         final String absolutePath = file.getAbsolutePath();
         try (
              final FileOutputStream fileOutputStream = new FileOutputStream(file);) {
@@ -200,7 +200,7 @@ public class FileResource extends AbstractResource {
         }
         return absolutePath;
     }
-    
+
     /**
      * Verifies a file integrity.
      *
@@ -221,7 +221,7 @@ public class FileResource extends AbstractResource {
         }
         return null;
     }
-    
+
     /**
      * Convert from FileInfo to Avro FileInfo.
      *
@@ -232,22 +232,22 @@ public class FileResource extends AbstractResource {
     public br.unb.cic.bionimbuz.avro.gen.FileInfo convertToAvroObject(final String hashedFile, final FileInfo fileInfo) {
         try {
             final br.unb.cic.bionimbuz.avro.gen.FileInfo info = new br.unb.cic.bionimbuz.avro.gen.FileInfo();
-            
+
             info.setHash(hashedFile);
             info.setId(fileInfo.getName());
             info.setName(fileInfo.getName());
             info.setSize(fileInfo.getSize());
             info.setUploadTimestamp(fileInfo.getUploadTimestamp());
-            
+
             return info;
-            
+
         } catch (final Exception e) {
             LOGGER.error("Error converting objects", e);
         }
-        
+
         return null;
     }
-    
+
     /**
      * It's needed because next job may need it.
      *
@@ -256,21 +256,22 @@ public class FileResource extends AbstractResource {
      * @throws FileNotFoundException
      */
     private void copyFileToDataFolder(final String fromPath, final String filename) throws FileNotFoundException, IOException {
+
+        final String toPath = ConfigurationRepository.getDataFolder() + filename;
+        final File to = new File(toPath + ".part");
         final File from = new File(fromPath);
-        final File to = new File(ConfigurationRepository.getDataFolder() + filename);
         try (
              InputStream inStream = new FileInputStream(from);
              OutputStream outStream = new FileOutputStream(to);) {
-            
+
             final byte[] buffer = new byte[1024];
             int length;
             while ((length = inStream.read(buffer)) > 0) {
                 outStream.write(buffer, 0, length);
             }
         } finally {
-            if (from.exists()) {
-                from.delete();
-            }
+            from.delete();
+            to.renameTo(new File(toPath));
         }
     }
 }

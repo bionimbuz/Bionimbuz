@@ -42,19 +42,22 @@ import br.unb.cic.bionimbuz.services.ServiceModule;
 import br.unb.cic.bionimbuz.services.tarification.Amazon.AmazonIndex;
 import br.unb.cic.bionimbuz.services.tarification.Google.GoogleCloud;
 import br.unb.cic.bionimbuz.toSort.Listeners;
+import br.unb.cic.bionimbuz.utils.NetworkUtil;
 import br.unb.cic.bionimbuz.utils.PBKDF2;
 import br.unb.cic.bionimbuz.utils.ZookeeperUtil;
 
 public final class BioNimbuZ {
 
-    public static final Injector serviceInjector = Guice.createInjector(new ServiceModule());
-    public static final Injector controllerInjector = Guice.createInjector(new ControllerModule());
+    private static Injector serviceInjector;
+    private static Injector controllerInjector;
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Constructors.
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     private BioNimbuZ() {
         super();
+        serviceInjector = Guice.createInjector(new ServiceModule());
+        controllerInjector = Guice.createInjector(new ControllerModule());
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -63,30 +66,22 @@ public final class BioNimbuZ {
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 
         final String configFile = System.getProperty("config.file", "conf/node.yaml");
-        BioNimbusConfig config = BioNimbusConfigLoader.loadHostConfig(configFile);
-        if (!config.isRemotehost()) {
+        final BioNimbusConfig config = BioNimbusConfigLoader.loadHostConfig(configFile);
+        if (NetworkUtil.isLocalhost(config.getZkHosts())) {
             ZookeeperUtil.startZookeeper();
-            addShutdownHook();
         }
 
         // medida paleativa para criar o arquivo das instancias da google e da amazon precisa por no serviço
         new AmazonIndex();
         new GoogleCloud();
 
-        BioNimbuZ system = new BioNimbuZ();
+        final BioNimbuZ system = new BioNimbuZ();
         system.saveRootUser();
         system.start(config);
     }
 
-    private static void addShutdownHook() {
-
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-
-            @Override
-            public void run() {
-                ZookeeperUtil.stopZookeeper();
-            }
-        });
+    public static Injector getControllerInjector() {
+        return controllerInjector;
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -97,9 +92,9 @@ public final class BioNimbuZ {
         config.setId(UUID.randomUUID().toString());
         if (!config.isClient()) {
 
-            LinuxGetInfo linuxGetInfo = new LinuxGetInfo();
+            final LinuxGetInfo linuxGetInfo = new LinuxGetInfo();
 
-            PluginInfo infopc = linuxGetInfo.call();
+            final PluginInfo infopc = linuxGetInfo.call();
             infopc.setId(config.getId());
             infopc.setHost(config.getHost());
             infopc.setPrivateCloud(config.getPrivateCloud());
@@ -112,11 +107,11 @@ public final class BioNimbuZ {
         }
 
         // Instantiates ServiceManager and Controller
-        ServiceManager serviceManager = serviceInjector.getInstance(ServiceManager.class);
-        ControllerManager controllerManager = controllerInjector.getInstance(ControllerManager.class);
+        final ServiceManager serviceManager = serviceInjector.getInstance(ServiceManager.class);
+        final ControllerManager controllerManager = controllerInjector.getInstance(ControllerManager.class);
 
         // Starts all Services
-        List<Listeners> listeners = new CopyOnWriteArrayList<>();
+        final List<Listeners> listeners = new CopyOnWriteArrayList<>();
         serviceManager.startAll(config, listeners);
 
         // Starts all Controllers
@@ -124,16 +119,16 @@ public final class BioNimbuZ {
     }
 
     private void saveRootUser() throws NoSuchAlgorithmException, InvalidKeySpecException {
-        UserDao dao = new UserDao();
-        String rootLogin = "root";
+        final UserDao dao = new UserDao();
+        final String rootLogin = "root";
         if (!dao.exists(rootLogin)) {
-            User object = bindRootUser();
+            final User object = this.bindRootUser();
             dao.persist(object);
         }
     }
 
     private User bindRootUser() throws NoSuchAlgorithmException, InvalidKeySpecException {
-        User object = new User();
+        final User object = new User();
         object.setLogin("root");
         object.setPassword(PBKDF2.generatePassword("root"));
         object.setCpf("00000000000");

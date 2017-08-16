@@ -1,37 +1,37 @@
 /*
-    BioNimbuZ is a federated cloud platform.
-    Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD), 
-    Department of Computer Science, University of Brasilia, Brazil
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * BioNimbuZ is a federated cloud platform.
+ * Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD),
+ * Department of Computer Science, University of Brasilia, Brazil
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package br.unb.cic.bionimbuz.utils;
 
-import br.unb.cic.bionimbuz.config.ConfigurationRepository;
 import java.io.File;
 import java.io.IOException;
 
-import br.unb.cic.bionimbuz.services.storage.bandwidth.BandwidthCalculator;
-import br.unb.cic.bionimbuz.services.storage.compress.CompressPolicy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import br.unb.cic.bionimbuz.config.BioNimbusConfig;
+import br.unb.cic.bionimbuz.config.ConfigurationRepository;
+import br.unb.cic.bionimbuz.services.storage.bandwidth.BandwidthCalculator;
+import br.unb.cic.bionimbuz.services.storage.compress.CompressPolicy;
 
 /**
  * Classe com os metodos para a realização de um upload na federação
@@ -56,11 +56,11 @@ public class Put {
         this.address = address;
         this.path = path;
 
-        SSHCredentials credentials = ConfigurationRepository.getSSHCredentials();
+        final SSHCredentials credentials = ConfigurationRepository.getSSHCredentials();
 
-        USER = credentials.getUser();
-        PASSW = credentials.getPassword();
-        PORT = Integer.parseInt(credentials.getPort());
+        this.USER = credentials.getUser();
+        this.PASSW = credentials.getPassword();
+        this.PORT = Integer.parseInt(credentials.getPort());
     }
 
     public Put() {
@@ -73,40 +73,43 @@ public class Put {
      * servidores, para upar um arquivo em um peer.
      *
      * @return - true se o upload foi realizado com sucesso, false caso
-     * contrário
+     *         contrário
      * @throws JSchException
      * @throws SftpException
      */
     public boolean startSession() throws JSchException, SftpException {
-        String pathDest = ConfigurationRepository.getDataFolder();
 
+        final BioNimbusConfig config = ConfigurationRepository.getConfig();
+        if (NetworkUtil.isLocalhost(this.address)) {
+            LOGGER.info("\n\n It is not needed to use the SFTP channel to transfer the file because the system is using a localhost configuration.\n\n\n");
+            return true;
+        }
+
+        final String pathDest = config.getDataFolder();
         try {
-            session = jsch.getSession(USER, address, PORT);
-            session.setConfig("StrictHostKeyChecking", "no");
-            session.setPassword(PASSW);
-            session.connect();
-        } catch (JSchException e) {
+            this.session = this.jsch.getSession(this.USER, this.address, this.PORT);
+            this.session.setConfig("StrictHostKeyChecking", "no");
+            this.session.setPassword(this.PASSW);
+            this.session.connect();
+        } catch (final JSchException e) {
             LOGGER.error("[JSchException] - " + e.getMessage());
-
             return false;
         }
 
         long inicio = 0, fim = 0;
-        String toBeSent = path;
+        String toBeSent = this.path;
         try {
-            this.channel = session.openChannel("sftp");
-            channel.connect();
-            ChannelSftp sftpChannel = (ChannelSftp) channel;
+            this.channel = this.session.openChannel("sftp");
+            this.channel.connect();
+            final ChannelSftp sftpChannel = (ChannelSftp) this.channel;
 
             inicio = System.currentTimeMillis();
-            if (new File(toBeSent).getTotalSpace() >= MIN_SIZE_FOR_COMPRESSION) {
+            if (new File(toBeSent).length() >= MIN_SIZE_FOR_COMPRESSION) {
                 try {
-
                     System.out.println("\n Compressing file.....\n\n\n");
-                    toBeSent = CompressPolicy.verifyAndCompress(path,
-                            BandwidthCalculator.linkSpeed(address));
-                } catch (IOException e) {
-                    toBeSent = path;
+                    toBeSent = CompressPolicy.verifyAndCompress(this.path, BandwidthCalculator.linkSpeed(this.address));
+                } catch (final IOException e) {
+                    toBeSent = this.path;
                 }
             }
             /*
@@ -116,16 +119,16 @@ public class Put {
              * questões de segurança, talvez isso deva ser repensado
              * futuramente.
              */
-            //sftpChannel.chmod(777, path);
+            // sftpChannel.chmod(777, path);
             System.out.println("\n Uploading file.....\n\n\n");
             sftpChannel.put(toBeSent, pathDest);
             sftpChannel.exit();
-            session.disconnect();
+            this.session.disconnect();
             fim = System.currentTimeMillis();
 
             CompressPolicy.deleteIfCompressed(toBeSent);
 
-        } catch (JSchException a) {
+        } catch (final JSchException a) {
             return false;
         }
 
@@ -133,7 +136,5 @@ public class Put {
         LOGGER.info("Sent file: " + toBeSent);
 
         return true;
-
     }
-
 }

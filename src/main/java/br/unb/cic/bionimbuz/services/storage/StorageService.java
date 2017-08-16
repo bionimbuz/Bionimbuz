@@ -15,8 +15,6 @@
  */
 package br.unb.cic.bionimbuz.services.storage;
 
-import static br.unb.cic.bionimbuz.config.BioNimbusConfigLoader.loadHostConfig;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -53,10 +51,10 @@ import br.unb.cic.bionimbuz.avro.gen.NodeInfo;
 import br.unb.cic.bionimbuz.avro.rpc.AvroClient;
 import br.unb.cic.bionimbuz.avro.rpc.RpcClient;
 import br.unb.cic.bionimbuz.config.BioNimbusConfig;
+import br.unb.cic.bionimbuz.config.BioNimbusConfigLoader;
 import br.unb.cic.bionimbuz.config.ConfigurationRepository;
 import br.unb.cic.bionimbuz.plugin.PluginFile;
 import br.unb.cic.bionimbuz.plugin.PluginInfo;
-import br.unb.cic.bionimbuz.security.AESEncryptor;
 import br.unb.cic.bionimbuz.security.HashUtil;
 import br.unb.cic.bionimbuz.security.Integrity;
 import br.unb.cic.bionimbuz.services.AbstractBioService;
@@ -298,7 +296,7 @@ public class StorageService extends AbstractBioService {
      * Retorna o tamanho do arquivo, dado o nome do mesmo.
      * NOTE: listFiles never used. Revise this code.
      * Refactor message of integrity verification
-     * 
+     *
      * @param file
      *            O nome do arquivo
      * @return O tamanho do arquivo
@@ -306,11 +304,8 @@ public class StorageService extends AbstractBioService {
     public long getFileSize(String file) {
 
         try {
-            List<String> listFiles;
             for (final Iterator<PluginInfo> it = this.getPeers().values().iterator(); it.hasNext();) {
                 final PluginInfo plugin = it.next();
-                listFiles = this.cms.getChildren(Path.FILES.getFullPath(plugin.getId()), null);
-
                 final PluginFile files = new ObjectMapper().readValue(this.cms.getData(Path.NODE_FILE.getFullPath(plugin.getId(), file), null), PluginFile.class);
                 return files.getSize();
             }
@@ -472,8 +467,6 @@ public class StorageService extends AbstractBioService {
     public void checkingPendingSave() throws IOException, NoSuchAlgorithmException, InterruptedException {
 
         final ObjectMapper mapper = new ObjectMapper();
-        final Boolean validFile = true;
-        final Integrity integrity = new Integrity();
         int cont = 0;
         final List<String> pendingSave = this.cms.getChildren(Path.PENDING_SAVE.getFullPath(), null);
         // pendingSaveFiles.addAll(pendingSave);
@@ -737,19 +730,19 @@ public class StorageService extends AbstractBioService {
      * @throws SftpException
      */
     public boolean writeFileToZookeeper(String filepath, FileInfo fileInfo) throws IOException, JSchException, SftpException, NoSuchAlgorithmException, InterruptedException {
+
         List<NodeInfo> pluginList;
         List<NodeInfo> nodesdisp = new ArrayList<>();
         RpcClient rpcClient = null;
 
-        final String configFile = System.getProperty("config.file", "conf/node.yaml");
-
         try {
-            rpcClient = new AvroClient("http", loadHostConfig(configFile).getAddress(), 8080);
+            final String configFile = System.getProperty("config.file", "conf/node.yaml");
+            rpcClient = new AvroClient("http", BioNimbusConfigLoader.loadHostConfig(configFile).getAddress(), 8080);
         } catch (final IOException ex) {
             LOGGER.error("[IOException] " + ex.getMessage());
         }
+
         final File file = new File(filepath);
-        final AESEncryptor aes = new AESEncryptor();
 
         // Verifica se o arquivo existe
         if (file.exists()) {
@@ -775,17 +768,19 @@ public class StorageService extends AbstractBioService {
 
             NodeInfo no = null;
             final Iterator<NodeInfo> it = nodesdisp.iterator();
+
+            // Tenta enviar o arquivo para o melhor peer que está na lista
             while (it.hasNext() && no == null) {
                 final NodeInfo node = it.next();
-
-                // Tenta enviar o arquivo a partir do melhor peer que está na lista
                 final Put conexao = new Put(node.getAddress(), filepath);
                 if (conexao.startSession()) {
                     no = node;
+                    break;
                 }
             }
             // Conserta o nome do arquivo encriptado
-            // TO-DO: Remove comment after William Final Commit
+            // TODO: Remove comment after William Final Commit
+            // final AESEncryptor aes = new AESEncryptor();
             // aes.setCorrectFilePath(path);
             if (no != null) {
                 final List<String> dest = new ArrayList<>();
@@ -974,6 +969,8 @@ public class StorageService extends AbstractBioService {
                     }
                     break;
                 }
+            default:
+                break;
         }
     }
 }

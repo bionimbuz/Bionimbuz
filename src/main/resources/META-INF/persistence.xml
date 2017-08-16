@@ -7,25 +7,15 @@
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 		
         <properties>
-            <!-- Database specific dialect -->
-            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect" />
-
-            <!-- JDBC Driver definition -->
+            <!-- Database configuration -->
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
-            <!--<property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver" />-->
-
-            <!-- Database URL-->
-            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/bionimbuz_db" />
-            <!--<property name="javax.persistence.jdbc.url" value="jdbc:mysql://ip/bionimbuz_db" />-->
-
-            <!-- Database user MUST CHANGE-->
+            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://127.0.0.1:3306/bionimbuz_db?useSSL=false" />
             <property name="javax.persistence.jdbc.user" value="root" />
-
-            <!-- Database Password MUST CHANGE -->
             <property name="javax.persistence.jdbc.password" value="root" />
             
             <!-- Hibernate definitions -->
-            <property name="hibernate.show_sql" value="false" />
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect" />
+            <property name="hibernate.show_sql" value="true" />
             <property name="hibernate.format_sql" value="false" />
             <property name="hibernate.hibernate.cache.use_query_cache" value="false" />
             <property name="hibernate.hbm2ddl.auto" value="update" />

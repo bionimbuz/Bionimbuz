@@ -1,32 +1,29 @@
 /*
-    BioNimbuZ is a federated cloud platform.
-    Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD), 
-    Department of Computer Science, University of Brasilia, Brazil
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * BioNimbuZ is a federated cloud platform.
+ * Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD),
+ * Department of Computer Science, University of Brasilia, Brazil
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- /*
-* To change this license header, choose License Headers in Project Properties.
-* To change this template file, choose Tools | Templates
-* and open the template in the editor.
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package br.unb.cic.bionimbuz.services.messaging;
 
-import com.google.inject.Singleton;
 import java.util.List;
-import org.apache.curator.framework.CuratorFrameworkFactory;
+
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.Watcher;
@@ -34,6 +31,8 @@ import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.inject.Singleton;
 
 /**
  * Manages the ZooKeeper connection, ZNodes, reconnection... Uses Curator
@@ -119,10 +118,9 @@ public class CuratorMessageService implements CloudMessageService {
         USERS_INFO("/users_info"),
         SLA_USER("/sla_user"),
         WORKFLOWS_USER("/workflows_user");
-        
 
         public static String NODE_BUCKET_FILE(String bionimbuzgus, String mclovinpng) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose Tools | Templates.
         }
 
         private final String value;
@@ -134,13 +132,14 @@ public class CuratorMessageService implements CloudMessageService {
         /**
          * Return the full path of a ZNode
          *
-         * @param args Input String arguments. For the most cases there will be
-         * only one id input. For cases ROOT, PENDING_SAVE, PEERS, PIPELINES and
-         * SERVICES there will be no input. For the NODE_TASK case, the first
-         * argument must be the plugin id and the second, the task id. For the
-         * PREFIX_FILE case the first argument is the plugin id and the second,
-         * the file id. For the NODE_MODES case, the first argument must be the
-         * service id and the second, the id/count_number of the history value.
+         * @param args
+         *            Input String arguments. For the most cases there will be
+         *            only one id input. For cases ROOT, PENDING_SAVE, PEERS, PIPELINES and
+         *            SERVICES there will be no input. For the NODE_TASK case, the first
+         *            argument must be the plugin id and the second, the task id. For the
+         *            PREFIX_FILE case the first argument is the plugin id and the second,
+         *            the file id. For the NODE_MODES case, the first argument must be the
+         *            service id and the second, the id/count_number of the history value.
          * @return
          */
         public String getFullPath(String... args) {
@@ -169,14 +168,14 @@ public class CuratorMessageService implements CloudMessageService {
                     return "" + ROOT + USERS + USERS_INFO + NODE_USERS + args[0];
                 case WORKFLOWS_USER:
                     return "" + ROOT + USERS + USERS_INFO + NODE_USERS + args[0] + WORKFLOWS_USER;
-                case NODE_WORFLOW_USER :
-                    return "" + ROOT + USERS + USERS_INFO + NODE_USERS + args[0] + WORKFLOWS_USER + NODE_WORFLOW_USER +args[1];
+                case NODE_WORFLOW_USER:
+                    return "" + ROOT + USERS + USERS_INFO + NODE_USERS + args[0] + WORKFLOWS_USER + NODE_WORFLOW_USER + args[1];
                 case SLA_USER:
                     return "" + ROOT + USERS + USERS_INFO + NODE_USERS + args[0] + WORKFLOWS_USER + NODE_WORFLOW_USER + args[1] + SLA_USER;
                 case INSTANCES_USER:
                     return "" + ROOT + USERS + USERS_INFO + NODE_USERS + args[0] + WORKFLOWS_USER + NODE_WORFLOW_USER + args[1] + INSTANCES_USER;
-                case NODE_INSTANCE_USER :
-                    return "" + ROOT + USERS + USERS_INFO + NODE_USERS + args[0] + WORKFLOWS_USER + NODE_WORFLOW_USER + args[1] + INSTANCES_USER + NODE_INSTANCE_USER + args[2];    
+                case NODE_INSTANCE_USER:
+                    return "" + ROOT + USERS + USERS_INFO + NODE_USERS + args[0] + WORKFLOWS_USER + NODE_WORFLOW_USER + args[1] + INSTANCES_USER + NODE_INSTANCE_USER + args[2];
                 case STATUS:
                     return "" + ROOT + PEERS + NODE_PEER + args[0] + STATUS;
                 case STATUSWAITING:
@@ -215,6 +214,8 @@ public class CuratorMessageService implements CloudMessageService {
                     return "" + ROOT + BUCKETS + NODE_BUCKET + args[0] + BUCKET_FILES;
                 case NODE_BUCKET_FILE:
                     return "" + ROOT + BUCKETS + NODE_BUCKET + args[0] + BUCKET_FILES + NODE_BUCKET_FILE + args[1];
+                default:
+                    break;
             }
             return "";
         }
@@ -241,10 +242,7 @@ public class CuratorMessageService implements CloudMessageService {
     public void createZNode(CreateMode cm, String node, String desc) {
         try {
             if (!getZNodeExist(node, null)) {
-                client.create()
-                        .withMode(cm)
-                        .withACL(ZooDefs.Ids.OPEN_ACL_UNSAFE)
-                        .forPath(node, (desc == null) ? new byte[0] : desc.getBytes());
+                client.create().withMode(cm).withACL(ZooDefs.Ids.OPEN_ACL_UNSAFE).forPath(node, (desc == null) ? new byte[0] : desc.getBytes());
             } else {
                 LOGGER.warn("Existent node: " + node);
             }
@@ -266,9 +264,9 @@ public class CuratorMessageService implements CloudMessageService {
         // Need to know how to use watchers in this method (Zookeeper Watcher or Curator Watcher?)
         Stat s = null;
         try {
-            
+
             s = client.checkExists().usingWatcher(watcher).forPath(path);
-//            s = client.checkExists().watched().forPath(path);
+            // s = client.checkExists().watched().forPath(path);
         } catch (Exception ex) {
             LOGGER.error("[Exception] " + ex.getMessage());
             ex.printStackTrace();
@@ -288,7 +286,7 @@ public class CuratorMessageService implements CloudMessageService {
     public List<String> getChildren(String path, Watcher watcher) {
         try {
             return client.getChildren().usingWatcher(watcher).forPath(path);
-//            return client.getChildren().watched().forPath(path);
+            // return client.getChildren().watched().forPath(path);
         } catch (Exception ex) {
             LOGGER.error("[Exception] " + ex.getMessage());
         }
@@ -309,7 +307,7 @@ public class CuratorMessageService implements CloudMessageService {
 
         try {
             cont = client.getChildren().usingWatcher(watcher).forPath(path).size();
-//            cont = client.getChildren().watched().forPath(path).size();
+            // cont = client.getChildren().watched().forPath(path).size();
         } catch (Exception ex) {
             LOGGER.error("[Exception] " + ex.getMessage());
         }
@@ -332,7 +330,7 @@ public class CuratorMessageService implements CloudMessageService {
 
         try {
             data = client.getData().usingWatcher(watcher).forPath(path);
-//            data = client.getData().watched().forPath(path);
+            // data = client.getData().watched().forPath(path);
             ret = new String(data);
         } catch (Exception ex) {
             LOGGER.error("[Exception] " + ex.getMessage());

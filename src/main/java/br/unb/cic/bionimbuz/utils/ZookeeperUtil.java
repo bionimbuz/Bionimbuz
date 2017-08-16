@@ -32,8 +32,7 @@ public class ZookeeperUtil {
     }
 
     public static void stopZookeeper() {
-        String result = execZooCmd(ZooCommand.STOP);
-        LOGGER.info(result);
+        execZooCmd(ZooCommand.STOP);
     }
 
     public static String execZooCmd(ZooCommand command) {

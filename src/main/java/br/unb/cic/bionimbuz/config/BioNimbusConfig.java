@@ -16,9 +16,7 @@
 package br.unb.cic.bionimbuz.config;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
@@ -117,20 +115,6 @@ public class BioNimbusConfig {
 
     @JsonProperty("storage-mode")
     private String storageMode;
-
-    public boolean isRemotehost() {
-
-        final String[] localhosts = new String[] {
-                "127.0.0.1",
-                "0.0.0.0",
-                "localhost"
-        };
-        final List<String> lstLocals = Arrays.asList(localhosts);
-        if (!lstLocals.contains(this.getAddress()) || !lstLocals.contains(this.getAddress())) {
-            return true;
-        }
-        return false;
-    }
 
     public void setRpcProtocol(String rpcProtocol) {
         this.rpcProtocol = rpcProtocol;
@@ -370,9 +354,10 @@ public class BioNimbusConfig {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("rpc-protocol", rpcProtocol).add("rpc-port", rpcPort).add("zkHosts", zkHosts).add("client", client).add("host", host).add("seeds", seeds)
-                .add("private_cloud", privateCloud).add("cost_per_giga", costpergiga).add("server-path", serverPath).add("cost", cost).add("reference-folder", referenceFolder)
-                .add("output-folder", outputFolder).add("data-folder", dataFolder).add("references-size", references.size()).add("supported-formats", supportedFormats.size())
-                .add("supported-services", supportedServices.size()).add("credentialsFile", credentialsFile).add("tmp-uploaded-files", temporaryUploadedFiles).toString();
+        return Objects.toStringHelper(this).add("rpc-protocol", this.rpcProtocol).add("rpc-port", this.rpcPort).add("zkHosts", this.zkHosts).add("client", this.client).add("host", this.host)
+                .add("seeds", this.seeds).add("private_cloud", this.privateCloud).add("cost_per_giga", this.costpergiga).add("server-path", this.serverPath).add("cost", this.cost)
+                .add("reference-folder", this.referenceFolder).add("output-folder", this.outputFolder).add("data-folder", this.dataFolder).add("references-size", this.references.size())
+                .add("supported-formats", this.supportedFormats.size()).add("supported-services", this.supportedServices.size()).add("credentialsFile", this.credentialsFile)
+                .add("tmp-uploaded-files", this.temporaryUploadedFiles).toString();
     }
 }
