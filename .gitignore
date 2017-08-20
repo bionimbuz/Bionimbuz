@@ -1,4 +1,6 @@
 *~
+/bin/
+/system/
 .project
 *.log
 *.log.*
@@ -6,7 +8,6 @@
 /output-folder/*
 /target/
 biofoco.log
-/bin/
 .classpath
 /branches/zoonimbus/target/
 /branches/zoonimbus/biofoco.log

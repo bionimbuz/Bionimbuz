@@ -1,5 +1,6 @@
 package br.unb.cic.bionimbuz.utils;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.slf4j.Logger;
@@ -14,7 +15,10 @@ public class ZookeeperUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BioNimbuZ.class);
     private static final String NOT_RUNNING = "not running";
-    private static final String ZK_SERVER = "zkServer.sh ";
+    private static final String DIR_ZK_LOCAL = "system/zookeeper";
+    private static final String ZK_SERVER = "zkServer.sh";
+    private static final String ZK_SERVER_LOCAL = DIR_ZK_LOCAL+"/bin/"+ZK_SERVER;
+    
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Constructors.
@@ -38,12 +42,20 @@ public class ZookeeperUtil {
     public static String execZooCmd(ZooCommand command) {
         String result = null;
         try {
-            result = RuntimeUtil.runCommand(ZK_SERVER + command);
+            result = RuntimeUtil.runCommand(getZookeeperCmd() + command);
             LOGGER.info(result);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(result + e.getMessage());
         }
         return result;
+    }
+    
+    private static String getZookeeperCmd() {
+        File f = new File(ZK_SERVER_LOCAL);
+        if (f.exists() && !f.isDirectory()) {
+            return ZK_SERVER_LOCAL + " ";
+        }
+        return ZK_SERVER + " ";
     }
 
     /**
