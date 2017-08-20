@@ -39,6 +39,7 @@ import com.google.inject.Injector;
 import br.unb.cic.bionimbuz.avro.rpc.AvroClient;
 import br.unb.cic.bionimbuz.avro.rpc.RpcClient;
 import br.unb.cic.bionimbuz.config.BioNimbusConfig;
+import br.unb.cic.bionimbuz.constants.SystemConstants;
 import br.unb.cic.bionimbuz.model.FileInfo;
 import br.unb.cic.bionimbuz.model.Job;
 import br.unb.cic.bionimbuz.model.Workflow;
@@ -90,7 +91,7 @@ public class SchedullerTester {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
         try {
-            config = mapper.readValue(new File("conf/node.yaml"), BioNimbusConfig.class);
+            config = mapper.readValue(new File(SystemConstants.CFG_FILE_NODE), BioNimbusConfig.class);
             config.setZkConnString(InetAddress.getLocalHost().getHostAddress() + ":2181");
             config.setAddress(InetAddress.getLocalHost().getHostAddress());
             rpcClient = new AvroClient(config.getRpcProtocol(), config.getHost().getAddress(), config.getRpcPort());

@@ -18,8 +18,6 @@
 */
 package br.unb.cic.bionimbuz.rest.resource;
 
-import static br.unb.cic.bionimbuz.config.BioNimbusConfigLoader.loadHostConfig;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,10 +31,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import br.unb.cic.bionimbuz.avro.rpc.AvroClient;
+import br.unb.cic.bionimbuz.config.BioNimbusConfig;
+import br.unb.cic.bionimbuz.constants.SystemConstants;
 import br.unb.cic.bionimbuz.controller.jobcontroller.JobController;
-import br.unb.cic.bionimbuz.controller.slacontroller.SlaController;
 import br.unb.cic.bionimbuz.model.FileInfo;
-import br.unb.cic.bionimbuz.model.Instance;
 import br.unb.cic.bionimbuz.model.Log;
 import br.unb.cic.bionimbuz.model.LogSeverity;
 import br.unb.cic.bionimbuz.model.Workflow;
@@ -51,8 +49,7 @@ import br.unb.cic.bionimbuz.rest.request.StartWorkflowRequest;
 import br.unb.cic.bionimbuz.rest.response.GetWorkflowHistoryResponse;
 import br.unb.cic.bionimbuz.rest.response.GetWorkflowStatusResponse;
 import br.unb.cic.bionimbuz.rest.response.ResponseInfo;
-import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService;
-import org.apache.zookeeper.CreateMode;
+import br.unb.cic.bionimbuz.utils.YamlUtils;
 
 /**
  * Class that handle sent workflow via REST request
@@ -68,7 +65,8 @@ public class WorkflowResource extends AbstractResource {
     public WorkflowResource(JobController jobController) {
         // Creates a RPC Client
         try {
-            rpcClient = new AvroClient("http", loadHostConfig(System.getProperty("config.file", "conf/node.yaml")).getAddress(), 8080);
+            final String configFile = System.getProperty("config.file", SystemConstants.CFG_FILE_NODE);
+            rpcClient = new AvroClient("http", YamlUtils.mapToClass(configFile, BioNimbusConfig.class).getAddress(), 8080);
         } catch (IOException ex) {
             LOGGER.error("Error creating RPC Client for PluginTaskRunner");
             ex.printStackTrace();

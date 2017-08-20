@@ -1,8 +1,16 @@
 package br.unb.cic.bionimbuz.persistence;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+
+import br.unb.cic.bionimbuz.config.DatabaseConfig;
+import br.unb.cic.bionimbuz.constants.SystemConstants;
+import br.unb.cic.bionimbuz.utils.YamlUtils;
 
 /**
  * Produces an Entity Manager for any Data Access Object
@@ -14,39 +22,36 @@ public class EntityManagerProducer {
 
     private static EntityManagerFactory factory;
     private static EntityManager manager;
+    private static final String PERSIST_UNIT = "bionimbuz_pu";    
+    private static final String DB_URL = "javax.persistence.jdbc.url";    
+    private static final String DB_USER = "javax.persistence.jdbc.user";    
+    private static final String DB_PASS = "javax.persistence.jdbc.password";    
+    
+    private static Map<String, String> getDatabaseConnectionProperties() {
 
-    /**
-     * Initializes EntityManager to prevent lazy creation
-     *
-     * @throws java.lang.Exception
-     */
-    public static void initialize() throws Exception {
-        factory = Persistence.createEntityManagerFactory("bionimbuz_pu");
+        Map<String, String> properties = new HashMap<String, String>();
         
-        if (manager == null) {
-            manager = factory.createEntityManager();
+        try {
+            DatabaseConfig cfg = YamlUtils.mapToClass(SystemConstants.CFG_FILE_DATABASE, DatabaseConfig.class);
+            
+            properties.put(DB_URL, cfg.getDatabaseUrl());
+            properties.put(DB_USER, cfg.getDatabaseUser());
+            properties.put(DB_PASS, cfg.getDatabasePass());
+            
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }        
 
-            return;
-        }
-
-        // It shouldn't be null at this time... If it is = Exception
-        throw new Exception();
+        return properties;
     }
 
-    /**
-     * Returns an Entity Manager
-     *
-     * @return
-     */
     public static EntityManager getEntityManager() {
-        // HibernatePersistenceProvider p = new HibernatePersistenceProvider();
-        // factory = p.createEntityManagerFactory("bionimbuz_pu", null);
         
-        factory = Persistence.createEntityManagerFactory("bionimbuz_pu");
-        
-
+        factory = Persistence.createEntityManagerFactory(
+                PERSIST_UNIT, 
+                getDatabaseConnectionProperties());    
         manager = factory.createEntityManager();
-
         return manager;
     }
 

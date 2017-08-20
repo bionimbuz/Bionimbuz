@@ -51,8 +51,8 @@ import br.unb.cic.bionimbuz.avro.gen.NodeInfo;
 import br.unb.cic.bionimbuz.avro.rpc.AvroClient;
 import br.unb.cic.bionimbuz.avro.rpc.RpcClient;
 import br.unb.cic.bionimbuz.config.BioNimbusConfig;
-import br.unb.cic.bionimbuz.config.BioNimbusConfigLoader;
 import br.unb.cic.bionimbuz.config.ConfigurationRepository;
+import br.unb.cic.bionimbuz.constants.SystemConstants;
 import br.unb.cic.bionimbuz.plugin.PluginFile;
 import br.unb.cic.bionimbuz.plugin.PluginInfo;
 import br.unb.cic.bionimbuz.security.HashUtil;
@@ -68,6 +68,7 @@ import br.unb.cic.bionimbuz.services.storage.policy.impl.BioCirrusPolicy;
 import br.unb.cic.bionimbuz.toSort.Listeners;
 import br.unb.cic.bionimbuz.utils.Nmap;
 import br.unb.cic.bionimbuz.utils.Put;
+import br.unb.cic.bionimbuz.utils.YamlUtils;
 
 @Singleton
 public class StorageService extends AbstractBioService {
@@ -736,8 +737,8 @@ public class StorageService extends AbstractBioService {
         RpcClient rpcClient = null;
 
         try {
-            final String configFile = System.getProperty("config.file", "conf/node.yaml");
-            rpcClient = new AvroClient("http", BioNimbusConfigLoader.loadHostConfig(configFile).getAddress(), 8080);
+            final String configFile = System.getProperty("config.file", SystemConstants.CFG_FILE_NODE);
+            rpcClient = new AvroClient("http", YamlUtils.mapToClass(configFile, BioNimbusConfig.class).getAddress(), 8080);
         } catch (final IOException ex) {
             LOGGER.error("[IOException] " + ex.getMessage());
         }

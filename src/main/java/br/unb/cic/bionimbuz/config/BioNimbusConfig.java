@@ -157,7 +157,7 @@ public class BioNimbusConfig {
     }
 
     public String getInfra() {
-        return this.infra;
+        return this.infra == null ? "linux" : this.infra;
     }
 
     public void setInfra(String infra) {

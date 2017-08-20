@@ -27,7 +27,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import br.unb.cic.bionimbuz.config.BioNimbusConfig;
-import br.unb.cic.bionimbuz.config.BioNimbusConfigLoader;
+import br.unb.cic.bionimbuz.constants.SystemConstants;
 import br.unb.cic.bionimbuz.controller.ControllerManager;
 import br.unb.cic.bionimbuz.controller.ControllerModule;
 import br.unb.cic.bionimbuz.model.User;
@@ -44,6 +44,7 @@ import br.unb.cic.bionimbuz.services.tarification.Google.GoogleCloud;
 import br.unb.cic.bionimbuz.toSort.Listeners;
 import br.unb.cic.bionimbuz.utils.NetworkUtil;
 import br.unb.cic.bionimbuz.utils.PBKDF2;
+import br.unb.cic.bionimbuz.utils.YamlUtils;
 import br.unb.cic.bionimbuz.utils.ZookeeperUtil;
 
 public final class BioNimbuZ {
@@ -65,8 +66,8 @@ public final class BioNimbuZ {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 
-        final String configFile = System.getProperty("config.file", "conf/node.yaml");
-        final BioNimbusConfig config = BioNimbusConfigLoader.loadHostConfig(configFile);
+        final String configFile = System.getProperty("config.file", SystemConstants.CFG_FILE_NODE);
+        final BioNimbusConfig config = YamlUtils.mapToClass(configFile, BioNimbusConfig.class);
         if (NetworkUtil.isLocalhost(config.getZkHosts())) {
             ZookeeperUtil.startZookeeper();
         }

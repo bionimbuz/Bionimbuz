@@ -1,20 +1,23 @@
 package br.unb.cic.bionimbuz.rest.resource;
 
 
-import br.unb.cic.bionimbuz.controller.elasticitycontroller.ElasticityController;
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import br.unb.cic.bionimbuz.avro.rpc.AvroClient;
 import br.unb.cic.bionimbuz.avro.rpc.RpcClient;
 import br.unb.cic.bionimbuz.config.BioNimbusConfig;
-import static br.unb.cic.bionimbuz.config.BioNimbusConfigLoader.loadHostConfig;
 import br.unb.cic.bionimbuz.config.ConfigurationRepository;
+import br.unb.cic.bionimbuz.constants.SystemConstants;
+import br.unb.cic.bionimbuz.controller.elasticitycontroller.ElasticityController;
 import br.unb.cic.bionimbuz.controller.jobcontroller.JobController;
 import br.unb.cic.bionimbuz.controller.slacontroller.SlaController;
 import br.unb.cic.bionimbuz.controller.usercontroller.UserController;
 import br.unb.cic.bionimbuz.rest.RestResource;
 import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
-import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import br.unb.cic.bionimbuz.utils.YamlUtils;
 
 /**
  * Base resource for other REST resources
@@ -35,10 +38,10 @@ public abstract class AbstractResource implements RestResource {
     protected ElasticityController elasticityController;
     
     static {
-        final String configFile = System.getProperty("config.file", "conf/node.yaml");
+        final String configFile = System.getProperty("config.file", SystemConstants.CFG_FILE_NODE);
 
         try {
-            rpcClient = new AvroClient("http", loadHostConfig(configFile).getAddress(), 8080);
+            rpcClient = new AvroClient("http", YamlUtils.mapToClass(configFile, BioNimbusConfig.class).getAddress(), 8080);
         } catch (IOException ex) {
             LOGGER.error("[IOException] " + ex.getMessage());
         }

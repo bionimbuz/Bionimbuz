@@ -15,27 +15,29 @@
  */
 package br.unb.cic.bionimbuz.config;
 
-import java.io.File;
-import java.io.IOException;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.inject.Singleton;
 
-public final class BioNimbusConfigLoader {
+@Singleton
+public class DatabaseConfig {
 
-    private BioNimbusConfigLoader() {
-        super();
+    @JsonIgnore
+    private String database_url;
+
+    @JsonIgnore
+    private String database_user;
+
+    @JsonIgnore
+    private String database_pass;
+
+    public String getDatabaseUrl() {
+        return database_url;
     }
-
-    public static BioNimbusConfig loadHostConfig(final String filename) throws IOException {
-
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        BioNimbusConfig config = mapper.readValue(new File(filename), BioNimbusConfig.class);
-
-        if (config.getInfra() == null) {
-            config.setInfra("linux");
-        }
-        return config;
+    public String getDatabaseUser() {
+        return database_user;
     }
-
+    public String getDatabasePass() {
+        return database_pass;
+    }
 }

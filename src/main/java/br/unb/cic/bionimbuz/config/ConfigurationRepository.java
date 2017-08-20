@@ -1,17 +1,21 @@
 package br.unb.cic.bionimbuz.config;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+
+import br.unb.cic.bionimbuz.constants.SystemConstants;
 import br.unb.cic.bionimbuz.model.Instance;
 import br.unb.cic.bionimbuz.plugin.PluginService;
 import br.unb.cic.bionimbuz.services.tarification.Amazon.AmazonIndex;
 import br.unb.cic.bionimbuz.services.tarification.Google.GoogleCloud;
 import br.unb.cic.bionimbuz.utils.SSHCredentials;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Used as a repository of configurations, to avoid hardcoded configurations
@@ -140,7 +144,7 @@ public class ConfigurationRepository {
 
         try {
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-            configuration = mapper.readValue(new File(System.getProperty("config.file", "conf/node.yaml")), BioNimbusConfig.class);
+            configuration = mapper.readValue(new File(System.getProperty("config.file", SystemConstants.CFG_FILE_NODE)), BioNimbusConfig.class);
         } catch (IOException ex) {
             LOGGER.info("[IOException] - " + ex.getMessage());
         }
