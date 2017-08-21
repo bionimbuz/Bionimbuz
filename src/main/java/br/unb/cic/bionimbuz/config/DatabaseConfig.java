@@ -23,21 +23,21 @@ import com.google.inject.Singleton;
 public class DatabaseConfig {
 
     @JsonIgnore
-    private String database_url;
+    private String databaseUrl;
 
     @JsonIgnore
-    private String database_user;
+    private String databaseUser;
 
     @JsonIgnore
-    private String database_pass;
+    private String databasePass;
 
     public String getDatabaseUrl() {
-        return database_url;
+        return databaseUrl;
     }
     public String getDatabaseUser() {
-        return database_user;
+        return databaseUser;
     }
     public String getDatabasePass() {
-        return database_pass;
+        return databasePass;
     }
 }

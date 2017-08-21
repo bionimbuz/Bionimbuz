@@ -52,6 +52,12 @@ echo "# Removendo pacote do ZooKeeper"
 rm ${ZK_PACKAGE}
 
 
+echo "# Build project"
+echo "# ======================================="
+
+mvn clean install -U
+
+
 
 
     
