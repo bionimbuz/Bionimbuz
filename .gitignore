@@ -18,6 +18,7 @@ biofoco.log
 /references/**
 /references/**/
 /conf/GooglePrices.txt
+/conf/credentials.yaml
 /conf/AmazonStorage.txt
 /conf/AmazonInstancesOD.txt
 /conf/AmazonDataTransfer.txt
