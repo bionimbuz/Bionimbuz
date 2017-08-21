@@ -45,3 +45,4 @@ nb-configuration.xml
 /conf/amazonEC2.json
 /conf/googleCloudStorage.json
 /conf/index.json
+/output-folder/
