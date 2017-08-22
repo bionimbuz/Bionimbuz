@@ -76,8 +76,6 @@ import br.unb.cic.bionimbuz.services.storage.bucket.methods.CloudMethodsAmazonGo
 import br.unb.cic.bionimbuz.toSort.Listeners;
 import br.unb.cic.bionimbuz.utils.Get;
 import br.unb.cic.bionimbuz.utils.Pair;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 @Singleton
 public class SchedService extends AbstractBioService implements Runnable {
@@ -175,15 +173,14 @@ public class SchedService extends AbstractBioService implements Runnable {
     }
 
     @Override
-    public void start(BioNimbusConfig config, List<Listeners> listeners) {
+    public void start(List<Listeners> listeners) {
         LOGGER.info("[SchedService] Starting ...");
-        this.isClient = config.isClient();
-        this.config = config;
+        this.isClient = BioNimbusConfig.get().isClient();
         this.listeners = listeners;
 //        if (listeners != null) {
         listeners.add(this);
 //        }
-        idPlugin = this.config.getId();
+        idPlugin = BioNimbusConfig.get().getId();
 
         getPolicy().setRs(rs);
 
@@ -361,7 +358,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                 LOGGER.debug("[SchedService] Requesting file: " + info.getName());
                 LOGGER.debug("[SchedService] Trying on the CloudStorage Buckets");
 
-                if (config.getStorageMode().equalsIgnoreCase("1")) {
+                if (BioNimbusConfig.get().getStorageMode().equalsIgnoreCase("1")) {
 
                     CloudStorageService cloud_service = new CloudStorageService(cms);
                     BioBucket bucket = cloud_service.findFile(info);
@@ -390,7 +387,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                             CloudStorageMethods cloud_methods = new CloudMethodsAmazonGoogle();
 
                             try {
-                                cloud_methods.StorageDownloadFile(bucket, "/data-folder/", config.getDataFolder(), info.getName());
+                                cloud_methods.StorageDownloadFile(bucket, "/data-folder/", BioNimbusConfig.get().getDataFolder(), info.getName());
                             } catch (Throwable t) {
                                 LOGGER.error("[SchedService] Exception(requestFile): " + t.getMessage());
                                 t.printStackTrace();
@@ -618,7 +615,7 @@ public class SchedService extends AbstractBioService implements Runnable {
     private void decryptFiles(List<FileInfo> inputs) throws Exception {
         try {
             //realiza uma chama rpc para decriptografar os arquivos que serao usados pela task
-            rpcClient = new AvroClient(config.getRpcProtocol(), myLinuxPlugin.getMyInfo().getHost().getAddress(), myLinuxPlugin.getMyInfo().getHost().getPort());
+            rpcClient = new AvroClient(BioNimbusConfig.get().getRpcProtocol(), myLinuxPlugin.getMyInfo().getHost().getAddress(), myLinuxPlugin.getMyInfo().getHost().getPort());
             for (FileInfo info : inputs) {
                 rpcClient.getProxy().decryptPluginFile(info.getName());
             }
@@ -637,7 +634,7 @@ public class SchedService extends AbstractBioService implements Runnable {
     private void checkFilesPlugin() {
         try {
             //realiza uma chama rpc para atualizar a lista de arquivos no zookeeper
-            rpcClient = new AvroClient(config.getRpcProtocol(), myLinuxPlugin.getMyInfo().getHost().getAddress(), myLinuxPlugin.getMyInfo().getHost().getPort());
+            rpcClient = new AvroClient(BioNimbusConfig.get().getRpcProtocol(), myLinuxPlugin.getMyInfo().getHost().getAddress(), myLinuxPlugin.getMyInfo().getHost().getPort());
             rpcClient.getProxy().listFilesName();
             rpcClient.close();
             if (cms.getZNodeExist(Path.FILES.getFullPath(myLinuxPlugin.getMyInfo().getId()), new UpdatePeerData(cms, this,null))) {

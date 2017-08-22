@@ -27,7 +27,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import br.unb.cic.bionimbuz.config.BioNimbusConfig;
-import br.unb.cic.bionimbuz.constants.SystemConstants;
 import br.unb.cic.bionimbuz.controller.ControllerManager;
 import br.unb.cic.bionimbuz.controller.ControllerModule;
 import br.unb.cic.bionimbuz.model.User;
@@ -44,7 +43,6 @@ import br.unb.cic.bionimbuz.services.tarification.Google.GoogleCloud;
 import br.unb.cic.bionimbuz.toSort.Listeners;
 import br.unb.cic.bionimbuz.utils.NetworkUtil;
 import br.unb.cic.bionimbuz.utils.PBKDF2;
-import br.unb.cic.bionimbuz.utils.YamlUtils;
 import br.unb.cic.bionimbuz.utils.ZookeeperUtil;
 
 public final class BioNimbuZ {
@@ -66,8 +64,7 @@ public final class BioNimbuZ {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         
-        final BioNimbusConfig config = YamlUtils.mapToClass(SystemConstants.CFG_FILE_NODE, BioNimbusConfig.class);
-        if (NetworkUtil.isLocalhost(config.getZkHosts())) {
+        if (NetworkUtil.isLocalhost(BioNimbusConfig.get().getZkHosts())) {
             ZookeeperUtil.startZookeeper();
         }
 
@@ -77,7 +74,7 @@ public final class BioNimbuZ {
 
         final BioNimbuZ system = new BioNimbuZ();
         system.saveRootUser();
-        system.start(config);
+        system.start();
     }
 
     public static Injector getControllerInjector() {
@@ -87,19 +84,19 @@ public final class BioNimbuZ {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Instances methods.
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    private void start(BioNimbusConfig config) throws IOException {
+    private void start() throws IOException {
 
-        config.setId(UUID.randomUUID().toString());
-        if (!config.isClient()) {
+        BioNimbusConfig.get().setId(UUID.randomUUID().toString());
+        if (!BioNimbusConfig.get().isClient()) {
 
             final LinuxGetInfo linuxGetInfo = new LinuxGetInfo();
 
             final PluginInfo infopc = linuxGetInfo.call();
-            infopc.setId(config.getId());
-            infopc.setHost(config.getHost());
-            infopc.setPrivateCloud(config.getPrivateCloud());
+            infopc.setId(BioNimbusConfig.get().getId());
+            infopc.setHost(BioNimbusConfig.get().getHost());
+            infopc.setPrivateCloud(BioNimbusConfig.get().getPrivateCloud());
 
-            final Plugin plugin = PluginFactory.getPlugin(config.getInfra(), config);
+            final Plugin plugin = PluginFactory.getPlugin(BioNimbusConfig.get().getInfra());
             if (plugin instanceof LinuxPlugin) {
                 ((LinuxPlugin) plugin).setMyInfo(infopc);
             }
@@ -112,10 +109,10 @@ public final class BioNimbuZ {
 
         // Starts all Services
         final List<Listeners> listeners = new CopyOnWriteArrayList<>();
-        serviceManager.startAll(config, listeners);
+        serviceManager.startAll(listeners);
 
         // Starts all Controllers
-        controllerManager.startAll(config);
+        controllerManager.startAll();
     }
 
     private void saveRootUser() throws NoSuchAlgorithmException, InvalidKeySpecException {

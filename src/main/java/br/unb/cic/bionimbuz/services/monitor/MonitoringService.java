@@ -42,7 +42,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import br.unb.cic.bionimbuz.config.BioNimbusConfig;
 import br.unb.cic.bionimbuz.model.Instance;
 import br.unb.cic.bionimbuz.model.SLA;
 import br.unb.cic.bionimbuz.model.User;
@@ -84,14 +83,13 @@ public class MonitoringService extends AbstractBioService {
     }
 
     @Override
-    public void start(BioNimbusConfig config, List<Listeners> listeners) {
+    public void start(List<Listeners> listeners) {
         try {
             this.checkPeers();
             // checkPendingSave();
         } catch (final Exception e) {
             LOGGER.error("[MonitoringService] Exception checkPeers" + e.getMessage());
         }
-        this.config = config;
         this.listeners = listeners;
         if (listeners != null) {
             listeners.add(this);

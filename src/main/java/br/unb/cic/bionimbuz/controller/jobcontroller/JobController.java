@@ -2,6 +2,7 @@ package br.unb.cic.bionimbuz.controller.jobcontroller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,13 +24,11 @@ import br.unb.cic.bionimbuz.model.Instance;
 import br.unb.cic.bionimbuz.model.Job;
 import br.unb.cic.bionimbuz.model.Log;
 import br.unb.cic.bionimbuz.model.LogSeverity;
-import br.unb.cic.bionimbuz.model.SLA;
 import br.unb.cic.bionimbuz.model.Workflow;
 import br.unb.cic.bionimbuz.persistence.dao.WorkflowLoggerDao;
 import br.unb.cic.bionimbuz.plugin.PluginInfo;
 import br.unb.cic.bionimbuz.services.RepositoryService;
 import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
-import java.util.Arrays;
 
 /**
  * Class that links the User Interface (Web) with the BioNimbuZ Application
@@ -47,7 +46,6 @@ public class JobController implements Controller, Runnable {
     private boolean isConnected = false;
 
     protected CloudMessageService cms;
-    protected BioNimbusConfig config;
     private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<>();
     private final RepositoryService repositoryService;
 
@@ -75,12 +73,9 @@ public class JobController implements Controller, Runnable {
      * @param config
      */
     @Override
-    public void start(BioNimbusConfig config) {
-        // Sets configuration
-        this.config = config;
-
+    public void start() {
         // Initializes AvroClient
-        rpcClient = new AvroClient("http", config.getAddress(), AVRO_PORT);
+        rpcClient = new AvroClient("http", BioNimbusConfig.get().getAddress(), AVRO_PORT);
 
         try {
             // Test to see if hostname is reachable
@@ -174,7 +169,7 @@ public class JobController implements Controller, Runnable {
             // Sets its fields
             job.setArgs(jobInfo.getArgs());
             job.setId(jobInfo.getId());
-            job.setLocalId(config.getHost().getAddress());
+            job.setLocalId(BioNimbusConfig.get().getHost().getAddress());
             job.setServiceId(jobInfo.getServiceId());
             job.setTimestamp(jobInfo.getTimestamp());
             job.setOutputs(jobInfo.getOutputs());
@@ -327,14 +322,6 @@ public class JobController implements Controller, Runnable {
      * o boolean cancelJob (String jobId);
      *
      */
-    /**
-     * Return BioNimbus configuration
-     *
-     * @return BioNimbusConfig
-     */
-    public BioNimbusConfig getConfig() {
-        return this.config;
-    }
 
     public RepositoryService getRepositoryService() {
         return this.repositoryService;

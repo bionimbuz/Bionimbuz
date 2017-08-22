@@ -18,14 +18,15 @@
 */
 package br.unb.cic.bionimbuz.services;
 
-import br.unb.cic.bionimbuz.config.BioNimbusConfig;
-import br.unb.cic.bionimbuz.toSort.Listeners;
 import java.util.List;
+
 import org.apache.zookeeper.WatchedEvent;
+
+import br.unb.cic.bionimbuz.toSort.Listeners;
 
 public interface Service {
 
-    public void start(BioNimbusConfig config, List<Listeners> listeners);
+    public void start(List<Listeners> listeners);
 
     public void shutdown();
 

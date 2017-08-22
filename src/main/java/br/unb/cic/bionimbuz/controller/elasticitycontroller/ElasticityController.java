@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 
-import br.unb.cic.bionimbuz.config.BioNimbusConfig;
 import br.unb.cic.bionimbuz.controller.Controller;
 import br.unb.cic.bionimbuz.controller.usercontroller.UserController;
 import br.unb.cic.bionimbuz.model.Log;
@@ -40,7 +39,6 @@ public class ElasticityController implements Controller, Runnable {
     
     private final ScheduledExecutorService threadExecutor = Executors.newScheduledThreadPool(1, new BasicThreadFactory.Builder().namingPattern("ElasticityController-%d").build());
     protected CloudMessageService cms;
-    protected BioNimbusConfig config;
     private final WorkflowLoggerDao loggerDao;
     
     /**
@@ -58,7 +56,7 @@ public class ElasticityController implements Controller, Runnable {
     }
     
     @Override
-    public void start(BioNimbusConfig config) {
+    public void start() {
         this.threadExecutor.scheduleAtFixedRate(this, 0, 1, TimeUnit.MINUTES);
     }
     

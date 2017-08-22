@@ -1,6 +1,5 @@
 package br.unb.cic.bionimbuz.persistence;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,8 +8,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import br.unb.cic.bionimbuz.config.DatabaseConfig;
-import br.unb.cic.bionimbuz.constants.SystemConstants;
-import br.unb.cic.bionimbuz.utils.YamlUtils;
 
 /**
  * Produces an Entity Manager for any Data Access Object
@@ -29,20 +26,11 @@ public class EntityManagerProducer {
     
     private static Map<String, String> getDatabaseConnectionProperties() {
 
-        Map<String, String> properties = new HashMap<String, String>();
-        
-        try {
-            DatabaseConfig cfg = YamlUtils.mapToClass(SystemConstants.CFG_FILE_DATABASE, DatabaseConfig.class);
+        Map<String, String> properties = new HashMap<String, String>();                
+        properties.put(DB_URL, DatabaseConfig.get().getDatabaseUrl());
+        properties.put(DB_USER, DatabaseConfig.get().getDatabaseUser());
+        properties.put(DB_PASS, DatabaseConfig.get().getDatabasePass());
             
-            properties.put(DB_URL, cfg.getDatabaseUrl());
-            properties.put(DB_USER, cfg.getDatabaseUser());
-            properties.put(DB_PASS, cfg.getDatabasePass());
-            
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }        
-
         return properties;
     }
 

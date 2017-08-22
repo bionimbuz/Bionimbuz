@@ -15,12 +15,27 @@
  */
 package br.unb.cic.bionimbuz.config;
 
+import java.io.IOException;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 
-import com.google.inject.Singleton;
+import br.unb.cic.bionimbuz.constants.SystemConstants;
+import br.unb.cic.bionimbuz.utils.YamlUtils;
 
-@Singleton
 public class DatabaseConfig {
+    
+    private static DatabaseConfig instance = null;
+    static {
+        try {
+            instance = YamlUtils.mapToClass(SystemConstants.CFG_FILE_DATABASE, DatabaseConfig.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private DatabaseConfig() {}
+    
+    public static DatabaseConfig get() {return instance;}
 
     @JsonIgnore
     private String databaseUrl;

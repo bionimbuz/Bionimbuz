@@ -18,6 +18,23 @@
 */
 package br.unb.cic.bionimbuz.services.discovery;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.apache.zookeeper.WatchedEvent;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import br.unb.cic.bionimbuz.config.BioNimbusConfig;
 import br.unb.cic.bionimbuz.plugin.PluginInfo;
 import br.unb.cic.bionimbuz.plugin.linux.LinuxGetInfo;
@@ -27,20 +44,6 @@ import br.unb.cic.bionimbuz.services.UpdatePeerData;
 import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbuz.toSort.Listeners;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.zookeeper.WatchedEvent;
-import org.slf4j.LoggerFactory;
 
 @Singleton
 public class DiscoveryService extends AbstractBioService {
@@ -77,19 +80,19 @@ public class DiscoveryService extends AbstractBioService {
             LinuxGetInfo getinfo = new LinuxGetInfo();
             PluginInfo infopc = getinfo.call();
 
-            infopc.setId(config.getId());
-            infopc.setCostPerHour(config.getCost());
+            infopc.setId(BioNimbusConfig.get().getId());
+            infopc.setCostPerHour(BioNimbusConfig.get().getCost());
             
             if(start){
             // LinuxPlugin está contido nesse metodo, e deveria ser mandado 
             // para o linuxplugin Bionimbus.java
-                LinuxPlugin linuxPlugin = new LinuxPlugin(config);
+                LinuxPlugin linuxPlugin = new LinuxPlugin();
 
-                infopc.setHost(config.getHost());
+                infopc.setHost(BioNimbusConfig.get().getHost());
 
 // Update uptime information to origin from zookeeper ---------------------------------------------------------------------------
                 //infopc.setUptime(p2p.getPeerNode().uptime());
-                infopc.setPrivateCloud(config.getPrivateCloud());
+                infopc.setPrivateCloud(BioNimbusConfig.get().getPrivateCloud());
 
                 //definindo myInfo após a primeira leitura dos dados
                 linuxPlugin.setMyInfo(infopc);
@@ -117,10 +120,9 @@ public class DiscoveryService extends AbstractBioService {
     }
 
     @Override
-    public void start(BioNimbusConfig config, List<Listeners> listeners) {
+    public void start(List<Listeners> listeners) {
         try {
             Preconditions.checkNotNull(listeners);
-            this.config = config;
             this.listeners = listeners;
 
             setDatasPluginInfo(true);

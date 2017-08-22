@@ -18,7 +18,6 @@
 */
 package br.unb.cic.bionimbuz.rest.resource;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +31,6 @@ import javax.ws.rs.core.Response;
 
 import br.unb.cic.bionimbuz.avro.rpc.AvroClient;
 import br.unb.cic.bionimbuz.config.BioNimbusConfig;
-import br.unb.cic.bionimbuz.constants.SystemConstants;
 import br.unb.cic.bionimbuz.controller.jobcontroller.JobController;
 import br.unb.cic.bionimbuz.model.FileInfo;
 import br.unb.cic.bionimbuz.model.Log;
@@ -49,7 +47,6 @@ import br.unb.cic.bionimbuz.rest.request.StartWorkflowRequest;
 import br.unb.cic.bionimbuz.rest.response.GetWorkflowHistoryResponse;
 import br.unb.cic.bionimbuz.rest.response.GetWorkflowStatusResponse;
 import br.unb.cic.bionimbuz.rest.response.ResponseInfo;
-import br.unb.cic.bionimbuz.utils.YamlUtils;
 
 /**
  * Class that handle sent workflow via REST request
@@ -63,14 +60,7 @@ public class WorkflowResource extends AbstractResource {
     private final WorkflowLoggerDao loggerDao;
 
     public WorkflowResource(JobController jobController) {
-        // Creates a RPC Client
-        try {
-            rpcClient = new AvroClient("http", YamlUtils.mapToClass(SystemConstants.CFG_FILE_NODE, BioNimbusConfig.class).getAddress(), 8080);
-        } catch (IOException ex) {
-            LOGGER.error("Error creating RPC Client for PluginTaskRunner");
-            ex.printStackTrace();
-        }
-
+        rpcClient = new AvroClient("http", BioNimbusConfig.get().getAddress(), 8080);
         this.jobController = jobController;
         this.workflowDao = new WorkflowDao();
         this.loggerDao = new WorkflowLoggerDao();

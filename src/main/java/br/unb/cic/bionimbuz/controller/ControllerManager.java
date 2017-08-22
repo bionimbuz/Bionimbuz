@@ -48,16 +48,16 @@ public class ControllerManager {
      *
      * @param config
      */
-    public void startAll(BioNimbusConfig config) {
+    public void startAll() {
         try {
-            connectZK(config.getZkHosts());
+            connectZK(BioNimbusConfig.get().getZkHosts());
         } catch (IOException | InterruptedException ex) {
             LOGGER.error("[Exception] " + ex.getMessage());
         }
 
         // Starts controllers
         for (Controller controller : controllers) {
-            controller.start(config);
+            controller.start();
         }
         LOGGER.info("All Controller are online");
     }

@@ -58,7 +58,7 @@ public final class RepositoryService extends AbstractBioService {
     }
     
     @Inject
-    public RepositoryService(final CloudMessageService cms, BioNimbusConfig config) {
+    public RepositoryService(final CloudMessageService cms) {
         this.cms = cms;
         
         LOGGER.info("Starting Repository Service...");
@@ -87,13 +87,12 @@ public final class RepositoryService extends AbstractBioService {
     }
     
     @Override
-    public void start(BioNimbusConfig config, List<Listeners> listeners) {
+    public void start(List<Listeners> listeners) {
         Preconditions.checkNotNull(listeners);
-        this.config = config;
         this.listeners = listeners;
         
         // Add current instance as a peer HERE THE PEER IS ADD IN ZOOKEEPER
-        this.addPeerToZookeeper(new PluginInfo(config.getId()));
+        this.addPeerToZookeeper(new PluginInfo(BioNimbusConfig.get().getId()));
         
         listeners.add(this);
     }

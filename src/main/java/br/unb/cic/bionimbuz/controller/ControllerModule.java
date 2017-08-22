@@ -6,12 +6,15 @@
 package br.unb.cic.bionimbuz.controller;
 
 
-import br.unb.cic.bionimbuz.controller.elasticitycontroller.ElasticityController;
+import com.google.inject.AbstractModule;
+import com.google.inject.multibindings.Multibinder;
+
 import br.unb.cic.bionimbuz.avro.gen.BioProto;
 import br.unb.cic.bionimbuz.avro.rpc.AvroServer;
 import br.unb.cic.bionimbuz.avro.rpc.BioProtoImpl;
 import br.unb.cic.bionimbuz.avro.rpc.RpcServer;
-import br.unb.cic.bionimbuz.config.ConfigurationRepository;
+import br.unb.cic.bionimbuz.config.BioNimbusConfig;
+import br.unb.cic.bionimbuz.controller.elasticitycontroller.ElasticityController;
 import br.unb.cic.bionimbuz.controller.jobcontroller.JobController;
 import br.unb.cic.bionimbuz.controller.slacontroller.SlaController;
 import br.unb.cic.bionimbuz.controller.usercontroller.UserController;
@@ -24,8 +27,6 @@ import br.unb.cic.bionimbuz.services.monitor.MonitoringService;
 import br.unb.cic.bionimbuz.services.sched.SchedService;
 import br.unb.cic.bionimbuz.services.storage.StorageService;
 import br.unb.cic.bionimbuz.services.storage.bucket.CloudStorageService;
-import com.google.inject.AbstractModule;
-import com.google.inject.multibindings.Multibinder;
 
 /**
  * Guice Module to Inject on ControllerManager
@@ -73,7 +74,7 @@ public class ControllerModule extends AbstractModule {
         // 5th to be injected
         serviceBinder.addBinding().to(MonitoringService.class);
         
-        if (ConfigurationRepository.getConfig().getStorageMode().equalsIgnoreCase("1"))
+        if (BioNimbusConfig.get().getStorageMode().equalsIgnoreCase("1"))
             serviceBinder.addBinding().to(CloudStorageService.class);
     }
 

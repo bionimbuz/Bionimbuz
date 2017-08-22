@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 
-import br.unb.cic.bionimbuz.config.BioNimbusConfig;
 import br.unb.cic.bionimbuz.controller.Controller;
 import br.unb.cic.bionimbuz.controller.elasticitycontroller.AmazonAPI;
 import br.unb.cic.bionimbuz.controller.elasticitycontroller.GoogleAPI;
@@ -51,7 +50,6 @@ public class SlaController implements Controller, Runnable {
     private final WorkflowLoggerDao loggerDao;
     private final ScheduledExecutorService threadExecutor = Executors.newScheduledThreadPool(1, new BasicThreadFactory.Builder().namingPattern("SlaController-%d").build());
     protected CloudMessageService cms;
-    protected BioNimbusConfig config;
     private final RepositoryService rs;
 
     /**
@@ -70,7 +68,7 @@ public class SlaController implements Controller, Runnable {
     }
 
     @Override
-    public void start(BioNimbusConfig config) {
+    public void start() {
         LOGGER.info("SLAController started");
         this.threadExecutor.scheduleAtFixedRate(this, 0, TIME_TO_RUN, TimeUnit.MINUTES);
     }

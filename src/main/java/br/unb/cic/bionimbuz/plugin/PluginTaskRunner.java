@@ -39,7 +39,6 @@ import br.unb.cic.bionimbuz.avro.rpc.AvroClient;
 import br.unb.cic.bionimbuz.avro.rpc.RpcClient;
 import br.unb.cic.bionimbuz.config.BioNimbusConfig;
 import br.unb.cic.bionimbuz.config.ConfigurationRepository;
-import br.unb.cic.bionimbuz.constants.SystemConstants;
 import br.unb.cic.bionimbuz.model.FileInfo;
 import br.unb.cic.bionimbuz.model.Log;
 import br.unb.cic.bionimbuz.model.LogSeverity;
@@ -52,7 +51,6 @@ import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbuz.services.storage.bucket.BioBucket;
 import br.unb.cic.bionimbuz.services.storage.bucket.CloudStorageService;
-import br.unb.cic.bionimbuz.utils.YamlUtils;
 
 public class PluginTaskRunner implements Callable<PluginTask> {
 
@@ -74,13 +72,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
     public PluginTaskRunner(AbstractPlugin plugin, PluginTask task, PluginService service, String path, CloudMessageService cms, Workflow workflow) {
         // Creates a RPC Client
         
-        try {
-            this.rpcClient = new AvroClient("http", YamlUtils.mapToClass(SystemConstants.CFG_FILE_NODE, BioNimbusConfig.class).getAddress(), 8080);
-        } catch (final IOException ex) {
-            LOGGER.error("Error creating RPC Client for PluginTaskRunner");
-            ex.printStackTrace();
-        }
-
+        this.rpcClient = new AvroClient("http", BioNimbusConfig.get().getAddress(), 8080);
         this.workflow = workflow;
         this.service = service;
         this.task = task;

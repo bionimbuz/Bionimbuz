@@ -52,7 +52,6 @@ import br.unb.cic.bionimbuz.avro.rpc.AvroClient;
 import br.unb.cic.bionimbuz.avro.rpc.RpcClient;
 import br.unb.cic.bionimbuz.config.BioNimbusConfig;
 import br.unb.cic.bionimbuz.config.ConfigurationRepository;
-import br.unb.cic.bionimbuz.constants.SystemConstants;
 import br.unb.cic.bionimbuz.plugin.PluginFile;
 import br.unb.cic.bionimbuz.plugin.PluginInfo;
 import br.unb.cic.bionimbuz.security.HashUtil;
@@ -68,7 +67,6 @@ import br.unb.cic.bionimbuz.services.storage.policy.impl.BioCirrusPolicy;
 import br.unb.cic.bionimbuz.toSort.Listeners;
 import br.unb.cic.bionimbuz.utils.Nmap;
 import br.unb.cic.bionimbuz.utils.Put;
-import br.unb.cic.bionimbuz.utils.YamlUtils;
 
 @Singleton
 public class StorageService extends AbstractBioService {
@@ -103,8 +101,7 @@ public class StorageService extends AbstractBioService {
      * @param listeners
      */
     @Override
-    public void start(BioNimbusConfig config, List<Listeners> listeners) {
-        this.config = config;
+    public void start(List<Listeners> listeners) {
         this.listeners = listeners;
         if (listeners != null) {
             listeners.add(this);
@@ -113,8 +110,8 @@ public class StorageService extends AbstractBioService {
         if (!this.cms.getZNodeExist(Path.PENDING_SAVE.getFullPath(), null)) {
             this.cms.createZNode(CreateMode.PERSISTENT, Path.PENDING_SAVE.getFullPath(), null);
         }
-        if (!this.cms.getZNodeExist(Path.FILES.getFullPath(config.getId()), null)) {
-            this.cms.createZNode(CreateMode.PERSISTENT, Path.FILES.getFullPath(config.getId()), "");
+        if (!this.cms.getZNodeExist(Path.FILES.getFullPath(BioNimbusConfig.get().getId()), null)) {
+            this.cms.createZNode(CreateMode.PERSISTENT, Path.FILES.getFullPath(BioNimbusConfig.get().getId()), "");
         }
 
         // watcher para verificar se um pending_save foi lançado
@@ -167,7 +164,7 @@ public class StorageService extends AbstractBioService {
                 // System.out.println(" (CheckFiles) dataFolder " + dataFolder + " doesn't exists, creating...");
                 this.dataFolder.mkdirs();
             }
-            this.cms.getChildren(Path.FILES.getFullPath(this.config.getId()), new UpdatePeerData(this.cms, this, null));
+            this.cms.getChildren(Path.FILES.getFullPath(BioNimbusConfig.get().getId()), new UpdatePeerData(this.cms, this, null));
             for (final File file : this.dataFolder.listFiles()) {
                 if (!this.savedFiles.containsKey(file.getName())) {
                     final PluginFile pluginFile = new PluginFile();
@@ -176,14 +173,14 @@ public class StorageService extends AbstractBioService {
                     pluginFile.setPath(file.getPath());
 
                     final List<String> listIds = new ArrayList<>();
-                    listIds.add(this.config.getId());
+                    listIds.add(BioNimbusConfig.get().getId());
 
                     pluginFile.setPluginId(listIds);
                     pluginFile.setSize(file.length());
                     // pluginFile.setHash(Hash.calculateSha3(file.getPath()));
                     // cria um novo znode para o arquivo e adiciona o watcher
-                    this.cms.createZNode(CreateMode.PERSISTENT, Path.NODE_FILE.getFullPath(this.config.getId(), pluginFile.getId()), pluginFile.toString());
-                    this.cms.getData(Path.NODE_FILE.getFullPath(this.config.getId(), pluginFile.getId()), new UpdatePeerData(this.cms, this, null));
+                    this.cms.createZNode(CreateMode.PERSISTENT, Path.NODE_FILE.getFullPath(BioNimbusConfig.get().getId(), pluginFile.getId()), pluginFile.toString());
+                    this.cms.getData(Path.NODE_FILE.getFullPath(BioNimbusConfig.get().getId(), pluginFile.getId()), new UpdatePeerData(this.cms, this, null));
 
                     this.savedFiles.put(pluginFile.getName(), pluginFile);
                 }
@@ -213,7 +210,7 @@ public class StorageService extends AbstractBioService {
                      * enviando uma RPC para o peer que possui o arquivo, para que ele replique.
                      */
                     final String ipPluginFile = this.getIpContainsFile(fileNamePlugin);
-                    if (!ipPluginFile.isEmpty() && !ipPluginFile.equals(this.config.getAddress())) {
+                    if (!ipPluginFile.isEmpty() && !ipPluginFile.equals(BioNimbusConfig.get().getAddress())) {
                         final RpcClient rpcClient = new AvroClient("http", ipPluginFile, this.PORT);
                         rpcClient.getProxy().notifyReply(fileNamePlugin, ipPluginFile);
                         rpcClient.close();
@@ -357,8 +354,8 @@ public class StorageService extends AbstractBioService {
         final File localFile = new File(path + file.getName());
 
         if (localFile.exists()) {
-            this.cms.createZNode(CreateMode.PERSISTENT, Path.NODE_FILE.getFullPath(this.config.getId(), file.getId()), file.toString());
-            this.cms.getData(Path.NODE_FILE.getFullPath(this.config.getId(), file.getId()), new UpdatePeerData(this.cms, this, null));
+            this.cms.createZNode(CreateMode.PERSISTENT, Path.NODE_FILE.getFullPath(BioNimbusConfig.get().getId(), file.getId()), file.toString());
+            this.cms.getData(Path.NODE_FILE.getFullPath(BioNimbusConfig.get().getId(), file.getId()), new UpdatePeerData(this.cms, this, null));
             return true;
         }
 
@@ -398,7 +395,7 @@ public class StorageService extends AbstractBioService {
             }
 
             // Verifica se a máquina que recebeu essa requisição não é a que está armazenando o arquivo
-            if (!fileUploaded.getPluginId().contains(this.config.getId())) {
+            if (!fileUploaded.getPluginId().contains(BioNimbusConfig.get().getId())) {
                 for (final PluginInfo plugin : this.getPeers().values()) {
                     if (plugin.getId().equals(fileUploaded.getPluginId().get(0))) {
                         ipPluginFile = plugin.getHost().getAddress();
@@ -429,7 +426,7 @@ public class StorageService extends AbstractBioService {
                         successUpload = true;
                         if (this.cms.getZNodeExist(Path.NODE_FILE.getFullPath(idPluginFile, fileUploaded.getId()), null) && !this.existReplication(file.getName())) {
                             try {
-                                this.replication(file.getName(), this.config.getAddress());
+                                this.replication(file.getName(), BioNimbusConfig.get().getAddress());
                                 if (this.existReplication(file.getName())) {
                                     // Remova o arquivo do PENDING FILE já que ele foi upado
                                     this.cms.delete(Path.NODE_PENDING_FILE.getFullPath(fileUploaded.getId()));
@@ -483,7 +480,7 @@ public class StorageService extends AbstractBioService {
                 final PluginFile fileplugin = mapper.readValue(data, PluginFile.class);
 
                 // Verifica se é um arquivo de saída de uma execução e se o arquivo foi gerado nesse recurso
-                if (fileplugin.getService() != null && fileplugin.getService().equals(SchedService.class.getSimpleName()) && fileplugin.getPluginId().get(0).equals(this.config.getId())) {
+                if (fileplugin.getService() != null && fileplugin.getService().equals(SchedService.class.getSimpleName()) && fileplugin.getPluginId().get(0).equals(BioNimbusConfig.get().getId())) {
                     // Adiciona o arquivo a lista do zookeeper
                     this.checkFiles();
                 }
@@ -493,7 +490,7 @@ public class StorageService extends AbstractBioService {
                         break;
                     }
                     final String address = this.getIpContainsFile(fileplugin.getName());
-                    if (!address.isEmpty() && !address.equals(this.config.getAddress())) {
+                    if (!address.isEmpty() && !address.equals(BioNimbusConfig.get().getAddress())) {
                         final RpcClient rpcClient = new AvroClient("http", address, this.PORT);
                         rpcClient.getProxy().notifyReply(fileplugin.getName(), address);
                         try {
@@ -584,7 +581,7 @@ public class StorageService extends AbstractBioService {
             }
             if (no != null) {
                 pluginList.remove(no);
-                idsPluginsFile.add(this.config.getId());
+                idsPluginsFile.add(BioNimbusConfig.get().getId());
                 pluginList = new ArrayList<>(this.bestNode(pluginList));
                 for (final NodeInfo curr : pluginList) {
                     if (no.getAddress().equals(curr.getAddress())) {
@@ -648,7 +645,7 @@ public class StorageService extends AbstractBioService {
             try {
                 final NodeInfo node = new NodeInfo();
 
-                if ((long) (plugin.getFsFreeSize() * this.MAXCAPACITY) > lengthFile && plugin.getId().equals(this.config.getId())) {
+                if ((long) (plugin.getFsFreeSize() * this.MAXCAPACITY) > lengthFile && plugin.getId().equals(BioNimbusConfig.get().getId())) {
                     node.setLatency(Ping.calculo(plugin.getHost().getAddress()));
                     if (node.getLatency().equals(Double.MAX_VALUE)) {
                         node.setLatency(Nmap.nmap(plugin.getHost().getAddress()));
@@ -734,14 +731,7 @@ public class StorageService extends AbstractBioService {
 
         List<NodeInfo> pluginList;
         List<NodeInfo> nodesdisp = new ArrayList<>();
-        RpcClient rpcClient = null;
-
-        try {
-            rpcClient = new AvroClient("http", YamlUtils.mapToClass(SystemConstants.CFG_FILE_NODE, BioNimbusConfig.class).getAddress(), 8080);
-        } catch (final IOException ex) {
-            LOGGER.error("[IOException] " + ex.getMessage());
-        }
-
+        RpcClient rpcClient = new AvroClient("http", BioNimbusConfig.get().getAddress(), 8080);
         final File file = new File(filepath);
 
         // Verifica se o arquivo existe
@@ -929,7 +919,7 @@ public class StorageService extends AbstractBioService {
                                 for (final PluginFile fileExcluded : this.getFilesPeer(peerId)) {
                                     String idPluginExcluded = null;
                                     for (final String idPlugin : fileExcluded.getPluginId()) {
-                                        if (peerId.equals(idPlugin) && !idPlugin.equals(this.config.getId())) {
+                                        if (peerId.equals(idPlugin) && !idPlugin.equals(BioNimbusConfig.get().getId())) {
                                             idPluginExcluded = idPlugin;
                                             break;
                                         }

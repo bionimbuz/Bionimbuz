@@ -5,7 +5,6 @@
  */
 package br.unb.cic.bionimbuz.controller;
 
-import br.unb.cic.bionimbuz.config.BioNimbusConfig;
 import org.apache.zookeeper.WatchedEvent;
 
 /**
@@ -14,7 +13,7 @@ import org.apache.zookeeper.WatchedEvent;
  */
 public interface Controller {
 
-    public void start(BioNimbusConfig config);
+    public void start();
 
     public void shutdown();
 

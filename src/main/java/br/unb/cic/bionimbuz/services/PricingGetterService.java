@@ -1,14 +1,6 @@
 
 package br.unb.cic.bionimbuz.services;
 
-import br.unb.cic.bionimbuz.config.BioNimbusConfig;
-import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
-import br.unb.cic.bionimbuz.services.tarification.Amazon.AmazonIndex;
-import br.unb.cic.bionimbuz.services.tarification.Google.GoogleCloud;
-import br.unb.cic.bionimbuz.toSort.Listeners;
-import com.amazonaws.util.json.JSONException;
-import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -16,7 +8,17 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.apache.zookeeper.WatchedEvent;
+
+import com.amazonaws.util.json.JSONException;
+import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
+import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbuz.services.tarification.Amazon.AmazonIndex;
+import br.unb.cic.bionimbuz.services.tarification.Google.GoogleCloud;
+import br.unb.cic.bionimbuz.toSort.Listeners;
 
 /**
  *
@@ -39,10 +41,9 @@ public class PricingGetterService extends AbstractBioService {
     }
 
     @Override
-    public void start(BioNimbusConfig config, List<Listeners> listeners) {
+    public void start(List<Listeners> listeners) {
 
         Preconditions.checkNotNull(listeners);
-        this.config = config;
         this.listeners = listeners;
 
         listeners.add(this);

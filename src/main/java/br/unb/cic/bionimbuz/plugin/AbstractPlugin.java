@@ -19,11 +19,14 @@
 package br.unb.cic.bionimbuz.plugin;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -31,21 +34,17 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
-import br.unb.cic.bionimbuz.model.FileInfo;
+import com.google.inject.Inject;
+
 import br.unb.cic.bionimbuz.config.BioNimbusConfig;
+import br.unb.cic.bionimbuz.model.FileInfo;
 import br.unb.cic.bionimbuz.model.Workflow;
 import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbuz.utils.Pair;
-import com.google.inject.Inject;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 public abstract class AbstractPlugin implements Plugin, Runnable {
 
     private String id;
-
-    private BioNimbusConfig config;
 
     private Future<PluginInfo> futureInfo = null;
 
@@ -72,10 +71,9 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
     private final ConcurrentMap<String, PluginFile> pluginFiles = new ConcurrentHashMap<>();
 
     @Inject
-    public AbstractPlugin(final BioNimbusConfig config) throws IOException {
+    public AbstractPlugin() throws IOException {
         //id provisório
-        this.config = config;
-        id = config.getId();
+        id = BioNimbusConfig.get().getId();
     }
 
     public Map<String, Pair<String, Integer>> getInputFiles() {
@@ -90,10 +88,6 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
     public String getId() {
 
         return id;
-    }
-
-    public BioNimbusConfig getConfig() {
-        return config;
     }
 
     private Future<PluginInfo> getFutureInfo() {
@@ -183,9 +177,9 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
             if (task.getJobInfo().getOutputs().size() > 0) {
                 int count = 0;
                 for (String output : task.getJobInfo().getOutputs()) {
-                    File file = new File(config.getServerPath() + "/" + output);
+                    File file = new File(BioNimbusConfig.get().getServerPath() + "/" + output);
                     FileInfo info = new FileInfo();
-                    info.setName(config.getServerPath() + "/" + output);
+                    info.setName(BioNimbusConfig.get().getServerPath() + "/" + output);
                     info.setSize(file.length());
                     count++;
                 }

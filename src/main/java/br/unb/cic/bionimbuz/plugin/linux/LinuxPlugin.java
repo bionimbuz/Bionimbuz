@@ -18,34 +18,30 @@
 */
 package br.unb.cic.bionimbuz.plugin.linux;
 
-import br.unb.cic.bionimbuz.config.BioNimbusConfig;
-import br.unb.cic.bionimbuz.model.Workflow;
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import br.unb.cic.bionimbuz.config.BioNimbusConfig;
+import br.unb.cic.bionimbuz.model.Workflow;
 import br.unb.cic.bionimbuz.plugin.AbstractPlugin;
 import br.unb.cic.bionimbuz.plugin.PluginInfo;
 import br.unb.cic.bionimbuz.plugin.PluginService;
 import br.unb.cic.bionimbuz.plugin.PluginTask;
 import br.unb.cic.bionimbuz.plugin.PluginTaskRunner;
 import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
-import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class LinuxPlugin extends AbstractPlugin{
 
     private final ExecutorService executorService = Executors.newCachedThreadPool(new BasicThreadFactory.Builder().namingPattern("LinuxPlugin-workers-%d").build());
     private static Logger LOGGER = LoggerFactory.getLogger(LinuxPlugin.class);
-    public LinuxPlugin(final BioNimbusConfig conf) throws IOException {
-        super(conf);
-    }
-    
-    public LinuxPlugin() throws IOException{
-        this(null);
+    public LinuxPlugin() throws IOException {
+        super();
     }
 
     @Override
@@ -60,6 +56,6 @@ public class LinuxPlugin extends AbstractPlugin{
             LOGGER.info("[LinuxPlugin] Task's service is not installed on this instance.");
             return null;
         }
-        return executorService.submit(new PluginTaskRunner(this, task, service, getConfig().getServerPath(), zk, workflow));
+        return executorService.submit(new PluginTaskRunner(this, task, service, BioNimbusConfig.get().getServerPath(), zk, workflow));
     }
 }

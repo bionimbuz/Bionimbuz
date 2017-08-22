@@ -18,7 +18,6 @@
  */
 package br.unb.cic.bionimbuz.tests;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -39,7 +38,6 @@ import com.google.inject.Injector;
 import br.unb.cic.bionimbuz.avro.rpc.AvroClient;
 import br.unb.cic.bionimbuz.avro.rpc.RpcClient;
 import br.unb.cic.bionimbuz.config.BioNimbusConfig;
-import br.unb.cic.bionimbuz.constants.SystemConstants;
 import br.unb.cic.bionimbuz.model.FileInfo;
 import br.unb.cic.bionimbuz.model.Job;
 import br.unb.cic.bionimbuz.model.Workflow;
@@ -60,7 +58,6 @@ public class SchedullerTester {
 //    private static StringBuilder result = new  StringBuilder();
 
     private RpcClient rpcClient;
-    private BioNimbusConfig config;
     private CloudMessageService cms;
     private RepositoryService rs;
     private static final Injector injector = Guice.createInjector(new TesterModule());
@@ -91,10 +88,9 @@ public class SchedullerTester {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
         try {
-            config = mapper.readValue(new File(SystemConstants.CFG_FILE_NODE), BioNimbusConfig.class);
-            config.setZkConnString(InetAddress.getLocalHost().getHostAddress() + ":2181");
-            config.setAddress(InetAddress.getLocalHost().getHostAddress());
-            rpcClient = new AvroClient(config.getRpcProtocol(), config.getHost().getAddress(), config.getRpcPort());
+            BioNimbusConfig.get().setZkConnString(InetAddress.getLocalHost().getHostAddress() + ":2181");
+            BioNimbusConfig.get().setAddress(InetAddress.getLocalHost().getHostAddress());
+            rpcClient = new AvroClient(BioNimbusConfig.get().getRpcProtocol(), BioNimbusConfig.get().getHost().getAddress(), BioNimbusConfig.get().getRpcPort());
             if (rpcClient.getProxy().ping()) {
                 LOG.info("client is connected.");
             }
@@ -144,7 +140,7 @@ public class SchedullerTester {
 
             job.setArgs(jobInfo.getArgs());
             job.setId(jobInfo.getId());
-            job.setLocalId(config.getHost().getAddress());
+            job.setLocalId(BioNimbusConfig.get().getHost().getAddress());
             job.setServiceId(jobInfo.getServiceId());
             job.setTimestamp(jobInfo.getTimestamp());
 

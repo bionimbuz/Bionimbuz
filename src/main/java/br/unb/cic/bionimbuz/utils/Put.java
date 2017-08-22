@@ -79,13 +79,12 @@ public class Put {
      */
     public boolean startSession() throws JSchException, SftpException {
 
-        final BioNimbusConfig config = ConfigurationRepository.getConfig();
         if (NetworkUtil.isLocalhost(this.address)) {
             LOGGER.info("\n\n It is not needed to use the SFTP channel to transfer the file because the system is using a localhost configuration.\n\n\n");
             return true;
         }
 
-        final String pathDest = config.getDataFolder();
+        final String pathDest = BioNimbusConfig.get().getDataFolder();
         try {
             this.session = this.jsch.getSession(this.USER, this.address, this.PORT);
             this.session.setConfig("StrictHostKeyChecking", "no");

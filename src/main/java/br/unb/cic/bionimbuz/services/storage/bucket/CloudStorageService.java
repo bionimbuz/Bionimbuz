@@ -6,6 +6,7 @@
 package br.unb.cic.bionimbuz.services.storage.bucket;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -32,7 +33,6 @@ import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbuz.services.storage.bucket.CloudStorageMethods.StorageProvider;
 import br.unb.cic.bionimbuz.services.storage.bucket.methods.CloudMethodsAmazonGoogle;
 import br.unb.cic.bionimbuz.toSort.Listeners;
-import java.io.IOException;
 
 /**
  *
@@ -70,8 +70,7 @@ public class CloudStorageService extends AbstractBioService{
     }
     
     @Override
-    public void start(BioNimbusConfig config, List<Listeners> listeners) {
-        this.config = config;
+    public void start(List<Listeners> listeners) {
         this.listeners = listeners;
         if (listeners != null) {
             listeners.add(this);
@@ -88,11 +87,11 @@ public class CloudStorageService extends AbstractBioService{
         methodsInstance = new CloudMethodsAmazonGoogle();
         
         //Getting parameters from config file
-        bucketsFolder = config.getBucketsFolder();
-        CloudStorageMethods.setKeyGoogle(config.getKeyGoogle());
-        CloudStorageMethods.setKeyAmazon(config.getKeyAmazon());
-        CloudStorageMethods.setGcloudFolder(config.getGcloudFolder());
-        CloudStorageMethods.setMyId(config.getId());
+        bucketsFolder = BioNimbusConfig.get().getBucketsFolder();
+        CloudStorageMethods.setKeyGoogle(BioNimbusConfig.get().getKeyGoogle());
+        CloudStorageMethods.setKeyAmazon(BioNimbusConfig.get().getKeyAmazon());
+        CloudStorageMethods.setGcloudFolder(BioNimbusConfig.get().getGcloudFolder());
+        CloudStorageMethods.setMyId(BioNimbusConfig.get().getId());
         
         //Instance all buckets
         LOGGER.info("[CloudStorageService] Instancing Buckets");
@@ -316,7 +315,7 @@ public class CloudStorageService extends AbstractBioService{
     
     public synchronized void checkNewFiles() {
         
-        File dataFolder = new File (config.getDataFolder());
+        File dataFolder = new File (BioNimbusConfig.get().getDataFolder());
         
         try {
             for (File file : dataFolder.listFiles()) {
@@ -335,8 +334,8 @@ public class CloudStorageService extends AbstractBioService{
                     
                     LOGGER.info("[CloudStorageService] New file! Uploading " + file.getPath() + " to Bucket " + dest.getName());
                    //TODO: Metodo que deve ser revisto pois faz o upload e para ter o arquivo na pasta data-folder, faz o download dela para a pasta
-                    methodsInstance.StorageUploadFile(dest, "/data-folder/", config.getDataFolder() , file.getName());
-                    methodsInstance.StorageDownloadFile(dest, "/data-folder/", config.getDataFolder(), file.getName());
+                    methodsInstance.StorageUploadFile(dest, "/data-folder/", BioNimbusConfig.get().getDataFolder() , file.getName());
+                    methodsInstance.StorageDownloadFile(dest, "/data-folder/", BioNimbusConfig.get().getDataFolder(), file.getName());
                     cms.createZNode(CreateMode.PERSISTENT, Path.NODE_BUCKET_FILE.getFullPath(dest.getName(), pluginFile.getName()), pluginFile.toString());
                 }
             }

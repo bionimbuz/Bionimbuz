@@ -22,20 +22,22 @@
  */
 package br.unb.cic.bionimbuz.services;
 
-import br.unb.cic.bionimbuz.config.BioNimbusConfig;
-import br.unb.cic.bionimbuz.plugin.PluginInfo;
-import br.unb.cic.bionimbuz.services.discovery.DiscoveryService;
-import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
-import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path;
-import br.unb.cic.bionimbuz.toSort.Listeners;
-import com.google.inject.Singleton;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.codehaus.jackson.map.ObjectMapper;
+
+import com.google.inject.Singleton;
+
+import br.unb.cic.bionimbuz.plugin.PluginInfo;
+import br.unb.cic.bionimbuz.services.discovery.DiscoveryService;
+import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path;
+import br.unb.cic.bionimbuz.toSort.Listeners;
 
 /**
  * @author biocloud1
@@ -46,7 +48,6 @@ public abstract class AbstractBioService implements Service, Runnable, Listeners
     protected CloudMessageService cms;
     protected RepositoryService rs;
     protected List<Listeners> listeners;
-    protected BioNimbusConfig config;
     private final Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<>();
 
     /**

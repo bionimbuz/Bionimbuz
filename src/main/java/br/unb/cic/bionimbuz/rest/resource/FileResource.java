@@ -26,6 +26,7 @@ import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 
+import br.unb.cic.bionimbuz.config.BioNimbusConfig;
 import br.unb.cic.bionimbuz.config.ConfigurationRepository;
 import br.unb.cic.bionimbuz.controller.jobcontroller.JobController;
 import br.unb.cic.bionimbuz.model.FileInfo;
@@ -76,7 +77,7 @@ public class FileResource extends AbstractResource {
         try {
             // Writes file on disk
 
-            if (this.config.getStorageMode().equalsIgnoreCase("0")) {
+            if (BioNimbusConfig.get().getStorageMode().equalsIgnoreCase("0")) {
                 final String filepath = this.writeFile(form.getData(), form.getFileInfo().getName(), form.getFileInfo().getUserId());
                 // Verify integrity
                 final String hashedFile = verifyIntegrity(form.getFileInfo(), filepath);
@@ -125,7 +126,7 @@ public class FileResource extends AbstractResource {
         try {
             final FileInfo file = this.fileDao.findByStringId(id);
 
-            if (this.config.getStorageMode().equalsIgnoreCase("1")) {
+            if (BioNimbusConfig.get().getStorageMode().equalsIgnoreCase("1")) {
                 final BioBucket bucket = CloudStorageService.getBucket(file.getBucket());
 
                 LOGGER.info("File " + file.getName() + " found on Bucket " + file.getBucket());

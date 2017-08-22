@@ -138,7 +138,7 @@ public class ServiceManager {
         services.add(service);
     }
 
-    public void startAll(BioNimbusConfig config, List<Listeners> listeners) {
+    public void startAll(List<Listeners> listeners) {
         try {
             // Starts RPC server
             rpcServer.start();
@@ -148,7 +148,7 @@ public class ServiceManager {
             httpServer.start();
             LOGGER.info("HTTP Server initialized on port 8181");
 
-            connectZK(config.getZkHosts());
+            connectZK(BioNimbusConfig.get().getZkHosts());
 
             //limpando o servidor zookeeper caso não tenha peer on-line ao inciar servidor zooNimbus
 //            if (!config.isClient()) {
@@ -162,7 +162,7 @@ public class ServiceManager {
             addServiceToZookeeper(ConfigurationRepository.getSupportedServices());
 
             for (Service service : services) {
-                service.start(config, listeners);
+                service.start(listeners);
             }
 
         } catch (Exception e) {

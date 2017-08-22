@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import br.unb.cic.bionimbuz.constants.SystemConstants;
 import br.unb.cic.bionimbuz.model.Instance;
 import br.unb.cic.bionimbuz.plugin.PluginService;
 import br.unb.cic.bionimbuz.services.tarification.Amazon.AmazonIndex;
@@ -27,8 +26,6 @@ public class ConfigurationRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationRepository.class);
 
-    private static final BioNimbusConfig config = loadHostConfig();
-
     /**
      * Gets root folder of the project.
      * COMENTEI POIS NÂO ESTÁ SENDO USADA
@@ -44,7 +41,7 @@ public class ConfigurationRepository {
      * @return
      */
     public static String getReferenceFolder() {
-        return config.getReferenceFolder();
+        return BioNimbusConfig.get().getReferenceFolder();
     }
 
     /**
@@ -54,7 +51,7 @@ public class ConfigurationRepository {
      * @return
      */
     public static String getWorkflowOutputFolder(String id) {
-        return config.getOutputFolder() + id + "/";
+        return BioNimbusConfig.get().getOutputFolder() + id + "/";
     }
 
     /**
@@ -63,7 +60,7 @@ public class ConfigurationRepository {
      * @return
      */
     public static String getTemporaryUplodadedFiles() {
-        return config.getTemporaryUploadedFiles();
+        return BioNimbusConfig.get().getTemporaryUploadedFiles();
     }
 
     /**
@@ -72,7 +69,7 @@ public class ConfigurationRepository {
      * @return
      */
     public static ArrayList<String> getReferences() {
-        return config.getReferences();
+        return BioNimbusConfig.get().getReferences();
     }
 
     /**
@@ -81,7 +78,7 @@ public class ConfigurationRepository {
      * @return
      */
     public static String getDataFolder() {
-        return config.getDataFolder();
+        return BioNimbusConfig.get().getDataFolder();
     }
 
     /**
@@ -90,7 +87,7 @@ public class ConfigurationRepository {
      * @return
      */
     public static ArrayList<String> getSupportedFormats() {
-        return config.getSupportedFormats();
+        return BioNimbusConfig.get().getSupportedFormats();
     }
 
     /**
@@ -99,7 +96,7 @@ public class ConfigurationRepository {
      * @return
      */
     public static ArrayList<PluginService> getSupportedServices() {
-        return config.getSupportedServices();
+        return BioNimbusConfig.get().getSupportedServices();
     }
     
     public static ArrayList<Instance> getInstances(){
@@ -119,7 +116,7 @@ public class ConfigurationRepository {
         
         try {
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-            SSHCredentials sshCredentials = mapper.readValue(new File(config.getCredentialsFile()), SSHCredentials.class);
+            SSHCredentials sshCredentials = mapper.readValue(new File(BioNimbusConfig.get().getCredentialsFile()), SSHCredentials.class);
 
             return sshCredentials;
         } catch (IOException ex) {
@@ -129,33 +126,4 @@ public class ConfigurationRepository {
 
         return null;
     }
-    
-    public static BioNimbusConfig getConfig() {
-        return config;
-    }
-
-    /**
-     * Loads configuration file from disk.
-     *
-     * @return
-     */
-    private static BioNimbusConfig loadHostConfig() {
-        BioNimbusConfig configuration = null;
-
-        try {
-            ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-            configuration = mapper.readValue(new File(SystemConstants.CFG_FILE_NODE), BioNimbusConfig.class);
-        } catch (IOException ex) {
-            LOGGER.info("[IOException] - " + ex.getMessage());
-        }
-
-        if (configuration.getInfra() == null) {
-            configuration.setInfra("linux");
-        }
-
-        configuration.setInfra(configuration.getInfra());
-
-        return configuration;
-    }
-
 }

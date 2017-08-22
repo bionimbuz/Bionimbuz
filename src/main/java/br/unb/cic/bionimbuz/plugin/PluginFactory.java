@@ -18,9 +18,9 @@
 */
 package br.unb.cic.bionimbuz.plugin;
 
-import br.unb.cic.bionimbuz.config.BioNimbusConfig;
-import br.unb.cic.bionimbuz.plugin.linux.LinuxPlugin;
 import java.io.IOException;
+
+import br.unb.cic.bionimbuz.plugin.linux.LinuxPlugin;
 
 public class PluginFactory {
 
@@ -29,13 +29,13 @@ public class PluginFactory {
     private PluginFactory() {
     }
 
-    public static synchronized Plugin getPlugin(final String pluginType, final BioNimbusConfig config) throws IOException {
+    public static synchronized Plugin getPlugin(final String pluginType) throws IOException {
         if (REF == null) {
 //            if (pluginType.equals("hadoop"))
 //                REF = new HadoopPlugin();
 //            else 
             if (pluginType.equals("linux")) {
-                REF = new LinuxPlugin(config);
+                REF = new LinuxPlugin();
             }
 //            else if (pluginType.equals("sge")) {
 //                REF = new SGEPlugin(config);

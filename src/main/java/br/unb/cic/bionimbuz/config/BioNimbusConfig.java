@@ -15,6 +15,7 @@
  */
 package br.unb.cic.bionimbuz.config;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -23,13 +24,26 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
-import com.google.inject.Singleton;
 
+import br.unb.cic.bionimbuz.constants.SystemConstants;
 import br.unb.cic.bionimbuz.p2p.Host;
 import br.unb.cic.bionimbuz.plugin.PluginService;
+import br.unb.cic.bionimbuz.utils.YamlUtils;
 
-@Singleton
 public class BioNimbusConfig {
+    
+    private static BioNimbusConfig instance = null;
+    static {
+        try {
+            instance = YamlUtils.mapToClass(SystemConstants.CFG_FILE_NODE, BioNimbusConfig.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private BioNimbusConfig() {}
+    
+    public static BioNimbusConfig get() {return instance;}
 
     // @JsonIgnore
     private String id;
@@ -116,9 +130,31 @@ public class BioNimbusConfig {
     @JsonProperty("storage-mode")
     private String storageMode;
 
-    public void setRpcProtocol(String rpcProtocol) {
-        this.rpcProtocol = rpcProtocol;
+
+    public synchronized String getZkHosts() {
+        return this.zkHosts;
     }
+
+    public synchronized void setZkConnString(String zkHosts) {
+        this.zkHosts = zkHosts;
+    }    
+
+    public synchronized String getAddress() {
+        return this.address;
+    }
+
+    public synchronized void setAddress(String address) {
+        this.address = address;
+    }
+
+    public synchronized String getId() {
+        return this.id;
+    }
+    
+    public synchronized void setId(String id) {
+        this.id = id;
+    }
+    
 
     public String getRpcProtocol() {
         return this.rpcProtocol;
@@ -128,44 +164,16 @@ public class BioNimbusConfig {
         return this.rpcPort;
     }
 
-    public void setRpcPort(Integer rpcPort) {
-        this.rpcPort = rpcPort;
-    }
-
-    public String getZkHosts() {
-        return this.zkHosts;
-    }
-
-    public void setZkConnString(String zkHosts) {
-        this.zkHosts = zkHosts;
-    }
-
     public String getProxyHost() {
         return this.proxyHost;
-    }
-
-    public void setProxyHost(String proxyHost) {
-        this.proxyHost = proxyHost;
     }
 
     public int getProxyPort() {
         return this.proxyPort;
     }
 
-    public void setProxyPort(int proxyPort) {
-        this.proxyPort = proxyPort;
-    }
-
     public String getInfra() {
         return this.infra == null ? "linux" : this.infra;
-    }
-
-    public void setInfra(String infra) {
-        this.infra = infra;
-    }
-
-    public void setHost(Host host) {
-        this.host = host;
     }
 
     public Host getHost() {
@@ -175,182 +183,83 @@ public class BioNimbusConfig {
     public boolean isClient() {
         return this.client;
     }
-
-    public void setClient(boolean client) {
-        this.client = client;
-    }
-
-    public void setSeeds(Set<Host> seeds) {
-        this.seeds = seeds;
-    }
-
+    
     public Set<Host> getSeeds() {
         return this.seeds;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getId() {
-        return this.id;
     }
 
     public double getCostPerGiga() {
         return this.costpergiga;
     }
 
-    public void setCostPerGiga(double costpergiga) {
-        this.costpergiga = costpergiga;
-    }
-
     public String getServerPath() {
         return this.serverPath;
-    }
-
-    public void setServerPath(String serverPath) {
-        this.serverPath = serverPath;
-    }
-
-    public String getAddress() {
-        return this.address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
     }
 
     public String getPlugin() {
         return this.plugin;
     }
 
-    public void setPlugin(String plugin) {
-        this.plugin = plugin;
-    }
-
-    public void setZkHosts(String zkHosts) {
-        this.zkHosts = zkHosts;
-    }
-
     public int getPrivateCloud() {
         return this.privateCloud;
-    }
-
-    public void setPrivateCloud(int privateCloud) {
-        this.privateCloud = privateCloud;
     }
 
     public Double getCost() {
         return this.cost;
     }
 
-    public void SetCost(Double cost) {
-        this.cost = cost;
-    }
-
     public String getReferenceFolder() {
         return this.getServerPath() + this.referenceFolder;
-    }
-
-    public void setReferenceFolder(String referenceFolder) {
-        this.referenceFolder = referenceFolder;
     }
 
     public String getOutputFolder() {
         return this.getServerPath() + this.outputFolder;
     }
 
-    public void setOutputFolder(String outputFolder) {
-        this.outputFolder = outputFolder;
-    }
-
     public String getDataFolder() {
         return this.getServerPath() + this.dataFolder;
-    }
-
-    public void setDataFolder(String dataFolder) {
-        this.dataFolder = dataFolder;
     }
 
     public ArrayList<String> getReferences() {
         return this.references;
     }
 
-    public void setReferences(ArrayList<String> references) {
-        this.references = references;
-    }
-
     public String getTemporaryUploadedFiles() {
         return this.getServerPath() + this.temporaryUploadedFiles;
-    }
-
-    public void setTemporaryUploadedFiles(String temporaryUploadedFiles) {
-        this.temporaryUploadedFiles = temporaryUploadedFiles;
     }
 
     public ArrayList<String> getSupportedFormats() {
         return this.supportedFormats;
     }
 
-    public void setSupportedFormats(ArrayList<String> supportedFormats) {
-        this.supportedFormats = supportedFormats;
-    }
-
     public ArrayList<PluginService> getSupportedServices() {
         return this.supportedServices;
-    }
-
-    public void setSupportedServices(ArrayList<PluginService> supportedServices) {
-        this.supportedServices = supportedServices;
     }
 
     public String getCredentialsFile() {
         return this.credentialsFile;
     }
 
-    public void setCredentialsFile(String credentialsFile) {
-        this.credentialsFile = credentialsFile;
-    }
-
     public String getBucketsFolder() {
         return this.getServerPath() + this.bucketsFolder;
-    }
-
-    public void setBucketsFolder(String bucketsFolder) {
-        this.bucketsFolder = bucketsFolder;
     }
 
     public String getGcloudFolder() {
         return this.gcloudFolder;
     }
 
-    public void setGcloudFolder(String gcloudFolder) {
-        this.gcloudFolder = gcloudFolder;
-    }
-
     public String getStorageMode() {
         return this.storageMode;
-    }
-
-    public void setStorageMode(String storageMode) {
-        this.storageMode = storageMode;
     }
 
     public String getKeyGoogle() {
         return this.getServerPath() + this.keyGoogle;
     }
 
-    public void setKeyGoogle(String keyGoogle) {
-        this.keyGoogle = keyGoogle;
-    }
-
     public String getKeyAmazon() {
         return this.getServerPath() + this.keyAmazon;
     }
 
-    public void setKeyAmazon(String keyAmazon) {
-        this.keyAmazon = keyAmazon;
-    }
 
     @Override
     public String toString() {
