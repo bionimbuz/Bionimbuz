@@ -18,7 +18,6 @@ biofoco.log
 /references/**
 /references/**/
 /conf/GooglePrices.txt
-/conf/credentials.yaml
 /conf/AmazonStorage.txt
 /conf/AmazonInstancesOD.txt
 /conf/AmazonDataTransfer.txt
@@ -46,3 +45,7 @@ nb-configuration.xml
 /conf/googleCloudStorage.json
 /conf/index.json
 /output-folder/
+
+# Arquivos de configuração com informações sensíveis
+/conf/node.yaml
+/conf/credentials.yaml
