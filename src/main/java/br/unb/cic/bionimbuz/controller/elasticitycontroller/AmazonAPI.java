@@ -1,25 +1,27 @@
 package br.unb.cic.bionimbuz.controller.elasticitycontroller;
 
-import br.unb.cic.bionimbuz.model.Log;
-import br.unb.cic.bionimbuz.model.LogSeverity;
-import br.unb.cic.bionimbuz.persistence.dao.WorkflowLoggerDao;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.PropertiesCredentials;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.KeyPair;
-import com.amazonaws.services.ec2.model.RunInstancesRequest;
-import com.amazonaws.services.ec2.model.RunInstancesResult;
-import com.amazonaws.auth.PropertiesCredentials;
 import com.amazonaws.services.ec2.model.CreateTagsRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
+import com.amazonaws.services.ec2.model.KeyPair;
 import com.amazonaws.services.ec2.model.Reservation;
+import com.amazonaws.services.ec2.model.RunInstancesRequest;
+import com.amazonaws.services.ec2.model.RunInstancesResult;
 import com.amazonaws.services.ec2.model.Tag;
 import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 
-
-import java.io.*;
-import java.util.*;
+import br.unb.cic.bionimbuz.persistence.dao.WorkflowLoggerDao;
 
 public class AmazonAPI implements ProvidersAPI {
 
@@ -34,7 +36,7 @@ public class AmazonAPI implements ProvidersAPI {
     @Override
     public void setup() {
         try {
-            String credentialsFile = System.getProperty("user.home") + "/Bionimbuz/src/main/resources/AwsCredentials.properties";
+            String credentialsFile = "resources/credentials/amazon.properties";
             InputStream is = null;
             is = new FileInputStream(credentialsFile);
             PropertiesCredentials credentials = new PropertiesCredentials(is);

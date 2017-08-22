@@ -75,8 +75,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
         // Creates a RPC Client
         
         try {
-            final String configFile = System.getProperty("config.file", SystemConstants.CFG_FILE_NODE);
-            this.rpcClient = new AvroClient("http", YamlUtils.mapToClass(configFile, BioNimbusConfig.class).getAddress(), 8080);
+            this.rpcClient = new AvroClient("http", YamlUtils.mapToClass(SystemConstants.CFG_FILE_NODE, BioNimbusConfig.class).getAddress(), 8080);
         } catch (final IOException ex) {
             LOGGER.error("Error creating RPC Client for PluginTaskRunner");
             ex.printStackTrace();

@@ -737,8 +737,7 @@ public class StorageService extends AbstractBioService {
         RpcClient rpcClient = null;
 
         try {
-            final String configFile = System.getProperty("config.file", SystemConstants.CFG_FILE_NODE);
-            rpcClient = new AvroClient("http", YamlUtils.mapToClass(configFile, BioNimbusConfig.class).getAddress(), 8080);
+            rpcClient = new AvroClient("http", YamlUtils.mapToClass(SystemConstants.CFG_FILE_NODE, BioNimbusConfig.class).getAddress(), 8080);
         } catch (final IOException ex) {
             LOGGER.error("[IOException] " + ex.getMessage());
         }

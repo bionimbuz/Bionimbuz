@@ -1,8 +1,5 @@
 package br.unb.cic.bionimbuz.services.tarification.Google;
 
-import br.unb.cic.bionimbuz.model.Instance;
-import br.unb.cic.bionimbuz.model.StorageInstance;
-import br.unb.cic.bionimbuz.services.tarification.JsonReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,9 +7,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+
+import br.unb.cic.bionimbuz.model.Instance;
+import br.unb.cic.bionimbuz.model.StorageInstance;
+import br.unb.cic.bionimbuz.services.tarification.JsonReader;
 
 /**
  *
@@ -34,8 +36,8 @@ public class GoogleCloud {
     private static final String COMPUTEENGINEVMIMAGE = "COMPUTEENGINE-VMIMAGE";
     private static final String GCP_PRICE_LIST = "gcp_price_list";
     private JSONObject computeEngine, storageEngine;
-    final String defaultConfigPathnameInstance = System.getProperty("user.home") + "/Bionimbuz/conf/googleCloudInstance.json";
-    final String defaultConfigPathnameStorage = System.getProperty("user.home") + "/Bionimbuz/conf/googleCloudStorage.json";
+    final String defaultConfigPathnameInstance = "resources/instances/google.json";
+    final String defaultConfigPathnameStorage = "resources/storages/google.json";
     //TAKE CARE WITH HTTPS, on Google just http ...
     final String http = "http://";
     final String server = "www.cloudpricingcalculator.appspot.com";

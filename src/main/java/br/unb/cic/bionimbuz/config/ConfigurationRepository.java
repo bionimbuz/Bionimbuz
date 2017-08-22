@@ -144,7 +144,7 @@ public class ConfigurationRepository {
 
         try {
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-            configuration = mapper.readValue(new File(System.getProperty("config.file", SystemConstants.CFG_FILE_NODE)), BioNimbusConfig.class);
+            configuration = mapper.readValue(new File(SystemConstants.CFG_FILE_NODE), BioNimbusConfig.class);
         } catch (IOException ex) {
             LOGGER.info("[IOException] - " + ex.getMessage());
         }

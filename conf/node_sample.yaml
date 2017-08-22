@@ -56,7 +56,7 @@ cost_per_giga: 0
 cost: 0.35
 
  # Storage mode (0 - old/vm, 1 - cloud)
-storage-mode: 1
+storage-mode: 0
 
 # Reference files (keep it ORDERED)
 references:

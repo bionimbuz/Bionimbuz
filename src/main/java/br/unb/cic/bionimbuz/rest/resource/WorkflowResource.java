@@ -65,8 +65,7 @@ public class WorkflowResource extends AbstractResource {
     public WorkflowResource(JobController jobController) {
         // Creates a RPC Client
         try {
-            final String configFile = System.getProperty("config.file", SystemConstants.CFG_FILE_NODE);
-            rpcClient = new AvroClient("http", YamlUtils.mapToClass(configFile, BioNimbusConfig.class).getAddress(), 8080);
+            rpcClient = new AvroClient("http", YamlUtils.mapToClass(SystemConstants.CFG_FILE_NODE, BioNimbusConfig.class).getAddress(), 8080);
         } catch (IOException ex) {
             LOGGER.error("Error creating RPC Client for PluginTaskRunner");
             ex.printStackTrace();

@@ -38,10 +38,9 @@ public abstract class AbstractResource implements RestResource {
     protected ElasticityController elasticityController;
     
     static {
-        final String configFile = System.getProperty("config.file", SystemConstants.CFG_FILE_NODE);
 
         try {
-            rpcClient = new AvroClient("http", YamlUtils.mapToClass(configFile, BioNimbusConfig.class).getAddress(), 8080);
+            rpcClient = new AvroClient("http", YamlUtils.mapToClass(SystemConstants.CFG_FILE_NODE, BioNimbusConfig.class).getAddress(), 8080);
         } catch (IOException ex) {
             LOGGER.error("[IOException] " + ex.getMessage());
         }

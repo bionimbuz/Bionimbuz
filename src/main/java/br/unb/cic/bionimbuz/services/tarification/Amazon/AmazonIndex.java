@@ -5,18 +5,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import com.amazonaws.util.json.JSONException;
 
 import br.unb.cic.bionimbuz.model.Instance;
 import br.unb.cic.bionimbuz.model.StorageInstance;
 import br.unb.cic.bionimbuz.services.tarification.JsonReader;
-import java.util.NoSuchElementException;
-import org.json.JSONTokener;
 
 /**
  *
@@ -66,9 +66,7 @@ public class AmazonIndex {
     private JSONObject awskms;
     private JSONObject amazonVPC; */
     private JSONObject amazonEC2; 
-    // Hard Code TODO Change
-    final private String defaultConfigPathname = System.getProperty("user.home") 
-            + "/Bionimbuz/conf/amazonEC2.json";
+    private static final String defaultConfigPathname = "resources/instances/amazon.json";
     //TAKE CARE WITH HTTPS, here work, but on Google just http ...
     final String http = "https://";
     final String server = "pricing.us-east-1.amazonaws.com";
@@ -163,7 +161,7 @@ public class AmazonIndex {
         final String amazonEC2Instances = this.http + server + amazonServicesURLs.getJSONObject("offers").getJSONObject("AmazonEC2").getString("currentVersionUrl");
         this.amazonEC2 = JsonReader.readJsonFromUrl(amazonEC2Instances);
         this.amazonEC2 =getJsonObjectInstances();
-        JsonReader.saveJson(this.amazonEC2.toString(), this.defaultConfigPathname);
+        JsonReader.saveJson(this.amazonEC2.toString(), defaultConfigPathname);
 //        System.out.println(amazonEC2Instances);
     }
     
@@ -204,7 +202,7 @@ public class AmazonIndex {
 //             final InputStream openedStream = new URL(url).openStream();) {
 //            
 //            jo = (JSONObject) new JSONTokener(openedStream).nextValue();
-        try (final InputStream is = new FileInputStream(this.defaultConfigPathname);) {
+        try (final InputStream is = new FileInputStream(defaultConfigPathname);) {
             aux = (JSONObject) new JSONTokener(is).nextValue();
         } catch (IOException ex) {
             try {

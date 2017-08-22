@@ -5,6 +5,16 @@
  */
 package br.unb.cic.bionimbuz.controller.elasticitycontroller;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
@@ -19,15 +29,6 @@ import com.google.api.services.compute.model.Instance;
 import com.google.api.services.compute.model.Metadata;
 import com.google.api.services.compute.model.NetworkInterface;
 import com.google.api.services.compute.model.ServiceAccount;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -85,7 +86,8 @@ public class GoogleAPI implements ProvidersAPI {
      */
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
-    private static final String authpath = System.getProperty("user.home") + "/Bionimbuz/src/main/resources/GoogleCredentials.json";
+    private static final String authpath = "resources/credentials/google.json";
+    
     private String ipInstance;
 
     @Override

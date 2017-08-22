@@ -65,9 +65,8 @@ public final class BioNimbuZ {
     // Statics methods.
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-
-        final String configFile = System.getProperty("config.file", SystemConstants.CFG_FILE_NODE);
-        final BioNimbusConfig config = YamlUtils.mapToClass(configFile, BioNimbusConfig.class);
+        
+        final BioNimbusConfig config = YamlUtils.mapToClass(SystemConstants.CFG_FILE_NODE, BioNimbusConfig.class);
         if (NetworkUtil.isLocalhost(config.getZkHosts())) {
             ZookeeperUtil.startZookeeper();
         }
