@@ -26,7 +26,6 @@ import br.unb.cic.bionimbuz.controller.elasticitycontroller.AmazonAPI;
 import br.unb.cic.bionimbuz.controller.elasticitycontroller.GoogleAPI;
 import br.unb.cic.bionimbuz.controller.usercontroller.UserController;
 import br.unb.cic.bionimbuz.model.Instance;
-import br.unb.cic.bionimbuz.model.Job;
 import br.unb.cic.bionimbuz.model.Log;
 import br.unb.cic.bionimbuz.model.LogSeverity;
 import br.unb.cic.bionimbuz.model.Prediction;
@@ -35,21 +34,17 @@ import br.unb.cic.bionimbuz.model.User;
 import br.unb.cic.bionimbuz.model.Workflow;
 import br.unb.cic.bionimbuz.persistence.dao.WorkflowLoggerDao;
 import br.unb.cic.bionimbuz.plugin.PluginInfo;
-import br.unb.cic.bionimbuz.plugin.PluginTask;
 import br.unb.cic.bionimbuz.services.RepositoryService;
 import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbuz.services.monitor.MonitoringService;
-import java.io.IOException;
-import java.util.logging.Level;
-import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *
  * @author zoonimbus
  */
 public class SlaController implements Controller, Runnable {
-    
+
     private static final int TIME_TO_RUN = 1;
     private static final long ONE_HOUR_MILLES = 36 * 100000;
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
@@ -58,7 +53,7 @@ public class SlaController implements Controller, Runnable {
     protected CloudMessageService cms;
     protected BioNimbusConfig config;
     private final RepositoryService rs;
-    
+
     /**
      * Starts SlaController execution
      *
@@ -73,37 +68,37 @@ public class SlaController implements Controller, Runnable {
         this.rs = rs;
         this.loggerDao = new WorkflowLoggerDao();
     }
-    
+
     @Override
     public void start(BioNimbusConfig config) {
         LOGGER.info("SLAController started");
         this.threadExecutor.scheduleAtFixedRate(this, 0, TIME_TO_RUN, TimeUnit.MINUTES);
     }
-    
+
     @Override
     public void shutdown() {
         throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
     public void getStatus() {
         throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
     public void verifyPlugins() {
         throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
     public void event(WatchedEvent eventType) {
         LOGGER.info("DISPARADOOOOOOOOOOOOOOOOOOOOOO");
         switch (eventType.getType()) {
-            
+
             case NodeChildrenChanged:
                 if (eventType.getPath().equals(Path.USERS_INFO.getFullPath())) {
                     LOGGER.info("Imprimir");
-                    
+
                     // for (User u : MonitoringService.getZkUsers()) {
                     // LOGGER.info("User: " + u.toString());
                     // for (Workflow work : u.getWorkflows()) {
@@ -124,20 +119,20 @@ public class SlaController implements Controller, Runnable {
                 break;
         }
     }
-    
+
     @Override
     public void run() {
         LOGGER.info("[SlaController] Checking SLA users: " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date(System.currentTimeMillis())));
-        checkSla();
+        this.checkSla();
         // if(!repositoryService.getUsers().isEmpty()){
         // users=repositoryService.getUsers();
         // }
     }
-    
+
     /**
      * Check all the SLA from all users
      */
-    private void checkSla(){
+    private void checkSla() {
         try {
             //
             for (final User u : MonitoringService.getZkUsers()) {
@@ -195,7 +190,7 @@ public class SlaController implements Controller, Runnable {
                                     final long toleranceTime = (long) (toleranceCost / workflowCostPerHour * ONE_HOUR_MILLES);
                                     if (System.currentTimeMillis() - period > toleranceTime + limitTime - VARIANCE) {
                                         this.deleteInstances(work.getIntancesWorkflow());
-                                        deleteZkWorkflow=true;
+                                        deleteZkWorkflow = true;
                                         final String message = String.format("O tempo limite de execução (%s horas) do Workflow Id: %s foi excedido em %s.", limitTime, work.getId(),
                                                 System.currentTimeMillis() - (toleranceTime + limitTime));
                                         this.loggerDao.log(new Log(message, work.getUserId(), work.getId(), LogSeverity.WARN));
@@ -204,48 +199,49 @@ public class SlaController implements Controller, Runnable {
                                 }
                             }
                         }
-                        //TODO tem que modificar para verificar se o workflow 
-                        //terminou pegando dos peers;
-                        if (limitCost != null && currentCost > toleranceCost + limitCost) {
+                        // TODO tem que modificar para verificar se o workflow
+                        // terminou pegando dos peers;
+                        if (limitCost != null && limitCost > 0 && currentCost > toleranceCost + limitCost) {
                             // terminate instances by elasticity controller
                             this.deleteInstances(work.getIntancesWorkflow());
-                            deleteZkWorkflow=true;
+                            deleteZkWorkflow = true;
                             final String message = String.format("O custo limite de execução (U$ %s) do Workflow Id: %s foi excedido em %s. Workflow interrompido.", limitCost + toleranceCost,
                                     work.getId(), currentCost - (limitCost + toleranceCost));
                             this.loggerDao.log(new Log(message, work.getUserId(), work.getId(), LogSeverity.WARN));
                             LOGGER.debug("[SlaController] Limitating execution cost has been hitted, Removing workflow: " + work.getId() + " from User: " + u.getNome());
-                        } 
+                        }
                     }
-                    //deleta do zookeeper o workflow que teve suas maquinas excluidas
-                    if(deleteZkWorkflow){
-                        cms.delete(Path.NODE_WORFLOW_USER.getFullPath(u.getLogin(), work.getId()));
+                    // deleta do zookeeper o workflow que teve suas maquinas excluidas
+                    if (deleteZkWorkflow) {
+                        this.cms.delete(Path.NODE_WORFLOW_USER.getFullPath(u.getLogin(), work.getId()));
                         u.getWorkflows().remove(work);
-                        deleteZkWorkflow=false;
+                        deleteZkWorkflow = false;
                     }
                 }
             }
-        }
-        catch (final Exception ex) {
+        } catch (final Exception ex) {
             LOGGER.debug(ex.getMessage());
         }
     }
-    
+
     /**
-     * Sobrecarga para deletar todas as instancias do workflow e os peers 
+     * Sobrecarga para deletar todas as instancias do workflow e os peers
      * correspondentes do zookeeper
-     * @param list 
+     * 
+     * @param list
      */
     private void deleteInstances(List<Instance> list) {
         for (final Instance element : list) {
-            this.deleteInstances(element.getProvider(), element.getIp());   
+            this.deleteInstances(element.getProvider(), element.getIp());
         }
     }
-    
+
     /**
-     * Chama o metodo das api da amazon ou da google para deletar a instancia 
+     * Chama o metodo das api da amazon ou da google para deletar a instancia
      * com o ip
+     * 
      * @param provider
-     * @param ip 
+     * @param ip
      */
     private void deleteInstances(String provider, String ip) {
         switch (provider) {
@@ -266,36 +262,38 @@ public class SlaController implements Controller, Runnable {
     }
     /**
      * TODO fazer a verificação do jobs nos peers
-     * @param wokflow 
+     * 
+     * @param wokflow
      */
-//    public void verificaJobs(Workflow wokflow){
-//        for(final PluginInfo peer : this.rs.getPeers().values()){
-//            for (final String taskId : this.cms.getChildren(Path.TASKS.getFullPath(peer.getId()), null)) {
-//                Job jobp = new Job();
-//                try {
-//                    final PluginTask plugintask = new ObjectMapper().readValue(this.cms.getData(Path.NODE_TASK.getFullPath(peer.getId(), taskId), null), PluginTask.class);
-//                    jobp= plugintask.getJobInfo();
-//                } catch (IOException ex) {
-//                    java.util.logging.Logger.getLogger(SlaController.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//                for(Job job : wokflow.getJobs()){
-//                    if (job.getId().equals(jobp.getId())){
-//                        if(jobp.getTimestamp()){
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-    
+    // public void verificaJobs(Workflow wokflow){
+    // for(final PluginInfo peer : this.rs.getPeers().values()){
+    // for (final String taskId : this.cms.getChildren(Path.TASKS.getFullPath(peer.getId()), null)) {
+    // Job jobp = new Job();
+    // try {
+    // final PluginTask plugintask = new ObjectMapper().readValue(this.cms.getData(Path.NODE_TASK.getFullPath(peer.getId(), taskId), null), PluginTask.class);
+    // jobp= plugintask.getJobInfo();
+    // } catch (IOException ex) {
+    // java.util.logging.Logger.getLogger(SlaController.class.getName()).log(Level.SEVERE, null, ex);
+    // }
+    // for(Job job : wokflow.getJobs()){
+    // if (job.getId().equals(jobp.getId())){
+    // if(jobp.getTimestamp()){
+    // }
+    // }
+    // }
+    // }
+    // }
+    // }
+
     /**
-     *  verifica se as instancias criadas pelos servidores são as mesmas das especificações
+     * verifica se as instancias criadas pelos servidores são as mesmas das especificações
+     * 
      * @param instancesUser
      * @param userId
-     * @param worflowId 
+     * @param worflowId
      */
     public void compareHardware(List<Instance> instancesUser, Long userId, String worflowId) {
-        
+
         for (final Instance iUser : instancesUser) {
             this.loggerDao.log(new Log("Máquina virtual criada...Ip: " + iUser.getIp() + " Provedor: " + iUser.getProvider(), userId, worflowId, LogSeverity.INFO));
             for (final PluginInfo peer : this.rs.getPeers().values()) {
@@ -304,7 +302,7 @@ public class SlaController implements Controller, Runnable {
                         this.loggerDao.log(new Log("Instância: " + iUser.getIp() + " não corresponde as especificações de numeros de cores esperados: " + iUser.getNumCores()
                                 + " número de cores da instância: " + peer.getNumCores(), userId, worflowId, LogSeverity.WARN));
                     }
-                    if (((peer.getFactoryFrequencyCore())/1000000000.0D)!=iUser.getCpuHtz()) {
+                    if (((peer.getFactoryFrequencyCore()) / 1000000000.0D) != iUser.getCpuHtz()) {
                         this.loggerDao.log(new Log("Instância: " + iUser.getIp() + " não corresponde as especificações da frequência de clock esperada: " + iUser.getCpuHtz()
                                 + "GHZ frequência de clock da instância: " + peer.getFactoryFrequencyCore() + "GHZ", userId, worflowId, LogSeverity.WARN));
                     }
@@ -316,13 +314,13 @@ public class SlaController implements Controller, Runnable {
             }
         }
     }
-    
+
     public void startSla(SLA sla, Workflow workflow) {
-        
+
     }
-    
+
     public void createSlaTemplate(SLA sla, Workflow workflow) {
-        
+
     }
-    
+
 }
