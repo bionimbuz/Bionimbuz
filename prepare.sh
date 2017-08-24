@@ -26,6 +26,8 @@ echo "# ======================================="
 
 sudo apt-get install -y \
     mysql-server mysql-client \
+    openssh-server \
+    dstat \
     
 
 echo "# Download e configuracao de ZooKeeper"
