@@ -60,7 +60,6 @@ public class PluginTaskRunner implements Callable<PluginTask> {
 
     private final PluginTask task;
     private final PluginService service;
-    private final String path;
     private final CloudMessageService cms;
     private final String PATHFILES = "data-folder/";
     private RpcClient rpcClient;
@@ -69,15 +68,13 @@ public class PluginTaskRunner implements Callable<PluginTask> {
 
     private final Workflow workflow;
 
-    public PluginTaskRunner(AbstractPlugin plugin, PluginTask task, PluginService service, String path, CloudMessageService cms, Workflow workflow) {
+    public PluginTaskRunner(AbstractPlugin plugin, PluginTask task, PluginService service, CloudMessageService cms, Workflow workflow) {
         // Creates a RPC Client
         
         this.rpcClient = new AvroClient("http", BioNimbusConfig.get().getAddress(), 8080);
         this.workflow = workflow;
         this.service = service;
         this.task = task;
-        // server Path root
-        this.path = path;
         this.cms = cms;
     }
 
@@ -117,7 +114,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
 
             if (info.getBucket() == null) {
 
-                args = args.replaceFirst("%I" + i, this.path + this.PATHFILES + input + " ");
+                args = args.replaceFirst("%I" + i, BioNimbusConfig.get().getDataFolder() + input + " ");
             } else {
 
                 final BioBucket bucket = CloudStorageService.getBucket(info.getBucket());

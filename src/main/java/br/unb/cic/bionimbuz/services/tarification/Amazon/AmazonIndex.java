@@ -14,6 +14,7 @@ import org.json.JSONTokener;
 
 import com.amazonaws.util.json.JSONException;
 
+import br.unb.cic.bionimbuz.constants.SystemConstants;
 import br.unb.cic.bionimbuz.model.Instance;
 import br.unb.cic.bionimbuz.model.StorageInstance;
 import br.unb.cic.bionimbuz.services.tarification.JsonReader;
@@ -66,7 +67,6 @@ public class AmazonIndex {
     private JSONObject awskms;
     private JSONObject amazonVPC; */
     private JSONObject amazonEC2; 
-    private static final String defaultConfigPathname = "resources/instances/amazon.json";
     //TAKE CARE WITH HTTPS, here work, but on Google just http ...
     final String http = "https://";
     final String server = "pricing.us-east-1.amazonaws.com";
@@ -161,7 +161,7 @@ public class AmazonIndex {
         final String amazonEC2Instances = this.http + server + amazonServicesURLs.getJSONObject("offers").getJSONObject("AmazonEC2").getString("currentVersionUrl");
         this.amazonEC2 = JsonReader.readJsonFromUrl(amazonEC2Instances);
         this.amazonEC2 =getJsonObjectInstances();
-        JsonReader.saveJson(this.amazonEC2.toString(), defaultConfigPathname);
+        JsonReader.saveJson(this.amazonEC2.toString(), SystemConstants.FILE_INSTANCES_AMAZON);
 //        System.out.println(amazonEC2Instances);
     }
     
@@ -202,7 +202,7 @@ public class AmazonIndex {
 //             final InputStream openedStream = new URL(url).openStream();) {
 //            
 //            jo = (JSONObject) new JSONTokener(openedStream).nextValue();
-        try (final InputStream is = new FileInputStream(defaultConfigPathname);) {
+        try (final InputStream is = new FileInputStream(SystemConstants.FILE_INSTANCES_AMAZON);) {
             aux = (JSONObject) new JSONTokener(is).nextValue();
         } catch (IOException ex) {
             try {

@@ -48,5 +48,4 @@ nb-configuration.xml
 /output-folder/
 
 # Arquivos de configuração com informações sensíveis
-/conf/node.yaml
 /conf/credentials.yaml

@@ -19,32 +19,29 @@ client: false
 # Type of plugin
 plugin: linux
 
-# Server root path (will be changed to root-folder
-server-path: /home/bionimbuz/Bionimbuz/
-
 # Folder containing file with BioNimbuZ credentials
-credentials-file: /home/bionimbuz/.bionimbuz/credentials.yaml
+credentials-file: conf/credentials.yaml
 
 # Folder or reference files
-reference-folder: references/
+reference-folder: data/references/
 
 # Root folder of output files (generated from programs)
-output-folder: output-folder/
+output-folder: data/output/
 
 # Root folder of output files (generated from programs)
-data-folder: data-folder/
+data-folder: data/input/
 
 # Temporary uploaded files folder
-tmp-uploaded-files: tmp/
+tmp-uploaded-files: data/tmp/
 
  # Path to the folder whre the Buckets will be mounted
-buckets-folder: buckets/
+buckets-folder: data/buckets/
 
  # Path containing the files used to authenticate the Storage Services (Bucket)
-key-google: src/main/resources/GoogleCredentials.json
+key-google: conf/resources/credentials/google.json
 
  # Path containing the files used to authenticate the Storage Services (Bucket)
-key-amazon: src/main/resources/AwsCredentials.txt
+key-amazon: conf/resources/credentials/amazon.properties
 
  # Path to de binary of gcloud/gsutil line-command
 gcloud-folder: /usr/bin/
@@ -85,35 +82,35 @@ supported-services:
     - !br.unb.cic.bionimbuz.plugin.PluginService 
         id: 1
         name: Bowtie_v1
-        path: ./programs/bowtie.sh
+        path: ./data/programs/bowtie.sh
         # No one knows what this means (only Willian)
         presetMode: 4242000000
         info: Bowtie is an ultrafast, memory-efficient short read aligner.
     - !br.unb.cic.bionimbuz.plugin.PluginService 
         id: 2
         name: Sam2Bed
-        path: ./programs/sam2bed.pl
+        path: ./data/programs/sam2bed.pl
         # No one knows what this means (only Willian)
         presetMode: 4242000000
         info: The sam2bed script converts 1-based, closed Sequence Alignment/Map (SAM) to sorted, 0-based, half-open UCSC BED data.  
     - !br.unb.cic.bionimbuz.plugin.PluginService 
         id: 3
         name: Genome2Interval
-        path: ./programs/genome2interval.pl
+        path: ./data/programs/genome2interval.pl
         # No one knows what this means (only Willian)
         presetMode: 4242000000
         info: genome2interval tool.      
 #    - !br.unb.cic.bionimbus.plugin.PluginService 
 #        id: 4
 #        name: TopHat2
-#        path: ./programs/tophat.sh
+#        path: ./data/programs/tophat.sh
 #        # No one knows what this means (only Willian)
 #        presetMode: 4242000000
 #        info: TopHat2 e um alinhador de reads baseado em arquivos de referencia.
     - !br.unb.cic.bionimbuz.plugin.PluginService 
         id: 4
         name: CoverageBed
-        path: ./programs/coverageBed.sh
+        path: ./data/programs/coverageBed.sh
         # No one knows what this means (only Willian)
         presetMode: 4242000000
         info: The bedtools coverage tool computes both the depth and breadth of coverage of features in file B on the features in file A.

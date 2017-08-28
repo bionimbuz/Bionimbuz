@@ -27,7 +27,7 @@ public class DatabaseConfig {
     private static DatabaseConfig instance = null;
     static {
         try {
-            instance = YamlUtils.mapToClass(SystemConstants.CFG_FILE_DATABASE, DatabaseConfig.class);
+            instance = YamlUtils.mapToClass(SystemConstants.FILE_DATABASE, DatabaseConfig.class);
         } catch (IOException e) {
             e.printStackTrace();
         }

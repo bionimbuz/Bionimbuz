@@ -35,7 +35,7 @@ public class BioNimbusConfig {
     private static BioNimbusConfig instance = null;
     static {
         try {
-            instance = YamlUtils.mapToClass(SystemConstants.CFG_FILE_NODE, BioNimbusConfig.class);
+            instance = YamlUtils.mapToClass(SystemConstants.FILE_NODE, BioNimbusConfig.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -80,9 +80,6 @@ public class BioNimbusConfig {
     private String zkHosts;
     // retirar Host
     private Host host;
-
-    @JsonProperty("server-path")
-    private String serverPath = "";
 
     @JsonProperty("cost")
     private Double cost;
@@ -192,10 +189,6 @@ public class BioNimbusConfig {
         return this.costpergiga;
     }
 
-    public String getServerPath() {
-        return this.serverPath;
-    }
-
     public String getPlugin() {
         return this.plugin;
     }
@@ -209,15 +202,15 @@ public class BioNimbusConfig {
     }
 
     public String getReferenceFolder() {
-        return this.getServerPath() + this.referenceFolder;
+        return this.referenceFolder;
     }
 
     public String getOutputFolder() {
-        return this.getServerPath() + this.outputFolder;
+        return this.outputFolder;
     }
 
     public String getDataFolder() {
-        return this.getServerPath() + this.dataFolder;
+        return this.dataFolder;
     }
 
     public ArrayList<String> getReferences() {
@@ -225,7 +218,7 @@ public class BioNimbusConfig {
     }
 
     public String getTemporaryUploadedFiles() {
-        return this.getServerPath() + this.temporaryUploadedFiles;
+        return this.temporaryUploadedFiles;
     }
 
     public ArrayList<String> getSupportedFormats() {
@@ -241,7 +234,7 @@ public class BioNimbusConfig {
     }
 
     public String getBucketsFolder() {
-        return this.getServerPath() + this.bucketsFolder;
+        return this.bucketsFolder;
     }
 
     public String getGcloudFolder() {
@@ -253,20 +246,33 @@ public class BioNimbusConfig {
     }
 
     public String getKeyGoogle() {
-        return this.getServerPath() + this.keyGoogle;
+        return this.keyGoogle;
     }
 
     public String getKeyAmazon() {
-        return this.getServerPath() + this.keyAmazon;
+        return this.keyAmazon;
     }
 
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("rpc-protocol", this.rpcProtocol).add("rpc-port", this.rpcPort).add("zkHosts", this.zkHosts).add("client", this.client).add("host", this.host)
-                .add("seeds", this.seeds).add("private_cloud", this.privateCloud).add("cost_per_giga", this.costpergiga).add("server-path", this.serverPath).add("cost", this.cost)
-                .add("reference-folder", this.referenceFolder).add("output-folder", this.outputFolder).add("data-folder", this.dataFolder).add("references-size", this.references.size())
-                .add("supported-formats", this.supportedFormats.size()).add("supported-services", this.supportedServices.size()).add("credentialsFile", this.credentialsFile)
+        return Objects.toStringHelper(this)
+                .add("rpc-protocol", this.rpcProtocol)
+                .add("rpc-port", this.rpcPort)
+                .add("zkHosts", this.zkHosts)
+                .add("client", this.client)
+                .add("host", this.host)
+                .add("seeds", this.seeds)
+                .add("private_cloud", this.privateCloud)
+                .add("cost_per_giga", this.costpergiga)
+                .add("cost", this.cost)
+                .add("reference-folder", this.referenceFolder)
+                .add("output-folder", this.outputFolder)
+                .add("data-folder", this.dataFolder)
+                .add("references-size", this.references.size())
+                .add("supported-formats", this.supportedFormats.size())
+                .add("supported-services", this.supportedServices.size())
+                .add("credentialsFile", this.credentialsFile)
                 .add("tmp-uploaded-files", this.temporaryUploadedFiles).toString();
     }
 }

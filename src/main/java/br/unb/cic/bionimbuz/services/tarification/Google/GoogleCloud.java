@@ -12,6 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import br.unb.cic.bionimbuz.constants.SystemConstants;
 import br.unb.cic.bionimbuz.model.Instance;
 import br.unb.cic.bionimbuz.model.StorageInstance;
 import br.unb.cic.bionimbuz.services.tarification.JsonReader;
@@ -36,8 +37,6 @@ public class GoogleCloud {
     private static final String COMPUTEENGINEVMIMAGE = "COMPUTEENGINE-VMIMAGE";
     private static final String GCP_PRICE_LIST = "gcp_price_list";
     private JSONObject computeEngine, storageEngine;
-    final String defaultConfigPathnameInstance = "resources/instances/google.json";
-    final String defaultConfigPathnameStorage = "resources/storages/google.json";
     //TAKE CARE WITH HTTPS, on Google just http ...
     final String http = "http://";
     final String server = "www.cloudpricingcalculator.appspot.com";
@@ -75,8 +74,8 @@ public class GoogleCloud {
         this.computeEngine = JsonReader.readJsonFromUrl(http + server + index);
         this.storageEngine = getGcpStorage();
         this.computeEngine = getGcpInstance();
-        JsonReader.saveJson(this.computeEngine.toString(), defaultConfigPathnameInstance);
-        JsonReader.saveJson(this.storageEngine.toString(), defaultConfigPathnameStorage);
+        JsonReader.saveJson(this.computeEngine.toString(), SystemConstants.FILE_INSTANCES_GOOGLE);
+        JsonReader.saveJson(this.storageEngine.toString(), SystemConstants.FILE_STORAGES_GOOGLE);
 
     }
 
@@ -87,7 +86,7 @@ public class GoogleCloud {
     public GoogleCloud() {
 //        String computeEngine = "GoogleCloud.json";
         JSONObject aux = null;
-        try (InputStream is = new FileInputStream(this.defaultConfigPathnameInstance);) {
+        try (InputStream is = new FileInputStream(SystemConstants.FILE_INSTANCES_GOOGLE);) {
             aux = (JSONObject) new JSONTokener(is).nextValue();
         } catch (IOException ex) {
             try {
@@ -99,7 +98,7 @@ public class GoogleCloud {
 //            Logger.getLogger(GoogleCloud.class.getName()).log(Level.SEVERE, null, ex);
         }
         this.computeEngine = aux;
-        try (InputStream is = new FileInputStream(this.defaultConfigPathnameStorage);) {
+        try (InputStream is = new FileInputStream(SystemConstants.FILE_STORAGES_GOOGLE);) {
             aux = (JSONObject) new JSONTokener(is).nextValue();
         } catch (IOException ex) {
             Logger.getLogger(GoogleCloud.class.getName()).log(Level.SEVERE, null, ex);

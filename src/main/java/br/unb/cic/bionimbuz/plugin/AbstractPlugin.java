@@ -177,9 +177,9 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
             if (task.getJobInfo().getOutputs().size() > 0) {
                 int count = 0;
                 for (String output : task.getJobInfo().getOutputs()) {
-                    File file = new File(BioNimbusConfig.get().getServerPath() + "/" + output);
+                    File file = new File(output);
                     FileInfo info = new FileInfo();
-                    info.setName(BioNimbusConfig.get().getServerPath() + "/" + output);
+                    info.setName(output);
                     info.setSize(file.length());
                     count++;
                 }

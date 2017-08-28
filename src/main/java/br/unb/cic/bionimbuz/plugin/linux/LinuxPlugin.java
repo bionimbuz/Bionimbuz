@@ -27,7 +27,6 @@ import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import br.unb.cic.bionimbuz.config.BioNimbusConfig;
 import br.unb.cic.bionimbuz.model.Workflow;
 import br.unb.cic.bionimbuz.plugin.AbstractPlugin;
 import br.unb.cic.bionimbuz.plugin.PluginInfo;
@@ -56,6 +55,6 @@ public class LinuxPlugin extends AbstractPlugin{
             LOGGER.info("[LinuxPlugin] Task's service is not installed on this instance.");
             return null;
         }
-        return executorService.submit(new PluginTaskRunner(this, task, service, BioNimbusConfig.get().getServerPath(), zk, workflow));
+        return executorService.submit(new PluginTaskRunner(this, task, service, zk, workflow));
     }
 }
