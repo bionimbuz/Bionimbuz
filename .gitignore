@@ -52,3 +52,4 @@ nb-configuration.xml
 
 # Arquivos de configuração com informações sensíveis
 /conf/credentials.yaml
+/logs/
