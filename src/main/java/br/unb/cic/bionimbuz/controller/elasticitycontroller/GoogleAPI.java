@@ -30,6 +30,8 @@ import com.google.api.services.compute.model.Metadata;
 import com.google.api.services.compute.model.NetworkInterface;
 import com.google.api.services.compute.model.ServiceAccount;
 
+import br.unb.cic.bionimbuz.constants.SystemConstants;
+
 /**
  *
  * @author guilherme
@@ -85,8 +87,6 @@ public class GoogleAPI implements ProvidersAPI {
      * Global instance of the JSON factory.
      */
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-
-    private static final String authpath = "resources/credentials/google.json";
     
     private String ipInstance;
 
@@ -107,7 +107,7 @@ public class GoogleAPI implements ProvidersAPI {
 
             //InputStream auth = new ByteArrayInputStream(authpath.getBytes(StandardCharsets.UTF_8));
             InputStream is = null;
-            is = new FileInputStream(authpath);
+            is = new FileInputStream(SystemConstants.FILE_CREDENTIALS_GOOGLE);
 
             credential = GoogleCredential.fromStream(is, httpTransport, JSON_FACTORY);
 

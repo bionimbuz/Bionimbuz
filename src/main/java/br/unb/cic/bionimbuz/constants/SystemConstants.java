@@ -11,6 +11,9 @@ public class SystemConstants {
     public static final String FILE_DATABASE = FOLDER_CONF + "database.yaml";  
     
     public static final String FILE_INSTANCES_AMAZON = FOLDER_INSTANCES + "amazon.json";
+    public static final String FILE_CREDENTIALS_AMAZON = FOLDER_CREDENTIALS + "amazon.properties";
+    
     public static final String FILE_INSTANCES_GOOGLE = FOLDER_INSTANCES + "google.json";
     public static final String FILE_STORAGES_GOOGLE = FOLDER_STORAGES + "google.json";
+    public static final String FILE_CREDENTIALS_GOOGLE = FOLDER_CREDENTIALS + "google.json";
 }

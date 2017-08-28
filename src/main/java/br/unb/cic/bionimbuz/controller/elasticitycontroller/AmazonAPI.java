@@ -21,6 +21,7 @@ import com.amazonaws.services.ec2.model.RunInstancesResult;
 import com.amazonaws.services.ec2.model.Tag;
 import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 
+import br.unb.cic.bionimbuz.constants.SystemConstants;
 import br.unb.cic.bionimbuz.persistence.dao.WorkflowLoggerDao;
 
 public class AmazonAPI implements ProvidersAPI {
@@ -36,9 +37,8 @@ public class AmazonAPI implements ProvidersAPI {
     @Override
     public void setup() {
         try {
-            String credentialsFile = "resources/credentials/amazon.properties";
             InputStream is = null;
-            is = new FileInputStream(credentialsFile);
+            is = new FileInputStream(SystemConstants.FILE_CREDENTIALS_AMAZON);
             PropertiesCredentials credentials = new PropertiesCredentials(is);
 
             EC2 = new AmazonEC2Client(credentials);
