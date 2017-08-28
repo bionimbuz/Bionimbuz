@@ -2,6 +2,9 @@
 /bin/
 /system/
 /target/
+/data/input/
+/data/output/
+
 .project
 *.log
 *.log.*
