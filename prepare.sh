@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 echo "#########################################"
 echo "# Script de preparacao de ambiente"
 echo "#########################################"
@@ -27,13 +28,24 @@ echo "# ======================================="
 sudo apt-get install -y \
     mysql-server mysql-client \
     openssh-server \
+    openssh-sftp-server \
     dstat \
+    nmap \
+    unzip \
     
+    
+echo "# Download de aplicacoes de bioinformatica"
+echo "# ======================================="
+
+sudo apt-get install -y \
+    bowtie \
+    bedtools \
+
 
 echo "# Download e configuracao de ZooKeeper"
 echo "# ======================================="
 
-ZK_VERSION=3.3.6
+ZK_VERSION=3.4.10
 ZK_FOLDER=zookeeper-${ZK_VERSION}
 ZK_PACKAGE=${ZK_FOLDER}.tar.gz
 
@@ -57,7 +69,7 @@ rm ${ZK_PACKAGE}
 echo "# Build project"
 echo "# ======================================="
 
-mvn clean install -U
+mvn clean install
 
 
 
