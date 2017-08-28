@@ -18,8 +18,6 @@
 */
 package br.unb.cic.bionimbuz.plugin.linux;
 
-import br.unb.cic.bionimbuz.plugin.PluginInfo;
-import br.unb.cic.bionimbuz.plugin.PluginService;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -30,11 +28,15 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.codehaus.jackson.map.ObjectMapper;
+
+import br.unb.cic.bionimbuz.constants.SystemConstants;
+import br.unb.cic.bionimbuz.plugin.PluginInfo;
+import br.unb.cic.bionimbuz.plugin.PluginService;
 
 public class LinuxGetInfo implements Callable<PluginInfo> {
 
-    private static final String SERVICE_DIR = "services";
     public static final String PATH = "files";
     public static final String CORES = "dstat -cf";
     public static final String CPUMHZ = "grep -m 1 MHz /proc/cpuinfo";
@@ -150,7 +152,7 @@ public class LinuxGetInfo implements Callable<PluginInfo> {
 
     private void getServices() throws Exception {
         final List<PluginService> list = new CopyOnWriteArrayList<>();
-        File dir = new File(SERVICE_DIR);
+        File dir = new File(SystemConstants.FOLDER_SERVICE);
         if (dir.isDirectory()) {
             for (File file : dir.listFiles()) {
                 if (file.isFile() && file.canRead() && file.getName().endsWith(".json")) {

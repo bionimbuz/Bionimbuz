@@ -6,6 +6,7 @@ public class SystemConstants {
     public static final String FOLDER_CREDENTIALS = FOLDER_RESOURCES + "credentials/";
     public static final String FOLDER_INSTANCES = FOLDER_RESOURCES + "instances/";
     public static final String FOLDER_STORAGES = FOLDER_RESOURCES + "storages/";
+    public static final String FOLDER_SERVICE = FOLDER_CONF + "services/";
     
     public static final String FILE_NODE = FOLDER_CONF + "node.yaml";
     public static final String FILE_DATABASE = FOLDER_CONF + "database.yaml";  
@@ -16,4 +17,6 @@ public class SystemConstants {
     public static final String FILE_INSTANCES_GOOGLE = FOLDER_INSTANCES + "google.json";
     public static final String FILE_STORAGES_GOOGLE = FOLDER_STORAGES + "google.json";
     public static final String FILE_CREDENTIALS_GOOGLE = FOLDER_CREDENTIALS + "google.json";
+    
+    public static final String FILE_BANDWITH_TEST = "4MBfile";       
 }

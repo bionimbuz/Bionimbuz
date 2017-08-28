@@ -1,13 +1,15 @@
 package br.unb.cic.bionimbuz.services.storage.bandwidth;
 
-import br.unb.cic.bionimbuz.services.storage.compress.CompressPolicy;
-
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
+
+import br.unb.cic.bionimbuz.config.BioNimbusConfig;
+import br.unb.cic.bionimbuz.constants.SystemConstants;
+import br.unb.cic.bionimbuz.services.storage.compress.CompressPolicy;
 
 public class BandwidthCalculator {
 	
@@ -17,14 +19,13 @@ public class BandwidthCalculator {
 	private static final String USER = "zoonimbus";
 	private static final String PASSW = "Zoonimbus1";
 	private static final int PORT = 22;
-	private static String path = "/home/zoonimbus/zoonimbusProject/data-folder/4MBfile";
 	
 	public static double linkSpeed(String address){
 		return linkSpeed(address, 0);
 	}
 	
 	public static double linkSpeed(String address, double latency){
-		String pathDest = "/home/zoonimbus/zoonimbusProject/data-folder/";
+		String pathDest = BioNimbusConfig.get().getDataFolder();
 		Session session = null;
 		
         try {
@@ -45,15 +46,15 @@ public class BandwidthCalculator {
             
             inicialTime = System.currentTimeMillis();
             
-                sftpChannel.put(path, pathDest);
+            sftpChannel.put(pathDest + SystemConstants.FILE_BANDWITH_TEST, pathDest);
+        
+            finalTime = System.currentTimeMillis();
             
-                finalTime = System.currentTimeMillis();
+            sftpChannel.rm(pathDest + SystemConstants.FILE_BANDWITH_TEST);
+            sftpChannel.exit();
+            session.disconnect();
                 
-                sftpChannel.rm(pathDest + "4MBfile");
-                sftpChannel.exit();
-                session.disconnect();
-                
-            CompressPolicy.deleteIfCompressed(path);
+            CompressPolicy.deleteIfCompressed(pathDest + SystemConstants.FILE_BANDWITH_TEST);
 
         } catch (JSchException a) {
             return DEFAULT_BANDWIDTH_VALUE;
