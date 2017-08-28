@@ -1,6 +1,8 @@
 package br.unb.cic.bionimbuz.constants;
 
 public class SystemConstants {
+    public static final String FOLDER_DATA = "data/";
+    public static final String FOLDER_DATA_SYSTEM = FOLDER_DATA + "system/";
     public static final String FOLDER_CONF = "conf/";
     public static final String FOLDER_RESOURCES = FOLDER_CONF + "resources/";
     public static final String FOLDER_CREDENTIALS = FOLDER_RESOURCES + "credentials/";
@@ -18,5 +20,5 @@ public class SystemConstants {
     public static final String FILE_STORAGES_GOOGLE = FOLDER_STORAGES + "google.json";
     public static final String FILE_CREDENTIALS_GOOGLE = FOLDER_CREDENTIALS + "google.json";
     
-    public static final String FILE_BANDWITH_TEST = "4MBfile";       
+    public static final String FILE_BANDWITH_TEST = FOLDER_DATA_SYSTEM + "4MBfile";       
 }

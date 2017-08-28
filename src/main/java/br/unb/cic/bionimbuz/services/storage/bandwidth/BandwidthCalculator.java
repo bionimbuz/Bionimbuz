@@ -46,15 +46,15 @@ public class BandwidthCalculator {
             
             inicialTime = System.currentTimeMillis();
             
-            sftpChannel.put(pathDest + SystemConstants.FILE_BANDWITH_TEST, pathDest);
+            sftpChannel.put(SystemConstants.FILE_BANDWITH_TEST, pathDest);
         
             finalTime = System.currentTimeMillis();
             
-            sftpChannel.rm(pathDest + SystemConstants.FILE_BANDWITH_TEST);
+            sftpChannel.rm(SystemConstants.FILE_BANDWITH_TEST);
             sftpChannel.exit();
             session.disconnect();
                 
-            CompressPolicy.deleteIfCompressed(pathDest + SystemConstants.FILE_BANDWITH_TEST);
+            CompressPolicy.deleteIfCompressed(SystemConstants.FILE_BANDWITH_TEST);
 
         } catch (JSchException a) {
             return DEFAULT_BANDWIDTH_VALUE;
