@@ -55,6 +55,9 @@ wget http://ftp.unicamp.br/pub/apache/zookeeper/${ZK_FOLDER}/${ZK_PACKAGE}
 echo "# Extraindo pacote"
 tar -zxvf ${ZK_PACKAGE}
 
+echo "# Remocao de ZooKeeper existente"
+rm -rf ${ROOT_DIR}/system/zookeeper
+
 echo "# Movendo para diretorio padrao"
 mkdir -p ${ROOT_DIR}/system
 mv ${ZK_FOLDER} ${ROOT_DIR}/system/zookeeper
