@@ -4,6 +4,7 @@ public class SystemConstants {
     public static final String FOLDER_DATA = "data/";
     public static final String FOLDER_DATA_SYSTEM = FOLDER_DATA + "system/";
     public static final String FOLDER_CONF = "conf/";
+    public static final String FOLDER_LOGS = "logs/";
     public static final String FOLDER_RESOURCES = FOLDER_CONF + "resources/";
     public static final String FOLDER_CREDENTIALS = FOLDER_RESOURCES + "credentials/";
     public static final String FOLDER_INSTANCES = FOLDER_RESOURCES + "instances/";

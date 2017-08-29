@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
@@ -23,17 +24,41 @@ public class RuntimeUtil {
     private RuntimeUtil() {
         super();
     }
-
-    synchronized public static String runCommand(final String... command) throws IOException, InterruptedException {
-        final List<String> lstCommands = new ArrayList<>();
-        for (final String arg : command) {
-            final String[] split = arg.split(SPACE_STRING);
-            for (final String args : split) {
-                lstCommands.add(args);
+    
+    public static class Command{
+        
+        private List<String> lstCommands = new ArrayList<>();
+        
+        public Command(final String... command) {
+            for (final String arg : command) {
+                final String[] split = arg.split(SPACE_STRING);
+                for (final String args : split) {
+                    lstCommands.add(args);
+                }
             }
         }
-        final Process process = new ProcessBuilder(lstCommands).start();
-        return getProcessReturn(process);
+
+        public List<String> getLstCommands() {
+            return lstCommands;
+        }        
+    }
+    
+    synchronized public static String runCommand(final Command command, final Map<String, String> env) throws IOException, InterruptedException {
+
+        ProcessBuilder builder = new ProcessBuilder(command.getLstCommands());
+        Map<String, String> currentEnv = builder.environment();
+        if(env != null) {
+            for (Map.Entry<String, String> entry : env.entrySet()) {
+                currentEnv.put(entry.getKey(), entry.getValue());
+            }
+        }
+        
+        final Process process = builder.start();
+        return getProcessReturn(process);        
+    }
+    
+    synchronized public static String runCommand(final Command command) throws IOException, InterruptedException {
+        return runCommand(command, null);
     }
 
     synchronized private static String getProcessReturn(final Process process) throws InterruptedException {

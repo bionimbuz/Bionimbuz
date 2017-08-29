@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import br.unb.cic.bionimbuz.utils.RuntimeUtil;
+import br.unb.cic.bionimbuz.utils.RuntimeUtil.Command;
 
 /**
  *
@@ -36,7 +37,7 @@ public class HashUtil {
     
     public static String computeNativeSHA3(final String filePath) throws IOException, InterruptedException {
         final long now = System.currentTimeMillis();
-        final String response = RuntimeUtil.runCommand(SHA256SUM, filePath);
+        final String response = RuntimeUtil.runCommand(new Command(SHA256SUM, filePath));
         LOGGER.info(String.format("Native HASH time: %d", System.currentTimeMillis() - now));
         return response.split(SPACE_STRING)[0];
     }

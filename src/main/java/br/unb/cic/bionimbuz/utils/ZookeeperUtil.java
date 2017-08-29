@@ -2,11 +2,14 @@ package br.unb.cic.bionimbuz.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import br.unb.cic.bionimbuz.BioNimbuZ;
+import br.unb.cic.bionimbuz.constants.SystemConstants;
+import br.unb.cic.bionimbuz.utils.RuntimeUtil.Command;
 
 /**
  * @author jgomes | 14 de ago de 2017 - 18:40:22
@@ -42,7 +45,9 @@ public class ZookeeperUtil {
     public static String execZooCmd(ZooCommand command) {
         String result = null;
         try {
-            result = RuntimeUtil.runCommand(getZookeeperCmd() + command);
+            HashMap<String, String> env = new HashMap<>();
+            env.put("ZOO_LOG_DIR", "./"+SystemConstants.FOLDER_LOGS);
+            result = RuntimeUtil.runCommand(new Command(getZookeeperCmd() + command), env);
             LOGGER.info(result);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(result + e.getMessage());
