@@ -52,7 +52,9 @@ cost_per_giga: 0
 # Brazilian PIB (in mexican pesos)? A Big Mac? ... Maybe the cost of a Pokeball in 2000's (today it costs $15.99)
 cost: 0.35
 
- # Storage mode (0 - old/vm, 1 - cloud)
+ # Storage mode 
+ # 0 - localhost 
+ # 1 - cloud
 storage-mode: 0
 
 # Reference files (keep it ORDERED)
