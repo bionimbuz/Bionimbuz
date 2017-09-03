@@ -29,11 +29,12 @@ public class ConfigurationRepository {
     /**
      * Gets root folder of the project.
      * COMENTEI POIS NÂO ESTÁ SENDO USADA
+     * 
      * @return
      */
-//    public static String getRootFolder() {
-//        return config.getRootFolder();
-//    }
+    // public static String getRootFolder() {
+    // return config.getRootFolder();
+    // }
 
     /**
      * Get Reference Folder of the project.
@@ -51,7 +52,9 @@ public class ConfigurationRepository {
      * @return
      */
     public static String getWorkflowOutputFolder(String id) {
-        return BioNimbusConfig.get().getOutputFolder() + id + "/";
+        String outputFolder = BioNimbusConfig.get().getOutputFolder();
+        outputFolder = outputFolder.endsWith("/") ? outputFolder : outputFolder + "/";
+        return outputFolder + id + "/";
     }
 
     /**
@@ -98,28 +101,28 @@ public class ConfigurationRepository {
     public static ArrayList<PluginService> getSupportedServices() {
         return BioNimbusConfig.get().getSupportedServices();
     }
-    
-    public static ArrayList<Instance> getInstances(){
-        ArrayList<Instance> result =new ArrayList<>();
-        AmazonIndex idx= new AmazonIndex();
-        GoogleCloud gc= new GoogleCloud();
+
+    public static ArrayList<Instance> getInstances() {
+        final ArrayList<Instance> result = new ArrayList<>();
+        final AmazonIndex idx = new AmazonIndex();
+        final GoogleCloud gc = new GoogleCloud();
         result.addAll(idx.getListInstanceEc2());
         result.addAll(gc.getListInstanceGCE());
-//        idx.EC2Instances("r3.xlarge").toString(4);
-//        gc.GoogleComputeEngineInstances("N1.STANDARD-4.PREEMPTIBLE", "").toString(4);
-//        AmazonIndex idx = new AmazonIndex(); 
-        
+        // idx.EC2Instances("r3.xlarge").toString(4);
+        // gc.GoogleComputeEngineInstances("N1.STANDARD-4.PREEMPTIBLE", "").toString(4);
+        // AmazonIndex idx = new AmazonIndex();
+
         return result;
     }
-    
+
     public static SSHCredentials getSSHCredentials() {
-        
+
         try {
-            ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-            SSHCredentials sshCredentials = mapper.readValue(new File(BioNimbusConfig.get().getCredentialsFile()), SSHCredentials.class);
+            final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+            final SSHCredentials sshCredentials = mapper.readValue(new File(BioNimbusConfig.get().getCredentialsFile()), SSHCredentials.class);
 
             return sshCredentials;
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             LOGGER.error("[IOException] - " + ex.getMessage());
             ex.printStackTrace();
         }
