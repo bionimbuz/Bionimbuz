@@ -61,6 +61,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
     private final PluginTask task;
     private final PluginService service;
     private final CloudMessageService cms;
+
     private final RpcClient rpcClient;
 
     private final WorkflowLoggerDao workflowLogger = new WorkflowLoggerDao();
@@ -227,9 +228,9 @@ public class PluginTaskRunner implements Callable<PluginTask> {
 
                     // Creates a FileInfo
                     final FileInfo outputFileInfo = new FileInfo();
-
                     final File temp = new File(outputPath);
                     final java.nio.file.Path pathOut = FileSystems.getDefault().getPath(outputPath);
+
                     Files.copy(temp.toPath(), pathOut, ATOMIC_MOVE);
 
                     // Sets its fields
