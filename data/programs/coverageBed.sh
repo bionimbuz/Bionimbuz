@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# [$1] -> ARQUIVO DE ENTRADA 1
+# [$2] -> ARQUIVO DE ENTRADA 2
+# [$3] -> ARQUIVO DE SAÍDA
+
 echo $0 $*
 #sleep 30
 

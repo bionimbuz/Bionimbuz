@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# [$1] -> TAMANHO DO INTERVALO
+# [$2] -> ARQUIVO DE ENTRADA
+# [$3] -> ARQUIVO DE SAÍDA
+
 echo $0 $*
 #sleep 30
 
