@@ -61,7 +61,8 @@ public class PluginTaskRunner implements Callable<PluginTask> {
     private final PluginTask task;
     private final PluginService service;
     private final CloudMessageService cms;
-    private RpcClient rpcClient;
+    private final String PATHFILES = "data-folder/";
+    private final RpcClient rpcClient;
 
     private final WorkflowLoggerDao workflowLogger = new WorkflowLoggerDao();
 
@@ -69,7 +70,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
 
     public PluginTaskRunner(AbstractPlugin plugin, PluginTask task, PluginService service, CloudMessageService cms, Workflow workflow) {
         // Creates a RPC Client
-        
+
         this.rpcClient = new AvroClient("http", BioNimbusConfig.get().getAddress(), 8080);
         this.workflow = workflow;
         this.service = service;
@@ -81,13 +82,12 @@ public class PluginTaskRunner implements Callable<PluginTask> {
     public PluginTask call() throws Exception {
 
         // Output folder path (../output-folder/{workflowId}
-        final String outputFolder = ConfigurationRepository.getWorkflowOutputFolder(this.workflow.getId());
-
-        final File f = new File(outputFolder);
+        final String configPath = ConfigurationRepository.getWorkflowOutputFolder(this.workflow.getId());
+        final File outputFolder = new File(configPath);
 
         // Verify if folder exists
-        if (!f.exists()) {
-            f.mkdir();
+        if (!outputFolder.exists()) {
+            outputFolder.mkdirs();
         }
 
         // Gets only options
@@ -109,7 +109,8 @@ public class PluginTaskRunner implements Callable<PluginTask> {
         for (final FileInfo info : inputFiles) {
             final String input = info.getName();
             // linha comentada pois arquivos de entrada não ficam mais no AbstractPlugin
-            // args = args.replaceFirst("%I" + i, path + File.pathSeparator + plugin.getInputFiles().get(input).first);
+            // args = args.replaceFirst("%I" + i, path + File.pathSeparator +
+            // plugin.getInputFiles().get(input).first);
 
             if (info.getBucket() == null) {
 
@@ -128,7 +129,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
         i = 1;
         for (final String output : outputs) {
             // {output_folder}/{service_name}_output_{hash}
-            args = args.replaceFirst("%O" + i, " " + outputFolder + output);
+            args = args.replaceFirst("%O" + i, " " + outputFolder + "/" + output);
             i++;
         }
 
@@ -140,7 +141,9 @@ public class PluginTaskRunner implements Callable<PluginTask> {
             // TODO checkpoint-restart
 
             p = Runtime.getRuntime().exec(this.service.getPath() + " " + options + " " + reference + " " + args);
-            // p = Runtime.getRuntime().exec(path+service.getPath().substring(1,service.getPath().length()) + " " + args);
+            // p =
+            // Runtime.getRuntime().exec(path+service.getPath().substring(1,service.getPath().length())
+            // + " " + args);
 
             this.task.setState(PluginTaskState.RUNNING);
 
@@ -165,9 +168,8 @@ public class PluginTaskRunner implements Callable<PluginTask> {
             }
 
             /**
-             * Bowtie writes its standard output as an stderror (probably
-             * internal implementation of Bowtie), that's why we verify if is a
-             * bowtie sysout.
+             * Bowtie writes its standard output as an stderror (probably internal
+             * implementation of Bowtie), that's why we verify if is a bowtie sysout.
              *
              */
             while ((line = saidaErro.readLine()) != null) {
@@ -201,7 +203,9 @@ public class PluginTaskRunner implements Callable<PluginTask> {
                 // Thread.sleep(5000);
 
                 // this.workflowLogger
-                // .log(new Log("<span style=\"color:#873eb6;\">Deletando Máquina Virtual " + this.task.getJobInfo().getIpjob().get(0) + "</span>", this.workflow.getUserId(), this.workflow.getId(),
+                // .log(new Log("<span style=\"color:#873eb6;\">Deletando Máquina Virtual " +
+                // this.task.getJobInfo().getIpjob().get(0) + "</span>",
+                // this.workflow.getUserId(), this.workflow.getId(),
                 // LogSeverity.INFO));
 
                 this.workflowLogger.log(new Log("<span style=\"color:#873eb6;\">Deletando Máquina Virtual ", this.workflow.getUserId(), this.workflow.getId(), LogSeverity.INFO));
@@ -237,10 +241,10 @@ public class PluginTaskRunner implements Callable<PluginTask> {
                     outputFileInfo.setUploadTimestamp(Calendar.getInstance().getTime().toString());
 
                     // Converts it to Avro FileInfo object
-                    final br.unb.cic.bionimbuz.avro.gen.FileInfo outputFile = this.convertToAvroObject(outputPath, outputFileInfo);
+                    final br.unb.cic.bionimbuz.avro.gen.FileInfo outputFile = this.convertToAvroObject(dataFolderPath, outputFileInfo);
 
                     // Write the output files to ZooKeeper
-                    this.rpcClient.getProxy().uploadFile(outputPath, outputFile);
+                    this.rpcClient.getProxy().uploadFile(dataFolderPath, outputFile);
                 }
             } else {
                 this.task.setTimeExec((float) (System.currentTimeMillis() - this.task.getJobInfo().getTimestamp()) / 1000);

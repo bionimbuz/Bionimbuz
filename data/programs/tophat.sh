@@ -6,4 +6,4 @@
 
 ncpu=`nproc`
 ncpu=6
-/home/biolabid2/Bionimbuz/programs/tophat-2.1.1.Linux_x86_64/tophat -T -p $ncpu --output-dir $3 $1 $2
+$(pwd)/data/programs/tophat-2.1.1.Linux_x86_64/tophat -T -p $ncpu --output-dir $3 $1 $2
