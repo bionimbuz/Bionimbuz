@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import br.unb.cic.bionimbuz.model.Instance;
+import br.unb.cic.bionimbuz.plugin.PluginService;
 import br.unb.cic.bionimbuz.services.tarification.Amazon.AmazonIndex;
 import br.unb.cic.bionimbuz.services.tarification.Google.GoogleCloud;
 import br.unb.cic.bionimbuz.utils.SSHCredentials;
@@ -32,7 +33,9 @@ public class ConfigurationRepository {
      * @return
      */
     public static String getWorkflowOutputFolder(String id) {
-        return BioNimbusConfig.get().getOutputFolder() + id + "/";
+        String outputFolder = BioNimbusConfig.get().getOutputFolder();
+        outputFolder = outputFolder.endsWith("/") ? outputFolder : outputFolder + "/";
+        return outputFolder + id + "/";
     }
 
     public static ArrayList<Instance> getInstances(){
@@ -41,21 +44,21 @@ public class ConfigurationRepository {
         GoogleCloud gc= new GoogleCloud();
         result.addAll(idx.getListInstanceEc2());
         result.addAll(gc.getListInstanceGCE());
-//        idx.EC2Instances("r3.xlarge").toString(4);
-//        gc.GoogleComputeEngineInstances("N1.STANDARD-4.PREEMPTIBLE", "").toString(4);
-//        AmazonIndex idx = new AmazonIndex(); 
-        
+        // idx.EC2Instances("r3.xlarge").toString(4);
+        // gc.GoogleComputeEngineInstances("N1.STANDARD-4.PREEMPTIBLE", "").toString(4);
+        // AmazonIndex idx = new AmazonIndex();
+
         return result;
     }
-    
+
     public static SSHCredentials getSSHCredentials() {
-        
+
         try {
-            ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-            SSHCredentials sshCredentials = mapper.readValue(new File(BioNimbusConfig.get().getCredentialsFile()), SSHCredentials.class);
+            final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+            final SSHCredentials sshCredentials = mapper.readValue(new File(BioNimbusConfig.get().getCredentialsFile()), SSHCredentials.class);
 
             return sshCredentials;
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             LOGGER.error("[IOException] - " + ex.getMessage());
             ex.printStackTrace();
         }

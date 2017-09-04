@@ -1,21 +1,18 @@
 /*
-    BioNimbuZ is a federated cloud platform.
-    Copyright (C) 2012-2017 Laboratory of Bioinformatics and Data (LaBiD), 
-    Department of Computer Science, University of Brasilia, Brazil
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * BioNimbuZ is a federated cloud platform.
+ * Copyright (C) 2012-2017 Laboratory of Bioinformatics and Data (LaBiD),
+ * Department of Computer Science, University of Brasilia, Brazil
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package br.unb.cic.bionimbuz.rest.resource;
 
 import java.util.ArrayList;
@@ -77,31 +74,27 @@ public class WorkflowResource extends AbstractResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response startWorkflow(StartWorkflowRequest request) {
-        LOGGER.info("New workflow received {id=" + request.getWorkflow().getId()
-                + ",jobs=" + request.getWorkflow().getJobs().size()
-                + ",userId=" + request.getWorkflow().getUserId()
-                + "}");
-        LOGGER.info(" INSTANCES= "+request.getWorkflow().getIntancesWorkflow().toString());
-        LOGGER.info(" USER= "+request.getWorkflow().getUserWorkflow().getNome());
+        LOGGER.info("New workflow received {id = " + request.getWorkflow().getId() + ", jobs = " + request.getWorkflow().getJobs().size() + ", userId = " + request.getWorkflow().getUserId() + "}");
+        LOGGER.info(" INSTANCES = " + request.getWorkflow().getIntancesWorkflow().toString());
+        LOGGER.info(" USER = " + request.getWorkflow().getUserWorkflow().getNome());
         // Logs
-        loggerDao.log(new Log("Workflow chegou no servidor do BioNimbuZ", request.getWorkflow().getUserId(), request.getWorkflow().getId(), LogSeverity.INFO));
-        
-        
-//        request.getWorkflow().getSla().setIdWorkflow(request.getWorkflow().getId());
-        
+        this.loggerDao.log(new Log("Workflow chegou no servidor do BioNimbuZ", request.getWorkflow().getUserId(), request.getWorkflow().getId(), LogSeverity.INFO));
+
+        // request.getWorkflow().getSla().setIdWorkflow(request.getWorkflow().getId());
+
         try {
             // Starts it
-            jobController.startWorkflow(request.getWorkflow());
-//            slaController.startSla(request.getSla(),request.getWorkflow());
+            this.jobController.startWorkflow(request.getWorkflow());
+            // slaController.startSla(request.getSla(),request.getWorkflow());
             // Sets its status as EXECUTING
             request.getWorkflow().setStatus(WorkflowStatus.EXECUTING);
 
             // If it gets started with success, persists it on database
-            workflowDao.persist(request.getWorkflow());
+            this.workflowDao.persist(request.getWorkflow());
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             // Logs
-            loggerDao.log(new Log("Um erro ocorreu na execução de seu Workflow", request.getWorkflow().getUserId(), request.getWorkflow().getId(), LogSeverity.ERROR));
+            this.loggerDao.log(new Log("Um erro ocorreu na execução de seu Workflow", request.getWorkflow().getUserId(), request.getWorkflow().getId(), LogSeverity.ERROR));
             LOGGER.error("[Exception] " + e.getMessage());
 
             return Response.status(200).entity(false).build();
@@ -124,7 +117,7 @@ public class WorkflowResource extends AbstractResource {
         LOGGER.info("Received GetWorkflowStatus request from userId=" + request.getUserId());
 
         // Get workflow status by Id
-        List<Workflow> workflowList = workflowDao.listByUserId(request.getUserId());
+        final List<Workflow> workflowList = this.workflowDao.listByUserId(request.getUserId());
 
         // Sort it by timestamp
         Collections.sort(workflowList, Workflow.comparator);
@@ -141,38 +134,38 @@ public class WorkflowResource extends AbstractResource {
 
         try {
             // Retrieves from database
-            List<Log> logs = loggerDao.listByWorkflowId(request.getWorkflowId());
+            final List<Log> logs = this.loggerDao.listByWorkflowId(request.getWorkflowId());
 
             // Sort it by timestamp
             Collections.sort(logs, Log.comparator);
 
             // Gets workflow output files the request workflow id
-            List<WorkflowOutputFile> results = loggerDao.listAllOutputFilesByWorkflowId(request.getWorkflowId());
+            final List<WorkflowOutputFile> results = this.loggerDao.listAllOutputFilesByWorkflowId(request.getWorkflowId());
 
             // Output files
-            List<FileInfo> outputs = new ArrayList<>();
+            final List<FileInfo> outputs = new ArrayList<>();
 
             // Verifify if results is empty
-//            if (!results.isEmpty()) {
-//                for (WorkflowOutputFile result : results) {
-//                    PluginFile pluginFile = rpcClient.getProxy().getFileFromPeers(result.getOutputFilename());
-//
-//                    if (pluginFile != null) {
-//                        FileInfo fileInfo = new br.unb.cic.bionimbus.model.FileInfo();
-//                        fileInfo.setId(pluginFile.getId());
-//                        fileInfo.setName(pluginFile.getName());
-//                        fileInfo.setHash(pluginFile.getHash());
-//                        fileInfo.setSize(pluginFile.getSize());
-//                        fileInfo.setUploadTimestamp("");
-//
-//                        outputs.add(fileInfo);
-//                    }
-//                }
-//            }
+            // if (!results.isEmpty()) {
+            // for (WorkflowOutputFile result : results) {
+            // PluginFile pluginFile = rpcClient.getProxy().getFileFromPeers(result.getOutputFilename());
+            //
+            // if (pluginFile != null) {
+            // FileInfo fileInfo = new br.unb.cic.bionimbus.model.FileInfo();
+            // fileInfo.setId(pluginFile.getId());
+            // fileInfo.setName(pluginFile.getName());
+            // fileInfo.setHash(pluginFile.getHash());
+            // fileInfo.setSize(pluginFile.getSize());
+            // fileInfo.setUploadTimestamp("");
+            //
+            // outputs.add(fileInfo);
+            // }
+            // }
+            // }
 
             // Returns to application
             return new GetWorkflowHistoryResponse(logs, results);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
         }
 
@@ -181,7 +174,7 @@ public class WorkflowResource extends AbstractResource {
 
     @Override
     public ResponseInfo handleIncoming(RequestInfo request) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose Tools | Templates.
     }
 
 }

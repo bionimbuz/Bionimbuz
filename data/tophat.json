@@ -2,5 +2,5 @@
     "id": 4,
     "name": "TopHat2",
     "info": "Teste TopHat",
-    "path": "./programs/tophat.sh"
+    "path": "./data/programs/tophat.sh"
 }
