@@ -26,6 +26,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.google.inject.Singleton;
 
+import br.unb.cic.bionimbuz.config.BioNimbusConfig;
 import br.unb.cic.bionimbuz.services.storage.bucket.BioBucket;
 import br.unb.cic.bionimbuz.services.storage.bucket.CloudStorageMethods;
 
@@ -342,7 +343,7 @@ public class CloudMethodsAmazonGoogle extends CloudStorageMethods {
             throw new Exception("Cant delete file " + fileName + "! Bucket not mounted: " + bucket.getName());
         }
         
-        final String command = "/bin/rm " + bucket.getMountPoint() + "/data-folder/" + fileName;
+        final String command = "/bin/rm " + bucket.getMountPoint() + "/" + BioNimbusConfig.get().getDataFolder() + fileName;
         ExecCommand(command);
     }
 }

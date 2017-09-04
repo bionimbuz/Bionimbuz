@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import org.apache.avro.AvroRemoteException;
-import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,20 +40,17 @@ import br.unb.cic.bionimbuz.avro.gen.BioProto;
 import br.unb.cic.bionimbuz.avro.gen.FileInfo;
 import br.unb.cic.bionimbuz.avro.gen.NodeInfo;
 import br.unb.cic.bionimbuz.avro.gen.Workflow;
-import br.unb.cic.bionimbuz.config.ConfigurationRepository;
+import br.unb.cic.bionimbuz.config.BioNimbusConfig;
 import br.unb.cic.bionimbuz.controller.slacontroller.SlaController;
 import br.unb.cic.bionimbuz.controller.usercontroller.UserController;
-import br.unb.cic.bionimbuz.model.User;
 import br.unb.cic.bionimbuz.plugin.PluginFile;
 import br.unb.cic.bionimbuz.plugin.PluginInfo;
 import br.unb.cic.bionimbuz.plugin.PluginService;
 import br.unb.cic.bionimbuz.plugin.PluginTask;
 import br.unb.cic.bionimbuz.security.AESEncryptor;
 import br.unb.cic.bionimbuz.security.HashUtil;
-import br.unb.cic.bionimbuz.services.UpdatePeerData;
 import br.unb.cic.bionimbuz.services.discovery.DiscoveryService;
 import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
-import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService;
 import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path;
 import br.unb.cic.bionimbuz.services.monitor.MonitoringService;
 import br.unb.cic.bionimbuz.services.sched.SchedService;
@@ -216,7 +212,7 @@ public class BioProtoImpl implements BioProto {
     @Override
     public void decryptPluginFile(String filename) {
         try {
-            final String path = ConfigurationRepository.getDataFolder();
+            final String path = BioNimbusConfig.get().getDataFolder();
             final AESEncryptor aes = new AESEncryptor();
             // Not decrypt inputfiles.txt
             // if(!filename.contains("inputfiles.txt")) {
@@ -237,7 +233,7 @@ public class BioProtoImpl implements BioProto {
     @Override
     public String getFileHash(String fileName) throws org.apache.avro.AvroRemoteException {
         try {
-            final String path = ConfigurationRepository.getDataFolder();
+            final String path = BioNimbusConfig.get().getDataFolder();
             final String hash = HashUtil.computeNativeSHA3(path + fileName);
             return hash;
         } catch (final InterruptedException | IOException ex) {
@@ -544,7 +540,7 @@ public class BioProtoImpl implements BioProto {
     public String fileSent(FileInfo fileSucess, List<String> dest) {
         final PluginFile file = new PluginFile(fileSucess);
         file.setPluginId(dest);
-        file.setPath(ConfigurationRepository.getDataFolder() + file.getName());
+        file.setPath(BioNimbusConfig.get().getDataFolder() + file.getName());
         String retorno = "File uploaded.";
         try {
             retorno = this.storageService.fileUploaded(file);

@@ -9,6 +9,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import br.unb.cic.bionimbuz.config.BioNimbusConfig;
 import br.unb.cic.bionimbuz.config.ConfigurationRepository;
 import br.unb.cic.bionimbuz.controller.jobcontroller.JobController;
 import br.unb.cic.bionimbuz.model.Instance;
@@ -38,9 +39,9 @@ public class ConfigurationsResource extends AbstractResource {
 
         LOGGER.info("Received request from web application");
 
-        List<PluginService> list = ConfigurationRepository.getSupportedServices();
-        List<String> references = ConfigurationRepository.getReferences();
-        List<String> supportedFormats = ConfigurationRepository.getSupportedFormats();
+        List<PluginService> list = BioNimbusConfig.get().getSupportedServices();
+        List<String> references = BioNimbusConfig.get().getReferences();
+        List<String> supportedFormats = BioNimbusConfig.get().getSupportedFormats();
         List<Instance> instances = ConfigurationRepository.getInstances();
        
         GetConfigurationsResponse response = new GetConfigurationsResponse(list, references, supportedFormats, instances);

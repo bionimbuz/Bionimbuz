@@ -271,7 +271,7 @@ public class CloudStorageService extends AbstractBioService{
         try {
             
             for (BioBucket bucket : bucketList) {
-                File dataFolder = new File (bucket.getMountPoint() + "/data-folder/");
+                File dataFolder = new File (bucket.getMountPoint() + "/" + BioNimbusConfig.get().getDataFolder());
                 
                 if (!dataFolder.exists()) {
                     dataFolder.mkdirs();
@@ -334,8 +334,8 @@ public class CloudStorageService extends AbstractBioService{
                     
                     LOGGER.info("[CloudStorageService] New file! Uploading " + file.getPath() + " to Bucket " + dest.getName());
                    //TODO: Metodo que deve ser revisto pois faz o upload e para ter o arquivo na pasta data-folder, faz o download dela para a pasta
-                    methodsInstance.StorageUploadFile(dest, "/data-folder/", BioNimbusConfig.get().getDataFolder() , file.getName());
-                    methodsInstance.StorageDownloadFile(dest, "/data-folder/", BioNimbusConfig.get().getDataFolder(), file.getName());
+                    methodsInstance.StorageUploadFile(dest, "/" + BioNimbusConfig.get().getDataFolder(), BioNimbusConfig.get().getDataFolder() , file.getName());
+                    methodsInstance.StorageDownloadFile(dest, "/" + BioNimbusConfig.get().getDataFolder(), BioNimbusConfig.get().getDataFolder(), file.getName());
                     cms.createZNode(CreateMode.PERSISTENT, Path.NODE_BUCKET_FILE.getFullPath(dest.getName(), pluginFile.getName()), pluginFile.toString());
                 }
             }
@@ -351,7 +351,7 @@ public class CloudStorageService extends AbstractBioService{
             
             for (BioBucket bucket : bucketList) {
                 
-                File dataFolder = new File (bucket.getMountPoint() + "/data-folder/");
+                File dataFolder = new File (bucket.getMountPoint() + "/" + BioNimbusConfig.get().getDataFolder());
                 List<String> bucketFiles = cms.getChildren(Path.BUCKET_FILES.getFullPath(bucket.getName()), null);
                 
                 for (String stringFile : bucketFiles) {
@@ -419,7 +419,7 @@ public class CloudStorageService extends AbstractBioService{
       
         try {
             for (BioBucket bucket : bucketList) {
-                File dataFolder = new File (bucket.getMountPoint() + "/data-folder/");
+                File dataFolder = new File (bucket.getMountPoint() + "/" + BioNimbusConfig.get().getDataFolder());
                 for (File file : dataFolder.listFiles()) {
                     if (filename.equals(file.getName()))
                         return true;

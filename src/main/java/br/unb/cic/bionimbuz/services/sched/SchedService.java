@@ -374,7 +374,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                             file.setId(info.getId());
                             file.setName(info.getName());
 
-                            String path = bucket.getMountPoint() + "/data-folder/" + info.getName();
+                            String path = bucket.getMountPoint() + "/" + BioNimbusConfig.get().getDataFolder() + info.getName();
                             file.setPath(path);
 
                             mapFilesPlugin.put(info.getName(), file);
@@ -387,7 +387,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                             CloudStorageMethods cloud_methods = new CloudMethodsAmazonGoogle();
 
                             try {
-                                cloud_methods.StorageDownloadFile(bucket, "/data-folder/", BioNimbusConfig.get().getDataFolder(), info.getName());
+                                cloud_methods.StorageDownloadFile(bucket, + "/" + BioNimbusConfig.get().getDataFolder(), BioNimbusConfig.get().getDataFolder(), info.getName());
                             } catch (Throwable t) {
                                 LOGGER.error("[SchedService] Exception(requestFile): " + t.getMessage());
                                 t.printStackTrace();

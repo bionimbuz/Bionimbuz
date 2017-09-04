@@ -22,15 +22,18 @@
  */
 package br.unb.cic.bionimbuz.utils;
 
-import br.unb.cic.bionimbuz.config.ConfigurationRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import br.unb.cic.bionimbuz.config.BioNimbusConfig;
+import br.unb.cic.bionimbuz.config.ConfigurationRepository;
 
 /**
  * Metodo para a conexao entre o servidor e o cliente em casos de downloads
@@ -55,7 +58,7 @@ public class Get {
     }
 
     public boolean startSession(String file, String host) throws JSchException, SftpException {        
-        String path = ConfigurationRepository.getDataFolder();
+        String path = BioNimbusConfig.get().getDataFolder();
         try {
             session = jsch.getSession(USER, host, PORT);
             session.setConfig("StrictHostKeyChecking", "no");

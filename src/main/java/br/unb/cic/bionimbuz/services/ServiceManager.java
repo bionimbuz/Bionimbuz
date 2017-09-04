@@ -34,7 +34,6 @@ import com.google.inject.Singleton;
 
 import br.unb.cic.bionimbuz.avro.rpc.RpcServer;
 import br.unb.cic.bionimbuz.config.BioNimbusConfig;
-import br.unb.cic.bionimbuz.config.ConfigurationRepository;
 import br.unb.cic.bionimbuz.plugin.PluginService;
 import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path;
@@ -159,7 +158,7 @@ public class ServiceManager {
             createZnodeZK();
 
             // Add all supported services to ZooKeeper (read from node.yaml)
-            addServiceToZookeeper(ConfigurationRepository.getSupportedServices());
+            addServiceToZookeeper(BioNimbusConfig.get().getSupportedServices());
 
             for (Service service : services) {
                 service.start(listeners);

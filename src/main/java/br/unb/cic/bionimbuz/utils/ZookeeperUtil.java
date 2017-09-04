@@ -21,8 +21,8 @@ public class ZookeeperUtil {
     private static final String DIR_ZK_LOCAL = "system/zookeeper";
     private static final String ZK_SERVER = "zkServer.sh";
     private static final String ZK_SERVER_LOCAL = DIR_ZK_LOCAL+"/bin/"+ZK_SERVER;
-    
-
+    private static final String ZK_LOG_ENV_VAR = "ZOO_LOG_DIR";
+            
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Constructors.
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -46,7 +46,7 @@ public class ZookeeperUtil {
         String result = null;
         try {
             HashMap<String, String> env = new HashMap<>();
-            env.put("ZOO_LOG_DIR", "./"+SystemConstants.FOLDER_LOGS);
+            env.put(ZK_LOG_ENV_VAR, "./"+SystemConstants.FOLDER_LOGS);
             result = RuntimeUtil.runCommand(new Command(getZookeeperCmd() + command), env);
             LOGGER.info(result);
         } catch (IOException | InterruptedException e) {

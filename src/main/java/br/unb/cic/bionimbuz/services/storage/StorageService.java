@@ -51,7 +51,6 @@ import br.unb.cic.bionimbuz.avro.gen.NodeInfo;
 import br.unb.cic.bionimbuz.avro.rpc.AvroClient;
 import br.unb.cic.bionimbuz.avro.rpc.RpcClient;
 import br.unb.cic.bionimbuz.config.BioNimbusConfig;
-import br.unb.cic.bionimbuz.config.ConfigurationRepository;
 import br.unb.cic.bionimbuz.plugin.PluginFile;
 import br.unb.cic.bionimbuz.plugin.PluginInfo;
 import br.unb.cic.bionimbuz.security.HashUtil;
@@ -78,7 +77,7 @@ public class StorageService extends AbstractBioService {
     private Map<String, PluginInfo> cloudMap = new ConcurrentHashMap<>();
     private final Map<String, PluginFile> savedFiles = new ConcurrentHashMap<>();
     // private Set<String> pendingSaveFiles = new HashSet<String>();
-    private final File dataFolder = new File(ConfigurationRepository.getDataFolder());
+    private final File dataFolder = new File(BioNimbusConfig.get().getDataFolder());
     private final Double MAXCAPACITY = 0.9;
     private final int PORT = 8080;
     private final int REPLICATIONFACTOR = 2;
@@ -161,7 +160,6 @@ public class StorageService extends AbstractBioService {
     public synchronized void checkFiles() {
         try {
             if (!this.dataFolder.exists()) {
-                // System.out.println(" (CheckFiles) dataFolder " + dataFolder + " doesn't exists, creating...");
                 this.dataFolder.mkdirs();
             }
             this.cms.getChildren(Path.FILES.getFullPath(BioNimbusConfig.get().getId()), new UpdatePeerData(this.cms, this, null));
@@ -350,8 +348,7 @@ public class StorageService extends AbstractBioService {
     public boolean checkFilePeer(PluginFile file) {
         LOGGER.info("Verifying if file (filename=" + file.getName() + ") exists on peer");
 
-        final String path = ConfigurationRepository.getDataFolder();
-        final File localFile = new File(path + file.getName());
+        final File localFile = new File(BioNimbusConfig.get() + file.getName());
 
         if (localFile.exists()) {
             this.cms.createZNode(CreateMode.PERSISTENT, Path.NODE_FILE.getFullPath(BioNimbusConfig.get().getId(), file.getId()), file.toString());
@@ -419,7 +416,7 @@ public class StorageService extends AbstractBioService {
                 }
             } else {
                 if (this.checkFilePeer(fileUploaded)) {
-                    final String filePeerHash = HashUtil.computeNativeSHA3(ConfigurationRepository.getDataFolder() + fileUploaded.getName());
+                    final String filePeerHash = HashUtil.computeNativeSHA3(BioNimbusConfig.get().getDataFolder() + fileUploaded.getName());
 
                     // Verifica se o arquivo foi corretamente transferido ao peer.
                     if (Integrity.verifyHashes(filePeerHash, fileUploaded.getHash())) {
@@ -548,7 +545,7 @@ public class StorageService extends AbstractBioService {
 
         List<NodeInfo> pluginList = new ArrayList<>();
         final List<String> idsPluginsFile = new ArrayList<>();
-        final File file = new File(ConfigurationRepository.getDataFolder() + filename);
+        final File file = new File(BioNimbusConfig.get().getDataFolder() + filename);
 
         final int filesreplicated = 1;
 
@@ -565,7 +562,7 @@ public class StorageService extends AbstractBioService {
              * PLuginList ira receber a lista dos Peers disponiveis na federação
              * e que possuem espaço em disco para receber o arquivo a ser replicado
              */
-            pluginFile.setPath("data-folder/" + info.getName());
+            pluginFile.setPath(BioNimbusConfig.get().getDataFolder() + info.getName());
             NodeInfo no = null;
 
             /*

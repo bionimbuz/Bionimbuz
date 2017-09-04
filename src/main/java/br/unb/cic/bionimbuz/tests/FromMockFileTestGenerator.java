@@ -26,6 +26,7 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import br.unb.cic.bionimbuz.config.BioNimbusConfig;
 import br.unb.cic.bionimbuz.model.FileInfo;
 import br.unb.cic.bionimbuz.model.Job;
 import br.unb.cic.bionimbuz.model.Workflow;
@@ -44,8 +45,6 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
     
     public FromMockFileTestGenerator(int numPipelines) {
         this.numPipelines = numPipelines;
-        final String pathHome = System.getProperty("user.dir");
-        final String path = pathHome.substring(pathHome.length()).equals("/") ? pathHome + "data-folder/" : pathHome + "/data-folder/";
         final AESEncryptor aes = new AESEncryptor();
         try {
             // TO-DO: Remove comment after William Final Commit
@@ -53,7 +52,7 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
         } catch (final Exception ex) {
             LOGGER.error("Exception - " + ex.getMessage());
         }
-        this.resFile = path + "resSample.txt";
+        this.resFile = BioNimbusConfig.get().getDataFolder() + "resSample.txt";
     }
     
     @Override
@@ -61,9 +60,6 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
         Job taskList[] = null;
         
         // get pipeline file path
-        final String pathHome = System.getProperty("user.dir");
-        final String path = pathHome.substring(pathHome.length()).equals("/") ? pathHome + "data-folder/" : pathHome + "/data-folder/";
-        final AESEncryptor aes = new AESEncryptor();
         try {
             // TO-DO: Remove comment after Willian Final Commit
             // aes.decrypt(path+"pipelineSample.txt");
@@ -74,7 +70,7 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
         
         for (int ii = 1; ii <= this.numPipelines; ii++) {
             try (
-                 BufferedReader br = new BufferedReader(new FileReader(path + "pipelineSample" + ii + ".txt"))) {
+                 BufferedReader br = new BufferedReader(new FileReader(BioNimbusConfig.get().getDataFolder() + "pipelineSample" + ii + ".txt"))) {
 
                 // get first line: number of tasks
                 String line = br.readLine();
@@ -156,9 +152,6 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
     @Override
     protected void generateServicesTemplates() {
         final Job taskList[] = null;
-        // get service file path
-        final String pathHome = System.getProperty("user.dir");
-        final String path = pathHome.substring(pathHome.length()).equals("/") ? pathHome + "data-folder/" : pathHome + "/data-folder/";
         final AESEncryptor aes = new AESEncryptor();
         try {
             // TO-DO: Remove comment after William Final Commit
@@ -168,7 +161,7 @@ public class FromMockFileTestGenerator extends FromLogFileTestGenerator {
         }
 
         try (
-             BufferedReader br = new BufferedReader(new FileReader(path + "servicesSample.txt"))) {
+             BufferedReader br = new BufferedReader(new FileReader(BioNimbusConfig.get().getDataFolder() + "servicesSample.txt"))) {
 
             
             String line;

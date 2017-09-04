@@ -43,7 +43,6 @@ import br.unb.cic.bionimbuz.services.storage.bucket.methods.CloudMethodsAmazonGo
 @Path("/rest/file/")
 public class FileResource extends AbstractResource {
 
-    private static final String UPLOADED_FILES_DIRECTORY = ConfigurationRepository.getDataFolder();
     private final FileDao fileDao;
 
     public FileResource(final JobController jobController) {
@@ -90,10 +89,6 @@ public class FileResource extends AbstractResource {
             } else {
                 // final CloudStorageMethods methodsInstance = new CloudMethodsAmazonGoogle();
                 final BioBucket dest = CloudStorageService.getBestBucket(CloudStorageService.getBucketList());
-
-                // methodsInstance.StorageDownloadFile(dest, "/data-folder/", UPLOADED_FILES_DIRECTORY, form.getFileInfo().getName());
-                // methodsInstance.StorageUploadFile(dest, "/data-folder/", UPLOADED_FILES_DIRECTORY, form.getFileInfo().getName());
-                //// final File temp = new File(filepath);
                 Response.accepted(dest.getName());
                 form.setBucketName(dest.getName());
                 // System.out.println("nome:"+dest.getName());
@@ -183,7 +178,7 @@ public class FileResource extends AbstractResource {
      * @throws IOException
      */
     private String writeFile(final InputStream inputStream, final String filename, final long userId) throws IOException {
-        final File file = new File(UPLOADED_FILES_DIRECTORY + filename);
+        final File file = new File(BioNimbusConfig.get().getDataFolder() + filename);
         if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
         }
@@ -258,7 +253,7 @@ public class FileResource extends AbstractResource {
      */
     private void copyFileToDataFolder(final String fromPath, final String filename) throws FileNotFoundException, IOException {
 
-        final String toPath = ConfigurationRepository.getDataFolder() + filename;
+        final String toPath = BioNimbusConfig.get().getDataFolder() + filename;
         final File to = new File(toPath + ".part");
         final File from = new File(fromPath);
         try (

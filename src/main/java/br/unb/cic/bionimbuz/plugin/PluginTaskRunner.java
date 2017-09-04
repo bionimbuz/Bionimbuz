@@ -61,7 +61,6 @@ public class PluginTaskRunner implements Callable<PluginTask> {
     private final PluginTask task;
     private final PluginService service;
     private final CloudMessageService cms;
-    private final String PATHFILES = "data-folder/";
     private RpcClient rpcClient;
 
     private final WorkflowLoggerDao workflowLogger = new WorkflowLoggerDao();
@@ -101,7 +100,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
 
         // Get reference file
         if (!this.task.getJobInfo().getReferenceFile().equals("") && !this.task.getJobInfo().getReferenceFile().equals(" ")) {
-            reference = ConfigurationRepository.getReferenceFolder() + this.task.getJobInfo().getReferenceFile() + "";
+            reference = BioNimbusConfig.get().getReferenceFolder() + this.task.getJobInfo().getReferenceFile() + "";
         }
 
         final List<FileInfo> inputFiles = this.task.getJobInfo().getInputFiles();
@@ -119,7 +118,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
 
                 final BioBucket bucket = CloudStorageService.getBucket(info.getBucket());
 
-                args = args.replaceFirst("%I" + i, bucket.getMountPoint() + "/" + this.PATHFILES + input + " ");
+                args = args.replaceFirst("%I" + i, bucket.getMountPoint() + "/" + BioNimbusConfig.get() + input + " ");
             }
 
             i++;
@@ -215,7 +214,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
 
                 // Copies output files to data-folder
                 for (final String output : outputs) {
-                    final String outputPath = ConfigurationRepository.getDataFolder() + output;
+                    final String outputPath = BioNimbusConfig.get().getDataFolder() + output;
 
                     // Its path
                     final long fileSize = this.copyFileToDataFolder(outputFolder + output, output, outputPath);

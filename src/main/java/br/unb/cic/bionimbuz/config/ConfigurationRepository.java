@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import br.unb.cic.bionimbuz.model.Instance;
-import br.unb.cic.bionimbuz.plugin.PluginService;
 import br.unb.cic.bionimbuz.services.tarification.Amazon.AmazonIndex;
 import br.unb.cic.bionimbuz.services.tarification.Google.GoogleCloud;
 import br.unb.cic.bionimbuz.utils.SSHCredentials;
@@ -27,24 +26,6 @@ public class ConfigurationRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationRepository.class);
 
     /**
-     * Gets root folder of the project.
-     * COMENTEI POIS NÂO ESTÁ SENDO USADA
-     * @return
-     */
-//    public static String getRootFolder() {
-//        return config.getRootFolder();
-//    }
-
-    /**
-     * Get Reference Folder of the project.
-     *
-     * @return
-     */
-    public static String getReferenceFolder() {
-        return BioNimbusConfig.get().getReferenceFolder();
-    }
-
-    /**
      * Get Output Folder of generated files.
      *
      * @param id
@@ -54,51 +35,6 @@ public class ConfigurationRepository {
         return BioNimbusConfig.get().getOutputFolder() + id + "/";
     }
 
-    /**
-     * Returns the path where temporary uploaded files are saved.
-     *
-     * @return
-     */
-    public static String getTemporaryUplodadedFiles() {
-        return BioNimbusConfig.get().getTemporaryUploadedFiles();
-    }
-
-    /**
-     * Returns the reference files.
-     *
-     * @return
-     */
-    public static ArrayList<String> getReferences() {
-        return BioNimbusConfig.get().getReferences();
-    }
-
-    /**
-     * Get Data Folder.
-     *
-     * @return
-     */
-    public static String getDataFolder() {
-        return BioNimbusConfig.get().getDataFolder();
-    }
-
-    /**
-     * Return a list of the supported formats of the system.
-     *
-     * @return
-     */
-    public static ArrayList<String> getSupportedFormats() {
-        return BioNimbusConfig.get().getSupportedFormats();
-    }
-
-    /**
-     * Return a list of the supported services of BioNimbuZ.
-     *
-     * @return
-     */
-    public static ArrayList<PluginService> getSupportedServices() {
-        return BioNimbusConfig.get().getSupportedServices();
-    }
-    
     public static ArrayList<Instance> getInstances(){
         ArrayList<Instance> result =new ArrayList<>();
         AmazonIndex idx= new AmazonIndex();
