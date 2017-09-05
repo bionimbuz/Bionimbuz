@@ -127,7 +127,7 @@ public class StorageService extends AbstractBioService {
         } catch (final Exception ex) {
             LOGGER.error("[Exception] - " + ex.getMessage());
         }
-        this.executorService.scheduleAtFixedRate(this, 0, 3, TimeUnit.SECONDS);
+        this.executorService.scheduleAtFixedRate(this, 0, 1, TimeUnit.MINUTES);
     }
 
     @Override
@@ -728,7 +728,7 @@ public class StorageService extends AbstractBioService {
 
         List<NodeInfo> pluginList;
         List<NodeInfo> nodesdisp = new ArrayList<>();
-        RpcClient rpcClient = new AvroClient("http", BioNimbusConfig.get().getAddress(), 8080);
+        final RpcClient rpcClient = new AvroClient("http", BioNimbusConfig.get().getAddress(), 8080);
         final File file = new File(filepath);
 
         // Verifica se o arquivo existe

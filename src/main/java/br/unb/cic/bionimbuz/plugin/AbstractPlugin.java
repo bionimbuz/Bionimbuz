@@ -1,21 +1,18 @@
 /*
-    BioNimbuZ is a federated cloud platform.
-    Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD), 
-    Department of Computer Science, University of Brasilia, Brazil
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * BioNimbuZ is a federated cloud platform.
+ * Copyright (C) 2012-2015 Laboratory of Bioinformatics and Data (LaBiD),
+ * Department of Computer Science, University of Brasilia, Brazil
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package br.unb.cic.bionimbuz.plugin;
 
 import java.io.File;
@@ -44,19 +41,15 @@ import br.unb.cic.bionimbuz.utils.Pair;
 
 public abstract class AbstractPlugin implements Plugin, Runnable {
 
-    private String id;
+    private final String id;
 
     private Future<PluginInfo> futureInfo = null;
 
     private PluginInfo myInfo = null;
 
-    private String errorString = "Plugin is loading...";
-
     private int myCount = 0;
 
     private final ScheduledExecutorService schedExecutorService = Executors.newScheduledThreadPool(1, new BasicThreadFactory.Builder().namingPattern("bionimbus-plugin-%d").build());
-
-    private final ConcurrentMap<String, Pair<PluginTask, Integer>> pendingTasks = new ConcurrentHashMap<>();
 
     private final ConcurrentMap<String, Pair<PluginTask, Future<PluginTask>>> executingTasks = new ConcurrentHashMap<>();
 
@@ -72,26 +65,26 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
 
     @Inject
     public AbstractPlugin() throws IOException {
-        //id provisório
-        id = BioNimbusConfig.get().getId();
+        // id provisório
+        this.id = BioNimbusConfig.get().getId();
     }
 
     public Map<String, Pair<String, Integer>> getInputFiles() {
-        return inputFiles;
+        return this.inputFiles;
     }
 
     protected abstract Future<PluginInfo> startGetInfo();
 
     public abstract Future<PluginTask> startTask(PluginTask task, CloudMessageService cms, Workflow workflow);
 
-//    private String getId() {
+    // private String getId() {
     public String getId() {
 
-        return id;
+        return this.id;
     }
 
     private Future<PluginInfo> getFutureInfo() {
-        return futureInfo;
+        return this.futureInfo;
     }
 
     private void setFutureInfo(Future<PluginInfo> futureInfo) {
@@ -99,70 +92,65 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
     }
 
     public PluginInfo getMyInfo() {
-        return myInfo;
+        return this.myInfo;
     }
 
-    //private void setMyInfo(PluginInfo info) {
+    // private void setMyInfo(PluginInfo info) {
     public void setMyInfo(PluginInfo info) {
-        myInfo = info;
+        this.myInfo = info;
 
-    }
-
-    private void setErrorString(String errorString) {
-        this.errorString = errorString;
     }
 
     @Override
     public void start() {
 
-        schedExecutorService.scheduleAtFixedRate(this, 0, 3, TimeUnit.SECONDS);
+        this.schedExecutorService.scheduleAtFixedRate(this, 0, 3, TimeUnit.MINUTES);
     }
 
     @Override
     public void shutdown() {
-        schedExecutorService.shutdown();
-//        service.remove(this);
+        this.schedExecutorService.shutdown();
+        // service.remove(this);
     }
 
     @Override
     public void run() {
-        checkGetInfo();
-        checkFinishedTasks();
-        checkPendingSaves();
-        checkPendingGets();
+        this.checkGetInfo();
+        this.checkFinishedTasks();
+        this.checkPendingSaves();
+        this.checkPendingGets();
     }
 
     private void checkGetInfo() {
-        myCount++;
-        if (myCount < 10) {
+        this.myCount++;
+        if (this.myCount < 10) {
             return;
         }
-        myCount = 0;
+        this.myCount = 0;
         // Future<PluginInfo> futureinfo = getFutureInfo(); HAVE TO CHECK
-        futureInfo = getFutureInfo();
-        if (futureInfo == null) {
-            setFutureInfo(startGetInfo());
+        this.futureInfo = this.getFutureInfo();
+        if (this.futureInfo == null) {
+            this.setFutureInfo(this.startGetInfo());
             return;
         }
-        if (!futureInfo.isDone()) {
+        if (!this.futureInfo.isDone()) {
             return;
         }
         try {
-            PluginInfo newInfo = futureInfo.get();
-            newInfo.setId(getId());
+            final PluginInfo newInfo = this.futureInfo.get();
+            newInfo.setId(this.getId());
 
-            setMyInfo(newInfo);
+            this.setMyInfo(newInfo);
         } catch (InterruptedException | ExecutionException e) {
-            setErrorString(e.getMessage());
-            setMyInfo(null);
+            this.setMyInfo(null);
         }
-        setFutureInfo(null);
+        this.setFutureInfo(null);
     }
 
     private void checkFinishedTasks() {
         Future<PluginTask> futureTask;
         PluginTask task;
-        for (Pair<PluginTask, Future<PluginTask>> pair : executingTasks.values()) {
+        for (final Pair<PluginTask, Future<PluginTask>> pair : this.executingTasks.values()) {
             futureTask = pair.second;
             if (!futureTask.isDone()) {
                 continue;
@@ -173,52 +161,45 @@ public abstract class AbstractPlugin implements Plugin, Runnable {
                 task = pair.first;
                 continue;
             }
-            executingTasks.remove(task.getId());
+            this.executingTasks.remove(task.getId());
             if (task.getJobInfo().getOutputs().size() > 0) {
                 int count = 0;
-                for (String output : task.getJobInfo().getOutputs()) {
-                    File file = new File(output);
-                    FileInfo info = new FileInfo();
+                for (final String output : task.getJobInfo().getOutputs()) {
+                    final File file = new File(output);
+                    final FileInfo info = new FileInfo();
                     info.setName(output);
                     info.setSize(file.length());
                     count++;
                 }
-                endingTasks.put(task.getId(), new Pair<>(task, count));
+                this.endingTasks.put(task.getId(), new Pair<>(task, count));
             }
         }
     }
 
     private void checkPendingSaves() {
-        for (Future<PluginFile> f : pendingSaves) {
+        for (final Future<PluginFile> f : this.pendingSaves) {
             if (!f.isDone()) {
                 continue;
             }
             try {
-                PluginFile file = f.get();
-                List<String> pluginIds = new ArrayList<String>();
-                pluginIds.add(getId());
+                final PluginFile file = f.get();
+                final List<String> pluginIds = new ArrayList<>();
+                pluginIds.add(this.getId());
                 file.setPluginId(pluginIds);
-                pendingSaves.remove(f);
-                pluginFiles.put(file.getId(), file);
+                this.pendingSaves.remove(f);
+                this.pluginFiles.put(file.getId(), file);
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
-                //TODO criar mensagem de erro?
+                // TODO criar mensagem de erro?
             }
         }
     }
 
     private void checkPendingGets() {
 
-        for (Future<PluginGetFile> f : pendingGets) {
-            if (!f.isDone()) {
-                continue;
-            }
-            try {
-                PluginGetFile get = f.get();
-                pendingGets.remove(f);
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-                // TODO criar mensagem de erro?
+        for (final Future<PluginGetFile> f : this.pendingGets) {
+            if (f.isDone()) {
+                this.pendingGets.remove(f);
             }
         }
     }

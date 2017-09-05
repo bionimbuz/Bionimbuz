@@ -225,7 +225,7 @@ public class SlaController implements Controller, Runnable {
     /**
      * Sobrecarga para deletar todas as instancias do workflow e os peers
      * correspondentes do zookeeper
-     * 
+     *
      * @param list
      */
     private void deleteInstances(List<Instance> list) {
@@ -237,7 +237,7 @@ public class SlaController implements Controller, Runnable {
     /**
      * Chama o metodo das api da amazon ou da google para deletar a instancia
      * com o ip
-     * 
+     *
      * @param provider
      * @param ip
      */
@@ -260,7 +260,7 @@ public class SlaController implements Controller, Runnable {
     }
     /**
      * TODO fazer a verificação do jobs nos peers
-     * 
+     *
      * @param wokflow
      */
     // public void verificaJobs(Workflow wokflow){
@@ -285,7 +285,7 @@ public class SlaController implements Controller, Runnable {
 
     /**
      * verifica se as instancias criadas pelos servidores são as mesmas das especificações
-     * 
+     *
      * @param instancesUser
      * @param userId
      * @param worflowId

@@ -208,8 +208,7 @@ public class SchedService extends AbstractBioService implements Runnable {
             java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        this.schedExecService.scheduleAtFixedRate(this, 0, 5, TimeUnit.SECONDS);
-        // schedExecService.scheduleAtFixedRate(this, 1, 5, TimeUnit.MINUTES);
+        this.schedExecService.scheduleAtFixedRate(this, 1, 1, TimeUnit.MINUTES);
     }
 
     /**
@@ -897,12 +896,12 @@ public class SchedService extends AbstractBioService implements Runnable {
                 }
             }
         } // } catch (KeeperException ex) {
-        // java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
-        // } catch (InterruptedException ex) {
-        // java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
-        // } catch (IOException ex) {
-        // java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
-        // }
+          // java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+          // } catch (InterruptedException ex) {
+          // java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+          // } catch (IOException ex) {
+          // java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
+          // }
 
         return null;
 

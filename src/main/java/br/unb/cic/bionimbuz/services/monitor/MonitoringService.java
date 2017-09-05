@@ -66,7 +66,7 @@ public class MonitoringService extends AbstractBioService {
     private final List<String> waitingFiles = new ArrayList<>();
     private final Collection<String> plugins = new ArrayList<>();
     private static final List<User> users = Collections.synchronizedList(new LinkedList<User>());
-    private static final int TIME_TO_RUN = 3;
+    private static final int TIME_TO_RUN = 1;
 
     @Inject
     public MonitoringService(final CloudMessageService cms) {

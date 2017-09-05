@@ -40,68 +40,66 @@ import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path;
 public class UserController implements Controller, Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
-//    private static final int SESSION_TIMEOUT = 10;
+    // private static final int SESSION_TIMEOUT = 10;
 
     // Controls Thread execution
-    private final ScheduledExecutorService threadExecutor = Executors
-            .newScheduledThreadPool(1, new BasicThreadFactory.Builder()
-                    .namingPattern("UserController-%d").build());
+    private final ScheduledExecutorService threadExecutor = Executors.newScheduledThreadPool(1, new BasicThreadFactory.Builder().namingPattern("UserController-%d").build());
     private final CloudMessageService cms;
     private final SlaController slaController;
 
-    // String  = User Login , LocalDateTime = User Last Access Time
+    // String = User Login , LocalDateTime = User Last Access Time
     private final HashMap<String, LocalDateTime> lastAccessMap = new HashMap<>();
 
     @Inject
     public UserController(CloudMessageService cms, SlaController slaController) {
         Preconditions.checkNotNull(cms);
         this.cms = cms;
-        this.slaController =slaController;
+        this.slaController = slaController;
     }
 
     @Override
     public void start() {
         LOGGER.info("[UserController] UserController started ...");
-        threadExecutor.scheduleAtFixedRate(this, 0, 1, TimeUnit.MINUTES);
+        this.threadExecutor.scheduleAtFixedRate(this, 0, 5, TimeUnit.MINUTES);
     }
 
     @Override
     public void shutdown() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void getStatus() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void verifyPlugins() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void event(WatchedEvent eventType) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void run() {
-        LOGGER.info("[UserController] Checking logged users: " + lastAccessMap.size() + " users");
+        LOGGER.info("[UserController] Checking logged users: " + this.lastAccessMap.size() + " users");
 
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-//        for (Map.Entry<String, LocalDateTime> entry : lastAccessMap.entrySet()) {
-//            String login = entry.getKey();
-//            LocalDateTime loginTime = entry.getValue();
-//
-//            long diffInMinutes = Duration.between(entry.getValue(), LocalDateTime
-//                    .parse(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()), formatter)).toMinutes();
+        // for (Map.Entry<String, LocalDateTime> entry : lastAccessMap.entrySet()) {
+        // String login = entry.getKey();
+        // LocalDateTime loginTime = entry.getValue();
+        //
+        // long diffInMinutes = Duration.between(entry.getValue(), LocalDateTime
+        // .parse(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()), formatter)).toMinutes();
 
-//            if (diffInMinutes >= SESSION_TIMEOUT) {
-//                logoutUser(login);
-//            }
-//        }
+        // if (diffInMinutes >= SESSION_TIMEOUT) {
+        // logoutUser(login);
+        // }
+        // }
     }
 
     /**
@@ -111,14 +109,14 @@ public class UserController implements Controller, Runnable {
      * @return
      */
     public boolean logUser(String login) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         // If it is registered, verifiy if it is logged or not
-        if (!cms.getZNodeExist(Path.LOGGED_USERS.getFullPath(login), null)) {
-            cms.createZNode(CreateMode.PERSISTENT, Path.LOGGED_USERS.getFullPath(login), null);
+        if (!this.cms.getZNodeExist(Path.LOGGED_USERS.getFullPath(login), null)) {
+            this.cms.createZNode(CreateMode.PERSISTENT, Path.LOGGED_USERS.getFullPath(login), null);
 
             // Puts the new user in the last access map
-            lastAccessMap.put(login, LocalDateTime.parse(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()), formatter));
+            this.lastAccessMap.put(login, LocalDateTime.parse(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()), formatter));
 
             return true;
         }
@@ -133,9 +131,9 @@ public class UserController implements Controller, Runnable {
      * @param login
      */
     public void logoutUser(String login) {
-        if (cms.getZNodeExist(Path.LOGGED_USERS.getFullPath(login), null)) {
-            cms.delete(Path.LOGGED_USERS.getFullPath(login));
-            lastAccessMap.remove(login);
+        if (this.cms.getZNodeExist(Path.LOGGED_USERS.getFullPath(login), null)) {
+            this.cms.delete(Path.LOGGED_USERS.getFullPath(login));
+            this.lastAccessMap.remove(login);
         }
     }
 
@@ -146,11 +144,10 @@ public class UserController implements Controller, Runnable {
      * @return
      */
     public boolean updateUserLastAccess(String login) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         // If login is no more at lastAccessMap, it returns null. That's why the == null verification
-        return (lastAccessMap.replace(login, LocalDateTime.parse(
-                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()), formatter)) == null);
+        return (this.lastAccessMap.replace(login, LocalDateTime.parse(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()), formatter)) == null);
     }
 
     /**
@@ -159,25 +156,25 @@ public class UserController implements Controller, Runnable {
      * @return
      */
     public int getLoggedUsersCount() {
-        return cms.getChildrenCount(Path.USERS.getFullPath() + Path.LOGGED_USERS, null);
+        return this.cms.getChildrenCount(Path.USERS.getFullPath() + Path.LOGGED_USERS, null);
     }
-    
-    public void registerUserWorkflow(Workflow workflow){
-        
-        if (!cms.getZNodeExist(CuratorMessageService.Path.USERS.getFullPath(),new UpdatePeerData(cms,null,this))) {
-            cms.getZNodeExist(CuratorMessageService.Path.USERS.getFullPath(),new UpdatePeerData(cms,null,slaController));
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.USERS.getFullPath(), "");
+
+    public void registerUserWorkflow(Workflow workflow) {
+
+        if (!this.cms.getZNodeExist(CuratorMessageService.Path.USERS.getFullPath(), new UpdatePeerData(this.cms, null, this))) {
+            this.cms.getZNodeExist(CuratorMessageService.Path.USERS.getFullPath(), new UpdatePeerData(this.cms, null, this.slaController));
+            this.cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.USERS.getFullPath(), "");
         }
-        if (!cms.getZNodeExist(CuratorMessageService.Path.USERS_INFO.getFullPath(), new UpdatePeerData(cms,null,this))) {
-            cms.getZNodeExist(CuratorMessageService.Path.USERS_INFO.getFullPath(), new UpdatePeerData(cms,null,slaController));
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.USERS_INFO.getFullPath(), "");
+        if (!this.cms.getZNodeExist(CuratorMessageService.Path.USERS_INFO.getFullPath(), new UpdatePeerData(this.cms, null, this))) {
+            this.cms.getZNodeExist(CuratorMessageService.Path.USERS_INFO.getFullPath(), new UpdatePeerData(this.cms, null, this.slaController));
+            this.cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.USERS_INFO.getFullPath(), "");
         }
-        
-        List<br.unb.cic.bionimbuz.model.Instance> listI = new ArrayList<>();
-        for(br.unb.cic.bionimbuz.avro.gen.Instance i : workflow.getIntancesWorkflow()){
-            //create instance object
-            br.unb.cic.bionimbuz.model.Instance in = new br.unb.cic.bionimbuz.model.Instance();
-            in.setId(i.getId()); 
+
+        final List<br.unb.cic.bionimbuz.model.Instance> listI = new ArrayList<>();
+        for (final br.unb.cic.bionimbuz.avro.gen.Instance i : workflow.getIntancesWorkflow()) {
+            // create instance object
+            final br.unb.cic.bionimbuz.model.Instance in = new br.unb.cic.bionimbuz.model.Instance();
+            in.setId(i.getId());
             in.setType(i.getType());
             in.setCostPerHour(i.getCostPerHour());
             in.setMemoryTotal(i.getMemoryTotal());
@@ -194,10 +191,10 @@ public class UserController implements Controller, Runnable {
             in.setIdUser(i.getIdUser());
             listI.add(in);
         }
-        //Create structure to /bionimbuz/users/userid
-        if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_USERS.getFullPath(workflow.getUserWorkflow().getLogin()),new UpdatePeerData(cms,null,this))){
-            cms.getZNodeExist(CuratorMessageService.Path.NODE_USERS.getFullPath(workflow.getUserWorkflow().getLogin()),new UpdatePeerData(cms,null,slaController));
-            User user = new User();
+        // Create structure to /bionimbuz/users/userid
+        if (!this.cms.getZNodeExist(CuratorMessageService.Path.NODE_USERS.getFullPath(workflow.getUserWorkflow().getLogin()), new UpdatePeerData(this.cms, null, this))) {
+            this.cms.getZNodeExist(CuratorMessageService.Path.NODE_USERS.getFullPath(workflow.getUserWorkflow().getLogin()), new UpdatePeerData(this.cms, null, this.slaController));
+            final User user = new User();
             user.setId(workflow.getUserWorkflow().getId());
             user.setLogin(workflow.getUserWorkflow().getLogin());
             user.setNome(workflow.getUserWorkflow().getNome());
@@ -205,35 +202,40 @@ public class UserController implements Controller, Runnable {
             user.setEmail(workflow.getUserWorkflow().getEmail());
             user.setCelphone(workflow.getUserWorkflow().getCelphone());
             user.setInstances(listI);
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_USERS.getFullPath(workflow.getUserWorkflow().getLogin()), user.toString());
+            this.cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_USERS.getFullPath(workflow.getUserWorkflow().getLogin()), user.toString());
         }
-        //Create structure to /bionimbuz/users/userid/workflows_user/
-        if(!cms.getZNodeExist(CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(workflow.getUserWorkflow().getLogin()),new UpdatePeerData(cms,null,this))){
-            cms.getZNodeExist(CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(workflow.getUserWorkflow().getLogin()),new UpdatePeerData(cms,null,slaController));
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(workflow.getUserWorkflow().getLogin()), null);
+        // Create structure to /bionimbuz/users/userid/workflows_user/
+        if (!this.cms.getZNodeExist(CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(workflow.getUserWorkflow().getLogin()), new UpdatePeerData(this.cms, null, this))) {
+            this.cms.getZNodeExist(CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(workflow.getUserWorkflow().getLogin()), new UpdatePeerData(this.cms, null, this.slaController));
+            this.cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.WORKFLOWS_USER.getFullPath(workflow.getUserWorkflow().getLogin()), null);
         }
-        //Create structure to /bionimbuz/users/userid/workflows_user/workflow_id
-        if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_WORFLOW_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId()),new UpdatePeerData(cms,null,this))){
-            cms.getZNodeExist(CuratorMessageService.Path.NODE_WORFLOW_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId()),new UpdatePeerData(cms,null,slaController));
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_WORFLOW_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId()),workflow.toString());
+        // Create structure to /bionimbuz/users/userid/workflows_user/workflow_id
+        if (!this.cms.getZNodeExist(CuratorMessageService.Path.NODE_WORFLOW_USER.getFullPath(workflow.getUserWorkflow().getLogin(), workflow.getId()), new UpdatePeerData(this.cms, null, this))) {
+            this.cms.getZNodeExist(CuratorMessageService.Path.NODE_WORFLOW_USER.getFullPath(workflow.getUserWorkflow().getLogin(), workflow.getId()),
+                    new UpdatePeerData(this.cms, null, this.slaController));
+            this.cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_WORFLOW_USER.getFullPath(workflow.getUserWorkflow().getLogin(), workflow.getId()), workflow.toString());
         }
-        //Create structure to with sla Info on sla node /bionimbuz/users/userid/workflows_user/workflow_id/slas_user/
-        if(!cms.getZNodeExist(CuratorMessageService.Path.SLA_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId()),new UpdatePeerData(cms,null,this))){
-            cms.getZNodeExist(CuratorMessageService.Path.SLA_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId()),new UpdatePeerData(cms,null,slaController));
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.SLA_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId()),workflow.getSla().toString());
+        // Create structure to with sla Info on sla node /bionimbuz/users/userid/workflows_user/workflow_id/slas_user/
+        if (!this.cms.getZNodeExist(CuratorMessageService.Path.SLA_USER.getFullPath(workflow.getUserWorkflow().getLogin(), workflow.getId()), new UpdatePeerData(this.cms, null, this))) {
+            this.cms.getZNodeExist(CuratorMessageService.Path.SLA_USER.getFullPath(workflow.getUserWorkflow().getLogin(), workflow.getId()), new UpdatePeerData(this.cms, null, this.slaController));
+            this.cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.SLA_USER.getFullPath(workflow.getUserWorkflow().getLogin(), workflow.getId()), workflow.getSla().toString());
         }
-        //Create structure to /bionimbuz/users/userid/workflows_user/workflow_id/instances_user
-        if(!cms.getZNodeExist(CuratorMessageService.Path.INSTANCES_USER.getFullPath(workflow.getUserWorkflow().getNome(),workflow.getId()),new UpdatePeerData(cms,null,this))){
-            cms.getZNodeExist(CuratorMessageService.Path.INSTANCES_USER.getFullPath(workflow.getUserWorkflow().getNome(),workflow.getId()),new UpdatePeerData(cms,null,slaController));
-            cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.INSTANCES_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId()),null);
+        // Create structure to /bionimbuz/users/userid/workflows_user/workflow_id/instances_user
+        if (!this.cms.getZNodeExist(CuratorMessageService.Path.INSTANCES_USER.getFullPath(workflow.getUserWorkflow().getNome(), workflow.getId()), new UpdatePeerData(this.cms, null, this))) {
+            this.cms.getZNodeExist(CuratorMessageService.Path.INSTANCES_USER.getFullPath(workflow.getUserWorkflow().getNome(), workflow.getId()),
+                    new UpdatePeerData(this.cms, null, this.slaController));
+            this.cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.INSTANCES_USER.getFullPath(workflow.getUserWorkflow().getLogin(), workflow.getId()), null);
         }
-        //Create structure to /bionimbuz/users/userid/workflows_user/workflow_id/instances_user/instances_id
-        for(br.unb.cic.bionimbuz.model.Instance i : listI){
-            //create instance object
-            if(!cms.getZNodeExist(CuratorMessageService.Path.NODE_INSTANCE_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId(),i.getIp()),new UpdatePeerData(cms,null,this))){
-                cms.getZNodeExist(CuratorMessageService.Path.NODE_INSTANCE_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId(),i.getIp()),new UpdatePeerData(cms,null,slaController));
-                cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_INSTANCE_USER.getFullPath(workflow.getUserWorkflow().getLogin(),workflow.getId(),i.getIp()),i.toString());
-            }    
+        // Create structure to /bionimbuz/users/userid/workflows_user/workflow_id/instances_user/instances_id
+        for (final br.unb.cic.bionimbuz.model.Instance i : listI) {
+            // create instance object
+            if (!this.cms.getZNodeExist(CuratorMessageService.Path.NODE_INSTANCE_USER.getFullPath(workflow.getUserWorkflow().getLogin(), workflow.getId(), i.getIp()),
+                    new UpdatePeerData(this.cms, null, this))) {
+                this.cms.getZNodeExist(CuratorMessageService.Path.NODE_INSTANCE_USER.getFullPath(workflow.getUserWorkflow().getLogin(), workflow.getId(), i.getIp()),
+                        new UpdatePeerData(this.cms, null, this.slaController));
+                this.cms.createZNode(CreateMode.PERSISTENT, CuratorMessageService.Path.NODE_INSTANCE_USER.getFullPath(workflow.getUserWorkflow().getLogin(), workflow.getId(), i.getIp()),
+                        i.toString());
+            }
         }
     }
 }

@@ -68,7 +68,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
 
     private final Workflow workflow;
 
-    public PluginTaskRunner(AbstractPlugin plugin, PluginTask task, PluginService service, CloudMessageService cms, Workflow workflow) {
+    public PluginTaskRunner(PluginTask task, PluginService service, CloudMessageService cms, Workflow workflow) {
         // Creates a RPC Client
 
         this.rpcClient = new AvroClient("http", BioNimbusConfig.get().getAddress(), 8080);
@@ -221,7 +221,7 @@ public class PluginTaskRunner implements Callable<PluginTask> {
                     final String outputPath = BioNimbusConfig.get().getDataFolder() + output;
 
                     // Its path
-                    this.copyFileToDataFolder(outputFolder + output, output, outputPath);
+                    this.copyFileToDataFolder(outputFolder + "/" + output, output, outputPath);
 
                     // Calculate hash (to avoid "null of string" avro exception)
                     final String hashFile = HashUtil.computeNativeSHA3(outputPath);

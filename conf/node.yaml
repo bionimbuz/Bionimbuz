@@ -77,6 +77,7 @@ supported-formats:
     - .sam
     - .txt
     - .fastq
+    - .cov.bedg
     
 # Supported services of BioNimbuZ    
 supported-services:
