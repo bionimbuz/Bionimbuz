@@ -20,6 +20,7 @@ Para a preparação do ambiente e instalação de dependências, seguir o passo-
 ##### 1. Script de preparação
 
 O Script de preparação faz a instalação de bibliotecas e softwares necessários para a execução do sistema, que são eles:
+----------------------------------------------------------------------------------------------------------------------
 - JDK 8: ambiente de desenvolvimento Java;
 - Maven: software de gerenciamento de projetos;
 - MySQL Server/Client: banco de dados para persistir dados da aplicação web;
@@ -29,6 +30,7 @@ O Script de preparação faz a instalação de bibliotecas e softwares necessár
 - Unzip: descompactador de arquivos;
 - Bowtie: uma ferramenta de alinhamento de sequências curtas (short read aligner) com boa performance e boa eficiência na utilização de memória;
 - Bedtools: conjunto de ferramentas para uma gama de tarefas de análises genôminas
+----------------------------------------------------------------------------------------------------------------------
 
 Além disso, o script faz a instalação e configuração do software Apache ZooKeeper dentro da pasta do projeto. 
 O ZooKeeper é um serviço centralizado para gerenciar e sincronizar informações de configuração em um ambiente computacional distribuído. Após a execução do script, o ZooKeeper estará localizado na pasta "<projeto>/system/zookeeper".
@@ -124,6 +126,7 @@ scp localfile zoonimbus@<ip_nuvem>:/path/to/file
 ----------------------------------------------------------------------------------------------------------------------
 
 ##### 3. Arquivos à serem enviados:
+----------------------------------------------------------------------------------------------------------------------
 enviar as pastas exported-folders
 enviar as pastas data-folder
 enviar as pastas pipeline
@@ -131,6 +134,7 @@ enviar as pastas services
 enviar as pastas programs
 enviar as pastas conf
 enviar bionimbus-1.0-SNAPSHOT-bundle.jar gerado na target
+----------------------------------------------------------------------------------------------------------------------
 
 #### Executando o BioNimbuZ na nuvem
 
