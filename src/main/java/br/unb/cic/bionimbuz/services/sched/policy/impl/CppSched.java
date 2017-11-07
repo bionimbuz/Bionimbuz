@@ -1,16 +1,23 @@
-package CppSched;
+package br.unb.cic.bionimbuz.services.sched.policy.impl;
 
 import java.net.DatagramSocket;
 import java.lang.String;
 import java.util.Random;
 import java.util.List;
+import java.util.Map;
 import java.net.DatagramPacket;
 import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.StringTokenizer;
+import br.unb.cic.bionimbuz.services.sched.policy.SchedPolicy;
+import br.unb.cic.bionimbuz.plugin.PluginInfo;
+import br.unb.cic.bionimbuz.model.Job;
+
 
 //import ByteUtils.*;
 
-public class CppSched/* extends SchedPolicy*/
+public abstract class CppSched extends SchedPolicy
 {
 	DatagramSocket socket;
 	SocketAddress cppAddr;
@@ -52,7 +59,8 @@ public class CppSched/* extends SchedPolicy*/
 				Debug();
 				socket.receive(pkt);
 				Debug();
-				numReceived= ByteUtils.bytesStringToLong(pkt.getData() );
+//				numReceived= ByteUtils.bytesStringToLong(pkt.getData() );
+				numReceived= Long.parseLong((new String(pkt.getData(), StandardCharsets.US_ASCII )).trim(), 10);
 				if(numReceived != key)
 				{
 					System.out.println("wrong key. Expecting " + key + ",  got " + numReceived );
@@ -71,7 +79,7 @@ public class CppSched/* extends SchedPolicy*/
 			if(Receive("[SchedTypeAwnser]").contains("Fail"))
 			{
 				Debug();
-				throw(new String("Deu ruim"));
+//				throw(new String("Deu ruim"));
 			}
 			System.out.println("Escalonador gerado!");
 			
@@ -88,12 +96,12 @@ public class CppSched/* extends SchedPolicy*/
 	{
 		return socket.getLocalPort();
 	}
-	public static void main(String[] args)
+/*	public static void main(String[] args)
 	{
 		CppSched sched= new CppSched();
 		System.out.println("Yeah!");
 		
-	}
+	}*/
 	protected String Receive(String begin)
 	{
 		DatagramPacket pkt= new DatagramPacket(new byte[65000], 65000);
@@ -112,11 +120,11 @@ public class CppSched/* extends SchedPolicy*/
 		return received;
 	}
 	
-	public abstract HashMap<Job, PluginInfo> schedule(List<Job> jobs){
-		String message= "SCHEDULE\rJOBS=" + jobs.lenght;
+	public HashMap<Job, PluginInfo> schedule(List<Job> jobs){
+		String message= "SCHEDULE\rJOBS=" + jobs.size();
 		message+= '\r';
 		for(int i=0; i < jobs.size(); i++){
-			message+= jobs[i].Serialize();
+			message+= jobs.get(i).Serialize();
 			message+= '\r';
 		}
 		message+= "PLUGININFOS=" + cloudMap.entrySet().size();
@@ -130,24 +138,25 @@ public class CppSched/* extends SchedPolicy*/
 		socket.send(new DatagramPacket((message).getBytes("US-ASCII"), (message).getBytes("US-ASCII").length, cppAddr));
 		Debug();
 		String result= Receive("Results=");
-		StringTokenizer tokenizer= new StringTokenizer(result, '\r', false);
-		int resultSize= Integer.parseInt(tokenizer.nextToken().substring("Results=".lenght);
+		StringTokenizer tokenizer= new StringTokenizer(result, "\r", false);
+		int resultSize= Integer.parseInt(tokenizer.nextToken().substring("Results=".length()));
 		for(int i=0; i < resultSize; i++){
 			String token= tokenizer.nextToken();
-			StringTokenizer localTokenizer= new StringTokenizer(token, '\n', false);
+			StringTokenizer localTokenizer= new StringTokenizer(token, "\n", false);
 			
 		}
 		
-		HashMap<Job, PluginInfo> result= new HashMap<Job, PluginInfo>();
+		HashMap<Job, PluginInfo> resultMap= new HashMap<Job, PluginInfo>();
 		
 		
 	}
 	protected Job FindJob(String jobId, List<Job> jobs){
-		for(int i=0; i < jobs.lenght; i++){
-			if(jobs[i].id == jobId){
-				return jobId;
+		for(int i=0; i < jobs.size(); i++){
+			if(jobs.get(i).getId() == jobId){
+				return jobs.get(i);
 			}
 		}
+		throw new String("Deu ruim");
 	}
 
 }
