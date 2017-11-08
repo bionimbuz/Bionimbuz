@@ -54,6 +54,14 @@ public class PluginInfo implements PluginOps {
     private String ip;
     private String provider;
 
+	public double gpuMemoryTotal,
+			gpuMemoryMaxFrequency,
+			gpuMemoryBus,
+			gpuMemoryBandwith,
+			gpuFloatingPointPerf;
+	public double gpuMaxFrequency;
+
+
     public PluginInfo() {
     }
 
@@ -294,4 +302,119 @@ public class PluginInfo implements PluginOps {
     public void setProvider(String provider) {
         this.provider = provider;
     }
+
+    public String Serialize(){
+	    std::string ret= "PLUGIN_INFO";
+	    ret+= '\n';
+	    
+	    ret+= "id=";
+	    ret+= id;
+	    ret+= '\n';
+	    
+	    ret+= "instanceName=";
+	    ret+= instanceName;
+	    ret+= '\n';
+	    
+	    ret+= "privateCloud=";
+	    ret+= String.valueOf(privateCloud);
+	    ret+= '\n';
+	    
+	    ret+= "host=";
+	    ret+= host.adderss;
+	    ret+= ':';
+	    ret += String.valueOf(host.port);
+	    ret+= '\n';
+	    
+	    ret+= "upTime=";
+	    ret+= String.valueOf(upTime);
+	    ret+= '\n';
+	    
+	    ret+= "latency=";
+	    ret+= String.valueOf(latency);
+	    ret+= '\n';
+	    
+	    ret+= "costPerGiga=";
+	    ret+= String.valueOf(costPerGiga);
+	    ret+= '\n';
+	    
+	    ret+= "timestamp=";
+	    ret+= String.valueOf(timestamp);
+	    ret+= '\n';
+	    
+	    ret+= "numCores=";
+	    ret+= String.valueOf(numCores);
+	    ret+= '\n';
+	    
+	    ret+= "numNodes=";
+	    ret+= String.valueOf(numNodes);
+	    ret+= '\n';
+	    
+	    ret+= "numOccupied=";
+	    ret+= String.valueOf(numOccupied);
+	    ret+= '\n';
+	    
+	    ret+= "ranking=";
+	    ret+= String.valueOf(ranking);
+	    ret+= '\n';
+	    
+	    ret+= "fsSize=";
+	    ret+= String.valueOf(fsSize);
+	    ret+= '\n';
+	    
+	    ret+= "memoryTotal=";
+	    ret+= String.valueOf(memoryTotal);
+	    ret+= '\n';
+	    
+	    ret+= "memoryFree=";
+	    ret+= String.valueOf(memoryFree);
+	    ret+= '\n';
+	    
+	    ret+= "currentFrequencyCore=";
+	    ret+= String.valueOf(currentFrequencyCore);
+	    ret+= '\n';
+	    
+	    ret+= "costPerHour=";
+	    ret+= String.valueOf(costPerHour);
+	    ret+= '\n';
+	    
+	    ret+= "bandwith=";
+	    ret+= String.valueOf(bandwith);
+	    ret+= '\n';
+	    
+	    ret+= "ip=";
+	    ret+= ip;
+	    ret+= '\n';
+	    
+	    ret+= "provider=";//obs:: n pode ter \n no provider
+	    ret+= provider;
+	    ret+= '\n';
+	    
+	    //adições para suporte de GPU
+	    ret+= "gpuMemoryTotal=";
+	    ret+= String.valueOf(gpuMemoryTotal);
+	    ret+= '\n';
+	    
+	    ret+= "gpuMemoryMaxFrequency=";
+	    ret+= String.valueOf(gpuMemoryMaxFrequency);
+	    ret+= '\n';
+	    
+	    ret+= "gpuMemoryBus=";
+	    ret+= String.valueOf(gpuMemoryBus);
+	    ret+= '\n';
+	    
+	    ret+= "gpuMemoryBandwith=";
+	    ret+= String.valueOf(gpuMemoryBandwith);
+	    ret+= '\n';
+	    
+	    ret+= "gpuFloatingPointPerf=";
+	    ret+= String.valueOf(gpuFloatingPointPerf);
+	    ret+= '\n';
+	    
+	    ret+= "gpuMaxFrequency=";
+	    ret+= String.valueOf(gpuMaxFrequency);
+	    ret+= '\n';
+	    
+	    return ret;
+    }
+
 }

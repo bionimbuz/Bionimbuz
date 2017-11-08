@@ -56,6 +56,10 @@ public class Job implements Serializable {
 
     private String referenceFile;
 
+	public boolean useGPU, useCPU;
+	public float gpuPref;
+
+
     public Job() {
 //        inputs = new ArrayList<>();
         inputFiles = new ArrayList<>();
@@ -246,5 +250,89 @@ public class Job implements Serializable {
     public void setIpjob(List<String> ipjob) {
         this.ipjob = ipjob;
     }
+
+    public String Serialize(){
+	    String ret= "JOB";
+	    ret+= '\n';
+	    
+	    ret+= "id=";
+	    ret+= id;
+	    ret+= '\n';
+	    
+	    ret+= "testId=";
+	    ret+= String.valueOf(testId);
+	    ret+= '\n';
+	    
+	    ret+= "localID=";
+	    ret+= localID;
+	    ret+= '\n';
+	    
+	    ret+= "serviceId=";
+	    ret+= serviceId;
+	    ret+= '\n';
+	    
+	    ret+= "args=";
+	    ret+= args;
+	    ret+= '\n';
+	    
+	    ret+= "ipJob=";
+	    ret+= String.valueOf(ipJob.size() );
+	    for(uint i=0; i < ipJob.size(); i++){
+		    ret+= '>';
+		    ret+= ipJob[i];
+	    }
+	    
+	    ret+="\ninputFiles=";
+	    ret+= String.valueOf(inputFiles.size() );
+	    for(uint i=0; i < inputFiles.size(); i++){
+		    ret+= '>';
+		    ret+= inputFiles[i].Serialize();
+	    }
+	    
+	    ret+= "\ninputURL=";
+	    ret+= inputURL;
+	    ret+= '\n';
+	    
+	    ret+= "outputs=";
+	    ret+= String.valueOf(outputs.size() );
+	    for(uint i=0; i < outputs.size(); i++){
+		    ret+= '>';
+		    ret+= outputs[i];
+	    }
+	    
+	    ret+= "\ntimestamp=";
+	    ret+= String.valueOf(timestamp);
+	    ret+= '\n';
+	    
+	    ret+= "worstExecution=";
+	    ret+= String.valueOf(worstExecution);
+	    ret+= '\n';
+	    
+	    ret+= "dependecies=";
+	    ret+= String.valueOf(dependecies.size() );
+	    for(uint i=0; i < dependecies.size(); i++){
+		    ret+= '>';
+		    ret+= dependecies[i];
+	    }
+	    
+	    ret+= "\nreferenceFile=";
+	    ret+= referenceFile;
+	    ret+= '\n';
+	    
+	    ret+= "useGPU=";
+	    ret+= useGPU?"true":"false";
+	    ret+= '\n';
+	    
+	    ret+= "useCPU=";
+	    ret+= useCPU?"true":"false";
+	    ret+= '\n';
+	    
+	    ret+= "gpuPref=";
+	    ret+= String.valueOf(gpuPref);
+	    ret+= '\n';
+	    
+	    return ret;
+    }
+
 
 }
