@@ -2,6 +2,7 @@ package br.unb.cic.bionimbuz.services.sched.policy.impl;
 
 import java.net.DatagramSocket;
 import java.lang.String;
+import java.lang.Throwable;
 import java.util.Random;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,8 @@ import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
+
 import br.unb.cic.bionimbuz.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbuz.plugin.PluginInfo;
 import br.unb.cic.bionimbuz.model.Job;
@@ -23,6 +26,7 @@ public abstract class CppSched extends SchedPolicy
 	SocketAddress cppAddr;
 	boolean debug=false;
 	protected abstract String GetSchedPolicy();
+	protected ConcurrentHashMap<String, PluginInfo> cloudMap;
 	public void Debug()
 	{
 		if(debug)
@@ -120,7 +124,7 @@ public abstract class CppSched extends SchedPolicy
 		return received;
 	}
 	
-	public HashMap<Job, PluginInfo> schedule(List<Job> jobs){
+	public HashMap<Job,PluginInfo> schedule(List<Job> jobs){
 		String message= "SCHEDULE\rJOBS=" + jobs.size();
 		message+= '\r';
 		for(int i=0; i < jobs.size(); i++){
@@ -148,7 +152,7 @@ public abstract class CppSched extends SchedPolicy
 		
 		HashMap<Job, PluginInfo> resultMap= new HashMap<Job, PluginInfo>();
 		
-		
+		return resultMap;
 	}
 	protected Job FindJob(String jobId, List<Job> jobs){
 		for(int i=0; i < jobs.size(); i++){
@@ -156,7 +160,7 @@ public abstract class CppSched extends SchedPolicy
 				return jobs.get(i);
 			}
 		}
-		throw new String("Deu ruim");
+		throw new Error("Deu ruim");
 	}
 
 }

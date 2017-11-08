@@ -98,7 +98,8 @@ public abstract class SchedPolicy {
         this.rs = rs;
     }
     
-    public abstract HashMap<Job, PluginInfo> schedule(List<Job> jobs);
+//    public abstract HashMap<Job, PluginInfo> schedule(List<Job> jobs);
+    public abstract HashMap<PluginInfo, ArrayList< List<String> > > schedule(List<Job> jobs);
     
     public abstract List<PluginTask> relocate(Collection<Pair<Job, PluginTask>> taskPairs);
 

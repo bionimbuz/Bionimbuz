@@ -62,12 +62,25 @@ public class AcoSched extends SchedPolicy {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AcoSched.class.getSimpleName());
     
     @Override
-    public HashMap<Job, PluginInfo> schedule(List<Job> jobs) {
-        HashMap<Job, PluginInfo> jobCloud = new HashMap<>();
+//    public HashMap<Job, PluginInfo> schedule(List<Job> jobs) {
+      public HashMap<PluginInfo, ArrayList<List<String> > > schedule(List<Job> jobs) {
+/*        HashMap<Job, PluginInfo> jobCloud = new HashMap<>();
         Job biggerJob = getBiggerJob(jobs);
         biggerJob.setTimestamp(System.currentTimeMillis());
         
         jobCloud.put(biggerJob, scheduleJob(biggerJob));
+  */      
+        //
+        HashMap<PluginInfo, ArrayList<List<String> > > jobCloud= new HashMap<PluginInfo, ArrayList<List<String> > >();
+        Job biggerJob = getBiggerJob(jobs);
+        biggerJob.setTimestamp(System.currentTimeMillis());
+        PluginInfo jobTarget=scheduleJob(biggerJob);
+        jobCloud.put(jobTarget, new ArrayList<List<String>>(2) );
+       // jobCloud.get(jobTarget)= new ArrayList<String> (1);
+        jobCloud.get(jobTarget)[0]= biggerJob.getId();
+        jobCloud.get(jobTarget)[1]= null;
+        
+        //
         
         return jobCloud;
     }
