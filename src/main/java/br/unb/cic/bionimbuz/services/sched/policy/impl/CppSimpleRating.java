@@ -6,6 +6,6 @@ public class CppSimpleRating extends CppSched{
 	}
 	@Override
 	public String getPolicyName() {
-        return "Name: "+ CppSimpleRating.class.getSimpleName()";
+        return "Name: "+ CppSimpleRating.class.getSimpleName();
 	}
 }

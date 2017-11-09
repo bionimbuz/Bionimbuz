@@ -26,6 +26,7 @@ import java.util.List;
 import br.unb.cic.bionimbuz.model.Job;
 import br.unb.cic.bionimbuz.plugin.PluginInfo;
 import br.unb.cic.bionimbuz.plugin.PluginTask;
+import br.unb.cic.bionimbuz.services.sched.model.ScheduledMachines;
 import br.unb.cic.bionimbuz.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbuz.utils.Pair;
 import org.slf4j.Logger;
@@ -69,13 +70,14 @@ public class BasicSchedPolicy extends SchedPolicy {
      * @return 
      */
     @Override
-    public HashMap<Job, PluginInfo> schedule(List<Job> jobs) {
-        HashMap<Job, PluginInfo> schedMap = new HashMap<>();
+    public HashMap<Job, ScheduledMachines> schedule(List<Job> jobs) {
+        HashMap<Job, ScheduledMachines> schedMap = new HashMap<>();
         for(PluginInfo plugin: getCloudMap().values()){
             for(Job job : jobs){
                 if(job.getIpjob().contains(plugin.getHost().getAddress())){
                     job.getIpjob().indexOf(plugin.getHost().getAddress());
-                    schedMap.put(job,plugin);
+                    schedMap.put(job, new ScheduledMachines() );
+                    schedMap.get(job).cpu.add(plugin);
                 }
             }
         }

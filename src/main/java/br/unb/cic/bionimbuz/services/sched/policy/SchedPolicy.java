@@ -22,6 +22,7 @@ import br.unb.cic.bionimbuz.model.Job;
 import br.unb.cic.bionimbuz.plugin.PluginInfo;
 import br.unb.cic.bionimbuz.plugin.PluginTask;
 import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
+import br.unb.cic.bionimbuz.services.sched.model.ScheduledMachines;
 import br.unb.cic.bionimbuz.services.sched.policy.impl.AHPPolicy;
 import br.unb.cic.bionimbuz.services.sched.policy.impl.AcoSched;
 import br.unb.cic.bionimbuz.services.sched.policy.impl.RRPolicy;
@@ -99,7 +100,7 @@ public abstract class SchedPolicy {
     }
     
 //    public abstract HashMap<Job, PluginInfo> schedule(List<Job> jobs);
-    public abstract HashMap<PluginInfo, ArrayList< List<String> > > schedule(List<Job> jobs);
+    public abstract HashMap<Job, ScheduledMachines > schedule(List<Job> jobs);
     
     public abstract List<PluginTask> relocate(Collection<Pair<Job, PluginTask>> taskPairs);
 

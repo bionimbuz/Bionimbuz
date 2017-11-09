@@ -65,6 +65,7 @@ import br.unb.cic.bionimbuz.services.RepositoryService;
 import br.unb.cic.bionimbuz.services.UpdatePeerData;
 import br.unb.cic.bionimbuz.services.messaging.CloudMessageService;
 import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path;
+import br.unb.cic.bionimbuz.services.sched.model.ScheduledMachines;
 import br.unb.cic.bionimbuz.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbuz.services.storage.bucket.BioBucket;
 import br.unb.cic.bionimbuz.services.storage.bucket.CloudStorageMethods;
@@ -216,7 +217,7 @@ public class SchedService extends AbstractBioService implements Runnable {
      * um novo job foi criado para ser escalonado.
      */
     private synchronized void scheduleJobs() throws InterruptedException, KeeperException {
-        HashMap<Job, PluginInfo> schedMap;
+        HashMap<Job, ScheduledMachines> schedMap;
 
         // Caso nao exista nenhum pipeline pendente da a chance para o escalonador
         // realocar as tarefas.
@@ -233,10 +234,17 @@ public class SchedService extends AbstractBioService implements Runnable {
             // sched all pending jobs
             schedMap = this.getPolicy().schedule(this.pendingJobs);
 
-            for (final Map.Entry<Job, PluginInfo> entry : schedMap.entrySet()) {
+            for (final Map.Entry<Job, ScheduledMachines> entry : schedMap.entrySet()) {
                 final Job jobInfo = entry.getKey();
 
-                final PluginInfo pluginInfo = entry.getValue();
+//                final PluginInfo pluginInfo = entry.getValue().cpu.get(0);
+                PluginInfo pluginInfo;
+                if(entry.getValue().cpu.isEmpty()) {
+                	pluginInfo = entry.getValue().gpu.get(0);
+                }
+                else {
+                	pluginInfo = entry.getValue().cpu.get(0);
+                }
                 final PluginTask task = new PluginTask();
                 task.setJobInfo(jobInfo);
                 if (pluginInfo != null) {

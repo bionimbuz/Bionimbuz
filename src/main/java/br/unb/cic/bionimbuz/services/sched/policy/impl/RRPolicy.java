@@ -27,6 +27,7 @@ import br.unb.cic.bionimbuz.model.Job;
 import br.unb.cic.bionimbuz.plugin.PluginInfo;
 import br.unb.cic.bionimbuz.plugin.PluginTask;
 import br.unb.cic.bionimbuz.services.sched.SchedException;
+import br.unb.cic.bionimbuz.services.sched.model.ScheduledMachines;
 import br.unb.cic.bionimbuz.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbuz.utils.Pair;
 
@@ -50,13 +51,14 @@ public class RRPolicy extends SchedPolicy {
     }
 
     @Override
-    public HashMap<Job, PluginInfo> schedule(List<Job> jobs) {
-        HashMap<Job, PluginInfo> schedMap = new HashMap<Job, PluginInfo>();
+    public HashMap<Job, ScheduledMachines> schedule(List<Job> jobs) {
+        HashMap<Job, ScheduledMachines> schedMap = new HashMap<Job, ScheduledMachines>();
 
         for (Job jobInfo : jobs) {
             jobInfo.setTimestamp(System.currentTimeMillis());
             PluginInfo resource = this.scheduleJob(jobInfo);
-            schedMap.put(jobInfo, resource);
+            schedMap.put(jobInfo, new ScheduledMachines());
+            schedMap.get(jobInfo).cpu.add(resource);
             usedResources.add(resource);
             break;
         }

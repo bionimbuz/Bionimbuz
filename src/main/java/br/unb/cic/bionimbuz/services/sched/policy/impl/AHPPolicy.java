@@ -30,6 +30,7 @@ import br.unb.cic.bionimbuz.model.Job;
 import br.unb.cic.bionimbuz.plugin.PluginInfo;
 import br.unb.cic.bionimbuz.plugin.PluginTask;
 import br.unb.cic.bionimbuz.plugin.PluginTaskState;
+import br.unb.cic.bionimbuz.services.sched.model.ScheduledMachines;
 import br.unb.cic.bionimbuz.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbuz.utils.Pair;
 
@@ -45,15 +46,17 @@ public class AHPPolicy extends SchedPolicy {
     }
 
     @Override
-    public HashMap<Job, PluginInfo> schedule(List<Job> jobs) {
+    public HashMap<Job, ScheduledMachines> schedule(List<Job> jobs) {
         List<Job> jobInfos = jobs;
         if (jobInfos==null || jobInfos.isEmpty()) return null;
-
-        HashMap<Job, PluginInfo> jobMap = new HashMap<Job, PluginInfo>();
-        Job biggerJob = getBiggerJob(new ArrayList<Job>(jobInfos));
+        HashMap<Job, ScheduledMachines > jobMap= new HashMap<Job, ScheduledMachines >();
+        Job biggerJob = getBiggerJob(jobs);
         biggerJob.setTimestamp(System.currentTimeMillis());
-        jobMap.put(biggerJob, this.scheduleJob(biggerJob));
+        PluginInfo jobTarget=scheduleJob(biggerJob);
+        jobMap.put(biggerJob, new ScheduledMachines() );
+        jobMap.get(biggerJob).cpu.add(jobTarget);
         return jobMap;
+
     }
 
     @Override

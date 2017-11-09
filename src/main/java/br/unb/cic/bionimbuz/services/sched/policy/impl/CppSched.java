@@ -9,12 +9,16 @@ import java.util.Map;
 import java.net.DatagramPacket;
 import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 
+import br.unb.cic.bionimbuz.services.sched.model.ScheduledMachines;
 import br.unb.cic.bionimbuz.services.sched.policy.SchedPolicy;
+import br.unb.cic.bionimbuz.utils.Pair;
 import br.unb.cic.bionimbuz.plugin.PluginInfo;
+import br.unb.cic.bionimbuz.plugin.PluginTask;
 import br.unb.cic.bionimbuz.model.Job;
 
 
@@ -113,7 +117,13 @@ public abstract class CppSched extends SchedPolicy
 		do
 		{
 			Debug();
-			socket.receive(pkt);
+			try {
+				socket.receive(pkt);
+			}
+			catch(Throwable a) {
+				Debug();
+				a.printStackTrace();
+			}
 			received= pkt.getData().toString().trim();
 			if(!received.startsWith(begin))
 			{
@@ -124,7 +134,7 @@ public abstract class CppSched extends SchedPolicy
 		return received;
 	}
 	
-	public HashMap<Job,PluginInfo> schedule(List<Job> jobs){
+	public HashMap<Job,ScheduledMachines> schedule(List<Job> jobs){
 		String message= "SCHEDULE\rJOBS=" + jobs.size();
 		message+= '\r';
 		for(int i=0; i < jobs.size(); i++){
@@ -139,18 +149,46 @@ public abstract class CppSched extends SchedPolicy
 			message+="value="+entry.getValue().Serialize();
 			message+= '\r';
 		}
-		socket.send(new DatagramPacket((message).getBytes("US-ASCII"), (message).getBytes("US-ASCII").length, cppAddr));
+		try {
+			socket.send(new DatagramPacket((message).getBytes("US-ASCII"), (message).getBytes("US-ASCII").length, cppAddr));
+		}
+		catch(Throwable a) {
+			Debug();
+			a.printStackTrace();
+		}
 		Debug();
+
+		HashMap<Job, ScheduledMachines> resultMap= new HashMap<Job, ScheduledMachines>();
+		
 		String result= Receive("Results=");
 		StringTokenizer tokenizer= new StringTokenizer(result, "\r", false);
 		int resultSize= Integer.parseInt(tokenizer.nextToken().substring("Results=".length()));
 		for(int i=0; i < resultSize; i++){
 			String token= tokenizer.nextToken();
 			StringTokenizer localTokenizer= new StringTokenizer(token, "\n", false);
-			
+			String jobId= localTokenizer.nextToken();
+			String pluginInfoId= localTokenizer.nextToken();
+			int whereToRun= Integer.parseInt(localTokenizer.nextToken());
+			Job scheduledJob= FindJob(jobId, jobs);
+			PluginInfo scheduledPluginInfo= null;
+			for(Map.Entry<String, PluginInfo> entry : cloudMap.entrySet()) {
+				if(entry.getValue().getId()== pluginInfoId) {
+					scheduledPluginInfo= entry.getValue();
+					break;
+				}
+			}
+			if(1 == whereToRun) {
+				resultMap.put(scheduledJob, new ScheduledMachines());
+				resultMap.get(scheduledJob).cpu.add(scheduledPluginInfo);
+			}else if(2 == whereToRun) {
+				resultMap.put(scheduledJob, new ScheduledMachines());
+				resultMap.get(scheduledJob).gpu.add(scheduledPluginInfo);
+			}
+			else {
+				
+			}
 		}
 		
-		HashMap<Job, PluginInfo> resultMap= new HashMap<Job, PluginInfo>();
 		
 		return resultMap;
 	}
@@ -162,5 +200,20 @@ public abstract class CppSched extends SchedPolicy
 		}
 		throw new Error("Deu ruim");
 	}
+    @Override
+    public List<PluginTask> relocate(Collection<Pair<Job, PluginTask>> taskPairs) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
+    @Override
+    public void cancelJobEvent(PluginTask task) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void jobDone(PluginTask task) {
+        // nothing to do so far
+    }
+
+	
 }

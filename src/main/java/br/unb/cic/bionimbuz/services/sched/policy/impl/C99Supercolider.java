@@ -18,6 +18,7 @@ import br.unb.cic.bionimbuz.services.sched.model.Pareto;
 import br.unb.cic.bionimbuz.tests.PipelineTestGenerator;
 import br.unb.cic.bionimbuz.services.sched.model.Resource;
 import br.unb.cic.bionimbuz.services.sched.model.ResourceList;
+import br.unb.cic.bionimbuz.services.sched.model.ScheduledMachines;
 import br.unb.cic.bionimbuz.services.sched.model.SearchNode;
 import br.unb.cic.bionimbuz.utils.Pair;
 import java.io.File;
@@ -896,7 +897,7 @@ public class C99Supercolider extends SchedPolicy {
      * @return
      */
     @Override
-    public HashMap<Job, PluginInfo> schedule(List<Job> jobs) {
+    public HashMap<Job, ScheduledMachines> schedule(List<Job> jobs) {
         final ResourceList resources = new ResourceList();
         final Map<String, PluginInfo> peers = new HashMap<>();
         //Alterei para poder pegar somente a lista de ips fornecidos do usuario nos jobs
@@ -915,12 +916,13 @@ public class C99Supercolider extends SchedPolicy {
 //        schedule(rs.getCurrentResourceList(), jobs);
         schedule(resources, jobs);
 
-        HashMap<Job, PluginInfo> sched = new HashMap<>();
+        HashMap<Job, ScheduledMachines> sched = new HashMap<Job, ScheduledMachines>();
 //        Map<String, PluginInfo> peers = rs.getPeers();
 
         for (Resource r : best.resources) {
             for (Job j : r.getAllocatedTasks()) {
-                sched.put(j, peers.get(r.id));
+            	sched.put(j, new ScheduledMachines() );
+            	sched.get(j).cpu.add(peers.get(r.id));
             }
         }
 

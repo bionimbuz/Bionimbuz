@@ -56,8 +56,8 @@ public class Job implements Serializable {
 
     private String referenceFile;
 
-	public boolean useGPU, useCPU;
-	public float gpuPref;
+	boolean useGPU, useCPU;
+	float gpuPref;
 
 
     public Job() {
@@ -264,7 +264,7 @@ public class Job implements Serializable {
 	    ret+= '\n';
 	    
 	    ret+= "localID=";
-	    ret+= localID;
+	    ret+= localId;
 	    ret+= '\n';
 	    
 	    ret+= "serviceId=";
@@ -276,17 +276,17 @@ public class Job implements Serializable {
 	    ret+= '\n';
 	    
 	    ret+= "ipJob=";
-	    ret+= String.valueOf(ipJob.size() );
-	    for(uint i=0; i < ipJob.size(); i++){
+	    ret+= String.valueOf(ipjob.size() );
+	    for(int i=0; i < ipjob.size(); i++){
 		    ret+= '>';
-		    ret+= ipJob[i];
+		    ret+= ipjob.get(i);
 	    }
 	    
 	    ret+="\ninputFiles=";
 	    ret+= String.valueOf(inputFiles.size() );
-	    for(uint i=0; i < inputFiles.size(); i++){
+	    for(int i=0; i < inputFiles.size(); i++){
 		    ret+= '>';
-		    ret+= inputFiles[i].Serialize();
+		    ret+= inputFiles.get(i).Serialize();
 	    }
 	    
 	    ret+= "\ninputURL=";
@@ -295,9 +295,9 @@ public class Job implements Serializable {
 	    
 	    ret+= "outputs=";
 	    ret+= String.valueOf(outputs.size() );
-	    for(uint i=0; i < outputs.size(); i++){
+	    for(int i=0; i < outputs.size(); i++){
 		    ret+= '>';
-		    ret+= outputs[i];
+		    ret+= outputs.get(i);
 	    }
 	    
 	    ret+= "\ntimestamp=";
@@ -309,10 +309,10 @@ public class Job implements Serializable {
 	    ret+= '\n';
 	    
 	    ret+= "dependecies=";
-	    ret+= String.valueOf(dependecies.size() );
-	    for(uint i=0; i < dependecies.size(); i++){
+	    ret+= String.valueOf(dependencies.size() );
+	    for(int i=0; i < dependencies.size(); i++){
 		    ret+= '>';
-		    ret+= dependecies[i];
+		    ret+= dependencies.get(i);
 	    }
 	    
 	    ret+= "\nreferenceFile=";

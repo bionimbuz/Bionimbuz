@@ -304,7 +304,7 @@ public class PluginInfo implements PluginOps {
     }
 
     public String Serialize(){
-	    std::string ret= "PLUGIN_INFO";
+	    String ret= "PLUGIN_INFO";
 	    ret+= '\n';
 	    
 	    ret+= "id=";
@@ -312,7 +312,7 @@ public class PluginInfo implements PluginOps {
 	    ret+= '\n';
 	    
 	    ret+= "instanceName=";
-	    ret+= instanceName;
+	    ret+= getInstanceName();
 	    ret+= '\n';
 	    
 	    ret+= "privateCloud=";
@@ -320,13 +320,13 @@ public class PluginInfo implements PluginOps {
 	    ret+= '\n';
 	    
 	    ret+= "host=";
-	    ret+= host.adderss;
+	    ret+= host.getAddress();
 	    ret+= ':';
-	    ret += String.valueOf(host.port);
+	    ret += String.valueOf(host.getPort());
 	    ret+= '\n';
 	    
 	    ret+= "upTime=";
-	    ret+= String.valueOf(upTime);
+	    ret+= String.valueOf(getUptime());
 	    ret+= '\n';
 	    
 	    ret+= "latency=";
@@ -334,7 +334,7 @@ public class PluginInfo implements PluginOps {
 	    ret+= '\n';
 	    
 	    ret+= "costPerGiga=";
-	    ret+= String.valueOf(costPerGiga);
+	    ret+= String.valueOf(costpergiga);
 	    ret+= '\n';
 	    
 	    ret+= "timestamp=";
@@ -378,7 +378,7 @@ public class PluginInfo implements PluginOps {
 	    ret+= '\n';
 	    
 	    ret+= "bandwith=";
-	    ret+= String.valueOf(bandwith);
+	    ret+= String.valueOf(getBandwidth());
 	    ret+= '\n';
 	    
 	    ret+= "ip=";

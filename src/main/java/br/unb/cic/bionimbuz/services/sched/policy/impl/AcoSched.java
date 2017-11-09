@@ -42,6 +42,7 @@ import br.unb.cic.bionimbuz.plugin.PluginInfo;
 import br.unb.cic.bionimbuz.plugin.PluginTask;
 import br.unb.cic.bionimbuz.plugin.PluginTaskState;
 import br.unb.cic.bionimbuz.services.messaging.CuratorMessageService.Path;
+import br.unb.cic.bionimbuz.services.sched.model.ScheduledMachines;
 import br.unb.cic.bionimbuz.services.sched.policy.SchedPolicy;
 import br.unb.cic.bionimbuz.utils.Pair;
 
@@ -62,26 +63,13 @@ public class AcoSched extends SchedPolicy {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AcoSched.class.getSimpleName());
     
     @Override
-//    public HashMap<Job, PluginInfo> schedule(List<Job> jobs) {
-      public HashMap<PluginInfo, ArrayList<List<String> > > schedule(List<Job> jobs) {
-/*        HashMap<Job, PluginInfo> jobCloud = new HashMap<>();
-        Job biggerJob = getBiggerJob(jobs);
-        biggerJob.setTimestamp(System.currentTimeMillis());
-        
-        jobCloud.put(biggerJob, scheduleJob(biggerJob));
-  */      
-        //
-        HashMap<PluginInfo, ArrayList<List<String> > > jobCloud= new HashMap<PluginInfo, ArrayList<List<String> > >();
+      public HashMap<Job, ScheduledMachines > schedule(List<Job> jobs) {
+        HashMap<Job, ScheduledMachines > jobCloud= new HashMap<Job, ScheduledMachines >();
         Job biggerJob = getBiggerJob(jobs);
         biggerJob.setTimestamp(System.currentTimeMillis());
         PluginInfo jobTarget=scheduleJob(biggerJob);
-        jobCloud.put(jobTarget, new ArrayList<List<String>>(2) );
-       // jobCloud.get(jobTarget)= new ArrayList<String> (1);
-        jobCloud.get(jobTarget)[0]= biggerJob.getId();
-        jobCloud.get(jobTarget)[1]= null;
-        
-        //
-        
+        jobCloud.put(biggerJob, new ScheduledMachines() );
+        jobCloud.get(biggerJob).cpu.add(jobTarget);
         return jobCloud;
     }
     

@@ -115,4 +115,39 @@ public class FileInfo implements Serializable {
         }
         return null;
     }
+
+	public String Serialize() {
+		String ret= "FILE_INFO";
+		ret+= '\n';
+		
+		ret+= "id=";
+		ret+= id;
+		ret+= '\n';
+		
+		ret+= "name=";
+		ret+= name;
+		ret+= '\n';
+		
+		ret+= "size=";
+		ret+= String.valueOf(size);
+		ret+= '\n';
+		
+		ret+= "userId=";
+		ret+= String.valueOf(userId);
+		ret+= '\n';
+		
+		ret+= "uploadTimestamp=";
+		ret+= uploadTimestamp;
+		ret+= '\n';
+		
+		ret+= "hash=";
+		ret+= hash;
+		ret+= '\n';
+		
+		ret+= "bucket=";
+		ret+= bucket;
+		ret+= '\n';
+		
+		return ret;	
+	}
 }
