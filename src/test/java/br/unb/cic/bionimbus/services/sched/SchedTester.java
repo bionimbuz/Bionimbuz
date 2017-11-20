@@ -19,6 +19,7 @@
 package br.unb.cic.bionimbus.services.sched;
 
 import br.unb.cic.bionimbuz.services.sched.SchedService;
+import br.unb.cic.bionimbuz.services.sched.policy.impl.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -70,17 +71,17 @@ public class SchedTester {
 
     public SchedPolicy getPolicy() {
         if (schedPolicy == null) {
-            schedPolicy = SchedPolicy.getInstance(SchedPolicy.Policy.ACO_SCHED, cloudMap);
+            schedPolicy = new CppSimpleRating();
         }
         return schedPolicy;
     }
 
     private Job generateJob(String id) {
-//        Job j = new Job(null);
-//        j.setId(id);
-//        j.setServiceId("1");
-//        return j;]
-        return null;
+        Job j = new Job(null);
+        j.setId(id);
+        j.setServiceId("1");
+        return j;
+//       return null;
     }
 
     private void addJob(Job j) {
@@ -180,5 +181,6 @@ public class SchedTester {
     public static void main(String[] args) {
         SchedTester st = new SchedTester();
         st.run();
+        System.out.println("chegou aq");
     }
 }
