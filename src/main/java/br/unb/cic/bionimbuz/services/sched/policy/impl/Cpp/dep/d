@@ -1,0 +1,22 @@
+bin/SimpleRatingSched.o: src/SimpleRatingSched.cpp \
+ include/SimpleRatingSched.h include/Escalonador.hpp include/PluginInfo.h \
+ include/Host.h include/Serializable.h include/Job.h include/FileInfo.h \
+ include/SimpleRatingMethod.h include/RatingMethod.h
+
+include/SimpleRatingSched.h:
+
+include/Escalonador.hpp:
+
+include/PluginInfo.h:
+
+include/Host.h:
+
+include/Serializable.h:
+
+include/Job.h:
+
+include/FileInfo.h:
+
+include/SimpleRatingMethod.h:
+
+include/RatingMethod.h:
