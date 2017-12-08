@@ -58,7 +58,7 @@ public abstract class CppSched extends SchedPolicy
 			System.out.println("Número sorteado: " + key);
 			Debug();
 			Runtime r = Runtime.getRuntime();
-			Process p = r.exec("./Escalonador.out "+ GetPort() + " " + key + " > /home/francisco/Escalonador.log 2>&1 &");//my_command > output.log 2>&1 &
+			Process p = r.exec("./Cpp/Escalonador.out "+ GetPort() + " " + key + " > /home/francisco/Escalonador.log 2>&1 &");//my_command > output.log 2>&1 &
 			DatagramPacket pkt= new DatagramPacket(new byte[65000], 65000);
 			Debug();
 			long numReceived;
