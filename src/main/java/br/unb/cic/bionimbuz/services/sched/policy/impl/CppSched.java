@@ -28,7 +28,7 @@ public abstract class CppSched extends SchedPolicy
 {
 	DatagramSocket socket;
 	SocketAddress cppAddr;
-	boolean debug=false;
+	boolean debug=true;
 	protected abstract String GetSchedPolicy();
 	protected ConcurrentHashMap<String, PluginInfo> cloudMap;
 	public void Debug()

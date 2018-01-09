@@ -181,6 +181,6 @@ public class SchedTester {
     public static void main(String[] args) {
         SchedTester st = new SchedTester();
         st.run();
-        System.out.println("chegou aq");
+//        System.out.println("chegou aq");
     }
 }
