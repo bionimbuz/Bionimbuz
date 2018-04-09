@@ -117,3 +117,17 @@ supported-services:
         # No one knows what this means (only Willian)
         presetMode: 4242000000
         info: The bedtools coverage tool computes both the depth and breadth of coverage of features in file B on the features in file A.
+    - !br.unb.cic.bionimbuz.plugin.PluginService 
+        id: 5
+        name: XMR-Stak
+        path: ./data/programs/xmr-stak.sh
+        # No one knows what this means (only Willian)
+        presetMode: 4242000000
+        info: Miner changed to stop after a certain amounts of hashes are calculated, for performance testing purposes.
+    - !br.unb.cic.bionimbuz.plugin.PluginService 
+        id: 6
+        name: XMR-Stak-CPU
+        path: ./data/programs/xmr-stak-cpu.sh
+        # No one knows what this means (only Willian)
+        presetMode: 4242000000
+        info: Miner changed to stop after a certain amounts of hashes are calculated, for performance testing purposes, this version uses only CPU.
