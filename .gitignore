@@ -50,6 +50,10 @@ nb-configuration.xml
 /conf/index.json
 /output-folder/
 
+src/main/java/br/unb/cic/bionimbuz/services/sched/policy/impl/Cpp/bin/
+src/main/java/br/unb/cic/bionimbuz/services/sched/policy/impl/Cpp/dep/
+#*.o
+
 # Arquivos de configuração com informações sensíveis
 /conf/credentials.yaml
 /logs/
