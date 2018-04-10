@@ -1,4 +1,4 @@
 
 databaseUrl: jdbc:mysql://127.0.0.1:3306/bionimbuz_db?useSSL=false
-databaseUser: root
-databasePass: root
+databaseUser: xicobionimbuz
+databasePass: teste
