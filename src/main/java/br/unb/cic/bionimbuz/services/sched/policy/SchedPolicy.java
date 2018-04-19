@@ -28,6 +28,7 @@ import br.unb.cic.bionimbuz.services.sched.policy.impl.AcoSched;
 import br.unb.cic.bionimbuz.services.sched.policy.impl.RRPolicy;
 import br.unb.cic.bionimbuz.services.sched.policy.impl.C99Supercolider;
 import br.unb.cic.bionimbuz.services.sched.policy.impl.BasicSchedPolicy;
+import br.unb.cic.bionimbuz.services.sched.policy.impl.CppSimpleRating;
 import br.unb.cic.bionimbuz.services.RepositoryService;
 import br.unb.cic.bionimbuz.utils.Pair;
 import java.util.ArrayList;
@@ -47,7 +48,8 @@ public abstract class SchedPolicy {
         AHP,
         RR,
         C99SUPERCOLIDER,
-        BasicSchedPolicy
+        BasicSchedPolicy,
+		SIMPLE_RATING_SCHED
     }
     
     private ConcurrentHashMap<String, PluginInfo> cloudMap = new ConcurrentHashMap<>();
@@ -71,6 +73,7 @@ public abstract class SchedPolicy {
         listPolicys.add(Policy.RR.ordinal(),new RRPolicy());
         listPolicys.add(Policy.C99SUPERCOLIDER.ordinal(),new C99Supercolider());
         listPolicys.add(Policy.BasicSchedPolicy.ordinal(),new BasicSchedPolicy());
+        listPolicys.add(Policy.SIMPLE_RATING_SCHED.ordinal(),new CppSimpleRating());
 
         return listPolicys;
     }
