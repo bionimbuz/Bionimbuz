@@ -93,6 +93,7 @@ public class SchedService extends AbstractBioService implements Runnable {
 
     // change this to select scheduling policy
     private final SchedPolicy.Policy policy = SchedPolicy.Policy.C99SUPERCOLIDER;
+//    private final SchedPolicy.Policy policy = SchedPolicy.Policy.SIMPLE_RATING_SCHED;
     private String idPlugin;
 
     private LinuxPlugin myLinuxPlugin;
@@ -232,6 +233,7 @@ public class SchedService extends AbstractBioService implements Runnable {
             // realiza a requisicao dos valores da lantência antes de escalonar um job
 
             // sched all pending jobs
+            System.out.println("Escalonador sendo utilizado: " + this.getPolicy().getPolicyName());
             schedMap = this.getPolicy().schedule(this.pendingJobs);
 
             for (final Map.Entry<Job, ScheduledMachines> entry : schedMap.entrySet()) {

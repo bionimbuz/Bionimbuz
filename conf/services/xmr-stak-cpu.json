@@ -1,6 +1,0 @@
-{
-    "id": 6,
-    "name": "Aeon miner xmr-stak",
-    "info": "Miner changed to stop after a certain amounts of hashes are calculated, for performance testing purposes",
-    "path": "./data/programs/xmr-stak-cpu.sh"
-}

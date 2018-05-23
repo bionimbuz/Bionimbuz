@@ -13,11 +13,11 @@
 #include "Error.h"
 #include "SimpleRatingSched.h"
 
-#define BIONIMBUZ_PREFIX_SCHED "[BioNimbuZ]SCHED="
-#define BIONIMBUZ_SCHED_SIMPLE_RATING_SCHED "[BioNimbuZ]SIMPLE_RATING_SCHED"
-#define BIONIMBUZ_UNKNOWN_SCHED "[BioNimbuZ]UNKNOWN_SCHED"
-#define BIONIMBUZ_STATUS_OK "[BioNimbuZ]STATUS_OK"
-#define BIONIMBUZ_SCHED_DEFINED "[BioNimbuZ]SSCHEDULER_DEFINED"
+#define BIONIMBUZ_PREFIX_SCHED "SCHED="
+#define BIONIMBUZ_SCHED_SIMPLE_RATING_SCHED "SIMPLE_RATING_SCHED"
+#define BIONIMBUZ_UNKNOWN_SCHED "Fail_UNKNOWN_SCHED"
+#define BIONIMBUZ_STATUS_OK "STATUS_OK"
+#define BIONIMBUZ_SCHED_DEFINED "[SchedTypeAwnser]SCHEDULER_DEFINED"
 
 Comunicador::Comunicador(int port, int64_t handShakeMsg)
 {
@@ -63,9 +63,9 @@ Comunicador::Comunicador(int port, int64_t handShakeMsg)
 	{
 		Error("Expected msg from the same port we sent to");
 	}
-	if(strcmp("Ack!", buffer))
+	if(NULL == strstr(buffer, "Ack!"))
 	{
-		Error("HandShake Failed!");
+		Error("HandShake Failed!" << buffer);
 	}
 	TEMP_REPORT_I_WAS_HERE;
 	printf("Handshake sucess!");
@@ -84,10 +84,10 @@ std::string Comunicador::Receive(std::string begin)
 		if( ( ( (SocketAddress*)&recievedSocket) )->sin6_port != java.sin6_port){
 			std::cout<< "Received message from wrong origin, ignoring it. Message: "<< buffer;
 		}
-		if(NULL == strstr(buffer, begin.c_str())){
-			std::cout<< "Received invalid message, ignoring it. Message: "<< buffer;
-		}
-		else{
+//		if(NULL == strstr(buffer, begin.c_str()) && 0 != strcmp("", begin.c_str() ) ){
+//			std::cout<< "Received invalid message, ignoring it. Message: "<< buffer;
+//		}
+//		else{
 			int size= BUFFER_SIZE;
 			char delimiter[2];
 			delimiter[0]= '\r';
@@ -97,7 +97,7 @@ std::string Comunicador::Receive(std::string begin)
 				Schedule();
 			}
 			break;
-		}
+//		}
 	}
 	while(1);
 	return buffer;
@@ -107,7 +107,7 @@ std::string Comunicador::Receive(std::string begin)
 void Comunicador::DefineSched(void){
 	bool success= false;
 	do{
-		std::string msg= Receive(BIONIMBUZ_PREFIX_SCHED);
+		std::string msg= Receive("");
 		if(std::string::npos != msg.find(BIONIMBUZ_SCHED_SIMPLE_RATING_SCHED)){
 			sched= new SimpleRatingSched();
 			success=true;

@@ -8,11 +8,14 @@ import java.util.List;
 import java.util.Map;
 import java.net.DatagramPacket;
 import java.net.SocketAddress;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
+import java.lang.ProcessBuilder;
+import java.util.Vector;
 
 import br.unb.cic.bionimbuz.services.sched.model.ScheduledMachines;
 import br.unb.cic.bionimbuz.services.sched.policy.SchedPolicy;
@@ -28,7 +31,7 @@ public abstract class CppSched extends SchedPolicy
 {
 	DatagramSocket socket;
 	SocketAddress cppAddr;
-	boolean debug=true;
+	boolean debug=false;
 	protected abstract String GetSchedPolicy();
 	protected ConcurrentHashMap<String, PluginInfo> cloudMap;
 	public void Debug()
@@ -57,8 +60,16 @@ public abstract class CppSched extends SchedPolicy
 			System.out.println("Porta escolhida: " + GetPort());
 			System.out.println("Número sorteado: " + key);
 			Debug();
-			Runtime r = Runtime.getRuntime();
-			Process p = r.exec("./Cpp/Escalonador.out "+ GetPort() + " " + key + " > /home/francisco/Escalonador.log 2>&1 &");//my_command > output.log 2>&1 &
+//			Runtime r = Runtime.getRuntime();
+			List<String> lista= new Vector<String>();
+			lista.add("/home/xicobionimbuz/Git/Bionimbuz/src/main/java/br/unb/cic/bionimbuz/services/sched/policy/impl/Cpp/Escalonador.out");
+			lista.add(String.valueOf(GetPort() ) );
+			lista.add(String.valueOf(key));
+			lista.add(" &");
+			ProcessBuilder pb= new ProcessBuilder(lista);
+			pb.inheritIO();
+			Process p = pb.start();
+//			Process p = r.exec("/home/xicobionimbuz/Git/Bionimbuz/src/main/java/br/unb/cic/bionimbuz/services/sched/policy/impl/Cpp/Escalonador.out "+ GetPort() + " " + key + " &");//my_command &
 			DatagramPacket pkt= new DatagramPacket(new byte[65000], 65000);
 			Debug();
 			long numReceived;
@@ -82,7 +93,7 @@ public abstract class CppSched extends SchedPolicy
 			Debug();
 			
 			//enviar escalonador desejado
-			String schedType= GetSchedPolicy();
+			String schedType= "SCHED= "+ GetSchedPolicy();
 			socket.send(new DatagramPacket((schedType).getBytes("US-ASCII"), schedType.getBytes("US-ASCII").length, cppAddr));
 			if(Receive("[SchedTypeAwnser]").contains("Fail"))
 			{
@@ -125,7 +136,7 @@ public abstract class CppSched extends SchedPolicy
 				a.printStackTrace();
 			}
 			received= pkt.getData().toString().trim();
-			if(!received.startsWith(begin))
+			if(!new String(pkt.getData(), StandardCharsets.US_ASCII).trim().startsWith(begin))
 			{
 				System.out.println("wrong key. Expecting " + begin + ",  got " + pkt.getData().toString() );
 			}

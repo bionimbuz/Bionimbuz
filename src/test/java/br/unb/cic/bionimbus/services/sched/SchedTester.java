@@ -72,6 +72,9 @@ public class SchedTester {
     public SchedPolicy getPolicy() {
         if (schedPolicy == null) {
             schedPolicy = new CppSimpleRating();
+            if(null == schedPolicy) {
+            	System.out.println("schedtester 76");
+            }
         }
         return schedPolicy;
     }
@@ -181,6 +184,6 @@ public class SchedTester {
     public static void main(String[] args) {
         SchedTester st = new SchedTester();
         st.run();
-//        System.out.println("chegou aq");
+        System.out.println("chegou aq");
     }
 }
