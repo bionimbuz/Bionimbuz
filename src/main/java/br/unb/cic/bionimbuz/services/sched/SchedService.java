@@ -92,8 +92,8 @@ public class SchedService extends AbstractBioService implements Runnable {
     private RpcClient rpcClient;
 
     // change this to select scheduling policy
-    private final SchedPolicy.Policy policy = SchedPolicy.Policy.C99SUPERCOLIDER;
-//    private final SchedPolicy.Policy policy = SchedPolicy.Policy.SIMPLE_RATING_SCHED;
+//    private final SchedPolicy.Policy policy = SchedPolicy.Policy.C99SUPERCOLIDER;
+    private final SchedPolicy.Policy policy = SchedPolicy.Policy.SIMPLE_RATING_SCHED;
     private String idPlugin;
 
     private LinuxPlugin myLinuxPlugin;
