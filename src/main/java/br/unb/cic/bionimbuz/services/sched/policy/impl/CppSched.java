@@ -125,6 +125,7 @@ public abstract class CppSched extends SchedPolicy
 	{
 		DatagramPacket pkt= new DatagramPacket(new byte[65000], 65000);
 		String received;
+		boolean success;
 		do
 		{
 			Debug();
@@ -136,12 +137,13 @@ public abstract class CppSched extends SchedPolicy
 				a.printStackTrace();
 			}
 			received= pkt.getData().toString().trim();
-			if(!new String(pkt.getData(), StandardCharsets.US_ASCII).trim().startsWith(begin))
+			success= (new String(pkt.getData(), StandardCharsets.US_ASCII).trim()).startsWith(begin);
+			if(!success)
 			{
 				System.out.println("wrong key. Expecting " + begin + ",  got " + pkt.getData().toString() );
 			}
 		}
-		while(!received.startsWith(begin));
+		while(false == success);
 		return received;
 	}
 	
