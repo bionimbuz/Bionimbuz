@@ -154,13 +154,18 @@ public abstract class CppSched extends SchedPolicy
 			message+= jobs.get(i).Serialize();
 			message+= '\r';
 		}
-		message+= "PLUGININFOS=" + cloudMap.entrySet().size();
-		message+= '\r';
-		for (Map.Entry<String, PluginInfo> entry : cloudMap.entrySet()) {
-			message+="key="+entry.getKey();
+		if(null == cloudMap) {
+			message+= "PLUGININFOS=0";
 			message+= '\r';
-			message+="value="+entry.getValue().Serialize();
+		}else {
+			message+= "PLUGININFOS=" + cloudMap.entrySet().size();
 			message+= '\r';
+			for (Map.Entry<String, PluginInfo> entry : cloudMap.entrySet()) {
+				message+="key="+entry.getKey();
+				message+= '\r';
+				message+="value="+entry.getValue().Serialize();
+				message+= '\r';
+			}
 		}
 		try {
 			socket.send(new DatagramPacket((message).getBytes("US-ASCII"), (message).getBytes("US-ASCII").length, cppAddr));
