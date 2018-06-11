@@ -34,6 +34,7 @@ public abstract class CppSched extends SchedPolicy
 	boolean debug=false;
 	protected abstract String GetSchedPolicy();
 	protected ConcurrentHashMap<String, PluginInfo> cloudMap;
+	Process p;
 	public void Debug()
 	{
 		if(debug)
@@ -42,8 +43,7 @@ public abstract class CppSched extends SchedPolicy
 			Thread.dumpStack();
 		}
 	}
-	public CppSched()
-	{
+	private void Start() {
 		try
 		{
 			Random randomGenerator= new Random();
@@ -68,7 +68,7 @@ public abstract class CppSched extends SchedPolicy
 			lista.add(" &");
 			ProcessBuilder pb= new ProcessBuilder(lista);
 			pb.inheritIO();
-			Process p = pb.start();
+			p = pb.start();
 //			Process p = r.exec("/home/xicobionimbuz/Git/Bionimbuz/src/main/java/br/unb/cic/bionimbuz/services/sched/policy/impl/Cpp/Escalonador.out "+ GetPort() + " " + key + " &");//my_command &
 			DatagramPacket pkt= new DatagramPacket(new byte[65000], 65000);
 			Debug();
@@ -109,7 +109,11 @@ public abstract class CppSched extends SchedPolicy
 			System.out.println("exception happened - here's what I know: ");
 			e.printStackTrace();
 			System.exit(-1);
-		}
+		}	
+	}
+	public CppSched()
+	{
+		Start();
 	}
 	public int GetPort()
 	{
@@ -148,6 +152,12 @@ public abstract class CppSched extends SchedPolicy
 	}
 	
 	public HashMap<Job,ScheduledMachines> schedule(List<Job> jobs){
+		if(null == p) {
+			Start();
+		}
+		else if(!p.isAlive()) {
+			Start();
+		}
 		String message= "SCHEDULE\rJOBS=" + jobs.size();
 		message+= '\r';
 		for(int i=0; i < jobs.size(); i++){

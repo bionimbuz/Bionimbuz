@@ -71,6 +71,7 @@ Comunicador::Comunicador(int port, int64_t handShakeMsg)
 	printf("Handshake sucess!");
 	
 	DefineSched();
+	Receive("REQUESTING_EXIT");
 }
 
 std::string Comunicador::Receive(std::string begin)

@@ -74,7 +74,7 @@ FileInfo::FileInfo(std::string const & serializedData){
 	REPORT_DEBUG("token= " << token << "\n");
 	
 	token= strtok(NULL, delimiter);
-	ASSERT(1 == sscanf(token, "name=%[^\n]", buffer) );
+	ASSERT2(1 == sscanf(token, "name=%[^\n]", buffer), "What was written: " << buffer << ", expecting name=[string]" );
 	name= buffer;
 	REPORT_DEBUG("token= " << token << "\n");
 	
