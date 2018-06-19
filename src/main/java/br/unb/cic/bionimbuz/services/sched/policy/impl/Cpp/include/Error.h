@@ -4,7 +4,11 @@
 #include <iostream>
 #include "stdlib.h"
 
-#ifdef _WIN32
+#define FORCE_FLUSH
+
+#ifdef FORCE_FLUSH
+	#define END_LINE std::endl;
+#elif _WIN32
 	#define END_LINE "\r\n"
 #else
 	#define END_LINE "\n"
@@ -30,6 +34,7 @@ using std::endl;
 
 #define REPORT_DEBUG(msg) if(DEBUG){std::cout<<"[DEBUG]"<<WHERE<<msg<<END_LINE;}
 #define REPORT_DEBUG2(cond, msg) if(cond||DEBUG){std::cout<<"[DEBUG]"<<WHERE<<msg<<END_LINE;}
+#define REPORT_DEBUG2_AS_ERROR(cond, msg) if(cond||DEBUG){std::cerr<<"[DEBUG]"<<WHERE<<msg<<END_LINE;}
 
 #define REPORT_I_WAS_HERE if(DEBUG){std::cout <<"[DEBUG] I was here!\t"<<WHERE<<END_LINE;}
 

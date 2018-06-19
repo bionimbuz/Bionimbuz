@@ -71,12 +71,20 @@ FileInfo::FileInfo(std::string const & serializedData){
 	token= strtok(NULL, delimiter);
 	ASSERT2(1 == sscanf(token, "id=%[^\n]", buffer), "token = " << token);
 	id= buffer;
-	REPORT_DEBUG("token= " << token << "\n");
+	REPORT_DEBUG2_AS_ERROR(true, "id= " << id << " and have size " << strlen(id.c_str()) << "\n");
+	REPORT_DEBUG2_AS_ERROR(true, "token= " << token << " and have size " << strlen(token) << endl);
 	
 	token= strtok(NULL, delimiter);
-	ASSERT2(1 == sscanf(token, "name=%[^\n]", buffer), "What was written: " << buffer << ", expecting name=[string]" );
+	REPORT_DEBUG2_AS_ERROR(true, "token= " << token << " and have size " << strlen(token) << endl);
+//	ASSERT2(1 == sscanf(token, "name=%[^\n]", buffer), "What was written: " << token << ", expecting name=[string]" << " and now the buffer have " << buffer );
+	if(1 != sscanf(token, "name=%[^\n]", buffer) ){
+		if(!memcmp("name=", token, strlen("name=") ) ){
+//			strncpy( buffer, "name", strlen("name=") );
+			buffer[0]= '\0';
+		}
+	}
 	name= buffer;
-	REPORT_DEBUG("token= " << token << "\n");
+	REPORT_DEBUG("token= " << token << endl);
 	
 	token= strtok(NULL, delimiter);
 	ASSERT(1 == sscanf(token, "size=%ld", &size) );
@@ -87,12 +95,24 @@ FileInfo::FileInfo(std::string const & serializedData){
 	REPORT_DEBUG("token= " << token << "\n");
 	
 	token= strtok(NULL, delimiter);
-	ASSERT(1 == sscanf(token, "uploadTimestamp=%[^\n]", buffer) );
+//	ASSERT(1 == sscanf(token, "uploadTimestamp=%[^\n]", buffer) );
+	if(1 != sscanf(token, "uploadTimestamp=%[^\n]", buffer) ) {
+		if(!memcmp("uploadTimestamp=", token, strlen("uploadTimestamp=") ) ){
+//			strncpy( buffer, "uploadTimestamp=", strlen("uploadTimestamp=") );
+			buffer[0]= '\0';
+		}
+	}
 	uploadTimestamp= buffer;
 	REPORT_DEBUG("token= " << token << "\n");
 	
 	token= strtok(NULL, delimiter);
-	ASSERT(1 == sscanf(token, "hash=%[^\n]", buffer) );
+//	ASSERT(1 == sscanf(token, "hash=%[^\n]", buffer) );
+	if(1 != sscanf(token, "hash=%[^\n]", buffer) ) {
+		if(!memcmp("hash=", token, strlen("hash=") ) ){
+//			strncpy( buffer, "hash=", strlen("hash=") );
+			buffer[0]= '\0';
+		}
+	}
 	hash= buffer;
 	REPORT_DEBUG("token= " << token << "\n");
 	

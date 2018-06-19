@@ -193,31 +193,50 @@ void Comunicador::Schedule(void){
 	int vecSize;
 	token= strtok(NULL, delimiter);
 	ASSERT(1 == sscanf(token, "JOBS=%d", &vecSize) );
+	REPORT_DEBUG2_AS_ERROR(true, "vecSize=  " << vecSize << endl);
 	jobList.reserve(vecSize);
 	REPORT_DEBUG("token= " << token << "\n");
 	for(int i=0; i < vecSize; i++){
 		token= strtok(NULL, delimiter);
-		REPORT_DEBUG("token= " << token << "\n");
+		REPORT_DEBUG2_AS_ERROR(true, "token= " << token << " and have size " << strlen(token) << endl);
 		ASSERT(1 == sscanf(token, "%[^\r\n]", buffer) );
 		jobList.emplace_back(token);
 	}
 	
+#ifdef USE_MULTITHREADING_FOR_PARSE
 	pthread_t *threads= (pthread_t*) operator new[] (jobList.size()*sizeof(pthread_t));
 	pthread_mutex_t mutex;
 	pthread_mutex_init(&mutex, NULL);
+#endif
 	std::vector<Job> jobs;
 	jobs.reserve(vecSize);
 	for(int i=0; i< vecSize; i++)
 	{
+#ifdef USE_MULTITHREADING_FOR_PARSE
 		pthread_create(&(threads[i]), NULL, CreateJob, (void*)new StringForJob(&jobs, &mutex, jobList[i]));
+#endif
+		
+//		CreateJob( (void*)new StringForJob(&jobs, &mutex, jobList[i] ) );
+		jobs.emplace_back(jobList[i]);
 	}
+#ifdef USE_MULTITHREADING_FOR_PARSE
 	for(int i=0; i< vecSize; i++)
 	{
 		pthread_join(threads[i], NULL );
 	}
 	delete[] (threads);
-	
+#endif
+	token= strtok(NULL, delimiter);
+	REPORT_DEBUG2_AS_ERROR(true, "token= " << token << " and have size " << strlen(token) << endl);
 	ASSERT(1 == sscanf(token, "PLUGININFOS=%d", &vecSize) );
+/*	if(1 != sscanf(token, "PLUGININFOS=%d", &vecSize) ) {
+		if(!memcmp("PLUGININFOS=", token, strlen("PLUGININFOS=") ) ){
+//			strncpy( buffer, "hash=", strlen("hash=") );
+//			buffer[0]= '\0';
+			vecSize=0;
+		}
+	}
+*/
 	std::vector<std::string> pluginStrings;
 	pluginStrings.reserve(vecSize);
 	std::vector<std::string> keyStrings;
@@ -226,24 +245,34 @@ void Comunicador::Schedule(void){
 	pluginInfos.reserve(vecSize);
 	
 	for(int i=0; i < vecSize; i++){
+		REPORT_DEBUG2_AS_ERROR(true, "token= " << ( (NULL == token)? "NULO!" : token ) << " vecSize= " << vecSize << "\n");
+		if(NULL == token){
+			break;
+		}
 		token= strtok(NULL, delimiter);
-		REPORT_DEBUG("token= " << token << "\n");
 		ASSERT(1 == sscanf(token, "%[^\r\n]", buffer) );
 		keyStrings.emplace_back(token);
-		
+	
 		token= strtok(NULL, delimiter);
 		REPORT_DEBUG("token= " << token << "\n");
 		ASSERT(1 == sscanf(token, "%[^\r\n]", buffer) );
 		pluginStrings.emplace_back(token);
 	}
-	
+#ifdef USE_MULTITHREADING_FOR_PARSE
 	threads= (pthread_t*) operator new[] (pluginStrings.size()* sizeof(pthread_t));
+#endif
 	for(int i=0; i< vecSize; i++)
 	{
+#ifdef USE_MULTITHREADING_FOR_PARSE
 		pthread_create(&(threads[i]), NULL, CreatePluginInfo, (void*)new StringForPluginInfo(&pluginInfos, &mutex, keyStrings[i], pluginStrings[i]));
+#endif
+//		CreatePluginInfo( (void*)new StringForPluginInfo(&pluginInfos, &mutex, keyStrings[i], pluginStrings[i] ) );
+		pluginInfos.emplace(keyStrings[i], pluginStrings[i] );
 	}
+#ifdef USE_MULTITHREADING_FOR_PARSE
 	pthread_mutex_destroy(&mutex);
 	delete[] (threads);
+#endif
 	
 	std::vector<ScheduleResult> results= sched->Schedule(jobs, pluginInfos);
 	
