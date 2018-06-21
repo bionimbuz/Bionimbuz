@@ -62,6 +62,8 @@ public abstract class CppSched extends SchedPolicy
 			Debug();
 //			Runtime r = Runtime.getRuntime();
 			List<String> lista= new Vector<String>();
+			lista.add("valgrind");
+			lista.add("--track-origins=yes");
 			lista.add("/home/xicobionimbuz/Git/Bionimbuz/src/main/java/br/unb/cic/bionimbuz/services/sched/policy/impl/Cpp/Escalonador.out");
 			lista.add(String.valueOf(GetPort() ) );
 			lista.add(String.valueOf(key));

@@ -95,7 +95,7 @@ public class WorkflowResource extends AbstractResource {
         } catch (final Exception e) {
             // Logs
             this.loggerDao.log(new Log("Um erro ocorreu na execução de seu Workflow", request.getWorkflow().getUserId(), request.getWorkflow().getId(), LogSeverity.ERROR));
-            LOGGER.error("[Exception] " + e.getMessage());
+            LOGGER.error("[Exception] " + e.getMessage(), e);
 
             return Response.status(200).entity(false).build();
         }

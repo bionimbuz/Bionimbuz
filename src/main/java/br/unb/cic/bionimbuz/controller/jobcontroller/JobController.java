@@ -64,7 +64,7 @@ public class JobController implements Controller, Runnable {
         this.cms = cms;
         this.loggerDao = new WorkflowLoggerDao();
 
-        LOGGER.info("JobController started");
+        LOGGER.info("JobController created");
     }
 
     /**
@@ -75,6 +75,7 @@ public class JobController implements Controller, Runnable {
     @Override
     public void start() {
         // Initializes AvroClient
+        LOGGER.info("JobController is being started");
         rpcClient = new AvroClient("http", BioNimbusConfig.get().getAddress(), AVRO_PORT);
 
         try {
@@ -85,6 +86,7 @@ public class JobController implements Controller, Runnable {
         } catch (IOException ex) {
             LOGGER.error("[Exception] " + ex.getMessage());
         }
+        LOGGER.info("JobController started");
     }
 
     @Override
@@ -296,7 +298,10 @@ public class JobController implements Controller, Runnable {
 
         // Logs
         loggerDao.log(new Log("Enviando Workflow para o serviço de Escalonamento do BioNimbuZ", workflow.getUserId(), workflow.getId(), LogSeverity.INFO));
-
+        LOGGER.debug("Chegamos ate aq: rpcClient esta null, workaround para tentar corrigir");
+        if(null == rpcClient) {
+        	start();
+        }
         rpcClient.getProxy().startWorkflow(avroWorkflow);
 
     }

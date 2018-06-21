@@ -116,6 +116,7 @@ public class SchedService extends AbstractBioService implements Runnable {
 
         // Initializes workflow logger
         this.workflowLogger = new WorkflowLoggerDao();
+        LOGGER.info("[SchedService] Created.");
     }
 
     public synchronized SchedPolicy getPolicy() {
@@ -173,34 +174,48 @@ public class SchedService extends AbstractBioService implements Runnable {
     public void start(List<Listeners> listeners) {
         LOGGER.info("[SchedService] Starting ...");
         this.isClient = BioNimbusConfig.get().isClient();
+        LOGGER.info("[SchedService] Starting ...1");
         this.listeners = listeners;
         // if (listeners != null) {
         listeners.add(this);
         // }
+        LOGGER.info("[SchedService] Starting ...2");
         this.idPlugin = BioNimbusConfig.get().getId();
 
+        LOGGER.info("[SchedService] Starting ...3");
         this.getPolicy().setRs(this.rs);
 
         // inicia o valor do zk na politica de escalonamento
-        this.getPolicy().setCms(this.cms);
+        LOGGER.info("[SchedService] Starting ...4");
+       this.getPolicy().setCms(this.cms);
 
+       LOGGER.info("[SchedService] Starting ...5");
         if (!this.cms.getZNodeExist(Path.PIPELINES.getFullPath(), null)) {
+            LOGGER.info("[SchedService] Starting ...6");
             this.cms.createZNode(CreateMode.PERSISTENT, Path.PIPELINES.getFullPath(), this.policy.toString());
         }
+        LOGGER.info("[SchedService] Starting ...7");
         this.cms.createZNode(CreateMode.PERSISTENT, Path.SCHED.getFullPath(this.idPlugin), null);
+        LOGGER.info("[SchedService] Starting ...8");
         this.cms.createZNode(CreateMode.PERSISTENT, Path.TASKS.getFullPath(this.idPlugin), null);
+        LOGGER.info("[SchedService] Starting ...9");
         this.cms.createZNode(CreateMode.PERSISTENT, Path.SIZE_JOBS.getFullPath(this.idPlugin), null);
+        LOGGER.info("[SchedService] Starting ...10");
 
         this.cloudMap.putAll(this.getPeers());
+        LOGGER.info("[SchedService] Starting ...11");
         try {
+            LOGGER.info("[SchedService] Starting ...12");
             // adicona watchers para receber um alerta quando um novo job for criado para ser escalonado, e uma nova requisição de latência existir
             this.cms.getChildren(Path.PIPELINES.getFullPath(), new UpdatePeerData(this.cms, this, null));
             this.cms.getData(Path.PIPELINES.getFullPath(), new UpdatePeerData(this.cms, this, null));
             this.cms.getChildren(Path.PEERS.getFullPath(), new UpdatePeerData(this.cms, this, null));
 
+            LOGGER.info("[SchedService] Starting ...13");
             this.checkMyPlugin();
             this.checkWaitingTasks();
             this.checkPeers();
+            LOGGER.info("[SchedService] Starting ...14");
 
         } catch (final KeeperException ex) {
             java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
@@ -210,7 +225,9 @@ public class SchedService extends AbstractBioService implements Runnable {
             java.util.logging.Logger.getLogger(SchedService.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+        LOGGER.info("[SchedService] Starting ...15");
         this.schedExecService.scheduleAtFixedRate(this, 1, 1, TimeUnit.MINUTES);
+        LOGGER.info("[SchedService] Started");
     }
 
     /**
@@ -219,6 +236,7 @@ public class SchedService extends AbstractBioService implements Runnable {
      */
     private synchronized void scheduleJobs() throws InterruptedException, KeeperException {
         HashMap<Job, ScheduledMachines> schedMap;
+//        System.out.println("Escalonador sendo utilizado: " + this.getPolicy().getPolicyName());
 
         // Caso nao exista nenhum pipeline pendente da a chance para o escalonador
         // realocar as tarefas.

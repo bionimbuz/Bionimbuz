@@ -46,7 +46,8 @@ public class CuratorMessageService implements CloudMessageService {
     CuratorFramework client;
     private static final Logger LOGGER = LoggerFactory.getLogger(CuratorMessageService.class);
     private volatile Path path = CuratorMessageService.Path.ROOT;
-
+    private static String defaultConnectionString;
+    
     public CuratorMessageService() {
         LOGGER.info("CuratorMessageService started");
     }
@@ -58,12 +59,11 @@ public class CuratorMessageService implements CloudMessageService {
      */
     @Override
     public synchronized void connect(String connectionString) {
-        ExponentialBackoffRetry retryPolicy = new ExponentialBackoffRetry(1000, 3);
-
-        // Starting BioNimbuZ Core connection to ZooKeeper
+    	defaultConnectionString = connectionString != null ? connectionString : defaultConnectionString;
+    	ExponentialBackoffRetry retryPolicy = new ExponentialBackoffRetry(1000, 3);
+    	// Starting BioNimbuZ Core connection to ZooKeeper
         client = CuratorFrameworkFactory.newClient(connectionString, retryPolicy);
         client.start();
-
         // Client connected
         LOGGER.info("Curator Message Service started!");
     }
@@ -240,7 +240,7 @@ public class CuratorMessageService implements CloudMessageService {
      */
     @Override
     public void createZNode(CreateMode cm, String node, String desc) {
-        try {
+        try {	
             if (!getZNodeExist(node, null)) {
                 client.create().withMode(cm).withACL(ZooDefs.Ids.OPEN_ACL_UNSAFE).forPath(node, (desc == null) ? new byte[0] : desc.getBytes());
             } else {
@@ -264,12 +264,14 @@ public class CuratorMessageService implements CloudMessageService {
         // Need to know how to use watchers in this method (Zookeeper Watcher or Curator Watcher?)
         Stat s = null;
         try {
-
+        	if (this.client == null) {
+        		this.connect(defaultConnectionString);
+        	}
             s = client.checkExists().usingWatcher(watcher).forPath(path);
             // s = client.checkExists().watched().forPath(path);
         } catch (Exception ex) {
-            LOGGER.error("[Exception] " + ex.getMessage());
-            ex.printStackTrace();
+            LOGGER.error("[Exception] " + ex.getMessage(), ex);
+ //           ex.printStackTrace();
         }
 
         return s != null;
@@ -288,7 +290,7 @@ public class CuratorMessageService implements CloudMessageService {
             return client.getChildren().usingWatcher(watcher).forPath(path);
             // return client.getChildren().watched().forPath(path);
         } catch (Exception ex) {
-            LOGGER.error("[Exception] " + ex.getMessage());
+            LOGGER.error("[Exception] " + ex.getMessage(), ex);
         }
 
         return null;
@@ -309,7 +311,7 @@ public class CuratorMessageService implements CloudMessageService {
             cont = client.getChildren().usingWatcher(watcher).forPath(path).size();
             // cont = client.getChildren().watched().forPath(path).size();
         } catch (Exception ex) {
-            LOGGER.error("[Exception] " + ex.getMessage());
+            LOGGER.error("[Exception] " + ex.getMessage(), ex);
         }
 
         return cont;
@@ -350,7 +352,7 @@ public class CuratorMessageService implements CloudMessageService {
         try {
             client.setData().forPath(path, data.getBytes());
         } catch (Exception ex) {
-            LOGGER.error("[Exception] " + ex.getMessage());
+            LOGGER.error("[Exception] " + ex.getMessage(), ex);
         }
     }
 

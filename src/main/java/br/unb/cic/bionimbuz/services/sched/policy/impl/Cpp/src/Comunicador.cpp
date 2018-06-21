@@ -97,8 +97,12 @@ std::string Comunicador::Receive(std::string begin)
 			if(0 == memcmp("SCHEDULE" , token= strtok(buffer, delimiter), STRLEN("SCHEDULE") ) ){
 				Schedule();
 			}
-			break;
-//		}
+			else if(NULL == strstr(buffer, begin.c_str()) && 0 != strcmp("", begin.c_str() ) ){
+							std::cout<< "Received invalid message, ignoring it. Message: "<< buffer;
+			}
+			else{
+				break;
+			}
 	}
 	while(1);
 	return buffer;
@@ -203,40 +207,9 @@ void Comunicador::Schedule(void){
 		jobList.emplace_back(token);
 	}
 	
-#ifdef USE_MULTITHREADING_FOR_PARSE
-	pthread_t *threads= (pthread_t*) operator new[] (jobList.size()*sizeof(pthread_t));
-	pthread_mutex_t mutex;
-	pthread_mutex_init(&mutex, NULL);
-#endif
-	std::vector<Job> jobs;
-	jobs.reserve(vecSize);
-	for(int i=0; i< vecSize; i++)
-	{
-#ifdef USE_MULTITHREADING_FOR_PARSE
-		pthread_create(&(threads[i]), NULL, CreateJob, (void*)new StringForJob(&jobs, &mutex, jobList[i]));
-#endif
-		
-//		CreateJob( (void*)new StringForJob(&jobs, &mutex, jobList[i] ) );
-		jobs.emplace_back(jobList[i]);
-	}
-#ifdef USE_MULTITHREADING_FOR_PARSE
-	for(int i=0; i< vecSize; i++)
-	{
-		pthread_join(threads[i], NULL );
-	}
-	delete[] (threads);
-#endif
 	token= strtok(NULL, delimiter);
-	REPORT_DEBUG2_AS_ERROR(true, "token= " << token << " and have size " << strlen(token) << endl);
+	REPORT_DEBUG2_AS_ERROR(true, "token= " << ( (NULL == token)? "NULO!" : token ) << " and have size " << strlen(token) << endl);
 	ASSERT(1 == sscanf(token, "PLUGININFOS=%d", &vecSize) );
-/*	if(1 != sscanf(token, "PLUGININFOS=%d", &vecSize) ) {
-		if(!memcmp("PLUGININFOS=", token, strlen("PLUGININFOS=") ) ){
-//			strncpy( buffer, "hash=", strlen("hash=") );
-//			buffer[0]= '\0';
-			vecSize=0;
-		}
-	}
-*/
 	std::vector<std::string> pluginStrings;
 	pluginStrings.reserve(vecSize);
 	std::vector<std::string> keyStrings;
@@ -258,21 +231,21 @@ void Comunicador::Schedule(void){
 		ASSERT(1 == sscanf(token, "%[^\r\n]", buffer) );
 		pluginStrings.emplace_back(token);
 	}
-#ifdef USE_MULTITHREADING_FOR_PARSE
-	threads= (pthread_t*) operator new[] (pluginStrings.size()* sizeof(pthread_t));
-#endif
+
 	for(int i=0; i< vecSize; i++)
 	{
-#ifdef USE_MULTITHREADING_FOR_PARSE
-		pthread_create(&(threads[i]), NULL, CreatePluginInfo, (void*)new StringForPluginInfo(&pluginInfos, &mutex, keyStrings[i], pluginStrings[i]));
-#endif
-//		CreatePluginInfo( (void*)new StringForPluginInfo(&pluginInfos, &mutex, keyStrings[i], pluginStrings[i] ) );
 		pluginInfos.emplace(keyStrings[i], pluginStrings[i] );
 	}
-#ifdef USE_MULTITHREADING_FOR_PARSE
-	pthread_mutex_destroy(&mutex);
-	delete[] (threads);
-#endif
+
+	std::vector<Job> jobs;
+	jobs.reserve(jobList.size());
+	for(int i=0; i< vecSize; i++)
+	{
+		jobs.emplace_back(jobList[i]);
+	}
+	REPORT_DEBUG2_AS_ERROR(true, "token= " << ( (NULL == token)? "NULO!" : token ) << " and have size " << strlen(token) << endl);
+
+
 	
 	std::vector<ScheduleResult> results= sched->Schedule(jobs, pluginInfos);
 	
@@ -284,6 +257,6 @@ void Comunicador::Schedule(void){
 		message= message + results[i].Serialize();
 		message= message + '\r';
 	}
-	
+	bytesReadOrWritten= sendto(socketFD, message.c_str(), message.size(), 0, (struct sockaddr*)&java, sizeof(sockaddr_in6));
 }
 

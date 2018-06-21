@@ -305,7 +305,7 @@ public class Job implements Serializable {
 	    ret+= '\n';
 	    
 	    ret+= "worstExecution=";
-	    ret+= String.valueOf(worstExecution);
+	    ret+= String.valueOf( (null == worstExecution)? 100000000f: worstExecution);
 	    ret+= '\n';
 	    
 	    ret+= "dependecies=";
