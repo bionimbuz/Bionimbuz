@@ -142,8 +142,10 @@ public abstract class CppSched extends SchedPolicy
 				Debug();
 				a.printStackTrace();
 			}
-			received= pkt.getData().toString().trim();
-			success= (new String(pkt.getData(), StandardCharsets.US_ASCII).trim()).startsWith(begin);
+			received= new String(pkt.getData(), StandardCharsets.US_ASCII).trim();
+/*			String received2= new String(pkt.getData(), StandardCharsets.US_ASCII).trim();
+			System.out.println(received2);
+*/			success= (new String(pkt.getData(), StandardCharsets.US_ASCII).trim()).startsWith(begin);
 			if(!success)
 			{
 				System.out.println("wrong key. Expecting " + begin + ",  got " + pkt.getData().toString() );
@@ -193,6 +195,9 @@ public abstract class CppSched extends SchedPolicy
 		HashMap<Job, ScheduledMachines> resultMap= new HashMap<Job, ScheduledMachines>();
 		
 		String result= Receive("Results=");
+//debug
+		System.out.println(" \tCppSched.java|schedule: result = " + result );
+//fim debug		
 		StringTokenizer tokenizer= new StringTokenizer(result, "\r", false);
 //debug
 		String aux= tokenizer.nextToken();

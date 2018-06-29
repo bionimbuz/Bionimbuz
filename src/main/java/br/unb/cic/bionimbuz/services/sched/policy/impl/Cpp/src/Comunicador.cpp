@@ -257,6 +257,7 @@ void Comunicador::Schedule(void){
 		message= message + results[i].Serialize();
 		message= message + '\r';
 	}
+	REPORT_DEBUG2(true, "size= " << message.size() << "\t strlen= " << strlen(message.c_str() ) );
 	bytesReadOrWritten= sendto(socketFD, message.c_str(), message.size(), 0, (struct sockaddr*)&java, sizeof(sockaddr_in6));
 }
 

@@ -3,6 +3,7 @@
 #include <string>
 #include <algorithm>
 #include "Escalonador.hpp"
+#include "Error.h"
 
 using std::priority_queue;
 using std::array;
@@ -12,9 +13,12 @@ std::string ScheduleResult::Serialize() const
 {
 	std::string ret= jobId;
 	ret= ret + '\n';
-	ret= pluginInfoId;
+	ret= ret + pluginInfoId;
 	ret= ret + '\n';
-	ret= std::to_string(whereToRun);
+	ret= ret+ std::to_string(whereToRun);
+
+	REPORT_DEBUG2(true, "jobId= " << jobId << " \tpluginInfoId= " << pluginInfoId << " \t whereToRun= " << (uint)whereToRun);
+	REPORT_DEBUG2(true, "resultadoSerializado= " << ret);
 	
 	return ret;
 }
