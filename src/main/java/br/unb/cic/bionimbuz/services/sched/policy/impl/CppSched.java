@@ -33,7 +33,7 @@ public abstract class CppSched extends SchedPolicy
 	SocketAddress cppAddr;
 	boolean debug=false;
 	protected abstract String GetSchedPolicy();
-	protected ConcurrentHashMap<String, PluginInfo> cloudMap;
+//	protected ConcurrentHashMap<String, PluginInfo> cloudMap;
 	Process p;
 	public void Debug()
 	{
@@ -166,7 +166,9 @@ public abstract class CppSched extends SchedPolicy
 			message+= jobs.get(i).Serialize();
 			message+= '\r';
 		}
+		ConcurrentHashMap<String, PluginInfo> cloudMap= getCloudMap();
 		if(null == cloudMap) {
+			System.out.println("\t\t CPPShced.java|schedule(List<Job>)\t\tCLOUDMAP VAZIO!!!");
 			message+= "PLUGININFOS=0";
 			message+= '\r';
 		}else {
@@ -192,7 +194,11 @@ public abstract class CppSched extends SchedPolicy
 		
 		String result= Receive("Results=");
 		StringTokenizer tokenizer= new StringTokenizer(result, "\r", false);
-		int resultSize= Integer.parseInt(tokenizer.nextToken().substring("Results=".length()));
+//debug
+		String aux= tokenizer.nextToken();
+		System.out.println(" \tCppSched.java|schedule: token = " + aux );
+//fim debug		
+		int resultSize= Integer.parseInt(aux.substring("Results=".length() ) );
 		for(int i=0; i < resultSize; i++){
 			String token= tokenizer.nextToken();
 			StringTokenizer localTokenizer= new StringTokenizer(token, "\n", false);

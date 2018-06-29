@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include "PluginInfo.h"
 #include "Error.h"
 
@@ -137,7 +138,9 @@ PluginInfo::PluginInfo(std::string const &str){
 	char delimiter[2];
 	delimiter[0]= '\n';
 	delimiter[1]= '\0';
-	ASSERT(0 == memcmp("PLUGIN_INFO" , strtok(temp, delimiter), STRLEN("PLUGIN_INFO") ) );
+	char* aux= strtok(temp, delimiter);
+	ASSERT2(0 == memcmp("PLUGIN_INFO" , aux, STRLEN("PLUGIN_INFO") )
+							|| 0 == memcmp("value=PLUGIN_INFO" , aux, STRLEN("value=PLUGIN_INFO") ), "expecting PLUGIN_INFO, got " << temp );
 	char *token, buffer[TEMP_BUFFER_SIZE+1];
 	buffer[TEMP_BUFFER_SIZE]= '\0';
 	
@@ -214,7 +217,16 @@ PluginInfo::PluginInfo(std::string const &str){
 	
 	token= strtok(NULL, delimiter);
 	REPORT_DEBUG("\ttoken= " << token << "\n");
-	ASSERT(1 == sscanf(token, "bandwith=%lf", &bandwith) );
+	bandwith= NAN;
+//	ASSERT(1 == sscanf(token, "bandwith=%lf", &bandwith) );
+	if(0 == sscanf(token, "bandwith=%lf", &bandwith)){
+		if(0 == memcmp("bandwith=null", token, STRLEN("bandwith=null") ) ){
+			bandwith= 0;
+		}
+	}
+	if(NAN == bandwith){
+		Error("Could not read bandwith, found it: " << token);
+	}
 	REPORT_DEBUG2(1, "\ttoken= " <<token<< "\tbandwith = "<< bandwith)
 	
 	token= strtok(NULL, delimiter);

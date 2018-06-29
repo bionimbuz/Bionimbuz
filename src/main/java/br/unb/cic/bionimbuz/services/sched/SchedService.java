@@ -236,7 +236,6 @@ public class SchedService extends AbstractBioService implements Runnable {
      */
     private synchronized void scheduleJobs() throws InterruptedException, KeeperException {
         HashMap<Job, ScheduledMachines> schedMap;
-//        System.out.println("Escalonador sendo utilizado: " + this.getPolicy().getPolicyName());
 
         // Caso nao exista nenhum pipeline pendente da a chance para o escalonador
         // realocar as tarefas.
@@ -246,13 +245,33 @@ public class SchedService extends AbstractBioService implements Runnable {
                 this.workflowLogger.log(new Log("Job recebido pelo Serviço de Escalonamento", this.workflow.getUserId(), this.workflow.getId(), LogSeverity.INFO));
             }
 
+            for(final PluginInfo machine : cloudMap.values()) {
+            	System.out.println("\t Maquina disponivel pre limpeza \t" + machine.Serialize());
+            }
+
+
             this.cloudMap.clear();
             this.cloudMap.putAll(this.getPeers());
             // realiza a requisicao dos valores da lantência antes de escalonar um job
 
             // sched all pending jobs
             System.out.println("Escalonador sendo utilizado: " + this.getPolicy().getPolicyName());
+
+            for(final PluginInfo machine : cloudMap.values()) {
+            	System.out.println("\t Maquina disponivel \t" + machine.Serialize());
+            }
+
+            
+     	   this.getPolicy().setCloudMap(cloudMap);
             schedMap = this.getPolicy().schedule(this.pendingJobs);
+            
+            for (final Map.Entry<Job, ScheduledMachines> entry : schedMap.entrySet()) {
+                final Job jobInfo = entry.getKey();
+                System.out.println("Job " + entry.getKey().getId() + "scheduled to: ");
+                for(final PluginInfo machine : entry.getValue().cpu) {
+                	System.out.println("\t " + machine.Serialize());
+                }
+            }
 
             for (final Map.Entry<Job, ScheduledMachines> entry : schedMap.entrySet()) {
                 final Job jobInfo = entry.getKey();
