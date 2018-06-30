@@ -264,6 +264,8 @@ public class SchedService extends AbstractBioService implements Runnable {
             
      	   this.getPolicy().setCloudMap(cloudMap);
             schedMap = this.getPolicy().schedule(this.pendingJobs);
+            LOGGER.info("[SchedService] Scheduler returned results!");
+
             
             for (final Map.Entry<Job, ScheduledMachines> entry : schedMap.entrySet()) {
                 final Job jobInfo = entry.getKey();
@@ -292,6 +294,7 @@ public class SchedService extends AbstractBioService implements Runnable {
                     task.setPluginExec(pluginInfo.getId());
 
                     // adiciona o job na lista de execução do servidor zookeeper
+                    System.out.println("adiciona o job na lista de execução do servidor zookeeper.");
                     this.cms.createZNode(CreateMode.PERSISTENT, Path.NODE_TASK.getFullPath(task.getPluginExec(), jobInfo.getId()), task.toString());
 
                     // retira o pipeline da lista de pipelines para escanolamento no zookeeper
