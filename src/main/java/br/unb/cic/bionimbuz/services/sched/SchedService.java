@@ -825,6 +825,7 @@ public class SchedService extends AbstractBioService implements Runnable {
 
             for (final FileInfo f : task.getJobInfo().getInputFiles()) {
                 LOGGER.info("Arquivo: " + f.getName());
+                LOGGER.info("Arquivo serializado: " + f.Serialize());
             }
 
             this.requestFile(task.getJobInfo().getInputFiles());

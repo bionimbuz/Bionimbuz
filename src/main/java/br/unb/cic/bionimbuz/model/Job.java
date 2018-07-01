@@ -149,6 +149,7 @@ public class Job implements Serializable {
      * @param fileInfo
      */
     public void addInput(FileInfo fileInfo) {
+				Thread.dumpStack();
         inputFiles.add(fileInfo);
     }
 

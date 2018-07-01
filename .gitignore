@@ -4,6 +4,7 @@
 /target/
 /data/input/
 /data/output/
+cpu.txt
 
 .project
 *.log
