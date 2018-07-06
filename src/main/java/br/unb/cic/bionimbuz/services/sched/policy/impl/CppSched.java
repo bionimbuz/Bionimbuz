@@ -62,8 +62,8 @@ public abstract class CppSched extends SchedPolicy
 			Debug();
 //			Runtime r = Runtime.getRuntime();
 			List<String> lista= new Vector<String>();
-			lista.add("valgrind");
-			lista.add("--track-origins=yes");
+//			lista.add("valgrind");
+//			lista.add("--track-origins=yes");
 			lista.add("/home/xicobionimbuz/Git/Bionimbuz/src/main/java/br/unb/cic/bionimbuz/services/sched/policy/impl/Cpp/Escalonador.out");
 			lista.add(String.valueOf(GetPort() ) );
 			lista.add(String.valueOf(key));
@@ -162,7 +162,7 @@ public abstract class CppSched extends SchedPolicy
 		else if(!p.isAlive()) {
 			Start();
 		}
-		System.out.println("CppSched.java|schedule 1");
+//		System.out.println("CppSched.java|schedule 1");
 		String message= "SCHEDULE\rJOBS=" + jobs.size();
 		message+= '\r';
 		for(int i=0; i < jobs.size(); i++){
@@ -185,9 +185,9 @@ public abstract class CppSched extends SchedPolicy
 			}
 		}
 		try {
-			System.out.println("CppSched.java|schedule 2");
+//			System.out.println("CppSched.java|schedule 2");
 			socket.send(new DatagramPacket((message).getBytes("US-ASCII"), (message).getBytes("US-ASCII").length, cppAddr));
-			System.out.println("CppSched.java|schedule 3");
+//			System.out.println("CppSched.java|schedule 3");
 		}
 		catch(Throwable a) {
 			Debug();
@@ -195,71 +195,67 @@ public abstract class CppSched extends SchedPolicy
 		}
 		Debug();
 
-		System.out.println("CppSched.java|schedule 4");
+//		System.out.println("CppSched.java|schedule 4");
 		HashMap<Job, ScheduledMachines> resultMap= new HashMap<Job, ScheduledMachines>();
 		
-		System.out.println("CppSched.java|schedule 5");
+//		System.out.println("CppSched.java|schedule 5");
 		String result= Receive("Results=");
 //debug
-		System.out.println(" \tCppSched.java|schedule: result = " + result );
+//		System.out.println(" \tCppSched.java|schedule: result = " + result );
 //fim debug		
 		StringTokenizer tokenizer= new StringTokenizer(result, "\r", false);
-//debug
 		String aux= tokenizer.nextToken();
-//fim debug		
 		int resultSize= Integer.parseInt(aux.substring("Results=".length() ) );
-		System.out.println("CppSched.java|schedule 6");
+//		System.out.println("CppSched.java|schedule 6");
 		for(int i=0; i < resultSize; i++){
-			System.out.println("CppSched.java|schedule 7");
+//			System.out.println("CppSched.java|schedule 7");
 			String token= tokenizer.nextToken();
 			StringTokenizer localTokenizer= new StringTokenizer(token, "\n", false);
 			String jobId= localTokenizer.nextToken();
 			String pluginInfoId= localTokenizer.nextToken();
-			System.out.println("CppSched.java|schedule 7.1");
+//			System.out.println("CppSched.java|schedule 7.1");
 			int whereToRun= Integer.parseInt(localTokenizer.nextToken());
-			System.out.println("CppSched.java|schedule 7.2");
+//			System.out.println("CppSched.java|schedule 7.2");
 			Job scheduledJob= __FindJob(jobId, jobs);
-			System.out.println("CppSched.java|schedule 7.3");
+//			System.out.println("CppSched.java|schedule 7.3");
 			PluginInfo scheduledPluginInfo= null;
 			for(Map.Entry<String, PluginInfo> entry : cloudMap.entrySet()) {
-				System.out.println("CppSched.java|schedule 8");
-//				if(entry.getValue().getId()== pluginInfoId) {
+//				System.out.println("CppSched.java|schedule 8");
 				if(entry.getValue().getId().equals(pluginInfoId) ) {
-					System.out.println("CppSched.java|schedule 9");
+//					System.out.println("CppSched.java|schedule 9");
 					scheduledPluginInfo= entry.getValue();
 					break;
 				}
 			}
 			if(1 == whereToRun) {
-				System.out.println("CppSched.java|schedule 10");
+//				System.out.println("CppSched.java|schedule 10");
 				resultMap.put(scheduledJob, new ScheduledMachines());
 				resultMap.get(scheduledJob).cpu.add(scheduledPluginInfo);
 			}else if(2 == whereToRun) {
-				System.out.println("CppSched.java|schedule 11");
+//				System.out.println("CppSched.java|schedule 11");
 				resultMap.put(scheduledJob, new ScheduledMachines());
 				resultMap.get(scheduledJob).gpu.add(scheduledPluginInfo);
 			}
 			else {
-				System.out.println("CppSched.java|schedule 12");
+//				System.out.println("CppSched.java|schedule 12");
 				
 			}
 		}
 		
 		
-		System.out.println("CppSched.java|schedule 13");
+//		System.out.println("CppSched.java|schedule 13");
 		return resultMap;
 	}
 	protected Job __FindJob(String jobId, List<Job> jobs){
-		System.out.println("CppSched.java|FindJob 1. jobId= " + jobId);
+//		System.out.println("CppSched.java|FindJob 1. jobId= " + jobId);
 		for(int i=0; i < jobs.size(); i++){
-			System.out.println("CppSched.java|FindJob 2. jobs["+i+"]= " + jobs.get(i).getId());
-//			if(jobs.get(i).getId() == jobId){
+//			System.out.println("CppSched.java|FindJob 2. jobs["+i+"]= " + jobs.get(i).getId());
 			if(jobs.get(i).getId().equals(jobId)){
-				System.out.println("CppSched.java|FindJob 3");
+//				System.out.println("CppSched.java|FindJob 3");
 				return jobs.get(i);
 			}
 		}
-		System.out.println("CppSched.java|FindJob 4");
+//		System.out.println("CppSched.java|FindJob 4");
 		throw new Error("Deu ruim");
 	}
     @Override

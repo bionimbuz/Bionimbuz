@@ -263,8 +263,13 @@ public class SchedService extends AbstractBioService implements Runnable {
 
             
      	   this.getPolicy().setCloudMap(cloudMap);
+           if (this.workflow != null) {
+               this.workflowLogger.log(new Log("Escalonamento iniciado.", this.workflow.getUserId(), this.workflow.getId(), LogSeverity.INFO));
+           }
             schedMap = this.getPolicy().schedule(this.pendingJobs);
-            LOGGER.info("[SchedService] Scheduler returned results!");
+            if (this.workflow != null) {
+                this.workflowLogger.log(new Log("Escalonamento completado.", this.workflow.getUserId(), this.workflow.getId(), LogSeverity.INFO));
+            }
 
             
             for (final Map.Entry<Job, ScheduledMachines> entry : schedMap.entrySet()) {
