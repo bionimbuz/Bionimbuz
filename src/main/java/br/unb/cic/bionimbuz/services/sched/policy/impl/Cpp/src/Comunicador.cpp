@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <chrono>
 #include <net/if.h>
 #include <netdb.h>
 #include <string.h>
@@ -246,8 +247,11 @@ void Comunicador::Schedule(void){
 	REPORT_DEBUG2_AS_ERROR(true, "token= " << ( (NULL == token)? "NULO!" : token ) << " and have size " << strlen(token) << endl);
 
 
-	
+	std::chrono::high_resolution_clock::time_point t1= std::chrono::high_resolution_clock::now();
 	std::vector<ScheduleResult> results= sched->Schedule(jobs, pluginInfos);
+	std::chrono::high_resolution_clock::time_point t2= std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> intervalo= std::chrono::duration_cast<std::chrono::duration<double>>(t2-t1);
+	REPORT_DEBUG2_AS_ERROR(true, "Tempo gasto no escalonamento C++= "<<intervalo.count()<<" segundos");
 	
 	std::string message= "Results=";
 	message= message+ std::to_string(results.size());
